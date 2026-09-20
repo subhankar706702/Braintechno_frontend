@@ -1,0 +1,26 @@
+import { Routes } from '@angular/router';
+import { adminGuard } from './core/admin.guard';
+import { authGuard } from './core/auth.guard';
+
+export const routes: Routes = [
+  { path: 'auth', loadComponent: () => import('./auth/auth-shell.component').then(m => m.AuthShellComponent), children: [
+    { path: 'login', loadComponent: () => import('./auth/login.component').then(m => m.LoginComponent) },
+    { path: 'register', loadComponent: () => import('./auth/register.component').then(m => m.RegisterComponent) },
+    { path: '', pathMatch: 'full', redirectTo: 'login' }
+  ]},
+  { path: 'c/:slug', loadComponent: () => import('./public/campaign-page.component').then(m => m.CampaignPageComponent) },
+  { path: 'template/:id/view', canActivate: [authGuard], loadComponent: () => import('./templates/template-view.component').then(m => m.TemplateViewComponent) },
+  { path: 'template/:id', canActivate: [authGuard], loadComponent: () => import('./templates/editor/template-editor/template-editor.component').then(m => m.TemplateEditorComponent) },
+  { path: 'admin', canActivate: [adminGuard], loadComponent: () => import('./admin/admin-shell.component').then(m => m.AdminShellComponent), children: [
+    { path: 'dashboard', loadComponent: () => import('./admin/admin-dashboard.component').then(m => m.AdminDashboardComponent) },
+    { path: '', pathMatch: 'full', redirectTo: 'dashboard' }
+  ]},
+  { path: 'app', canActivate: [authGuard], loadComponent: () => import('./layout/app-shell.component').then(m => m.AppShellComponent), children: [
+    { path: 'dashboard', loadComponent: () => import('./dashboard/dashboard.component').then(m => m.DashboardComponent) },
+    { path: 'templates', loadComponent: () => import('./templates/templates.component').then(m => m.TemplatesComponent) },
+    { path: 'campaigns', loadComponent: () => import('./campaigns/campaigns.component').then(m => m.CampaignsComponent) },
+    { path: '', pathMatch: 'full', redirectTo: 'dashboard' }
+  ]},
+  { path: '', pathMatch: 'full', redirectTo: 'auth/login' },
+  { path: '**', redirectTo: 'auth/login' }
+];

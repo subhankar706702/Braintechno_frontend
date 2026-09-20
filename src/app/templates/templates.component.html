@@ -1,0 +1,124 @@
+<div class="bt-page">
+  <div class="bt-page-head">
+    <div>
+      <h1>Templates</h1>
+      <p class="bt-muted">
+        Create promotional pages, invitations and campaign designs.
+      </p>
+
+      @if (accountId !== null) {
+        <p class="bt-muted">
+          Account ID: <strong>{{ accountId }}</strong>
+        </p>
+      }
+    </div>
+
+    <button
+      class="bt-btn"
+      type="button"
+      [disabled]="loading"
+      (click)="create()"
+    >
+      + Create design
+    </button>
+  </div>
+
+  @if (loadError) {
+    <div class="empty bt-card">
+      <h2>Could not load templates</h2>
+      <p>{{ loadError }}</p>
+
+      <button
+        class="bt-btn"
+        type="button"
+        [disabled]="loading"
+        (click)="refresh()"
+      >
+        Retry
+      </button>
+    </div>
+  } @else if (loading) {
+    <div class="empty bt-card">
+      <h2>Loading templates...</h2>
+      <p>Please wait.</p>
+    </div>
+  } @else if (items.length === 0) {
+    <div class="empty bt-card">
+      <h2>No data found</h2>
+      <p>No templates are available for this account.</p>
+
+      <button
+        class="bt-btn"
+        type="button"
+        [disabled]="loading"
+        (click)="create()"
+      >
+        Create design
+      </button>
+    </div>
+  } @else {
+    <div class="grid">
+      @for (item of items; track item.id) {
+        <article class="bt-card card">
+          <div class="thumb">
+            @if (previewUrl(item)) {
+              <img
+                [src]="previewUrl(item)"
+                [alt]="item.name"
+              />
+            } @else {
+              <span>BT</span>
+            }
+          </div>
+
+          <div class="body">
+            <div class="template-info">
+              <h3>{{ item.name }}</h3>
+              <p>{{ item.description || 'No description' }}</p>
+            </div>
+
+            <small>
+              Updated {{ item.updatedAt | indiaDate }}
+            </small>
+
+            <div class="actions">
+              <button
+                class="bt-btn secondary"
+                type="button"
+                (click)="view(item)"
+              >
+                View
+              </button>
+
+              <button
+                class="bt-btn"
+                type="button"
+                (click)="edit(item)"
+              >
+                Edit
+              </button>
+
+              <button
+                class="bt-btn secondary"
+                type="button"
+                [disabled]="loading"
+                (click)="duplicate(item)"
+              >
+                Duplicate
+              </button>
+
+              <button
+                class="bt-btn danger"
+                type="button"
+                [disabled]="loading"
+                (click)="remove(item)"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </article>
+      }
+    </div>
+  }
+</div>

@@ -1,0 +1,271 @@
+<div class="editor-page">
+
+  <header class="editor-topbar">
+
+    <div class="left">
+
+      <a
+        routerLink="/app/templates"
+        class="back"
+        aria-label="Back to templates"
+      >
+        ←
+      </a>
+
+      <div class="title">
+
+        <input
+          type="text"
+          [(ngModel)]="template.name"
+          (ngModelChange)="markDirty()"
+          placeholder="Template name"
+          aria-label="Template name"
+          [disabled]="loading()"
+        />
+
+        <span>
+          {{
+            dirty()
+              ? 'Unsaved changes'
+              : status()
+          }}
+        </span>
+
+      </div>
+
+    </div>
+
+
+    <div class="actions">
+
+      <input
+        #jsonFile
+        hidden
+        type="file"
+        accept=".json,application/json"
+        (change)="importJson($event)"
+      />
+
+
+      <button
+        type="button"
+        class="tool"
+        (click)="newDesign()"
+        [disabled]="
+          loading() ||
+          busy()
+        "
+      >
+        New
+      </button>
+
+
+      <button
+        type="button"
+        class="tool"
+        (click)="jsonFile.click()"
+        [disabled]="
+          loading() ||
+          busy()
+        "
+      >
+        Import JSON
+      </button>
+
+
+      <button
+        type="button"
+        class="tool"
+        (click)="preview()"
+        [disabled]="
+          loading() ||
+          busy()
+        "
+      >
+        Preview
+      </button>
+
+
+      <button
+        type="button"
+        class="tool"
+        (click)="downloadJson()"
+        [disabled]="
+          loading() ||
+          busy()
+        "
+      >
+        JSON
+      </button>
+
+
+      <button
+        type="button"
+        class="tool"
+        (click)="downloadHtml()"
+        [disabled]="
+          loading() ||
+          busy()
+        "
+      >
+        HTML
+      </button>
+
+
+      <button
+        type="button"
+        class="tool"
+        (click)="downloadJpg()"
+        [disabled]="
+          loading() ||
+          busy()
+        "
+      >
+        JPG
+      </button>
+
+
+      <button
+        type="button"
+        class="tool"
+        (click)="downloadPdf()"
+        [disabled]="
+          loading() ||
+          busy()
+        "
+      >
+        PDF
+      </button>
+
+
+      <button
+        type="button"
+        class="save"
+        (click)="save()"
+        [disabled]="
+          loading() ||
+          busy()
+        "
+      >
+        @if (busy()) {
+          Working...
+        } @else {
+          Save
+        }
+      </button>
+
+    </div>
+
+  </header>
+
+
+  <section class="meta">
+
+    <input
+      class="bt-input"
+      type="text"
+      [(ngModel)]="template.description"
+      (ngModelChange)="markDirty()"
+      placeholder="Template description (optional)"
+      [disabled]="loading()"
+    />
+
+    <span class="hint">
+
+      @if (loading()) {
+
+        Loading from MongoDB...
+
+      } @else if (loadError()) {
+
+        {{ loadError() }}
+
+      } @else if (dirty()) {
+
+        Unsaved changes
+
+      } @else {
+
+        MongoDB synced
+
+      }
+
+    </span>
+
+  </section>
+
+
+  @if (loading()) {
+
+    <section class="editor-state">
+
+      <div class="editor-state__spinner"></div>
+
+      <div>
+
+        <strong>
+          Loading template
+        </strong>
+
+        <p>
+          Connecting to the template API...
+        </p>
+
+      </div>
+
+    </section>
+
+  } @else if (loadError()) {
+
+    <section class="editor-state">
+
+      <div>
+
+        <strong>
+          Template unavailable
+        </strong>
+
+        <p>
+          {{ loadError() }}
+        </p>
+
+        <button
+          type="button"
+          class="bt-btn"
+          (click)="loadTemplate()"
+        >
+          Retry
+        </button>
+
+      </div>
+
+    </section>
+
+  } @else {
+
+    <section class="unlayer-wrapper">
+
+      <bt-unlayer-editor
+        #editor
+        [design]="template.design"
+        (ready)="onReady()"
+        (changed)="onChanged()"
+      >
+      </bt-unlayer-editor>
+
+    </section>
+
+  }
+
+</div>
+
+
+@if (showPreview()) {
+
+  <bt-htmlviewer
+    [html]="previewHtml()"
+    (closed)="closePreview()"
+  >
+  </bt-htmlviewer>
+
+}

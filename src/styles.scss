@@ -1,0 +1,48 @@
+:root {
+  --bt-bg: #f5f7fb;
+  --bt-surface: #ffffff;
+  --bt-surface-soft: #f8fafc;
+  --bt-text: #111827;
+  --bt-muted: #667085;
+  --bt-border: #e5e7eb;
+  --bt-primary: #111827;
+  --bt-primary-contrast: #ffffff;
+  --bt-success: #067647;
+  --bt-danger: #b42318;
+  --bt-warning: #b54708;
+  --bt-radius: 16px;
+  --bt-shadow: 0 12px 32px rgba(16,24,40,.08);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; background: var(--bt-bg); color: var(--bt-text); }
+body { min-width: 320px; }
+button, input, textarea, select { font: inherit; }
+button { cursor: pointer; }
+a { color: inherit; text-decoration: none; }
+.bt-btn {
+  border: 0; border-radius: 12px; min-height: 42px; padding: 0 16px; font-weight: 700;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  background: var(--bt-primary); color: var(--bt-primary-contrast);
+}
+.bt-btn.secondary { background: #fff; color: var(--bt-text); border: 1px solid var(--bt-border); }
+.bt-btn.danger { background: #fff; color: var(--bt-danger); border: 1px solid #fecdca; }
+.bt-btn:disabled { opacity: .5; cursor: not-allowed; }
+.bt-field { display: grid; gap: 7px; }
+.bt-field label { font-size: 13px; font-weight: 700; color: #344054; }
+.bt-input, .bt-textarea, .bt-select {
+  width: 100%; border: 1px solid #d0d5dd; border-radius: 12px; min-height: 44px; padding: 10px 12px;
+  background: #fff; outline: 0; color: var(--bt-text);
+}
+.bt-input:focus, .bt-textarea:focus, .bt-select:focus { border-color: #98a2b3; box-shadow: 0 0 0 3px rgba(17,24,39,.06); }
+.bt-card { background: var(--bt-surface); border: 1px solid var(--bt-border); border-radius: var(--bt-radius); box-shadow: var(--bt-shadow); }
+.bt-page { padding: 24px; max-width: 1500px; margin: 0 auto; }
+.bt-page-head { display: flex; gap: 16px; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+.bt-page-head h1 { margin: 0; font-size: 26px; }
+.bt-muted { color: var(--bt-muted); }
+.bt-error { color: var(--bt-danger); font-size: 13px; }
+.bt-success { color: var(--bt-success); font-size: 13px; }
+@media (max-width: 760px) {
+  .bt-page { padding: 16px; }
+  .bt-page-head { align-items: flex-start; flex-direction: column; }
+}

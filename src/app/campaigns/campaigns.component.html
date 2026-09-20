@@ -1,0 +1,257 @@
+<div class="bt-page">
+
+  <div class="bt-page-head">
+
+    <div>
+      <h1>Campaigns</h1>
+
+      <p class="bt-muted">
+        Publish a saved template as a public BRAIN TECHNO campaign.
+      </p>
+    </div>
+
+  </div>
+
+
+  <div class="layout">
+
+    <!-- Create Campaign -->
+    <section class="bt-card form">
+
+      <h2>Create campaign</h2>
+
+
+      <div class="bt-field">
+
+        <label for="campaignName">
+          Campaign name
+        </label>
+
+        <input
+          id="campaignName"
+          class="bt-input"
+          type="text"
+          [(ngModel)]="name"
+          placeholder="My Business Campaign"
+        />
+
+      </div>
+
+
+      <div class="bt-field">
+
+        <label for="campaignSlug">
+          Public slug
+        </label>
+
+        <input
+          id="campaignSlug"
+          class="bt-input"
+          type="text"
+          [(ngModel)]="slug"
+          placeholder="wedding-of-riya-and-rahul"
+        />
+
+        <small class="field-help">
+          This will be used in your public campaign URL.
+        </small>
+
+      </div>
+
+
+      <div class="bt-field">
+
+        <label for="campaignTemplate">
+          Template
+        </label>
+
+        @if (loadingTemplates) {
+
+          <div class="loading-text">
+            Loading templates...
+          </div>
+
+        } @else {
+
+          <select
+            id="campaignTemplate"
+            class="bt-select"
+            [(ngModel)]="templateId">
+
+            <option value="">
+              Select template
+            </option>
+
+            @for (t of templates; track t.id) {
+
+              <option [value]="t.id">
+                {{ t.name }}
+              </option>
+
+            }
+
+          </select>
+
+          @if (templates.length === 0) {
+
+            <small class="field-help warning">
+              No templates found. Create or import a template first.
+            </small>
+
+          }
+
+        }
+
+      </div>
+
+
+      <div class="bt-field">
+
+        <label for="campaignType">
+          Campaign type
+        </label>
+
+        <select
+          id="campaignType"
+          class="bt-select"
+          [(ngModel)]="type">
+
+          <option value="standard">
+            Standard promotional page
+          </option>
+
+          <option value="invitation">
+            Interactive invitation
+          </option>
+
+        </select>
+
+      </div>
+
+
+      @if (type === 'invitation') {
+
+        <div class="invitation-options">
+
+          <div class="bt-field">
+
+            <label for="coverTitle">
+              Invitation cover title
+            </label>
+
+            <input
+              id="coverTitle"
+              class="bt-input"
+              type="text"
+              [(ngModel)]="coverTitle"
+              placeholder="You're Invited"
+            />
+
+          </div>
+
+
+          <div class="bt-field">
+
+            <label for="openButtonLabel">
+              Open button
+            </label>
+
+            <input
+              id="openButtonLabel"
+              class="bt-input"
+              type="text"
+              [(ngModel)]="openButtonLabel"
+              placeholder="Wedding Details"
+            />
+
+          </div>
+
+        </div>
+
+      }
+
+
+      @if (message) {
+
+        <div
+          class="message"
+          [class.bt-error]="isError"
+          [class.bt-success]="!isError">
+
+          {{ message }}
+
+        </div>
+
+      }
+
+
+      <button
+        class="bt-btn publish-btn"
+        type="button"
+        (click)="publish()"
+        [disabled]="loading || loadingTemplates">
+
+        @if (loading) {
+          Publishing…
+        } @else {
+          Publish campaign
+        }
+
+      </button>
+
+    </section>
+
+
+    <!-- Public Page Information -->
+    <section class="bt-card help">
+
+      <h2>Public page</h2>
+
+      <p>
+        Published campaigns load at:
+      </p>
+
+      <code>
+        http://localhost:4200/c/&lt;slug&gt;
+      </code>
+
+
+      <div class="info-block">
+
+        <h3>Standard campaign</h3>
+
+        <p>
+          Creates a public promotional page using your selected template.
+        </p>
+
+      </div>
+
+
+      <div class="info-block">
+
+        <h3>Interactive invitation</h3>
+
+        <p>
+          Interactive invitation campaigns show a full-screen cover first,
+          then animate into the published design.
+        </p>
+
+      </div>
+
+
+      <div class="info-block">
+
+        <h3>Template source</h3>
+
+        <p>
+          Templates are loaded from the backend API and MongoDB.
+          They are not loaded from browser local storage.
+        </p>
+
+      </div>
+
+    </section>
+
+  </div>
+
+</div>

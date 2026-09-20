@@ -1,0 +1,139 @@
+.layout {
+  display: grid;
+  grid-template-columns: minmax(360px, 620px) 1fr;
+  gap: 18px;
+  align-items: start;
+}
+
+.form,
+.help {
+  padding: 22px;
+}
+
+.form {
+  display: grid;
+  gap: 16px;
+}
+
+.form h2,
+.help h2 {
+  margin: 0;
+}
+
+.bt-field {
+  display: grid;
+  gap: 7px;
+}
+
+.bt-field label {
+  font-weight: 600;
+}
+
+.field-help {
+  color: #667085;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.field-help.warning {
+  color: #b54708;
+}
+
+.loading-text {
+  padding: 12px 14px;
+  border: 1px solid #d0d5dd;
+  border-radius: 8px;
+  color: #667085;
+  background: #f9fafb;
+}
+
+.help p {
+  color: #667085;
+  line-height: 1.6;
+}
+
+.help code {
+  display: block;
+  background: #101828;
+  color: #fff;
+  padding: 12px;
+  border-radius: 10px;
+  overflow: auto;
+  word-break: break-all;
+}
+
+.info-block {
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid #eaecf0;
+}
+
+.info-block h3 {
+  margin: 0 0 6px;
+  font-size: 15px;
+}
+
+.info-block p {
+  margin: 0;
+}
+
+.invitation-options {
+  display: grid;
+  gap: 16px;
+  padding: 16px;
+  border: 1px solid #eaecf0;
+  border-radius: 12px;
+  background: #f9fafb;
+}
+
+.message {
+  padding: 12px 14px;
+  border-radius: 8px;
+  line-height: 1.5;
+}
+
+.publish-btn {
+  width: fit-content;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+
+@media (max-width: 900px) {
+
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+}
+
+
+@media (max-width: 600px) {
+
+  .form,
+  .help {
+    padding: 18px;
+  }
+
+  .publish-btn {
+    width: 100%;
+  }
+
+}
+
+
+@media (max-width: 420px) {
+
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .form,
+  .help {
+    padding: 15px;
+  }
+
+}

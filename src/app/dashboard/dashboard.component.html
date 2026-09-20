@@ -1,0 +1,176 @@
+<div class="bt-page dashboard-page">
+
+    <div class="bt-page-head dashboard-header">
+
+        <div class="dashboard-header__content">
+
+            <p class="dashboard-header__eyebrow">
+                Workspace
+            </p>
+
+            <h1>
+                Dashboard
+            </h1>
+
+            <p class="bt-muted">
+                Manage your BRAIN TECHNO templates,
+                pages and campaigns.
+            </p>
+
+        </div>
+
+        <a class="bt-btn" routerLink="/app/templates">
+            Open Template Editor
+        </a>
+
+    </div>
+
+    <section class="stats">
+
+        <article class="bt-card stat">
+
+            <div class="stat__label">
+                Templates in MongoDB
+            </div>
+
+            <div class="stat__value">
+
+                @if (loading) {
+
+                <span class="stat__loading">
+                    Loading...
+                </span>
+
+                } @else {
+
+                <strong>
+                    {{ templateCount }}
+                </strong>
+
+                }
+
+            </div>
+
+            <p>
+                Saved templates in your current account.
+            </p>
+
+        </article>
+
+        <article class="bt-card stat">
+
+            <div class="stat__label">
+                Editor status
+            </div>
+
+            <div class="stat__value">
+                <strong class="stat__status">
+                    Ready
+                </strong>
+            </div>
+
+            <p>
+                Template editor is available.
+            </p>
+
+        </article>
+
+        <article class="bt-card stat">
+
+            <div class="stat__label">
+                Backend
+            </div>
+
+            <div class="stat__value">
+                <strong class="stat__status">
+                    API + MongoDB
+                </strong>
+            </div>
+
+            <p>
+                Templates are stored through the backend API.
+            </p>
+
+        </article>
+
+    </section>
+
+    <section class="bt-card intro">
+
+        <div class="intro__content">
+
+            <p class="intro__eyebrow">
+                Current workspace
+            </p>
+
+            <h2>
+                Template publishing workflow
+            </h2>
+
+            <p>
+                Templates are stored through the backend API in MongoDB.
+                Saving a template also keeps its page record synchronized
+                for the public-page workflow.
+            </p>
+
+        </div>
+
+        <div class="flow">
+
+            <div class="flow__item">
+                <span class="flow__step">
+                    1
+                </span>
+
+                <strong>
+                    Template
+                </strong>
+            </div>
+
+            <span class="flow__arrow">
+                →
+            </span>
+
+            <div class="flow__item">
+                <span class="flow__step">
+                    2
+                </span>
+
+                <strong>
+                    Page
+                </strong>
+            </div>
+
+            <span class="flow__arrow">
+                →
+            </span>
+
+            <div class="flow__item">
+                <span class="flow__step">
+                    3
+                </span>
+
+                <strong>
+                    Campaign
+                </strong>
+            </div>
+
+            <span class="flow__arrow">
+                →
+            </span>
+
+            <div class="flow__item">
+                <span class="flow__step">
+                    4
+                </span>
+
+                <strong>
+                    /c/:slug
+                </strong>
+            </div>
+
+        </div>
+
+    </section>
+
+</div>

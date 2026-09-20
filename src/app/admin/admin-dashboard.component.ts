@@ -3,7 +3,6 @@ import { forkJoin } from 'rxjs';
 import { TemplateApiService } from '../core/template-api.service';
 import { AdminSummary, Campaign, TemplateDraft } from '../core/models';
 import { IndiaDatePipe } from '../shared/india-date.pipe';
-
 interface BusinessRow { id?: string; name?: string; slug?: string; status?: string; updatedAt?: string; }
 interface UserRow { id?: string; name?: string; email?: string; role?: string; updatedAt?: string; }
 
@@ -39,7 +38,8 @@ export class AdminDashboardComponent implements OnInit {
   constructor(private api: TemplateApiService) {}
   ngOnInit(): void { this.load(); }
   statCards(): { label: string; value: number }[] { return [
-    {label:'Businesses',value:this.summary.businesses},{label:'Users',value:this.summary.users},{label:'Templates',value:this.summary.templates},{label:'Pages',value:this.summary.pages},{label:'Campaigns',value:this.summary.campaigns},{label:'Interactions',value:this.summary.interactions}
+    {label:'Businesses',value:this.summary.businesses},
+    {label:'Users',value:this.summary.users},{label:'Templates',value:this.summary.templates},{label:'Pages',value:this.summary.pages},{label:'Campaigns',value:this.summary.campaigns},{label:'Interactions',value:this.summary.interactions}
   ]; }
   load(): void {
     if (this.loading) return;

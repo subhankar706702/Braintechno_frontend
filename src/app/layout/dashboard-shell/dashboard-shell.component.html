@@ -1,27 +1,14 @@
 <div class="shell">
 
   @if (mobileMenuOpen) {
-    <button
-      type="button"
-      class="mobile-backdrop"
-      aria-label="Close menu"
-      (click)="closeMobileMenu()"
-    ></button>
+  <button type="button" class="mobile-backdrop" aria-label="Close menu" (click)="closeMobileMenu()"></button>
   }
 
-  <aside
-    class="sidebar"
-    [class.sidebar--open]="mobileMenuOpen"
-  >
+  <aside class="sidebar" [class.sidebar--open]="mobileMenuOpen">
 
     <div class="sidebar__brand">
 
-      <img
-        class="sidebar__brand-logo"
-        [src]="businessLogo"
-        [alt]="businessName"
-        (error)="onLogoError($event)"
-      />
+      <img class="sidebar__brand-logo" [src]="businessLogo" [alt]="businessName" (error)="onLogoError($event)" />
 
       <div class="sidebar__brand-copy">
 
@@ -30,17 +17,12 @@
         </strong>
 
         <span>
-          Business workspace
+          {{businessTagName}}
         </span>
 
       </div>
 
-      <button
-        type="button"
-        class="sidebar__close"
-        aria-label="Close menu"
-        (click)="closeMobileMenu()"
-      >
+      <button type="button" class="sidebar__close" aria-label="Close menu" (click)="closeMobileMenu()">
         <mat-icon>
           close
         </mat-icon>
@@ -52,28 +34,23 @@
     <nav class="sidebar-nav">
 
       @for (
-        item of sidebarItems;
-        track item.route
+      item of sidebarItems;
+      track item.route
       ) {
 
-        <button
-          type="button"
-          class="sidebar-nav__item"
-          [class.sidebar-nav__item--active]="
+      <button type="button" class="sidebar-nav__item" [class.sidebar-nav__item--active]="
             isActive(item.route)
-          "
-          (click)="openPage(item.route)"
-        >
+          " (click)="openPage(item.route)">
 
-          <mat-icon>
-            {{ item.icon }}
-          </mat-icon>
+        <mat-icon>
+          {{ item.icon }}
+        </mat-icon>
 
-          <span>
-            {{ item.label }}
-          </span>
+        <span>
+          {{ item.label }}
+        </span>
 
-        </button>
+      </button>
 
       }
 
@@ -108,23 +85,26 @@
 
       <div class="topbar__mobile-left">
 
-        <button
-          type="button"
-          class="mobile-menu-button"
-          aria-label="Open menu"
-          (click)="toggleMobileMenu()"
-        >
+        <button type="button" class="mobile-menu-button" aria-label="Open menu" (click)="toggleMobileMenu()">
           <span>
-            menu
+            <mat-icon>menu</mat-icon>
           </span>
         </button>
 
-        <img
-          class="topbar__mobile-logo"
-          [src]="businessLogo"
-          [alt]="businessName"
-          (error)="onLogoError($event)"
-        />
+        <img class="topbar__mobile-logo" [src]="businessLogo" [alt]="businessName" (error)="onLogoError($event)" />
+
+
+        <div class="sidebar__brand-copy">
+
+          <strong>
+            {{ businessName }}
+          </strong>
+
+          <span>
+            {{businessTagName}}
+          </span>
+
+        </div>
 
       </div>
 
@@ -134,12 +114,7 @@
 
       <div class="topbar__actions">
 
-        <button
-          type="button"
-          class="topbar-icon-button"
-          aria-label="Notifications"
-          title="Notifications"
-        >
+        <button type="button" class="topbar-icon-button" aria-label="Notifications" title="Notifications">
           <mat-icon>
             notifications_none
           </mat-icon>
@@ -147,12 +122,7 @@
 
         <div class="topbar-business">
 
-          <img
-            class="topbar-business__logo"
-            [src]="businessLogo"
-            [alt]="businessName"
-            (error)="onLogoError($event)"
-          />
+          <img class="topbar-business__logo" [src]="businessLogo" [alt]="businessName" (error)="onLogoError($event)" />
 
           <span class="topbar-business__name">
             {{ businessName }}

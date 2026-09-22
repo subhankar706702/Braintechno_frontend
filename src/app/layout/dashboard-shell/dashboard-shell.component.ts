@@ -36,7 +36,7 @@ export class DashboardShellComponent {
     },
     {
       label: 'Templates',
-      icon: 'dashboard_customize',
+      icon: 'book_4',
       route: '/app/templates',
     },
     {
@@ -44,7 +44,27 @@ export class DashboardShellComponent {
       icon: 'campaign',
       route: '/app/campaigns',
     },
+    {
+      label: 'customers',
+      icon: 'contacts_product',
+      route: '/app/customers',
+    },
+    {
+      label: 'Messages',
+      icon: 'chat',
+      route: '/app/messages',
+    },
+    {
+      label: 'Social',
+      icon: 'travel_explore',
+      route: '/app/social',
+    },
      {
+      label: 'Analytics',
+      icon: 'query_stats',
+      route: '/app/analytics',
+    },
+    {
       label: 'Settings',
       icon: 'settings',
       route: '/app/settings',
@@ -62,17 +82,25 @@ export class DashboardShellComponent {
   ) { }
 
   get businessName(): string {
+  const user = this.auth.user() as any;
+
+  const name = String(
+    user?.businessName ||
+    user?.name ||
+    'BRAIN TECHNO'
+  ).trim();
+  return name.length > 15 ? name.substring(0, 15) + '...' : name;
+}
+
+  get businessTagName(): string {
     const user = this.auth.user() as any;
 
-    return String(
-      user?.business_name ||
-      user?.businessName ||
-      user?.business?.name ||
-      user?.company_name ||
-      user?.companyName ||
-      user?.name ||
-      'BRAIN TECHNO'
+    const tagName = String(
+      user?.businessTagName ||
+      'Business workspace'
     ).trim();
+    return tagName.length > 25 ? tagName.substring(0, 25) + '...' : tagName;
+
   }
 
   get businessLogo(): string {

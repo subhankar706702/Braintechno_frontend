@@ -10,6 +10,8 @@ import {
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { MATERIAL_ICON_CATEGORIES, MATERIAL_ICON_LIST } from './material-icon-list';
 
 interface EditorBlock {
   id: string;
@@ -53,9 +55,27 @@ export class UnlayerEditorComponent implements OnChanges, OnDestroy {
   @Output() readonly ready = new EventEmitter<void>();
   @Output() readonly changed = new EventEmitter<void>();
 
+  constructor(private readonly sanitizer: DomSanitizer) {}
+
+  readonly materialIconCategories = MATERIAL_ICON_CATEGORIES;
+  readonly materialIconList = MATERIAL_ICON_LIST;
+
   readonly elements = [
     { type: 'section', label: 'Section', icon: 'view_quilt' },
     { type: 'block', label: 'Block', icon: 'dashboard_customize' },
+    { type: 'navbar', label: 'Navbar', icon: 'web_asset' },
+    { type: 'hero', label: 'Hero', icon: 'view_day' },
+    { type: 'services', label: 'Services', icon: 'grid_view' },
+    { type: 'testimonial', label: 'Testimonial', icon: 'reviews' },
+    { type: 'pricing', label: 'Pricing', icon: 'price_change' },
+    { type: 'faq', label: 'FAQ', icon: 'quiz' },
+    { type: 'stats', label: 'Stats', icon: 'monitoring' },
+    { type: 'tabs', label: 'Tabs', icon: 'tab' },
+    { type: 'timeline', label: 'Timeline', icon: 'timeline' },
+    { type: 'team', label: 'Team', icon: 'groups' },
+    { type: 'footer', label: 'Footer', icon: 'bottom_navigation' },
+    { type: 'popup', label: 'Popup', icon: 'open_in_new' },
+    { type: 'floating', label: 'Floating Action', icon: 'touch_app' },
     { type: 'heading', label: 'Heading', icon: 'title' },
     { type: 'text', label: 'Text', icon: 'notes' },
     { type: 'link', label: 'Link URL', icon: 'link' },
@@ -371,6 +391,133 @@ export class UnlayerEditorComponent implements OnChanges, OnDestroy {
       { key: 'downloads', label: 'Downloads', description: 'Download-focused files section', preview: 'Down' },
       { key: 'portfolio', label: 'Portfolio Media', description: 'Creative asset presentation', preview: 'Work' }
     ],
+
+    navbar: [
+      { key: 'simple', label: 'Simple Navbar', description: 'Logo, links and CTA', preview: 'Nav' },
+      { key: 'centered', label: 'Centered Menu', description: 'Centered navigation links', preview: 'Center' },
+      { key: 'minimal', label: 'Minimal', description: 'Clean logo and menu', preview: 'Min' },
+      { key: 'dark', label: 'Dark Navbar', description: 'Dark navigation bar', preview: 'Dark' },
+      { key: 'sticky', label: 'Sticky Navbar', description: 'Sticky page navigation', preview: 'Stick' },
+      { key: 'cta', label: 'CTA Navbar', description: 'Strong action button', preview: 'CTA' },
+      { key: 'shop', label: 'Shop Navbar', description: 'Store oriented menu', preview: 'Shop' },
+      { key: 'compact', label: 'Compact Navbar', description: 'Space-saving header', preview: 'Small' }
+    ],
+    hero: [
+      { key: 'centered', label: 'Centered Hero', description: 'Centered title, text and CTA', preview: 'Hero' },
+      { key: 'split', label: 'Split Hero', description: 'Text and visual side by side', preview: 'Split' },
+      { key: 'image', label: 'Image Hero', description: 'Large gray image placeholder', preview: 'Image' },
+      { key: 'gradient', label: 'Gradient Hero', description: 'Gradient marketing hero', preview: 'Grad' },
+      { key: 'dark', label: 'Dark Hero', description: 'Dark high-contrast hero', preview: 'Dark' },
+      { key: 'offer', label: 'Offer Hero', description: 'Promotion and CTA hero', preview: 'Sale' },
+      { key: 'minimal', label: 'Minimal Hero', description: 'Simple clean hero', preview: 'Min' },
+      { key: 'app', label: 'App Hero', description: 'Product/app launch hero', preview: 'App' }
+    ],
+    services: [
+      { key: 'three', label: '3 Services', description: 'Three equal service cards', preview: '3' },
+      { key: 'four', label: '4 Services', description: 'Four compact services', preview: '4' },
+      { key: 'icons', label: 'Icon Services', description: 'Icon-led service cards', preview: 'Icon' },
+      { key: 'minimal', label: 'Minimal List', description: 'Clean service list', preview: 'List' },
+      { key: 'dark', label: 'Dark Services', description: 'Dark service grid', preview: 'Dark' },
+      { key: 'numbers', label: 'Numbered Services', description: 'Numbered process-like services', preview: '01' },
+      { key: 'two', label: '2 Services', description: 'Two wider service cards', preview: '2' },
+      { key: 'soft', label: 'Soft Cards', description: 'Soft background service cards', preview: 'Soft' }
+    ],
+    testimonial: [
+      { key: 'single', label: 'Single Review', description: 'Focused testimonial card', preview: '1' },
+      { key: 'three', label: '3 Reviews', description: 'Three review cards', preview: '3' },
+      { key: 'quote', label: 'Quote Review', description: 'Large quote layout', preview: 'Quote' },
+      { key: 'rating', label: 'Rating Review', description: 'Stars and customer review', preview: '5★' },
+      { key: 'dark', label: 'Dark Review', description: 'Dark testimonial section', preview: 'Dark' },
+      { key: 'minimal', label: 'Minimal Review', description: 'Simple text review', preview: 'Min' },
+      { key: 'profile', label: 'Profile Review', description: 'Avatar placeholder and review', preview: 'User' },
+      { key: 'featured', label: 'Featured Review', description: 'Prominent highlighted quote', preview: 'Best' }
+    ],
+    pricing: [
+      { key: 'three', label: '3 Plans', description: 'Three pricing cards', preview: '3' },
+      { key: 'featured', label: 'Featured Plan', description: 'Highlight middle plan', preview: 'Best' },
+      { key: 'single', label: 'Single Plan', description: 'One focused pricing card', preview: '1' },
+      { key: 'two', label: '2 Plans', description: 'Two comparison plans', preview: '2' },
+      { key: 'dark', label: 'Dark Pricing', description: 'Dark pricing cards', preview: 'Dark' },
+      { key: 'minimal', label: 'Minimal Pricing', description: 'Low-chrome pricing layout', preview: 'Min' },
+      { key: 'monthly', label: 'Monthly Plans', description: 'Monthly pricing labels', preview: '/mo' },
+      { key: 'service', label: 'Service Pricing', description: 'Service/package pricing', preview: 'Svc' }
+    ],
+    faq: [
+      { key: 'accordion', label: 'Accordion FAQ', description: 'Expandable FAQ list', preview: 'FAQ' },
+      { key: 'cards', label: 'FAQ Cards', description: 'Questions in cards', preview: 'Cards' },
+      { key: 'two-column', label: '2 Column FAQ', description: 'Two-column questions', preview: '2 Col' },
+      { key: 'minimal', label: 'Minimal FAQ', description: 'Simple question list', preview: 'Min' },
+      { key: 'dark', label: 'Dark FAQ', description: 'Dark FAQ section', preview: 'Dark' },
+      { key: 'support', label: 'Support FAQ', description: 'Support-oriented questions', preview: 'Help' },
+      { key: 'product', label: 'Product FAQ', description: 'Product-related questions', preview: 'Prod' },
+      { key: 'service', label: 'Service FAQ', description: 'Service-related questions', preview: 'Svc' }
+    ],
+    stats: [
+      { key: 'four', label: '4 Stats', description: 'Four business metrics', preview: '4' },
+      { key: 'three', label: '3 Stats', description: 'Three large metrics', preview: '3' },
+      { key: 'cards', label: 'Stat Cards', description: 'Metrics inside cards', preview: 'Card' },
+      { key: 'dark', label: 'Dark Stats', description: 'Dark metric strip', preview: 'Dark' },
+      { key: 'minimal', label: 'Minimal Stats', description: 'Simple numeric metrics', preview: 'Min' },
+      { key: 'accent', label: 'Accent Stats', description: 'Brand-accent numbers', preview: 'Pink' },
+      { key: 'percent', label: 'Percent Stats', description: 'Percentage metrics', preview: '%' },
+      { key: 'business', label: 'Business Stats', description: 'Clients, projects and years', preview: 'Biz' }
+    ],
+    tabs: [
+      { key: 'simple', label: 'Simple Tabs', description: 'Three simple tabs', preview: 'Tabs' },
+      { key: 'pills', label: 'Pill Tabs', description: 'Rounded pill navigation', preview: 'Pill' },
+      { key: 'underline', label: 'Underline Tabs', description: 'Underline active tab', preview: 'Line' },
+      { key: 'cards', label: 'Card Tabs', description: 'Tabs in card container', preview: 'Card' },
+      { key: 'dark', label: 'Dark Tabs', description: 'Dark tab section', preview: 'Dark' },
+      { key: 'services', label: 'Service Tabs', description: 'Tabbed service content', preview: 'Svc' },
+      { key: 'features', label: 'Feature Tabs', description: 'Tabbed product features', preview: 'Feat' },
+      { key: 'compact', label: 'Compact Tabs', description: 'Small compact tabs', preview: 'Small' }
+    ],
+    timeline: [
+      { key: 'steps', label: 'Steps', description: 'Numbered process steps', preview: '1-2-3' },
+      { key: 'vertical', label: 'Vertical Timeline', description: 'Vertical milestone list', preview: 'Vert' },
+      { key: 'horizontal', label: 'Horizontal Steps', description: 'Horizontal process', preview: 'Horiz' },
+      { key: 'cards', label: 'Step Cards', description: 'Steps shown as cards', preview: 'Cards' },
+      { key: 'dark', label: 'Dark Timeline', description: 'Dark process section', preview: 'Dark' },
+      { key: 'minimal', label: 'Minimal Steps', description: 'Clean lightweight steps', preview: 'Min' },
+      { key: 'process', label: 'Work Process', description: 'Business process layout', preview: 'Work' },
+      { key: 'roadmap', label: 'Roadmap', description: 'Roadmap milestone layout', preview: 'Road' }
+    ],
+    team: [
+      { key: 'three', label: '3 Members', description: 'Three team profile cards', preview: '3' },
+      { key: 'four', label: '4 Members', description: 'Four compact profiles', preview: '4' },
+      { key: 'minimal', label: 'Minimal Team', description: 'Simple names and roles', preview: 'Min' },
+      { key: 'social', label: 'Team + Social', description: 'Profiles with social links', preview: 'Share' },
+      { key: 'dark', label: 'Dark Team', description: 'Dark profile cards', preview: 'Dark' },
+      { key: 'leadership', label: 'Leadership', description: 'Leadership profile layout', preview: 'Lead' },
+      { key: 'two', label: '2 Members', description: 'Two wide profiles', preview: '2' },
+      { key: 'grid', label: 'Team Grid', description: 'Compact people grid', preview: 'Grid' }
+    ],
+    footer: [
+      { key: 'simple', label: 'Simple Footer', description: 'Brand and copyright', preview: 'Foot' },
+      { key: 'columns', label: '4 Column Footer', description: 'Links and contact columns', preview: '4 Col' },
+      { key: 'dark', label: 'Dark Footer', description: 'Dark site footer', preview: 'Dark' },
+      { key: 'newsletter', label: 'Newsletter Footer', description: 'Email signup and links', preview: 'Mail' },
+      { key: 'contact', label: 'Contact Footer', description: 'Contact details and links', preview: 'Contact' },
+      { key: 'minimal', label: 'Minimal Footer', description: 'Compact minimal footer', preview: 'Min' },
+      { key: 'social', label: 'Social Footer', description: 'Social links focused footer', preview: 'Share' },
+      { key: 'business', label: 'Business Footer', description: 'Business info and navigation', preview: 'Biz' }
+    ],
+    popup: [
+      { key: 'offer', label: 'Offer Popup', description: 'Promotion popup preview', preview: 'Sale' },
+      { key: 'lead', label: 'Lead Popup', description: 'Lead capture popup', preview: 'Lead' },
+      { key: 'newsletter', label: 'Newsletter Popup', description: 'Email signup popup', preview: 'Mail' },
+      { key: 'notice', label: 'Notice Popup', description: 'Announcement popup', preview: 'Info' },
+      { key: 'dark', label: 'Dark Popup', description: 'Dark modal design', preview: 'Dark' },
+      { key: 'minimal', label: 'Minimal Popup', description: 'Simple modal card', preview: 'Min' }
+    ],
+    floating: [
+      { key: 'whatsapp', label: 'WhatsApp', description: 'Floating WhatsApp action', preview: 'WA' },
+      { key: 'call', label: 'Call', description: 'Floating call action', preview: 'Call' },
+      { key: 'email', label: 'Email', description: 'Floating email action', preview: 'Mail' },
+      { key: 'book', label: 'Book Now', description: 'Floating booking action', preview: 'Book' },
+      { key: 'multi', label: 'Multi Action', description: 'Multiple floating contacts', preview: 'Multi' },
+      { key: 'top', label: 'Back to Top', description: 'Floating back-to-top button', preview: 'Top' }
+    ],
     divider: [
       { key: 'line', label: 'Line', description: 'Simple divider line', preview: 'Line' },
       { key: 'accent', label: 'Accent', description: 'Brand color divider', preview: 'Pink' },
@@ -405,6 +552,7 @@ export class UnlayerEditorComponent implements OnChanges, OnDestroy {
   activePresetType = '';
   presetExpanded = false;
   elementSearch = '';
+  elementMenuType = '';
   readonly pinnedElementTypes = new Set<string>(this.readPinnedElements());
   initialized = false;
 
@@ -489,11 +637,45 @@ export class UnlayerEditorComponent implements OnChanges, OnDestroy {
     this.savePinnedElements();
   }
 
+  toggleElementMenu(type: string, event: Event): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.elementMenuType = this.elementMenuType === type ? '' : type;
+  }
+
+  closeElementMenu(): void {
+    this.elementMenuType = '';
+  }
+
+  openElementStylesFromMenu(type: string, event: Event): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.elementMenuType = '';
+    this.onElementClick(type);
+  }
+
+  addDefaultElementFromMenu(type: string, event: Event): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.elementMenuType = '';
+    const preset = this.defaultPreset(type);
+    if (type === 'template') {
+      this.insertTemplatePreset(preset);
+      return;
+    }
+    if (type === 'ecommerce') {
+      this.insertEcommercePreset(preset);
+      return;
+    }
+    this.addElement(type, undefined, preset);
+  }
+
   clearElementSearch(): void {
     this.elementSearch = '';
   }
 
   onElementClick(type: string): void {
+    this.elementMenuType = '';
     if (!this.hasPresets(type)) {
       this.addElement(type);
       return;
@@ -598,6 +780,7 @@ export class UnlayerEditorComponent implements OnChanges, OnDestroy {
 
   clearSelection(event?: Event): void {
     event?.stopPropagation();
+    this.elementMenuType = '';
     this.selectedId = '';
     this.clearNestedSelection();
   }
@@ -1269,6 +1452,52 @@ export class UnlayerEditorComponent implements OnChanges, OnDestroy {
       case 'media': {
         return { ...base, content: { variant, title: 'Your Media', files: [] as MediaItem[] }, style: { ...base.style, background: '#FFFFFF', radius: 16, padding: 18 } };
       }
+
+      case 'navbar': {
+        return { ...base, content: { variant, brand: 'BRAIN TECHNO', links: 'Home, Services, About, Contact', cta: 'Get Started', ctaUrl: '#' }, style: { ...base.style, background: variant === 'dark' ? '#0F172A' : '#FFFFFF', color: variant === 'dark' ? '#FFFFFF' : '#0F172A', padding: variant === 'compact' ? 12 : 18, radius: 0 } };
+      }
+      case 'hero': {
+        return { ...base, content: { variant, eyebrow: 'WELCOME', title: 'Build a stronger online presence', text: 'Use this section to explain your value clearly and guide visitors to the next action.', primary: 'Get Started', primaryUrl: '#', secondary: 'Learn More', secondaryUrl: '#', image: '' }, style: { ...base.style, background: variant === 'dark' ? '#0F172A' : '#FFFFFF', color: variant === 'dark' ? '#FFFFFF' : '#0F172A', padding: 48, radius: 18, align: variant === 'centered' ? 'center' : 'left', gradientFrom: '#FFF1F4', gradientTo: '#EEF2FF', backgroundType: variant === 'gradient' ? 'gradient' : 'color' } };
+      }
+      case 'services': {
+        const count = variant === 'four' ? 4 : variant === 'two' ? 2 : 3;
+        return { ...base, content: { variant, title: 'Our Services', items: Array.from({ length: count }, (_, i) => ({ icon: ['design_services','campaign','support_agent','bolt'][i % 4], title: `Service ${i+1}`, text: 'Add a short description of this service.' })) }, style: { ...base.style, background: variant === 'dark' ? '#0F172A' : '#FFFFFF', color: variant === 'dark' ? '#FFFFFF' : '#0F172A', columns: count, gap: 12, radius: 16 } };
+      }
+      case 'testimonial': {
+        const count = variant === 'three' ? 3 : 1;
+        return { ...base, content: { variant, title: 'What customers say', items: Array.from({ length: count }, (_, i) => ({ name: `Customer ${i+1}`, role: 'Verified customer', rating: 5, quote: 'A great experience from start to finish. Add your customer review here.' })) }, style: { ...base.style, background: variant === 'dark' ? '#0F172A' : '#FFFFFF', color: variant === 'dark' ? '#FFFFFF' : '#0F172A', columns: count, gap: 12, radius: 16 } };
+      }
+      case 'pricing': {
+        const count = variant === 'single' ? 1 : variant === 'two' ? 2 : 3;
+        return { ...base, content: { variant, title: 'Simple pricing', plans: Array.from({ length: count }, (_, i) => ({ name: ['Starter','Business','Premium'][i] || `Plan ${i+1}`, price: ['₹999','₹1,999','₹3,999'][i] || '₹999', period: '/month', features: 'Feature one\nFeature two\nFeature three', cta: 'Choose Plan' })) }, style: { ...base.style, background: variant === 'dark' ? '#0F172A' : '#FFFFFF', color: variant === 'dark' ? '#FFFFFF' : '#0F172A', columns: count, gap: 12, radius: 16 } };
+      }
+      case 'faq': {
+        return { ...base, content: { variant, title: 'Frequently asked questions', items: [ { q: 'What do you offer?', a: 'Add your answer here.' }, { q: 'How does it work?', a: 'Explain the process clearly.' }, { q: 'How can I contact you?', a: 'Add your contact guidance here.' } ] }, style: { ...base.style, background: variant === 'dark' ? '#0F172A' : '#FFFFFF', color: variant === 'dark' ? '#FFFFFF' : '#0F172A', radius: 16 } };
+      }
+      case 'stats': {
+        const count = variant === 'three' ? 3 : 4;
+        return { ...base, content: { variant, title: 'Our impact', items: Array.from({ length: count }, (_, i) => ({ value: ['100+','98%','10+','24/7'][i] || '100+', label: ['Projects','Satisfaction','Years','Support'][i] || `Metric ${i+1}` })) }, style: { ...base.style, background: variant === 'dark' ? '#0F172A' : '#FFFFFF', color: variant === 'dark' ? '#FFFFFF' : '#0F172A', columns: count, gap: 12, radius: 16, accent: '#FF4D6D' } };
+      }
+      case 'tabs': {
+        return { ...base, content: { variant, active: 0, items: [ { title: 'Overview', text: 'Add overview content here.' }, { title: 'Features', text: 'Add feature details here.' }, { title: 'Details', text: 'Add detailed content here.' } ] }, style: { ...base.style, background: variant === 'dark' ? '#0F172A' : '#FFFFFF', color: variant === 'dark' ? '#FFFFFF' : '#0F172A', radius: 16, accent: '#FF4D6D' } };
+      }
+      case 'timeline': {
+        return { ...base, content: { variant, title: 'How it works', items: [ { title: 'Discover', text: 'Tell us what you need.' }, { title: 'Plan', text: 'We prepare the right approach.' }, { title: 'Deliver', text: 'Launch and improve.' } ] }, style: { ...base.style, background: variant === 'dark' ? '#0F172A' : '#FFFFFF', color: variant === 'dark' ? '#FFFFFF' : '#0F172A', radius: 16, accent: '#FF4D6D' } };
+      }
+      case 'team': {
+        const count = variant === 'four' ? 4 : variant === 'two' ? 2 : 3;
+        return { ...base, content: { variant, title: 'Meet the team', items: Array.from({ length: count }, (_, i) => ({ name: `Team Member ${i+1}`, role: ['Founder','Designer','Specialist','Support'][i] || 'Team', image: '' })) }, style: { ...base.style, background: variant === 'dark' ? '#0F172A' : '#FFFFFF', color: variant === 'dark' ? '#FFFFFF' : '#0F172A', columns: count, gap: 12, radius: 16 } };
+      }
+      case 'footer': {
+        return { ...base, content: { variant, brand: 'BRAIN TECHNO', text: 'Technology made simple.', links: 'About, Services, Contact, Privacy', phone: '+91 99999 99999', email: 'hello@example.com', copyright: '© 2026 BRAIN TECHNO. All rights reserved.' }, style: { ...base.style, background: variant === 'dark' || variant === 'business' ? '#0F172A' : '#F8FAFC', color: variant === 'dark' || variant === 'business' ? '#FFFFFF' : '#0F172A', padding: 32, radius: 0 } };
+      }
+      case 'popup': {
+        return { ...base, content: { variant, title: variant === 'offer' ? 'Special offer' : 'Stay in the loop', text: 'Add your popup message here.', cta: variant === 'newsletter' ? 'Subscribe' : 'Continue', url: '#' }, style: { ...base.style, background: variant === 'dark' ? '#0F172A' : '#FFFFFF', color: variant === 'dark' ? '#FFFFFF' : '#0F172A', radius: 18, padding: 24 } };
+      }
+      case 'floating': {
+        const icon = variant === 'call' ? 'call' : variant === 'email' ? 'mail' : variant === 'top' ? 'arrow_upward' : variant === 'book' ? 'calendar_month' : 'chat';
+        return { ...base, content: { variant, label: variant === 'top' ? 'Back to top' : variant === 'call' ? 'Call now' : variant === 'email' ? 'Email us' : variant === 'book' ? 'Book now' : 'WhatsApp', url: variant === 'call' ? 'tel:+919999999999' : variant === 'email' ? 'mailto:hello@example.com' : '#', icon }, style: { ...base.style, background: '#FF4D6D', color: '#FFFFFF', radius: 999, padding: 12, align: 'right' } };
+      }
       case 'divider': {
         const map: Record<string, any> = {
           line: { borderColor: '#E2E8F0', borderWidth: 1, borderStyle: 'solid' },
@@ -1307,7 +1536,13 @@ export class UnlayerEditorComponent implements OnChanges, OnDestroy {
       color: '#0F172A',
       fontSize: 16,
       fontWeight: 400,
-      radius: 0
+      radius: 0,
+      marginTop: 0,
+      marginBottom: 0,
+      borderWidth: 0,
+      borderColor: '#E2E8F0',
+      borderStyle: 'solid',
+      shadow: 'none'
     };
   }
 
@@ -1550,6 +1785,10 @@ export class UnlayerEditorComponent implements OnChanges, OnDestroy {
     return { ...block, content: { ...block.content, ...content } };
   }
 
+  previewBlockHtml(block: EditorBlock): SafeHtml {
+    return this.sanitizer.bypassSecurityTrustHtml(this.renderBlock(block));
+  }
+
   private buildDesign(): EditorDesign {
     return {
       schemaVersion: 100,
@@ -1565,13 +1804,13 @@ export class UnlayerEditorComponent implements OnChanges, OnDestroy {
     const pageBg = design.body.values.backgroundColor || '#F5F7FA';
     const width = design.body.values.contentWidth || '760px';
     const sections = design.body.rows.map(block => this.renderBlock(block)).join('');
-    return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>BRAIN TECHNO</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400,0,0" rel="stylesheet"><style>html,body{margin:0;padding:0;background:${this.attr(pageBg)};font-family:Inter,'Noto Sans Bengali',Arial,sans-serif;color:#0F172A}*{box-sizing:border-box}.bt-page{width:100%;padding:24px 12px}.bt-container{max-width:${this.attr(width)};margin:0 auto}.bt-img{max-width:100%;display:block}.bt-btn{display:inline-block;text-decoration:none}.bt-grid{display:grid}.bt-card{border:1px solid #E2E8F0;overflow:hidden}.bt-muted{color:#64748B}.bt-form input,.bt-form textarea,.bt-form select{width:100%;padding:12px;border:1px solid #E2E8F0;border-radius:10px;margin:5px 0 10px;font:inherit}.bt-form button{border:0;cursor:pointer}.material-symbols-rounded{font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24}.bt-social{display:flex;gap:10px;flex-wrap:wrap}.bt-social a{display:inline-flex;align-items:center;justify-content:center;text-decoration:none}.bt-slider{position:relative;overflow:hidden}.bt-slider img{width:100%;height:100%;object-fit:cover;display:none}.bt-slider img.is-active{display:block}.bt-timer-units{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}.bt-timer-unit{min-width:72px;padding:12px;border:1px solid #E2E8F0;border-radius:12px}.bt-chart-bars{display:flex;align-items:flex-end;gap:10px;height:180px}.bt-chart-bar{flex:1;min-width:0;text-align:center}.bt-chart-bar i{display:block;width:100%;background:#FF4D6D;border-radius:8px 8px 3px 3px}.bt-media-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px}@media(max-width:600px){.bt-page{padding:12px 8px}.bt-responsive-grid{grid-template-columns:1fr!important}}</style></head><body><main class="bt-page"><div class="bt-container">${sections}</div></main>${this.exportRuntimeScript()}</body></html>`;
+    return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>BRAIN TECHNO</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400,0,0" rel="stylesheet"><style>html,body{margin:0;padding:0;background:${this.attr(pageBg)};font-family:Inter,'Noto Sans Bengali',Arial,sans-serif;color:#0F172A}*{box-sizing:border-box}.bt-page{width:100%;padding:24px 12px}.bt-container{max-width:${this.attr(width)};margin:0 auto}.bt-img{max-width:100%;display:block}.bt-btn{display:inline-block;text-decoration:none}.bt-grid{display:grid}.bt-card{border:1px solid #E2E8F0;overflow:hidden}.bt-muted{color:#64748B}.bt-form input,.bt-form textarea,.bt-form select{width:100%;padding:12px;border:1px solid #E2E8F0;border-radius:10px;margin:5px 0 10px;font:inherit}.bt-form button{border:0;cursor:pointer}.material-symbols-rounded{font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24}.bt-social{display:flex;gap:10px;flex-wrap:wrap}.bt-social a{display:inline-flex;align-items:center;justify-content:center;text-decoration:none}.bt-slider{position:relative;overflow:hidden}.bt-slider img{width:100%;height:100%;object-fit:cover;display:none}.bt-slider img.is-active{display:block}.bt-timer-units{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}.bt-timer-unit{min-width:72px;padding:12px;border:1px solid #E2E8F0;border-radius:12px}.bt-chart-bars{display:flex;align-items:flex-end;gap:10px;height:180px}.bt-chart-bar{flex:1;min-width:0;text-align:center}.bt-chart-bar i{display:block;width:100%;background:#FF4D6D;border-radius:8px 8px 3px 3px}.bt-media-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px}.bt-tabs>button{border:0;background:transparent;padding:10px 14px;font:inherit;font-weight:700;cursor:pointer;border-bottom:2px solid transparent}.bt-tabs>button.is-active{color:#FF4D6D;border-bottom-color:#FF4D6D}@media(max-width:600px){.bt-page{padding:12px 8px}.bt-responsive-grid{grid-template-columns:1fr!important}}</style></head><body><main class="bt-page"><div class="bt-container">${sections}</div></main>${this.exportRuntimeScript()}</body></html>`;
   }
 
   private renderBlock(block: EditorBlock): string {
     const c = block.content || {};
     const s = block.style || {};
-    const common = `${this.exportBackgroundStyle(s)}padding:${this.cssPx(s.padding, 24)};text-align:${this.css(s.align, 'left')};border-radius:${this.cssPx(s.radius, 0)};color:${this.css(s.color, '#0F172A')};`;
+    const common = `${this.exportBackgroundStyle(s)}padding:${this.cssPx(s.padding, 24)};margin-top:${this.cssPx(s.marginTop, 0)};margin-bottom:${this.cssPx(s.marginBottom, 0)};text-align:${this.css(s.align, 'left')};border-radius:${this.cssPx(s.radius, 0)};color:${this.css(s.color, '#0F172A')};border:${Number(s.borderWidth)||0}px ${this.css(s.borderStyle,'solid')} ${this.css(s.borderColor,'#E2E8F0')};box-shadow:${this.shadowCss(s.shadow)};`;
 
     switch (block.type) {
       case 'section': {
@@ -1699,6 +1938,59 @@ export class UnlayerEditorComponent implements OnChanges, OnDestroy {
         const files: MediaItem[] = Array.isArray(c.files) ? c.files : [];
         return `<section style="${common}"><h3 style="margin-top:0">${this.escape(c.title || 'Your Media')}</h3><div class="bt-media-grid">${files.map(file => file.type.startsWith('image/') ? `<a href="${this.attr(file.dataUrl)}" download="${this.attr(file.name)}"><img src="${this.attr(file.dataUrl)}" alt="${this.attr(file.name)}" style="width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:10px"></a>` : `<a href="${this.attr(file.dataUrl)}" download="${this.attr(file.name)}" style="padding:14px;border:1px solid #E2E8F0;border-radius:10px;text-decoration:none;color:inherit"><span class="material-symbols-rounded">description</span><div style="margin-top:6px;word-break:break-word">${this.escape(file.name)}</div></a>`).join('')}</div></section>`;
       }
+
+      case 'navbar': {
+        const links = String(c.links || '').split(',').map((x:string)=>x.trim()).filter(Boolean);
+        return `<nav style="${common}display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap"><strong style="font-size:20px">${this.escape(c.brand)}</strong><div style="display:flex;gap:16px;flex-wrap:wrap">${links.map((x:string)=>`<a href="#" style="color:inherit;text-decoration:none">${this.escape(x)}</a>`).join('')}</div><a class="bt-btn" href="${this.attr(c.ctaUrl||'#')}" style="background:#FF4D6D;color:#fff;padding:10px 16px;border-radius:10px;font-weight:700">${this.escape(c.cta||'Get Started')}</a></nav>`;
+      }
+      case 'hero': {
+        const img = String(c.image||'').trim();
+        const visual = img ? `<img src="${this.attr(img)}" alt="" style="width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:16px">` : `<div style="width:100%;aspect-ratio:4/3;background:#D1D5DB;border-radius:16px;display:grid;place-items:center;color:#6B7280">Image</div>`;
+        const copy = `<div><small style="font-weight:800;letter-spacing:.12em;color:#FF4D6D">${this.escape(c.eyebrow||'')}</small><h1 style="font-size:48px;line-height:1.05;margin:10px 0 14px">${this.escape(c.title)}</h1><p style="font-size:18px;line-height:1.7;color:inherit;opacity:.78">${this.escape(c.text)}</p><div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:20px"><a class="bt-btn" href="${this.attr(c.primaryUrl||'#')}" style="background:#FF4D6D;color:#fff;padding:12px 20px;border-radius:10px;font-weight:800">${this.escape(c.primary)}</a><a class="bt-btn" href="${this.attr(c.secondaryUrl||'#')}" style="border:1px solid #CBD5E1;color:inherit;padding:12px 20px;border-radius:10px;font-weight:700">${this.escape(c.secondary)}</a></div></div>`;
+        return `<section style="${common}"><div class="bt-grid bt-responsive-grid" style="grid-template-columns:${c.variant==='split'||c.variant==='image'?'1fr 1fr':'1fr'};gap:28px;align-items:center">${copy}${c.variant==='split'||c.variant==='image'?visual:''}</div></section>`;
+      }
+      case 'services': {
+        const items = Array.isArray(c.items)?c.items:[]; const cols=Math.max(1,Number(s.columns)||3);
+        return `<section style="${common}"><h2 style="margin-top:0">${this.escape(c.title)}</h2><div class="bt-grid bt-responsive-grid" style="grid-template-columns:repeat(${cols},1fr);gap:${this.cssPx(s.gap,12)}">${items.map((x:any,i:number)=>`<article style="padding:18px;border:1px solid #E2E8F0;border-radius:14px"><span class="material-symbols-rounded" style="font-size:28px;color:#FF4D6D">${this.escape(x.icon||'star')}</span><h3>${this.escape(x.title)}</h3><p style="opacity:.75">${this.escape(x.text)}</p></article>`).join('')}</div></section>`;
+      }
+      case 'testimonial': {
+        const items=Array.isArray(c.items)?c.items:[]; const cols=Math.max(1,Number(s.columns)||1);
+        return `<section style="${common}"><h2 style="margin-top:0">${this.escape(c.title)}</h2><div class="bt-grid bt-responsive-grid" style="grid-template-columns:repeat(${cols},1fr);gap:${this.cssPx(s.gap,12)}">${items.map((x:any)=>`<blockquote style="margin:0;padding:20px;border:1px solid #E2E8F0;border-radius:14px"><div style="color:#F59E0B">★★★★★</div><p style="font-size:18px;line-height:1.6">“${this.escape(x.quote)}”</p><strong>${this.escape(x.name)}</strong><small style="display:block;opacity:.7">${this.escape(x.role)}</small></blockquote>`).join('')}</div></section>`;
+      }
+      case 'pricing': {
+        const plans=Array.isArray(c.plans)?c.plans:[]; const cols=Math.max(1,Number(s.columns)||3);
+        return `<section style="${common}"><h2 style="margin-top:0">${this.escape(c.title)}</h2><div class="bt-grid bt-responsive-grid" style="grid-template-columns:repeat(${cols},1fr);gap:${this.cssPx(s.gap,12)}">${plans.map((x:any,i:number)=>`<article style="padding:22px;border:${c.variant==='featured'&&i===1?'2px solid #FF4D6D':'1px solid #E2E8F0'};border-radius:16px"><h3>${this.escape(x.name)}</h3><div style="font-size:34px;font-weight:900">${this.escape(x.price)}<small style="font-size:14px;font-weight:500">${this.escape(x.period)}</small></div><div style="white-space:pre-line;line-height:1.8;margin:16px 0">${this.escape(x.features)}</div><a class="bt-btn" href="#" style="background:#FF4D6D;color:#fff;padding:11px 16px;border-radius:10px;font-weight:700">${this.escape(x.cta)}</a></article>`).join('')}</div></section>`;
+      }
+      case 'faq': {
+        const items=Array.isArray(c.items)?c.items:[];
+        return `<section style="${common}"><h2>${this.escape(c.title)}</h2><div>${items.map((x:any)=>`<details style="border-bottom:1px solid #E2E8F0;padding:14px 0"><summary style="font-weight:800;cursor:pointer">${this.escape(x.q)}</summary><p style="line-height:1.7;opacity:.78">${this.escape(x.a)}</p></details>`).join('')}</div></section>`;
+      }
+      case 'stats': {
+        const items=Array.isArray(c.items)?c.items:[]; const cols=Math.max(1,Number(s.columns)||4);
+        return `<section style="${common}"><div class="bt-grid bt-responsive-grid" style="grid-template-columns:repeat(${cols},1fr);gap:${this.cssPx(s.gap,12)}">${items.map((x:any)=>`<div style="padding:18px;text-align:center"><strong style="display:block;font-size:38px;color:${this.css(s.accent,'#FF4D6D')}">${this.escape(x.value)}</strong><span>${this.escape(x.label)}</span></div>`).join('')}</div></section>`;
+      }
+      case 'tabs': {
+        const items=Array.isArray(c.items)?c.items:[];
+        return `<section style="${common}"><div class="bt-tabs" data-bt-tabs>${items.map((x:any,i:number)=>`<button type="button" data-tab-btn="${i}" class="${i===0?'is-active':''}">${this.escape(x.title)}</button>`).join('')}<div class="bt-tab-panels">${items.map((x:any,i:number)=>`<div data-tab-panel="${i}" style="display:${i===0?'block':'none'};padding:18px 0;line-height:1.7">${this.escape(x.text)}</div>`).join('')}</div></div></section>`;
+      }
+      case 'timeline': {
+        const items=Array.isArray(c.items)?c.items:[];
+        return `<section style="${common}"><h2>${this.escape(c.title)}</h2><div class="bt-grid bt-responsive-grid" style="grid-template-columns:repeat(${items.length||1},1fr);gap:14px">${items.map((x:any,i:number)=>`<div style="padding:18px;border-top:3px solid ${this.css(s.accent,'#FF4D6D')}"><strong style="display:block;color:${this.css(s.accent,'#FF4D6D')}">0${i+1}</strong><h3>${this.escape(x.title)}</h3><p style="opacity:.75">${this.escape(x.text)}</p></div>`).join('')}</div></section>`;
+      }
+      case 'team': {
+        const items=Array.isArray(c.items)?c.items:[]; const cols=Math.max(1,Number(s.columns)||3);
+        return `<section style="${common}"><h2>${this.escape(c.title)}</h2><div class="bt-grid bt-responsive-grid" style="grid-template-columns:repeat(${cols},1fr);gap:${this.cssPx(s.gap,12)}">${items.map((x:any)=>`<article style="text-align:center;padding:16px"><div style="aspect-ratio:1/1;background:#D1D5DB;border-radius:16px;margin-bottom:12px;display:grid;place-items:center;color:#6B7280">Image</div><strong>${this.escape(x.name)}</strong><small style="display:block;opacity:.7">${this.escape(x.role)}</small></article>`).join('')}</div></section>`;
+      }
+      case 'footer': {
+        const links=String(c.links||'').split(',').map((x:string)=>x.trim()).filter(Boolean);
+        return `<footer style="${common}"><div class="bt-grid bt-responsive-grid" style="grid-template-columns:2fr 1fr 1fr;gap:24px"><div><strong style="font-size:22px">${this.escape(c.brand)}</strong><p style="opacity:.75">${this.escape(c.text)}</p></div><div>${links.map((x:string)=>`<a href="#" style="display:block;color:inherit;text-decoration:none;margin:7px 0">${this.escape(x)}</a>`).join('')}</div><div><div>${this.escape(c.phone)}</div><div>${this.escape(c.email)}</div></div></div><div style="margin-top:22px;padding-top:14px;border-top:1px solid rgba(148,163,184,.35);font-size:13px;opacity:.75">${this.escape(c.copyright)}</div></footer>`;
+      }
+      case 'popup': {
+        return `<section style="${common}"><div style="max-width:520px;margin:auto;border:1px solid #E2E8F0;border-radius:18px;padding:26px;background:inherit"><small style="font-weight:800;color:#FF4D6D">POPUP PREVIEW</small><h2>${this.escape(c.title)}</h2><p style="line-height:1.7;opacity:.78">${this.escape(c.text)}</p><a class="bt-btn" href="${this.attr(c.url||'#')}" style="background:#FF4D6D;color:#fff;padding:11px 18px;border-radius:10px;font-weight:700">${this.escape(c.cta)}</a></div></section>`;
+      }
+      case 'floating': {
+        return `<section style="${common}"><a class="bt-btn" href="${this.attr(c.url||'#')}" style="display:inline-flex;align-items:center;gap:8px;background:#FF4D6D;color:#fff;padding:12px 18px;border-radius:999px;font-weight:800"><span class="material-symbols-rounded">${this.escape(c.icon||'chat')}</span>${this.escape(c.label)}</a></section>`;
+      }
       case 'divider': {
         const width = s.short ? '72px' : '100%';
         return `<section style="${common}"><hr style="width:${width};border:0;border-top:${Number(s.borderWidth) || 1}px ${this.css(s.borderStyle, 'solid')} ${this.css(s.borderColor, '#E2E8F0')};margin:${s.short ? '0 auto' : '0'}"></section>`;
@@ -1715,6 +2007,7 @@ export class UnlayerEditorComponent implements OnChanges, OnDestroy {
       document.querySelectorAll('[data-bt-slider]').forEach(function(root){var imgs=[].slice.call(root.querySelectorAll('img'));if(imgs.length<2)return;var i=0;var autoplay=root.getAttribute('data-autoplay')!=='false';var interval=Number(root.getAttribute('data-interval'))||3500;if(!autoplay)return;setInterval(function(){imgs[i].classList.remove('is-active');i=(i+1)%imgs.length;imgs[i].classList.add('is-active');},interval);});
       document.querySelectorAll('[data-bt-timer]').forEach(function(root){var target=new Date(root.getAttribute('data-target')||'').getTime();function tick(){var diff=target-Date.now();if(!isFinite(target)||diff<=0){['days','hours','minutes','seconds'].forEach(function(k){var n=root.querySelector('[data-'+k+']');if(n)n.textContent='00';});var e=root.querySelector('[data-expired-label]');if(e){e.style.display='block';e.textContent=root.getAttribute('data-expired')||'Ended';}return;}var d=Math.floor(diff/86400000),h=Math.floor(diff/3600000)%24,m=Math.floor(diff/60000)%60,s=Math.floor(diff/1000)%60;[['days',d],['hours',h],['minutes',m],['seconds',s]].forEach(function(p){var n=root.querySelector('[data-'+p[0]+']');if(n)n.textContent=String(p[1]).padStart(2,'0');});}tick();setInterval(tick,1000);});
       document.querySelectorAll('[data-bt-counter]').forEach(function(root){var el=root.querySelector('[data-counter-value]');if(!el)return;var start=Number(root.getAttribute('data-start'))||0,end=Number(root.getAttribute('data-end'))||0,dur=Number(root.getAttribute('data-duration'))||1600,prefix=root.getAttribute('data-prefix')||'',suffix=root.getAttribute('data-suffix')||'';var begun=false;function run(){if(begun)return;begun=true;var t0=performance.now();function step(t){var p=Math.min(1,(t-t0)/dur);var v=Math.round(start+(end-start)*(1-Math.pow(1-p,3)));el.textContent=prefix+v+suffix;if(p<1)requestAnimationFrame(step);}requestAnimationFrame(step);}if('IntersectionObserver'in window){new IntersectionObserver(function(entries,obs){if(entries.some(function(e){return e.isIntersecting;})){run();obs.disconnect();}}).observe(root);}else run();});
+      document.querySelectorAll('[data-bt-tabs]').forEach(function(root){var buttons=[].slice.call(root.querySelectorAll('[data-tab-btn]'));var panels=[].slice.call(root.querySelectorAll('[data-tab-panel]'));buttons.forEach(function(btn){btn.addEventListener('click',function(){var i=btn.getAttribute('data-tab-btn');buttons.forEach(function(b){b.classList.toggle('is-active',b===btn);});panels.forEach(function(p){p.style.display=p.getAttribute('data-tab-panel')===i?'block':'none';});});});});
       document.querySelectorAll('[data-bt-scanner]').forEach(function(root){var btn=root.querySelector('[data-scan-start]'),video=root.querySelector('[data-scan-video]'),result=root.querySelector('[data-scan-result]');if(!btn||!video||!result)return;btn.addEventListener('click',async function(){if(!('BarcodeDetector'in window)||!navigator.mediaDevices){result.textContent='Scanner is not supported in this browser.';return;}try{var formats=(root.getAttribute('data-formats')||'qr_code').split(',');var detector=new BarcodeDetector({formats:formats});var stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});video.srcObject=stream;video.style.display='block';await video.play();var stopped=false;async function scan(){if(stopped)return;try{var codes=await detector.detect(video);if(codes&&codes[0]){result.textContent=codes[0].rawValue||'';stopped=true;stream.getTracks().forEach(function(t){t.stop();});video.style.display='none';return;}}catch(e){}requestAnimationFrame(scan);}scan();}catch(e){result.textContent='Camera permission or scanner unavailable.';}});});
     })();</script>`;
   }
@@ -1819,6 +2112,12 @@ export class UnlayerEditorComponent implements OnChanges, OnDestroy {
     const width = Math.max(1, Math.min(100, Number(style?.['imageWidth']) || 100));
     const height = Math.max(1, Math.min(200, Number(style?.['imageHeight']) || 56));
     return `${width} / ${height}`;
+  }
+
+  private shadowCss(value: any): string {
+    const key = String(value || 'none');
+    const map: Record<string, string> = { none: 'none', soft: '0 8px 24px rgba(15,23,42,.08)', medium: '0 14px 36px rgba(15,23,42,.14)', strong: '0 20px 50px rgba(15,23,42,.22)' };
+    return map[key] || key;
   }
 
   private exportBackgroundStyle(style: Record<string, any>): string {

@@ -16,20 +16,43 @@
           </div>
           <div class="bt-element-grid">
             @for (element of filteredElements; track element.type) {
-              <button
-                type="button"
-                class="bt-element-card"
-                draggable="true"
-                (dragstart)="onToolDragStart($event, element.type)"
-                (dragend)="onToolDragEnd()"
-                (click)="onElementClick(element.type)"
-              >
-                <span class="bt-element-icon"><mat-icon fontSet="material-symbols-rounded">{{ element.icon }}</mat-icon></span>
-                <span>{{ element.label }}</span>
-                <span class="bt-element-pin" [class.is-pinned]="isElementPinned(element.type)" (click)="toggleElementPin(element.type, $event)" [title]="isElementPinned(element.type) ? 'Unpin element' : 'Pin element'">
-                  <mat-icon fontSet="material-symbols-rounded">{{ isElementPinned(element.type) ? 'keep' : 'keep_off' }}</mat-icon>
-                </span>
-              </button>
+              <div class="bt-element-card-wrap">
+                <button
+                  type="button"
+                  class="bt-element-card"
+                  draggable="true"
+                  (dragstart)="onToolDragStart($event, element.type)"
+                  (dragend)="onToolDragEnd()"
+                  (click)="onElementClick(element.type)"
+                >
+                  <span class="bt-element-icon"><mat-icon fontSet="material-symbols-rounded">{{ element.icon }}</mat-icon></span>
+                  @if (isElementPinned(element.type)) {
+                    <span class="bt-element-pinned-mark" title="Pinned"><mat-icon fontSet="material-symbols-rounded">keep</mat-icon></span>
+                  }
+                  <span class="bt-element-name">{{ element.label }}</span>
+                </button>
+
+                <button type="button" class="bt-element-menu-trigger" (click)="toggleElementMenu(element.type, $event)" aria-label="Element menu">
+                  <mat-icon fontSet="material-symbols-rounded">more_vert</mat-icon>
+                </button>
+
+                @if (elementMenuType === element.type) {
+                  <div class="bt-element-menu" (click)="$event.stopPropagation()">
+                    <button type="button" (click)="toggleElementPin(element.type, $event); closeElementMenu()">
+                      <mat-icon fontSet="material-symbols-rounded">{{ isElementPinned(element.type) ? 'keep_off' : 'keep' }}</mat-icon>
+                      <span>{{ isElementPinned(element.type) ? 'Unpin element' : 'Pin element' }}</span>
+                    </button>
+                    <button type="button" (click)="openElementStylesFromMenu(element.type, $event)">
+                      <mat-icon fontSet="material-symbols-rounded">style</mat-icon>
+                      <span>View styles</span>
+                    </button>
+                    <button type="button" (click)="addDefaultElementFromMenu(element.type, $event)">
+                      <mat-icon fontSet="material-symbols-rounded">add_circle</mat-icon>
+                      <span>Add default</span>
+                    </button>
+                  </div>
+                }
+              </div>
             }
             @if (!filteredElements.length) {
               <div class="bt-element-empty"><mat-icon fontSet="material-symbols-rounded">search_off</mat-icon><strong>No elements found</strong><span>Try another search.</span></div>
@@ -132,7 +155,7 @@
           @for (block of blocks; track trackById($index, block); let i = $index) {
             <div
               class="bt-canvas-block"
-              [class.is-selected]="selectedId === block.id"
+              [class.is-selected]="selectedId === block.id && !selectedIsNested"
               tabindex="0"
               (click)="select(block); $event.stopPropagation()"
               (keydown.enter)="select(block); $event.stopPropagation()"
@@ -142,85 +165,42 @@
               <div class="bt-block-toolbar" (click)="$event.stopPropagation()">
                 <span class="bt-drag-handle" draggable="true" (dragstart)="onBlockDragStart($event, i)" (dragend)="onBlockDragEnd()"><mat-icon fontSet="material-symbols-rounded">drag_indicator</mat-icon></span>
                 <span class="bt-block-type">{{ block.type }}</span>
-                <button type="button" (click)="move(block, -1)"><mat-icon fontSet="material-symbols-rounded">arrow_upward</mat-icon></button>
-                <button type="button" (click)="move(block, 1)"><mat-icon fontSet="material-symbols-rounded">arrow_downward</mat-icon></button>
-                <button type="button" (click)="duplicate(block)"><mat-icon fontSet="material-symbols-rounded">content_copy</mat-icon></button>
-                <button type="button" (click)="remove(block)"><mat-icon fontSet="material-symbols-rounded">close</mat-icon></button>
+                <button type="button" (click)="move(block, -1)" title="Move up"><mat-icon fontSet="material-symbols-rounded">arrow_upward</mat-icon></button>
+                <button type="button" (click)="move(block, 1)" title="Move down"><mat-icon fontSet="material-symbols-rounded">arrow_downward</mat-icon></button>
+                <button type="button" (click)="duplicate(block)" title="Duplicate"><mat-icon fontSet="material-symbols-rounded">content_copy</mat-icon></button>
+                <button type="button" (click)="remove(block)" title="Delete"><mat-icon fontSet="material-symbols-rounded">close</mat-icon></button>
               </div>
 
-              <div class="bt-block-preview" [style.background]="backgroundCss(block.style)" [style.background-size]="backgroundSize(block.style)" [style.background-position]="backgroundPosition(block.style)" [style.background-repeat]="backgroundRepeat(block.style)">
-                @switch (block.type) {
-                  @case ('section') {
-                    <section class="preview-section" [style.background]="backgroundCss(block.style)" [style.background-size]="backgroundSize(block.style)" [style.background-position]="backgroundPosition(block.style)" [style.background-repeat]="backgroundRepeat(block.style)" [style.padding.px]="block.style['padding']" [style.border-radius.px]="block.style['radius']">
-                      <div class="preview-section-grid" [style.grid-template-columns]="'repeat(' + sectionColumns(block.content['variant'] || 'one') + ', minmax(0, 1fr))'" [style.gap.px]="block.style['gap'] || 14">
-                        @for (cell of block.content['cells']; track $index) { <div class="preview-section-cell"><h3>{{ cell.title }}</h3><p>{{ cell.text }}</p></div> }
-                      </div>
-                    </section>
-                  }
-                  @case ('block') {
-                    <section class="preview-container" [style.background]="backgroundCss(block.style)" [style.background-size]="backgroundSize(block.style)" [style.background-position]="backgroundPosition(block.style)" [style.background-repeat]="backgroundRepeat(block.style)" [style.padding.px]="block.style['padding']" [style.border-radius.px]="block.style['radius']">
-                      <div class="preview-container-grid" [style.grid-template-columns]="'repeat(' + sectionColumns(block.content['variant'] || 'two') + ', minmax(0, 1fr))'" [style.gap.px]="block.style['gap'] || 14">
-                        @for (slot of block.content['slots']; track $index; let slotIndex = $index) {
-                          <div class="container-slot" (dragover)="onContainerSlotDragOver($event)" (drop)="onContainerSlotDrop($event, block, slotIndex)" (click)="$event.stopPropagation()">
-                            @if (!slot.length) {
-                              <div class="container-slot-empty"><mat-icon fontSet="material-symbols-rounded">add_box</mat-icon><strong>Drop element here</strong><span>Image, Text, Form, Product, Video...</span><div><button type="button" (click)="addToSlot(block, slotIndex, 'image')">Image</button><button type="button" (click)="addToSlot(block, slotIndex, 'text')">Text</button><button type="button" (click)="addToSlot(block, slotIndex, 'form')">Form</button></div></div>
-                            }
-                            @for (child of slot; track child.id) {
-                              <div class="nested-block" [class.is-selected]="selectedNestedId === child.id" (click)="selectNested(block, slotIndex, child, $event)">
-                                <div class="nested-label"><mat-icon fontSet="material-symbols-rounded">{{ presetIcon(child.type) }}</mat-icon><span>{{ child.type }}</span></div>
-                                @switch (child.type) {
-                                  @case ('image') { @if (child.content['url']) { <img [src]="child.content['url']" [alt]="child.content['alt'] || ''"> } @else { <div class="nested-image-placeholder"><mat-icon fontSet="material-symbols-rounded">image</mat-icon></div> } }
-                                  @case ('heading') { <h3>{{ child.content['text'] }}</h3> }
-                                  @case ('text') { <p>{{ child.content['text'] }}</p> }
-                                  @case ('button') { <span class="mini-button">{{ child.content['label'] }}</span> }
-                                  @case ('product') { <div class="nested-product"><img [src]="child.content['image']"><strong>{{ child.content['name'] }}</strong><span>{{ child.content['price'] }}</span></div> }
-                                  @case ('form') { <div class="nested-form"><strong>{{ child.content['title'] }}</strong><i></i><i></i><button type="button">{{ child.content['submitLabel'] }}</button></div> }
-                                  @case ('video') { <div class="nested-placeholder"><mat-icon fontSet="material-symbols-rounded">play_circle</mat-icon><span>Video</span></div> }
-                                  @case ('icon') { <mat-icon class="nested-big-icon" fontSet="material-symbols-rounded">{{ child.content['materialIcon'] }}</mat-icon> }
-                                  @case ('link') { <a href="#" (click)="$event.preventDefault()">{{ child.content['label'] }}</a> }
-                                  @default { <div class="nested-placeholder"><mat-icon fontSet="material-symbols-rounded">{{ presetIcon(child.type) }}</mat-icon><span>{{ child.type | titlecase }}</span></div> }
-                                }
-                              </div>
-                            }
+              @if (block.type === 'block') {
+                <div class="bt-block-preview bt-container-editor-preview" [style.background]="backgroundCss(block.style)" [style.background-size]="backgroundSize(block.style)" [style.background-position]="backgroundPosition(block.style)" [style.background-repeat]="backgroundRepeat(block.style)" [style.padding.px]="block.style['padding']" [style.border-radius.px]="block.style['radius']">
+                  <div class="preview-container-grid" [style.grid-template-columns]="'repeat(' + sectionColumns(block.content['variant'] || 'two') + ', minmax(0, 1fr))'" [style.gap.px]="block.style['gap'] || 14">
+                    @for (slot of block.content['slots']; track $index; let slotIndex = $index) {
+                      <div class="container-slot" (dragover)="onContainerSlotDragOver($event)" (drop)="onContainerSlotDrop($event, block, slotIndex)" (click)="$event.stopPropagation()">
+                        @if (!slot.length) {
+                          <div class="container-slot-empty">
+                            <mat-icon fontSet="material-symbols-rounded">add_box</mat-icon>
+                            <strong>Drop element here</strong>
+                            <span>Image, Text, Form, Product, Video...</span>
+                            <div>
+                              <button type="button" (click)="addToSlot(block, slotIndex, 'image')">Image</button>
+                              <button type="button" (click)="addToSlot(block, slotIndex, 'text')">Text</button>
+                              <button type="button" (click)="addToSlot(block, slotIndex, 'form')">Form</button>
+                            </div>
+                          </div>
+                        }
+                        @for (child of slot; track child.id) {
+                          <div class="nested-block" [class.is-selected]="selectedNestedId === child.id" (click)="selectNested(block, slotIndex, child, $event)">
+                            <div class="nested-label"><mat-icon fontSet="material-symbols-rounded">{{ presetIcon(child.type) }}</mat-icon><span>{{ child.type }}</span></div>
+                            <div class="bt-export-preview bt-export-preview--nested" [innerHTML]="previewBlockHtml(child)"></div>
                           </div>
                         }
                       </div>
-                    </section>
-                  }
-                  @case ('heading') { <section class="preview-text" [style.padding.px]="block.style['padding']" [style.text-align]="block.style['align']"><h1 [style.font-size.px]="block.style['fontSize']" [style.color]="block.style['color']">{{ block.content['text'] }}</h1></section> }
-                  @case ('text') { <section class="preview-text" [style.background]="backgroundCss(block.style)" [style.background-size]="backgroundSize(block.style)" [style.background-position]="backgroundPosition(block.style)" [style.background-repeat]="backgroundRepeat(block.style)" [style.padding.px]="block.style['padding']" [style.text-align]="block.style['align']"><p [style.font-size.px]="block.style['fontSize']" [style.color]="block.style['color']">{{ block.content['text'] }}</p></section> }
-                  @case ('link') { <section class="preview-link" [style.padding.px]="block.style['padding']"><a href="#" (click)="$event.preventDefault()">{{ block.content['label'] }} <mat-icon fontSet="material-symbols-rounded">arrow_forward</mat-icon></a></section> }
-                  @case ('image') {
-                    <section class="preview-image" [style.padding.px]="block.style['padding']" [style.text-align]="block.style['align']">
-                      @if (block.content['url']) {
-                        <img [src]="block.content['url']" [alt]="block.content['alt'] || ''" [style.width.%]="block.style['imageWidth'] || 100" [style.aspect-ratio]="imageHeightAspect(block.style)" [style.border-radius.px]="block.style['radius']">
-                      } @else {
-                        <div class="bt-image-placeholder" [style.width.%]="block.style['imageWidth'] || 100" [style.aspect-ratio]="imageHeightAspect(block.style)" [style.border-radius.px]="block.style['radius']"><mat-icon fontSet="material-symbols-rounded">image</mat-icon><span>Image</span></div>
-                      }
-                    </section>
-                  }
-                  @case ('video') { <section class="preview-video" [style.padding.px]="block.style['padding']"><div [style.border-radius.px]="block.style['radius']"><mat-icon fontSet="material-symbols-rounded">play_circle</mat-icon><strong>{{ block.content['title'] }}</strong><small>{{ block.content['url'] }}</small></div></section> }
-                  @case ('slider') { <section class="preview-slider" [style.height.px]="block.style['height']">@if (block.content['images']?.[0]) { <img [src]="block.content['images'][0]" alt="Slide"> } @else { <div class="bt-media-placeholder"><mat-icon fontSet="material-symbols-rounded">image</mat-icon><span>Slider image</span></div> }<span class="slider-count"><mat-icon fontSet="material-symbols-rounded">view_carousel</mat-icon>{{ block.content['images']?.length || 0 }} slides</span></section> }
-                  @case ('gallery') { <section class="preview-gallery" [style.grid-template-columns]="'repeat(' + (block.style['columns'] || 3) + ', 1fr)'" [style.gap.px]="block.style['gap']">@for (image of block.content['images']; track $index) { @if (image) { <img [src]="image" alt="Gallery"> } @else { <div class="bt-gallery-placeholder"><mat-icon fontSet="material-symbols-rounded">image</mat-icon></div> } }</section> }
-                  @case ('button') { <section class="preview-button" [style.padding.px]="block.style['padding']" [style.text-align]="block.style['align']"><span [class.is-full]="block.style['fullWidth']" [style.background]="block.style['buttonBg']" [style.color]="block.style['buttonText']" [style.border-radius.px]="block.style['radius']">{{ block.content['label'] }}</span></section> }
-                  @case ('icon') { <section class="preview-icon" [style.text-align]="block.style['align']"><span [style.background]="block.style['iconBg']" [style.color]="block.style['iconColor']" [style.border-radius.px]="block.style['radius']"><mat-icon fontSet="material-symbols-rounded" [style.font-size.px]="block.style['iconSize']">{{ block.content['materialIcon'] }}</mat-icon></span>@if (block.content['label']) { <strong>{{ block.content['label'] }}</strong> }</section> }
-                  @case ('social') { <section class="preview-social" [style.background]="backgroundCss(block.style)" [style.background-size]="backgroundSize(block.style)" [style.background-position]="backgroundPosition(block.style)" [style.background-repeat]="backgroundRepeat(block.style)"><span><mat-icon fontSet="material-symbols-rounded">public</mat-icon></span><span><mat-icon fontSet="material-symbols-rounded">photo_camera</mat-icon></span><span><mat-icon fontSet="material-symbols-rounded">smart_display</mat-icon></span><span><mat-icon fontSet="material-symbols-rounded">work</mat-icon></span></section> }
-                  @case ('product') { <section class="preview-product"><div class="preview-product__media">@if (block.content['image']) { <img [src]="block.content['image']" [alt]="block.content['name']"> } @else { <div class="bt-media-placeholder"><mat-icon fontSet="material-symbols-rounded">image</mat-icon><span>Product image</span></div> }</div><div class="preview-product__body">@if (block.content['badge']) { <small>{{ block.content['badge'] }}</small> }<h3>{{ block.content['name'] }}</h3><strong>{{ block.content['price'] }}</strong><p>{{ block.content['description'] }}</p><span class="mini-button">{{ block.content['cta'] }}</span></div></section> }
-                  @case ('offer') { <section class="preview-offer" [style.background]="backgroundCss(block.style)" [style.background-size]="backgroundSize(block.style)" [style.background-position]="backgroundPosition(block.style)" [style.background-repeat]="backgroundRepeat(block.style)"><small>{{ block.content['badge'] }}</small><h2>{{ block.content['title'] }}</h2><b [style.color]="block.style['accent']">{{ block.content['discount'] }}</b><p>{{ block.content['description'] }}</p></section> }
-                  @case ('html') { <section class="preview-html"><div class="html-badge"><mat-icon fontSet="material-symbols-rounded">code</mat-icon>Custom HTML</div><div [innerHTML]="block.content['html']"></div></section> }
-                  @case ('form') { <section class="preview-form"><h3>{{ block.content['title'] }}</h3><p>{{ block.content['subtitle'] }}</p><input placeholder="Name"><input placeholder="Mobile / WhatsApp"><textarea rows="2" placeholder="Message"></textarea><button type="button">{{ block.content['submitLabel'] }}</button></section> }
-                  @case ('contact') { <section class="preview-contact"><h3>Contact</h3><p><mat-icon fontSet="material-symbols-rounded">call</mat-icon>{{ block.content['phone'] }}</p><p><mat-icon fontSet="material-symbols-rounded">mail</mat-icon>{{ block.content['email'] }}</p><p><mat-icon fontSet="material-symbols-rounded">location_on</mat-icon>{{ block.content['address'] }}</p></section> }
-                  @case ('whatsapp') { <section class="preview-button"><span class="whatsapp-button"><mat-icon fontSet="material-symbols-rounded">chat</mat-icon>{{ block.content['label'] }}</span></section> }
-                  @case ('map') { <section class="preview-map-placeholder"><mat-icon fontSet="material-symbols-rounded">map</mat-icon><strong>{{ block.content['title'] || 'Map' }}</strong><span>{{ block.content['url'] }}</span></section> }
-                  @case ('scanner') { <section class="preview-scanner"><mat-icon fontSet="material-symbols-rounded">qr_code_scanner</mat-icon><h3>{{ block.content['title'] }}</h3><button type="button">{{ block.content['buttonLabel'] }}</button></section> }
-                  @case ('timer') { <section class="preview-timer"><h3>{{ block.content['title'] }}</h3><div><span><b>03</b><small>Days</small></span><span><b>12</b><small>Hours</small></span><span><b>45</b><small>Min</small></span><span><b>20</b><small>Sec</small></span></div></section> }
-                  @case ('counter') { <section class="preview-counter"><strong>{{ block.content['prefix'] }}{{ block.content['end'] }}{{ block.content['suffix'] }}</strong><span>{{ block.content['label'] }}</span></section> }
-                  @case ('chart') { <section class="preview-chart"><h3>{{ block.content['title'] }}</h3><div class="chart-bars">@for (item of chartData(block); track item.label) { <span><i [style.height.%]="(item.value / chartMax(block)) * 100"></i><small>{{ item.label }}</small></span> }</div></section> }
-                  @case ('media') { <section class="preview-media"><div class="preview-media-head"><mat-icon fontSet="material-symbols-rounded">perm_media</mat-icon><strong>{{ block.content['title'] }}</strong><span>{{ block.content['files']?.length || 0 }} files</span></div><div class="preview-media-grid">@for (file of block.content['files']; track $index) { @if (file.type?.startsWith('image/')) { <img [src]="file.dataUrl" [alt]="file.name"> } @else { <div><mat-icon fontSet="material-symbols-rounded">description</mat-icon><small>{{ file.name }}</small></div> } }</div></section> }
-                  @case ('divider') { <section class="preview-divider"><hr [style.border-top-color]="block.style['borderColor']" [style.border-top-width.px]="block.style['borderWidth']"></section> }
-                  @case ('spacer') { <div [style.height.px]="block.style['height']"></div> }
-                }
-              </div>
+                    }
+                  </div>
+                </div>
+              } @else {
+                <div class="bt-block-preview bt-export-preview" [innerHTML]="previewBlockHtml(block)"></div>
+              }
             </div>
           }
 
@@ -251,6 +231,71 @@
             <div class="bt-info-box"><mat-icon fontSet="material-symbols-rounded">drag_indicator</mat-icon><span>Drag any element from the left panel into a blank slot. Click an inside element to edit its own properties.</span></div>
             <label>Gap (px)<input type="number" [(ngModel)]="block.style['gap']" (ngModelChange)="updateSelected()"></label>
           }
+          @case ('navbar') {
+            <label>Brand<input [(ngModel)]="block.content['brand']" (ngModelChange)="updateSelected()"></label>
+            <label>Links (comma separated)<input [(ngModel)]="block.content['links']" (ngModelChange)="updateSelected()"></label>
+            <label>CTA text<input [(ngModel)]="block.content['cta']" (ngModelChange)="updateSelected()"></label>
+            <label>CTA URL<input [(ngModel)]="block.content['ctaUrl']" (ngModelChange)="updateSelected()"></label>
+          }
+          @case ('hero') {
+            <label>Eyebrow<input [(ngModel)]="block.content['eyebrow']" (ngModelChange)="updateSelected()"></label>
+            <label>Title<textarea [(ngModel)]="block.content['title']" rows="3" (ngModelChange)="updateSelected()"></textarea></label>
+            <label>Text<textarea [(ngModel)]="block.content['text']" rows="4" (ngModelChange)="updateSelected()"></textarea></label>
+            <label>Primary button<input [(ngModel)]="block.content['primary']" (ngModelChange)="updateSelected()"></label>
+            <label>Primary URL<input [(ngModel)]="block.content['primaryUrl']" (ngModelChange)="updateSelected()"></label>
+            <label>Secondary button<input [(ngModel)]="block.content['secondary']" (ngModelChange)="updateSelected()"></label>
+            <label>Secondary URL<input [(ngModel)]="block.content['secondaryUrl']" (ngModelChange)="updateSelected()"></label>
+            <label>Hero image URL<input [(ngModel)]="block.content['image']" (ngModelChange)="updateSelected()" placeholder="Leave blank for gray placeholder"></label>
+          }
+          @case ('services') {
+            <label>Title<input [(ngModel)]="block.content['title']" (ngModelChange)="updateSelected()"></label>
+            <div class="repeat-editor">
+              @for (item of block.content['items']; track $index) {
+                <div class="repeat-card">
+                  <strong>Service {{ $index + 1 }}</strong>
+                  <label>Icon<select [(ngModel)]="item.icon" (ngModelChange)="updateSelected()">@for (category of materialIconCategories; track category.label) { <optgroup [label]="category.label">@for (iconName of category.icons; track iconName) { <option [value]="iconName">{{ iconName }}</option> }</optgroup> }</select></label>
+                  <label>Title<input [(ngModel)]="item.title" (ngModelChange)="updateSelected()"></label>
+                  <label>Text<textarea [(ngModel)]="item.text" rows="2" (ngModelChange)="updateSelected()"></textarea></label>
+                </div>
+              }
+            </div>
+          }
+          @case ('testimonial') {
+            <label>Title<input [(ngModel)]="block.content['title']" (ngModelChange)="updateSelected()"></label>
+            <div class="repeat-editor">@for (item of block.content['items']; track $index) { <div class="repeat-card"><strong>Review {{ $index + 1 }}</strong><label>Name<input [(ngModel)]="item.name" (ngModelChange)="updateSelected()"></label><label>Role<input [(ngModel)]="item.role" (ngModelChange)="updateSelected()"></label><label>Rating<input type="number" min="1" max="5" [(ngModel)]="item.rating" (ngModelChange)="updateSelected()"></label><label>Review<textarea [(ngModel)]="item.quote" rows="3" (ngModelChange)="updateSelected()"></textarea></label></div> }</div>
+          }
+          @case ('pricing') {
+            <label>Title<input [(ngModel)]="block.content['title']" (ngModelChange)="updateSelected()"></label>
+            <div class="repeat-editor">@for (plan of block.content['plans']; track $index) { <div class="repeat-card"><strong>Plan {{ $index + 1 }}</strong><label>Name<input [(ngModel)]="plan.name" (ngModelChange)="updateSelected()"></label><label>Price<input [(ngModel)]="plan.price" (ngModelChange)="updateSelected()"></label><label>Period<input [(ngModel)]="plan.period" (ngModelChange)="updateSelected()"></label><label>Features<textarea [(ngModel)]="plan.features" rows="4" (ngModelChange)="updateSelected()"></textarea></label><label>CTA<input [(ngModel)]="plan.cta" (ngModelChange)="updateSelected()"></label></div> }</div>
+          }
+          @case ('faq') {
+            <label>Title<input [(ngModel)]="block.content['title']" (ngModelChange)="updateSelected()"></label>
+            <div class="repeat-editor">@for (item of block.content['items']; track $index) { <div class="repeat-card"><strong>FAQ {{ $index + 1 }}</strong><label>Question<input [(ngModel)]="item.q" (ngModelChange)="updateSelected()"></label><label>Answer<textarea [(ngModel)]="item.a" rows="3" (ngModelChange)="updateSelected()"></textarea></label></div> }</div>
+          }
+          @case ('stats') {
+            <label>Title<input [(ngModel)]="block.content['title']" (ngModelChange)="updateSelected()"></label>
+            <div class="repeat-editor">@for (item of block.content['items']; track $index) { <div class="repeat-card"><strong>Stat {{ $index + 1 }}</strong><label>Value<input [(ngModel)]="item.value" (ngModelChange)="updateSelected()"></label><label>Label<input [(ngModel)]="item.label" (ngModelChange)="updateSelected()"></label></div> }</div>
+          }
+          @case ('tabs') {
+            <div class="repeat-editor">@for (item of block.content['items']; track $index) { <div class="repeat-card"><strong>Tab {{ $index + 1 }}</strong><label>Title<input [(ngModel)]="item.title" (ngModelChange)="updateSelected()"></label><label>Content<textarea [(ngModel)]="item.text" rows="4" (ngModelChange)="updateSelected()"></textarea></label></div> }</div>
+          }
+          @case ('timeline') {
+            <label>Title<input [(ngModel)]="block.content['title']" (ngModelChange)="updateSelected()"></label>
+            <div class="repeat-editor">@for (item of block.content['items']; track $index) { <div class="repeat-card"><strong>Step {{ $index + 1 }}</strong><label>Title<input [(ngModel)]="item.title" (ngModelChange)="updateSelected()"></label><label>Text<textarea [(ngModel)]="item.text" rows="3" (ngModelChange)="updateSelected()"></textarea></label></div> }</div>
+          }
+          @case ('team') {
+            <label>Title<input [(ngModel)]="block.content['title']" (ngModelChange)="updateSelected()"></label>
+            <div class="repeat-editor">@for (item of block.content['items']; track $index) { <div class="repeat-card"><strong>Member {{ $index + 1 }}</strong><label>Name<input [(ngModel)]="item.name" (ngModelChange)="updateSelected()"></label><label>Role<input [(ngModel)]="item.role" (ngModelChange)="updateSelected()"></label><label>Image URL<input [(ngModel)]="item.image" (ngModelChange)="updateSelected()" placeholder="Leave blank for gray image"></label></div> }</div>
+          }
+          @case ('footer') {
+            <label>Brand<input [(ngModel)]="block.content['brand']" (ngModelChange)="updateSelected()"></label><label>Text<textarea [(ngModel)]="block.content['text']" rows="3" (ngModelChange)="updateSelected()"></textarea></label><label>Links (comma separated)<input [(ngModel)]="block.content['links']" (ngModelChange)="updateSelected()"></label><label>Phone<input [(ngModel)]="block.content['phone']" (ngModelChange)="updateSelected()"></label><label>Email<input [(ngModel)]="block.content['email']" (ngModelChange)="updateSelected()"></label><label>Copyright<input [(ngModel)]="block.content['copyright']" (ngModelChange)="updateSelected()"></label>
+          }
+          @case ('popup') {
+            <label>Title<input [(ngModel)]="block.content['title']" (ngModelChange)="updateSelected()"></label><label>Text<textarea [(ngModel)]="block.content['text']" rows="4" (ngModelChange)="updateSelected()"></textarea></label><label>CTA<input [(ngModel)]="block.content['cta']" (ngModelChange)="updateSelected()"></label><label>URL<input [(ngModel)]="block.content['url']" (ngModelChange)="updateSelected()"></label>
+          }
+          @case ('floating') {
+            <label>Label<input [(ngModel)]="block.content['label']" (ngModelChange)="updateSelected()"></label><label>URL / action<input [(ngModel)]="block.content['url']" (ngModelChange)="updateSelected()"></label><label>Icon<select [(ngModel)]="block.content['icon']" (ngModelChange)="updateSelected()">@for (category of materialIconCategories; track category.label) { <optgroup [label]="category.label">@for (iconName of category.icons; track iconName) { <option [value]="iconName">{{ iconName }}</option> }</optgroup> }</select></label>
+          }
           @case ('heading') {
             <label>Heading<input [(ngModel)]="block.content['text']" (ngModelChange)="updateSelected()"></label>
             @if (block.content['variant'] === 'eyebrow') { <label>Eyebrow<input [(ngModel)]="block.content['eyebrow']" (ngModelChange)="updateSelected()"></label> }
@@ -273,7 +318,7 @@
           @case ('slider') { <label>Images (one URL per line)<textarea [(ngModel)]="block.content['imagesText']" rows="7" (ngModelChange)="updateGalleryImages(block)"></textarea></label><label>Upload images<input type="file" accept="image/*" multiple (change)="onGalleryFiles($event, block)"></label><label>Interval ms<input type="number" [(ngModel)]="block.content['interval']" (ngModelChange)="updateSelected()"></label><label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['autoplay']" (ngModelChange)="updateSelected()"><span>Autoplay</span></label> }
           @case ('gallery') { <label>Images (one URL per line)<textarea [(ngModel)]="block.content['imagesText']" rows="7" (ngModelChange)="updateGalleryImages(block)"></textarea></label><label>Upload images<input type="file" accept="image/*" multiple (change)="onGalleryFiles($event, block)"></label><div class="gallery-manager">@for (image of block.content['images']; track $index) { <div class="gallery-item">@if (image) { <img [src]="image" alt=""> } @else { <div class="bt-gallery-placeholder"><mat-icon fontSet="material-symbols-rounded">image</mat-icon></div> }<button type="button" (click)="removeGalleryImage(block, $index)"><mat-icon fontSet="material-symbols-rounded">close</mat-icon></button></div> }</div> }
           @case ('button') { <label>Button text<input [(ngModel)]="block.content['label']" (ngModelChange)="updateSelected()"></label><label>Link URL<input [(ngModel)]="block.content['url']" (ngModelChange)="updateSelected()"></label><label>Target<select [(ngModel)]="block.content['target']" (ngModelChange)="updateSelected()"><option value="_self">Same tab</option><option value="_blank">New tab</option></select></label><label>Button color<input type="color" [(ngModel)]="block.style['buttonBg']" (ngModelChange)="updateSelected()"></label><label>Text color<input type="color" [(ngModel)]="block.style['buttonText']" (ngModelChange)="updateSelected()"></label> }
-          @case ('icon') { <label>Material icon name<input [(ngModel)]="block.content['materialIcon']" (ngModelChange)="updateSelected()" placeholder="star"></label><label>Label<input [(ngModel)]="block.content['label']" (ngModelChange)="updateSelected()"></label><label>Icon size<input type="number" [(ngModel)]="block.style['iconSize']" (ngModelChange)="updateSelected()"></label><label>Icon color<input type="color" [(ngModel)]="block.style['iconColor']" (ngModelChange)="updateSelected()"></label><label>Icon background<input type="color" [(ngModel)]="block.style['iconBg']" (ngModelChange)="updateSelected()"></label> }
+          @case ('icon') { <label>Material icon<select [(ngModel)]="block.content['materialIcon']" (ngModelChange)="updateSelected()">@for (category of materialIconCategories; track category.label) { <optgroup [label]="category.label">@for (iconName of category.icons; track iconName) { <option [value]="iconName">{{ iconName }}</option> }</optgroup> }</select></label><div class="bt-icon-current-preview"><mat-icon fontSet="material-symbols-rounded">{{ block.content['materialIcon'] }}</mat-icon><span>{{ block.content['materialIcon'] }}</span></div><label>Label<input [(ngModel)]="block.content['label']" (ngModelChange)="updateSelected()"></label><label>Icon size<input type="number" [(ngModel)]="block.style['iconSize']" (ngModelChange)="updateSelected()"></label><label>Icon color<input type="color" [(ngModel)]="block.style['iconColor']" (ngModelChange)="updateSelected()"></label><label>Icon background<input type="color" [(ngModel)]="block.style['iconBg']" (ngModelChange)="updateSelected()"></label> }
           @case ('social') { <label>Facebook URL<input [(ngModel)]="block.content['facebook']" (ngModelChange)="updateSelected()"></label><label>Instagram URL<input [(ngModel)]="block.content['instagram']" (ngModelChange)="updateSelected()"></label><label>YouTube URL<input [(ngModel)]="block.content['youtube']" (ngModelChange)="updateSelected()"></label><label>LinkedIn URL<input [(ngModel)]="block.content['linkedin']" (ngModelChange)="updateSelected()"></label><label>X URL<input [(ngModel)]="block.content['x']" (ngModelChange)="updateSelected()"></label><label>WhatsApp URL<input [(ngModel)]="block.content['whatsapp']" (ngModelChange)="updateSelected()"></label> }
           @case ('product') { <label>Name<input [(ngModel)]="block.content['name']" (ngModelChange)="updateSelected()"></label><label>Price<input [(ngModel)]="block.content['price']" (ngModelChange)="updateSelected()"></label><label>Old price<input [(ngModel)]="block.content['oldPrice']" (ngModelChange)="updateSelected()"></label><label>Badge<input [(ngModel)]="block.content['badge']" (ngModelChange)="updateSelected()"></label><label>Image URL<input [(ngModel)]="block.content['image']" (ngModelChange)="updateSelected()"></label><label>Upload image<input type="file" accept="image/*" (change)="onImageFile($event, block)"></label><label>Description<textarea [(ngModel)]="block.content['description']" rows="4" (ngModelChange)="updateSelected()"></textarea></label><label>CTA text<input [(ngModel)]="block.content['cta']" (ngModelChange)="updateSelected()"></label><label>CTA URL<input [(ngModel)]="block.content['url']" (ngModelChange)="updateSelected()"></label> }
           @case ('offer') { <label>Badge<input [(ngModel)]="block.content['badge']" (ngModelChange)="updateSelected()"></label><label>Title<input [(ngModel)]="block.content['title']" (ngModelChange)="updateSelected()"></label><label>Discount<input [(ngModel)]="block.content['discount']" (ngModelChange)="updateSelected()"></label><label>Description<textarea [(ngModel)]="block.content['description']" rows="4" (ngModelChange)="updateSelected()"></textarea></label><label>CTA text<input [(ngModel)]="block.content['cta']" (ngModelChange)="updateSelected()"></label><label>CTA URL<input [(ngModel)]="block.content['url']" (ngModelChange)="updateSelected()"></label> }
@@ -328,9 +373,9 @@
           <div class="bt-property-section">
             <strong>Style</strong>
             <label>Text color<input type="color" [(ngModel)]="block.style['color']" (ngModelChange)="updateSelected()"></label>
-            <label>Padding (px)<input type="number" [(ngModel)]="block.style['padding']" (ngModelChange)="updateSelected()"></label>
+            <label>Padding (px)<input type="number" [(ngModel)]="block.style['padding']" (ngModelChange)="updateSelected()"></label><div class="bt-inline-fields"><label>Margin top<input type="number" [(ngModel)]="block.style['marginTop']" (ngModelChange)="updateSelected()"></label><label>Margin bottom<input type="number" [(ngModel)]="block.style['marginBottom']" (ngModelChange)="updateSelected()"></label></div>
             <label>Alignment<select [(ngModel)]="block.style['align']" (ngModelChange)="updateSelected()"><option value="left">Left</option><option value="center">Center</option><option value="right">Right</option></select></label>
-            <label>Radius (px)<input type="number" [(ngModel)]="block.style['radius']" (ngModelChange)="updateSelected()"></label>
+            <label>Radius (px)<input type="number" [(ngModel)]="block.style['radius']" (ngModelChange)="updateSelected()"></label><div class="bt-inline-fields"><label>Border width<input type="number" [(ngModel)]="block.style['borderWidth']" (ngModelChange)="updateSelected()"></label><label>Border color<input type="color" [(ngModel)]="block.style['borderColor']" (ngModelChange)="updateSelected()"></label></div><label>Shadow<select [(ngModel)]="block.style['shadow']" (ngModelChange)="updateSelected()"><option value="none">None</option><option value="soft">Soft</option><option value="medium">Medium</option><option value="strong">Strong</option></select></label>
             @if (block.type === 'gallery') { <label>Columns<select [(ngModel)]="block.style['columns']" (ngModelChange)="updateSelected()"><option [ngValue]="1">1</option><option [ngValue]="2">2</option><option [ngValue]="3">3</option><option [ngValue]="4">4</option></select></label><label>Gap<input type="number" [(ngModel)]="block.style['gap']" (ngModelChange)="updateSelected()"></label> }
           </div>
         }

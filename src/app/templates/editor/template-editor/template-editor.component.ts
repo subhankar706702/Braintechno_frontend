@@ -164,32 +164,16 @@ export class TemplateEditorComponent implements OnInit {
 
   /**
    * Page editor ready.
+   *
+   * The child loads the input design itself.
+   * Do not call loadDesign() from here, otherwise
+   * ready -> loadDesign -> ready creates a reload loop.
    */
   onReady(): void {
 
     console.log(
       '[Template Editor] Page editor ready'
     );
-
-    /*
-     * The child component also loads
-     * the initial design itself.
-     *
-     * Calling it here again is safe and
-     * ensures MongoDB design is visible.
-     */
-    if (
-      this.editor &&
-      this.isValidDesign(
-        this.template.design
-      )
-    ) {
-
-      this.editor.loadDesign(
-        this.template.design
-      );
-
-    }
 
     this.status.set(
       this.dirty()

@@ -64,7 +64,7 @@ type PreviewMode =
 
           @if (template?.description) {
             <p>
-              {{ template?.description }}
+              {{ template.description }}
             </p>
           }
 

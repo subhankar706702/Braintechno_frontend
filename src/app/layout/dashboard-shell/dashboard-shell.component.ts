@@ -44,6 +44,16 @@ export class DashboardShellComponent {
       icon: 'campaign',
       route: '/app/campaigns',
     },
+     {
+      label: 'Settings',
+      icon: 'settings',
+      route: '/app/settings',
+    },
+    {
+      label: 'logout',
+      icon: 'logout',
+      route: '/app/logout',
+    },
   ];
 
   constructor(

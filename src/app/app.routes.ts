@@ -24,6 +24,7 @@ export const routes: Routes = [
       { path: 'dashboard', loadComponent: () => import('./dashboard/dashboard.page').then(m => m.DashboardPage) },
       { path: 'templates', loadComponent: () => import('./templates/templates.component').then(m => m.TemplatesComponent) },
       { path: 'campaigns', loadComponent: () => import('./campaigns/campaigns.component').then(m => m.CampaignsComponent) },
+      { path: 'settings', loadComponent: () => import('./settings/settings.page').then(m => m.SettingsPage) },
       { path: '', pathMatch: 'full', redirectTo: 'dashboard' }
     ]
   },

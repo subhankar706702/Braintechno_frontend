@@ -8,12 +8,14 @@ import { AuthService } from '../core/auth.service';
 import { TemplateDraft } from '../core/models';
 import { TemplateStorageService } from '../core/template-storage.service';
 import { IndiaDatePipe } from '../shared/india-date.pipe';
+import { ConfirmDialogComponent } from '../Common/components/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-templates',
   standalone: true,
   imports: [
-    IndiaDatePipe
+    IndiaDatePipe,
+    ConfirmDialogComponent
   ],
   templateUrl: './templates.component.html',
   styleUrl: './templates.component.scss'
@@ -26,13 +28,18 @@ export class TemplatesComponent {
 
   loadError = '';
 
+  openMenuId = '';
+
+  deleteTarget: TemplateDraft | null = null;
+
+  deleting = false;
+
   constructor(
     public auth: AuthService,
     private storage: TemplateStorageService,
     private router: Router,
     private cdr: ChangeDetectorRef
-  ) {
-  }
+  ) {}
 
   ngOnInit(): void {
     void this.refresh();
@@ -50,6 +57,50 @@ export class TemplatesComponent {
     return this.storage.previewUrl(item);
   }
 
+  displayTitle(
+    value: string | null | undefined
+  ): string {
+    return this.truncate(
+      String(value || 'Untitled template'),
+      12
+    );
+  }
+
+  displayDescription(
+    value: string | null | undefined
+  ): string {
+    const text =
+      String(value || 'No description added yet.')
+        .trim();
+
+    return this.truncate(
+      text,
+      30
+    );
+  }
+
+  toggleMenu(
+    item: TemplateDraft,
+    event?: Event
+  ): void {
+    event?.stopPropagation();
+
+    this.openMenuId =
+      this.openMenuId === item.id
+        ? ''
+        : item.id;
+  }
+
+  closeMenu(): void {
+    this.openMenuId = '';
+  }
+
+  isMenuOpen(
+    item: TemplateDraft
+  ): boolean {
+    return this.openMenuId === item.id;
+  }
+
   async refresh(): Promise<void> {
 
     const accountId = this.accountId;
@@ -60,7 +111,7 @@ export class TemplatesComponent {
       this.loading = false;
 
       this.loadError =
-        'Account ID is missing. Please login again.';
+        'Your account session is unavailable. Please sign in again.';
 
       this.cdr.detectChanges();
 
@@ -71,6 +122,7 @@ export class TemplatesComponent {
 
       this.loading = true;
       this.loadError = '';
+      this.closeMenu();
 
       this.cdr.detectChanges();
 
@@ -111,6 +163,7 @@ export class TemplatesComponent {
 
       this.loading = true;
       this.loadError = '';
+      this.closeMenu();
 
       this.cdr.detectChanges();
 
@@ -145,6 +198,8 @@ export class TemplatesComponent {
     item: TemplateDraft
   ): Promise<void> {
 
+    this.closeMenu();
+
     await this.router.navigate([
       '/template',
       item.id
@@ -155,6 +210,8 @@ export class TemplatesComponent {
   async view(
     item: TemplateDraft
   ): Promise<void> {
+
+    this.closeMenu();
 
     await this.router.navigate([
       '/template',
@@ -169,6 +226,8 @@ export class TemplatesComponent {
   ): Promise<void> {
 
     try {
+
+      this.closeMenu();
 
       this.loading = true;
       this.loadError = '';
@@ -216,21 +275,36 @@ export class TemplatesComponent {
     }
   }
 
-  async remove(
+  requestDelete(
     item: TemplateDraft
-  ): Promise<void> {
+  ): void {
 
-    if (
-      !confirm(
-        `Delete "${item.name}"?`
-      )
-    ) {
+    this.closeMenu();
+
+    this.deleteTarget = item;
+  }
+
+  cancelDelete(): void {
+
+    if (this.deleting) {
+      return;
+    }
+
+    this.deleteTarget = null;
+  }
+
+  async confirmDelete(): Promise<void> {
+
+    const item =
+      this.deleteTarget;
+
+    if (!item || this.deleting) {
       return;
     }
 
     try {
 
-      this.loading = true;
+      this.deleting = true;
       this.loadError = '';
 
       this.cdr.detectChanges();
@@ -238,6 +312,8 @@ export class TemplatesComponent {
       await this.storage.delete(
         item.id
       );
+
+      this.deleteTarget = null;
 
       await this.refresh();
 
@@ -253,10 +329,33 @@ export class TemplatesComponent {
 
     } finally {
 
-      this.loading = false;
+      this.deleting = false;
 
       this.cdr.detectChanges();
 
     }
+  }
+
+  private truncate(
+    value: string,
+    limit: number
+  ): string {
+
+    const text =
+      value.trim();
+
+    if (
+      text.length <= limit
+    ) {
+      return text;
+    }
+
+    return (
+      text.slice(
+        0,
+        limit
+      ).trimEnd() +
+      '...'
+    );
   }
 }

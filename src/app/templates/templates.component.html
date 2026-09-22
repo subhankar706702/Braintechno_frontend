@@ -1,124 +1,313 @@
-<div class="bt-page">
-  <div class="bt-page-head">
-    <div>
-      <h1>Templates</h1>
-      <p class="bt-muted">
-        Create promotional pages, invitations and campaign designs.
-      </p>
+<div
+  class="templates-page"
+  (click)="closeMenu()"
+>
 
-      @if (accountId !== null) {
-        <p class="bt-muted">
-          Account ID: <strong>{{ accountId }}</strong>
-        </p>
-      }
+  <header class="templates-head">
+
+    <div class="templates-head__copy">
+      <h1>Templates</h1>
+      <p>Create and manage your promotional designs.</p>
     </div>
 
     <button
-      class="bt-btn"
+      class="create-design"
       type="button"
       [disabled]="loading"
-      (click)="create()"
+      (click)="create(); $event.stopPropagation()"
     >
-      + Create design
+      <span
+        class="material-symbols-rounded"
+        aria-hidden="true"
+      >
+        add
+      </span>
+
+      <span>Create design</span>
     </button>
-  </div>
+
+  </header>
+
 
   @if (loadError) {
-    <div class="empty bt-card">
-      <h2>Could not load templates</h2>
-      <p>{{ loadError }}</p>
+
+    <section class="page-state page-state--error">
+
+      <span
+        class="page-state__icon material-symbols-rounded"
+        aria-hidden="true"
+      >
+        error
+      </span>
+
+      <div>
+        <h2>Could not load templates</h2>
+        <p>{{ loadError }}</p>
+      </div>
 
       <button
-        class="bt-btn"
         type="button"
+        class="state-action"
         [disabled]="loading"
         (click)="refresh()"
       >
         Retry
       </button>
-    </div>
+
+    </section>
+
   } @else if (loading) {
-    <div class="empty bt-card">
-      <h2>Loading templates...</h2>
-      <p>Please wait.</p>
-    </div>
+
+    <section class="page-state">
+
+      <span
+        class="page-state__spinner"
+        aria-hidden="true"
+      ></span>
+
+      <div>
+        <h2>Loading templates</h2>
+        <p>Please wait while your designs are loaded.</p>
+      </div>
+
+    </section>
+
   } @else if (items.length === 0) {
-    <div class="empty bt-card">
-      <h2>No data found</h2>
-      <p>No templates are available for this account.</p>
+
+    <section class="empty-state">
+
+      <div class="empty-state__visual">
+        <span
+          class="material-symbols-rounded"
+          aria-hidden="true"
+        >
+          dashboard_customize
+        </span>
+      </div>
+
+      <h2>Create your first template</h2>
+
+      <p>
+        Start with a blank design and build your
+        promotional page or campaign.
+      </p>
 
       <button
-        class="bt-btn"
         type="button"
-        [disabled]="loading"
+        class="create-design create-design--empty"
         (click)="create()"
       >
+        <span
+          class="material-symbols-rounded"
+          aria-hidden="true"
+        >
+          add
+        </span>
+
         Create design
       </button>
-    </div>
+
+    </section>
+
   } @else {
-    <div class="grid">
+
+    <section class="templates-grid">
+
       @for (item of items; track item.id) {
-        <article class="bt-card card">
-          <div class="thumb">
+
+        <article
+          class="template-card"
+          (click)="$event.stopPropagation()"
+        >
+
+          <div class="template-card__preview">
+
             @if (previewUrl(item)) {
+
               <img
                 [src]="previewUrl(item)"
                 [alt]="item.name"
               />
+
             } @else {
-              <span>BT</span>
+
+              <div class="template-card__placeholder">
+                <span
+                  class="material-symbols-rounded"
+                  aria-hidden="true"
+                >
+                  image
+                </span>
+              </div>
+
             }
+
           </div>
 
-          <div class="body">
-            <div class="template-info">
-              <h3>{{ item.name }}</h3>
-              <p>{{ item.description || 'No description' }}</p>
+
+          <div class="template-card__body">
+
+            <div class="template-card__title-row">
+
+              <h2
+                [title]="item.name || 'Untitled template'"
+              >
+                {{ displayTitle(item.name) }}
+              </h2>
+
+
+              <div class="template-card__menu-wrap">
+
+                <button
+                  type="button"
+                  class="template-card__menu-trigger"
+                  aria-label="Template actions"
+                  title="Template actions"
+                  [attr.aria-expanded]="isMenuOpen(item)"
+                  (click)="toggleMenu(item, $event)"
+                >
+                  <span
+                    class="material-symbols-rounded"
+                    aria-hidden="true"
+                  >
+                    more_vert
+                  </span>
+                </button>
+
+
+                @if (isMenuOpen(item)) {
+
+                  <div
+                    class="template-card__menu"
+                    role="menu"
+                  >
+
+                    <button
+                      type="button"
+                      role="menuitem"
+                      (click)="view(item)"
+                    >
+                      <span
+                        class="material-symbols-rounded"
+                        aria-hidden="true"
+                      >
+                        visibility
+                      </span>
+
+                      <span>View</span>
+                    </button>
+
+
+                    <button
+                      type="button"
+                      role="menuitem"
+                      (click)="edit(item)"
+                    >
+                      <span
+                        class="material-symbols-rounded"
+                        aria-hidden="true"
+                      >
+                        edit
+                      </span>
+
+                      <span>Edit</span>
+                    </button>
+
+
+                    <button
+                      type="button"
+                      role="menuitem"
+                      [disabled]="loading"
+                      (click)="duplicate(item)"
+                    >
+                      <span
+                        class="material-symbols-rounded"
+                        aria-hidden="true"
+                      >
+                        content_copy
+                      </span>
+
+                      <span>Duplicate</span>
+                    </button>
+
+
+                    <div class="template-card__menu-divider"></div>
+
+
+                    <button
+                      type="button"
+                      role="menuitem"
+                      class="template-card__menu-danger"
+                      [disabled]="loading"
+                      (click)="requestDelete(item)"
+                    >
+                      <span
+                        class="material-symbols-rounded"
+                        aria-hidden="true"
+                      >
+                        delete
+                      </span>
+
+                      <span>Delete</span>
+                    </button>
+
+                  </div>
+
+                }
+
+              </div>
+
             </div>
 
-            <small>
-              Updated {{ item.updatedAt | indiaDate }}
-            </small>
 
-            <div class="actions">
-              <button
-                class="bt-btn secondary"
-                type="button"
-                (click)="view(item)"
-              >
-                View
-              </button>
+            <p
+              class="template-card__description"
+              [title]="item.description || 'No description added yet.'"
+            >
+              {{ displayDescription(item.description) }}
+            </p>
 
-              <button
-                class="bt-btn"
-                type="button"
-                (click)="edit(item)"
-              >
-                Edit
-              </button>
 
-              <button
-                class="bt-btn secondary"
-                type="button"
-                [disabled]="loading"
-                (click)="duplicate(item)"
-              >
-                Duplicate
-              </button>
+            <div class="template-card__saved">
 
-              <button
-                class="bt-btn danger"
-                type="button"
-                [disabled]="loading"
-                (click)="remove(item)"
+              <span
+                class="material-symbols-rounded"
+                aria-hidden="true"
               >
-                Delete
-              </button>
+                schedule
+              </span>
+
+              <span>
+                Saved {{ item.updatedAt | indiaDate }}
+              </span>
+
             </div>
+
           </div>
+
         </article>
+
       }
-    </div>
+
+    </section>
+
   }
+
 </div>
+
+
+<bt-confirm-dialog
+  [open]="!!deleteTarget"
+  [busy]="deleting"
+  tone="danger"
+  title="Delete template?"
+  [message]="
+    deleteTarget
+      ? 'Delete &quot;' + deleteTarget.name + '&quot;? This action cannot be undone.'
+      : ''
+  "
+  confirmText="Delete template"
+  cancelText="Cancel"
+  (confirmed)="confirmDelete()"
+  (cancelled)="cancelDelete()"
+></bt-confirm-dialog>

@@ -746,3 +746,172 @@ mat-icon { width: 20px; height: 20px; font-size: 20px; line-height: 20px; }
     grid-template-columns: 1fr !important;
   }
 }
+
+/* =========================================================
+   VISUAL MATERIAL ICON PICKER
+   Shows actual icons only. Internal Material icon names are
+   kept as values but are never displayed to the user.
+   ========================================================= */
+.bt-icon-field {
+  display: grid;
+  gap: 7px;
+}
+
+.bt-field-label {
+  color: #334155;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.bt-icon-picker {
+  position: relative;
+}
+
+.bt-icon-picker > summary {
+  list-style: none;
+  min-height: 46px;
+  padding: 7px 10px;
+  border: 1px solid #dbe3ee;
+  border-radius: 10px;
+  background: #fff;
+  display: grid;
+  grid-template-columns: 34px 1fr 24px;
+  align-items: center;
+  gap: 9px;
+  cursor: pointer;
+  color: #334155;
+  font-size: 13px;
+  font-weight: 650;
+  user-select: none;
+}
+
+.bt-icon-picker > summary::-webkit-details-marker {
+  display: none;
+}
+
+.bt-icon-picker[open] > summary {
+  border-color: #ff4d6d;
+  box-shadow: 0 0 0 3px rgba(255, 77, 109, 0.08);
+}
+
+.bt-icon-selected {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  background: #fff0f3;
+  color: #ff4d6d;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bt-icon-selected mat-icon {
+  width: 22px;
+  height: 22px;
+  font-size: 22px;
+}
+
+.bt-icon-picker-chevron {
+  width: 20px;
+  height: 20px;
+  font-size: 20px;
+  color: #94a3b8;
+  transition: transform .16s ease;
+}
+
+.bt-icon-picker[open] .bt-icon-picker-chevron {
+  transform: rotate(180deg);
+}
+
+.bt-icon-picker-panel {
+  margin-top: 8px;
+  max-height: 360px;
+  overflow: auto;
+  padding: 10px;
+  border: 1px solid #dbe3ee;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12);
+  scrollbar-width: thin;
+}
+
+.bt-icon-category + .bt-icon-category {
+  margin-top: 13px;
+  padding-top: 12px;
+  border-top: 1px solid #edf1f6;
+}
+
+.bt-icon-category-title {
+  margin: 0 0 8px;
+  color: #64748b;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .055em;
+  text-transform: uppercase;
+}
+
+.bt-icon-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.bt-icon-option {
+  width: 100%;
+  aspect-ratio: 1;
+  min-width: 0;
+  padding: 0;
+  border: 1px solid #e2e8f0;
+  border-radius: 9px;
+  background: #fff;
+  color: #334155;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: border-color .14s ease, background .14s ease, color .14s ease, transform .14s ease;
+}
+
+.bt-icon-option:hover {
+  border-color: #ff9aae;
+  background: #fff6f8;
+  color: #ff4d6d;
+  transform: translateY(-1px);
+}
+
+.bt-icon-option.active {
+  border-color: #ff4d6d;
+  background: #ffedf1;
+  color: #ff3158;
+  box-shadow: inset 0 0 0 1px #ff4d6d;
+}
+
+.bt-icon-option mat-icon {
+  width: 22px;
+  height: 22px;
+  font-size: 22px;
+  line-height: 22px;
+}
+
+.bt-icon-current-preview--visual {
+  min-height: 76px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #f8fafc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bt-icon-current-preview--visual mat-icon {
+  width: 42px;
+  height: 42px;
+  font-size: 42px;
+  color: #ff4d6d;
+}
+
+@media (max-width: 1300px) {
+  .bt-icon-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}

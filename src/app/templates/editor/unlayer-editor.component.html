@@ -253,7 +253,36 @@
               @for (item of block.content['items']; track $index) {
                 <div class="repeat-card">
                   <strong>Service {{ $index + 1 }}</strong>
-                  <label>Icon<select [(ngModel)]="item.icon" (ngModelChange)="updateSelected()">@for (category of materialIconCategories; track category.label) { <optgroup [label]="category.label">@for (iconName of category.icons; track iconName) { <option [value]="iconName">{{ iconName }}</option> }</optgroup> }</select></label>
+                  <div class="bt-icon-field">
+                    <span class="bt-field-label">Icon</span>
+                    <details class="bt-icon-picker">
+                      <summary>
+                        <span class="bt-icon-selected"><mat-icon fontSet="material-symbols-rounded">{{ item.icon || 'star' }}</mat-icon></span>
+                        <span>Choose icon</span>
+                        <mat-icon class="bt-icon-picker-chevron" fontSet="material-symbols-rounded">expand_more</mat-icon>
+                      </summary>
+                      <div class="bt-icon-picker-panel">
+                        @for (category of materialIconCategories; track category.label) {
+                          <div class="bt-icon-category">
+                            <div class="bt-icon-category-title">{{ category.label }}</div>
+                            <div class="bt-icon-grid">
+                              @for (iconName of category.icons; track iconName) {
+                                <button
+                                  type="button"
+                                  class="bt-icon-option"
+                                  [class.active]="item.icon === iconName"
+                                  (click)="item.icon = iconName; updateSelected()"
+                                  aria-label="Select icon"
+                                >
+                                  <mat-icon fontSet="material-symbols-rounded">{{ iconName }}</mat-icon>
+                                </button>
+                              }
+                            </div>
+                          </div>
+                        }
+                      </div>
+                    </details>
+                  </div>
                   <label>Title<input [(ngModel)]="item.title" (ngModelChange)="updateSelected()"></label>
                   <label>Text<textarea [(ngModel)]="item.text" rows="2" (ngModelChange)="updateSelected()"></textarea></label>
                 </div>
@@ -294,7 +323,32 @@
             <label>Title<input [(ngModel)]="block.content['title']" (ngModelChange)="updateSelected()"></label><label>Text<textarea [(ngModel)]="block.content['text']" rows="4" (ngModelChange)="updateSelected()"></textarea></label><label>CTA<input [(ngModel)]="block.content['cta']" (ngModelChange)="updateSelected()"></label><label>URL<input [(ngModel)]="block.content['url']" (ngModelChange)="updateSelected()"></label>
           }
           @case ('floating') {
-            <label>Label<input [(ngModel)]="block.content['label']" (ngModelChange)="updateSelected()"></label><label>URL / action<input [(ngModel)]="block.content['url']" (ngModelChange)="updateSelected()"></label><label>Icon<select [(ngModel)]="block.content['icon']" (ngModelChange)="updateSelected()">@for (category of materialIconCategories; track category.label) { <optgroup [label]="category.label">@for (iconName of category.icons; track iconName) { <option [value]="iconName">{{ iconName }}</option> }</optgroup> }</select></label>
+            <label>Label<input [(ngModel)]="block.content['label']" (ngModelChange)="updateSelected()"></label>
+            <label>URL / action<input [(ngModel)]="block.content['url']" (ngModelChange)="updateSelected()"></label>
+            <div class="bt-icon-field">
+              <span class="bt-field-label">Icon</span>
+              <details class="bt-icon-picker">
+                <summary>
+                  <span class="bt-icon-selected"><mat-icon fontSet="material-symbols-rounded">{{ block.content['icon'] || 'chat' }}</mat-icon></span>
+                  <span>Choose icon</span>
+                  <mat-icon class="bt-icon-picker-chevron" fontSet="material-symbols-rounded">expand_more</mat-icon>
+                </summary>
+                <div class="bt-icon-picker-panel">
+                  @for (category of materialIconCategories; track category.label) {
+                    <div class="bt-icon-category">
+                      <div class="bt-icon-category-title">{{ category.label }}</div>
+                      <div class="bt-icon-grid">
+                        @for (iconName of category.icons; track iconName) {
+                          <button type="button" class="bt-icon-option" [class.active]="block.content['icon'] === iconName" (click)="block.content['icon'] = iconName; updateSelected()" aria-label="Select icon">
+                            <mat-icon fontSet="material-symbols-rounded">{{ iconName }}</mat-icon>
+                          </button>
+                        }
+                      </div>
+                    </div>
+                  }
+                </div>
+              </details>
+            </div>
           }
           @case ('heading') {
             <label>Heading<input [(ngModel)]="block.content['text']" (ngModelChange)="updateSelected()"></label>
@@ -318,7 +372,37 @@
           @case ('slider') { <label>Images (one URL per line)<textarea [(ngModel)]="block.content['imagesText']" rows="7" (ngModelChange)="updateGalleryImages(block)"></textarea></label><label>Upload images<input type="file" accept="image/*" multiple (change)="onGalleryFiles($event, block)"></label><label>Interval ms<input type="number" [(ngModel)]="block.content['interval']" (ngModelChange)="updateSelected()"></label><label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['autoplay']" (ngModelChange)="updateSelected()"><span>Autoplay</span></label> }
           @case ('gallery') { <label>Images (one URL per line)<textarea [(ngModel)]="block.content['imagesText']" rows="7" (ngModelChange)="updateGalleryImages(block)"></textarea></label><label>Upload images<input type="file" accept="image/*" multiple (change)="onGalleryFiles($event, block)"></label><div class="gallery-manager">@for (image of block.content['images']; track $index) { <div class="gallery-item">@if (image) { <img [src]="image" alt=""> } @else { <div class="bt-gallery-placeholder"><mat-icon fontSet="material-symbols-rounded">image</mat-icon></div> }<button type="button" (click)="removeGalleryImage(block, $index)"><mat-icon fontSet="material-symbols-rounded">close</mat-icon></button></div> }</div> }
           @case ('button') { <label>Button text<input [(ngModel)]="block.content['label']" (ngModelChange)="updateSelected()"></label><label>Link URL<input [(ngModel)]="block.content['url']" (ngModelChange)="updateSelected()"></label><label>Target<select [(ngModel)]="block.content['target']" (ngModelChange)="updateSelected()"><option value="_self">Same tab</option><option value="_blank">New tab</option></select></label><label>Button color<input type="color" [(ngModel)]="block.style['buttonBg']" (ngModelChange)="updateSelected()"></label><label>Text color<input type="color" [(ngModel)]="block.style['buttonText']" (ngModelChange)="updateSelected()"></label> }
-          @case ('icon') { <label>Material icon<select [(ngModel)]="block.content['materialIcon']" (ngModelChange)="updateSelected()">@for (category of materialIconCategories; track category.label) { <optgroup [label]="category.label">@for (iconName of category.icons; track iconName) { <option [value]="iconName">{{ iconName }}</option> }</optgroup> }</select></label><div class="bt-icon-current-preview"><mat-icon fontSet="material-symbols-rounded">{{ block.content['materialIcon'] }}</mat-icon><span>{{ block.content['materialIcon'] }}</span></div><label>Label<input [(ngModel)]="block.content['label']" (ngModelChange)="updateSelected()"></label><label>Icon size<input type="number" [(ngModel)]="block.style['iconSize']" (ngModelChange)="updateSelected()"></label><label>Icon color<input type="color" [(ngModel)]="block.style['iconColor']" (ngModelChange)="updateSelected()"></label><label>Icon background<input type="color" [(ngModel)]="block.style['iconBg']" (ngModelChange)="updateSelected()"></label> }
+          @case ('icon') {
+            <div class="bt-icon-field">
+              <span class="bt-field-label">Material icon</span>
+              <details class="bt-icon-picker bt-icon-picker--large">
+                <summary>
+                  <span class="bt-icon-selected"><mat-icon fontSet="material-symbols-rounded">{{ block.content['materialIcon'] || 'star' }}</mat-icon></span>
+                  <span>Choose icon</span>
+                  <mat-icon class="bt-icon-picker-chevron" fontSet="material-symbols-rounded">expand_more</mat-icon>
+                </summary>
+                <div class="bt-icon-picker-panel">
+                  @for (category of materialIconCategories; track category.label) {
+                    <div class="bt-icon-category">
+                      <div class="bt-icon-category-title">{{ category.label }}</div>
+                      <div class="bt-icon-grid">
+                        @for (iconName of category.icons; track iconName) {
+                          <button type="button" class="bt-icon-option" [class.active]="block.content['materialIcon'] === iconName" (click)="block.content['materialIcon'] = iconName; updateSelected()" aria-label="Select icon">
+                            <mat-icon fontSet="material-symbols-rounded">{{ iconName }}</mat-icon>
+                          </button>
+                        }
+                      </div>
+                    </div>
+                  }
+                </div>
+              </details>
+            </div>
+            <div class="bt-icon-current-preview bt-icon-current-preview--visual"><mat-icon fontSet="material-symbols-rounded">{{ block.content['materialIcon'] || 'star' }}</mat-icon></div>
+            <label>Label<input [(ngModel)]="block.content['label']" (ngModelChange)="updateSelected()"></label>
+            <label>Icon size<input type="number" [(ngModel)]="block.style['iconSize']" (ngModelChange)="updateSelected()"></label>
+            <label>Icon color<input type="color" [(ngModel)]="block.style['iconColor']" (ngModelChange)="updateSelected()"></label>
+            <label>Icon background<input type="color" [(ngModel)]="block.style['iconBg']" (ngModelChange)="updateSelected()"></label>
+          }
           @case ('social') { <label>Facebook URL<input [(ngModel)]="block.content['facebook']" (ngModelChange)="updateSelected()"></label><label>Instagram URL<input [(ngModel)]="block.content['instagram']" (ngModelChange)="updateSelected()"></label><label>YouTube URL<input [(ngModel)]="block.content['youtube']" (ngModelChange)="updateSelected()"></label><label>LinkedIn URL<input [(ngModel)]="block.content['linkedin']" (ngModelChange)="updateSelected()"></label><label>X URL<input [(ngModel)]="block.content['x']" (ngModelChange)="updateSelected()"></label><label>WhatsApp URL<input [(ngModel)]="block.content['whatsapp']" (ngModelChange)="updateSelected()"></label> }
           @case ('product') { <label>Name<input [(ngModel)]="block.content['name']" (ngModelChange)="updateSelected()"></label><label>Price<input [(ngModel)]="block.content['price']" (ngModelChange)="updateSelected()"></label><label>Old price<input [(ngModel)]="block.content['oldPrice']" (ngModelChange)="updateSelected()"></label><label>Badge<input [(ngModel)]="block.content['badge']" (ngModelChange)="updateSelected()"></label><label>Image URL<input [(ngModel)]="block.content['image']" (ngModelChange)="updateSelected()"></label><label>Upload image<input type="file" accept="image/*" (change)="onImageFile($event, block)"></label><label>Description<textarea [(ngModel)]="block.content['description']" rows="4" (ngModelChange)="updateSelected()"></textarea></label><label>CTA text<input [(ngModel)]="block.content['cta']" (ngModelChange)="updateSelected()"></label><label>CTA URL<input [(ngModel)]="block.content['url']" (ngModelChange)="updateSelected()"></label> }
           @case ('offer') { <label>Badge<input [(ngModel)]="block.content['badge']" (ngModelChange)="updateSelected()"></label><label>Title<input [(ngModel)]="block.content['title']" (ngModelChange)="updateSelected()"></label><label>Discount<input [(ngModel)]="block.content['discount']" (ngModelChange)="updateSelected()"></label><label>Description<textarea [(ngModel)]="block.content['description']" rows="4" (ngModelChange)="updateSelected()"></textarea></label><label>CTA text<input [(ngModel)]="block.content['cta']" (ngModelChange)="updateSelected()"></label><label>CTA URL<input [(ngModel)]="block.content['url']" (ngModelChange)="updateSelected()"></label> }

@@ -11,7 +11,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { MATERIAL_ICON_CATEGORIES, MATERIAL_ICON_LIST } from './material-icon-list';
+import { MATERIAL_ICON_CATEGORIES, MATERIAL_ICON_LIST } from '../material-icon-list';
 
 interface EditorBlock {
   id: string;
@@ -44,13 +44,13 @@ interface MediaItem {
 }
 
 @Component({
-  selector: 'bt-unlayer-editor',
+  selector: 'bt-braintechno-editor',
   standalone: true,
   imports: [CommonModule, FormsModule, MatIconModule],
-  templateUrl: './unlayer-editor.component.html',
-  styleUrls: ['./unlayer-editor.component.scss']
+  templateUrl: './braintechno-editor.component.html',
+  styleUrls: ['./braintechno-editor.component.scss']
 })
-export class UnlayerEditorComponent implements OnChanges, OnDestroy {
+export class BraintechnoEditorComponent implements OnChanges, OnDestroy {
   @Input() design: unknown;
   @Output() readonly ready = new EventEmitter<void>();
   @Output() readonly changed = new EventEmitter<void>();

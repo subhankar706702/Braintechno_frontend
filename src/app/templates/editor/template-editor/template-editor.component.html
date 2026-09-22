@@ -2,41 +2,49 @@
 
   <header class="editor-topbar">
 
-    <div class="left">
+    <div class="editor-topbar__identity">
 
       <a
         routerLink="/app/templates"
-        class="back"
+        class="icon-btn back"
         aria-label="Back to templates"
+        title="Back to templates"
       >
-        ←
+        <span class="material-symbols-rounded" aria-hidden="true">arrow_back</span>
       </a>
 
-      <div class="title">
-
-        <input
-          type="text"
-          [(ngModel)]="template.name"
-          (ngModelChange)="markDirty()"
-          placeholder="Template name"
-          aria-label="Template name"
-          [disabled]="loading()"
-        />
-
-        <span>
-          {{
-            dirty()
-              ? 'Unsaved changes'
-              : status()
-          }}
+      <button
+        type="button"
+        class="template-summary"
+        (click)="openMetaEditor()"
+        [disabled]="loading()"
+        aria-label="Edit template title and description"
+      >
+        <span class="template-summary__copy">
+          <strong>{{ template.name || 'Untitled Template' }}</strong>
+          <small>
+            {{ template.description || 'Add template description' }}
+          </small>
         </span>
 
-      </div>
+        <span
+          class="material-symbols-rounded template-summary__edit"
+          aria-hidden="true"
+        >
+          edit
+        </span>
+
+        @if (dirty()) {
+          <span class="status-pill status-pill--warning">
+            Unsaved
+          </span>
+        }
+      </button>
 
     </div>
 
 
-    <div class="actions">
+    <div class="editor-topbar__actions">
 
       <input
         #jsonFile
@@ -46,111 +54,159 @@
         (change)="importJson($event)"
       />
 
+      <div class="action-menu">
 
-      <button
-        type="button"
-        class="tool"
-        (click)="newDesign()"
-        [disabled]="
-          loading() ||
-          busy()
-        "
-      >
-        New
-      </button>
+        <button
+          type="button"
+          class="tool"
+          (click)="toggleAddMenu()"
+          [attr.aria-expanded]="addMenuOpen()"
+          [disabled]="loading() || busy()"
+        >
+          <span class="material-symbols-rounded" aria-hidden="true">add</span>
+          <span>Add</span>
+          <span class="material-symbols-rounded tool__chevron" aria-hidden="true">expand_more</span>
+        </button>
 
+        @if (addMenuOpen()) {
+          <div class="menu-popover menu-popover--add" role="menu">
 
-      <button
-        type="button"
-        class="tool"
-        (click)="jsonFile.click()"
-        [disabled]="
-          loading() ||
-          busy()
-        "
-      >
-        Import Design JSON
-      </button>
+            <button
+              type="button"
+              role="menuitem"
+              (click)="requestBlankDesign()"
+            >
+              <span class="menu-popover__icon material-symbols-rounded" aria-hidden="true">draft</span>
+              <span>
+                <strong>Blank</strong>
+                <small>Start with an empty design</small>
+              </span>
+            </button>
+
+            <button
+              type="button"
+              role="menuitem"
+              (click)="requestGallery()"
+            >
+              <span class="menu-popover__icon material-symbols-rounded" aria-hidden="true">dashboard_customize</span>
+              <span>
+                <strong>From gallery</strong>
+                <small>Choose a ready-made template</small>
+              </span>
+            </button>
+
+            <button
+              type="button"
+              role="menuitem"
+              (click)="triggerImport(jsonFile)"
+            >
+              <span class="menu-popover__icon material-symbols-rounded" aria-hidden="true">upload_file</span>
+              <span>
+                <strong>Import</strong>
+                <small>Import a design JSON file</small>
+              </span>
+            </button>
+
+          </div>
+        }
+
+      </div>
 
 
       <button
         type="button"
         class="tool"
         (click)="preview()"
-        [disabled]="
-          loading() ||
-          busy()
-        "
+        [disabled]="loading() || busy()"
       >
-        Preview
+        <span class="material-symbols-rounded" aria-hidden="true">visibility</span>
+        <span>Preview</span>
       </button>
 
 
-      <button
-        type="button"
-        class="tool"
-        (click)="downloadJson()"
-        [disabled]="
-          loading() ||
-          busy()
-        "
-      >
-        JSON
-      </button>
+      <div class="action-menu">
 
+        <button
+          type="button"
+          class="tool"
+          (click)="toggleSaveAsMenu()"
+          [attr.aria-expanded]="saveAsMenuOpen()"
+          [disabled]="loading() || busy()"
+        >
+          <span class="material-symbols-rounded" aria-hidden="true">download</span>
+          <span>Save as</span>
+          <span class="material-symbols-rounded tool__chevron" aria-hidden="true">expand_more</span>
+        </button>
 
-      <button
-        type="button"
-        class="tool"
-        (click)="downloadHtml()"
-        [disabled]="
-          loading() ||
-          busy()
-        "
-      >
-        HTML
-      </button>
+        @if (saveAsMenuOpen()) {
+          <div class="menu-popover menu-popover--save" role="menu">
 
+            <button
+              type="button"
+              role="menuitem"
+              (click)="closeMenus(); downloadJpg()"
+            >
+              <span class="menu-popover__icon material-symbols-rounded" aria-hidden="true">image</span>
+              <span>
+                <strong>JPG</strong>
+                <small>Download as image</small>
+              </span>
+            </button>
 
-      <button
-        type="button"
-        class="tool"
-        (click)="downloadJpg()"
-        [disabled]="
-          loading() ||
-          busy()
-        "
-      >
-        JPG
-      </button>
+            <button
+              type="button"
+              role="menuitem"
+              (click)="closeMenus(); downloadPdf()"
+            >
+              <span class="menu-popover__icon material-symbols-rounded" aria-hidden="true">picture_as_pdf</span>
+              <span>
+                <strong>PDF</strong>
+                <small>Download printable document</small>
+              </span>
+            </button>
 
+            <button
+              type="button"
+              role="menuitem"
+              (click)="closeMenus(); downloadHtml()"
+            >
+              <span class="menu-popover__icon material-symbols-rounded" aria-hidden="true">code</span>
+              <span>
+                <strong>HTML</strong>
+                <small>Download web page source</small>
+              </span>
+            </button>
 
-      <button
-        type="button"
-        class="tool"
-        (click)="downloadPdf()"
-        [disabled]="
-          loading() ||
-          busy()
-        "
-      >
-        PDF
-      </button>
+            <button
+              type="button"
+              role="menuitem"
+              (click)="closeMenus(); downloadJson()"
+            >
+              <span class="menu-popover__icon material-symbols-rounded" aria-hidden="true">data_object</span>
+              <span>
+                <strong>JSON</strong>
+                <small>Download editable design data</small>
+              </span>
+            </button>
+
+          </div>
+        }
+
+      </div>
 
 
       <button
         type="button"
         class="save"
         (click)="save()"
-        [disabled]="
-          loading() ||
-          busy()
-        "
+        [disabled]="loading() || busy()"
       >
         @if (busy()) {
-          Working...
+          <span class="button-spinner" aria-hidden="true"></span>
+          <span>Working...</span>
         } @else {
-          Save
+          <span class="material-symbols-rounded" aria-hidden="true">save</span>
+          <span>Save</span>
         }
       </button>
 
@@ -159,100 +215,52 @@
   </header>
 
 
-  <section class="meta">
-
-    <input
-      class="bt-input"
-      type="text"
-      [(ngModel)]="template.description"
-      (ngModelChange)="markDirty()"
-      placeholder="Template description (optional)"
-      [disabled]="loading()"
-    />
-
-    <span class="hint">
-
-      @if (loading()) {
-
-        Loading from MongoDB...
-
-      } @else if (loadError()) {
-
-        {{ loadError() }}
-
-      } @else if (dirty()) {
-
-        Unsaved changes
-
-      } @else {
-
-        MongoDB synced
-
-      }
-
-    </span>
-
-  </section>
+  @if (addMenuOpen() || saveAsMenuOpen()) {
+    <button
+      type="button"
+      class="menu-backdrop"
+      aria-label="Close menu"
+      (click)="closeMenus()"
+    ></button>
+  }
 
 
   @if (loading()) {
 
     <section class="editor-state">
-
       <div class="editor-state__spinner"></div>
-
       <div>
-
-        <strong>
-          Loading template
-        </strong>
-
-        <p>
-          Connecting to the template API...
-        </p>
-
+        <strong>Loading template</strong>
+        <p>Connecting to the template API...</p>
       </div>
-
     </section>
 
   } @else if (loadError()) {
 
-    <section class="editor-state">
-
+    <section class="editor-state editor-state--error">
+      <span class="material-symbols-rounded" aria-hidden="true">error</span>
       <div>
-
-        <strong>
-          Template unavailable
-        </strong>
-
-        <p>
-          {{ loadError() }}
-        </p>
-
+        <strong>Template unavailable</strong>
+        <p>{{ loadError() }}</p>
         <button
           type="button"
-          class="bt-btn"
+          class="secondary-btn"
           (click)="loadTemplate()"
         >
           Retry
         </button>
-
       </div>
-
     </section>
 
   } @else {
 
     <section class="unlayer-wrapper">
-
-      <bt-unlayer-editor
+      <bt-braintechno-editor
         #editor
         [design]="template.design"
         (ready)="onReady()"
         (changed)="onChanged()"
-      >
-      </bt-unlayer-editor>
-
+      ></bt-braintechno-editor>
     </section>
 
   }
@@ -261,11 +269,156 @@
 
 
 @if (showPreview()) {
-
   <bt-htmlviewer
     [html]="previewHtml()"
     (closed)="closePreview()"
-  >
-  </bt-htmlviewer>
+  ></bt-htmlviewer>
+}
 
+
+@if (showMetaEditor()) {
+  <div class="dialog-backdrop" (click)="closeMetaEditor()">
+    <section
+      class="editor-dialog"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="template-details-title"
+      (click)="$event.stopPropagation()"
+    >
+      <header class="editor-dialog__header">
+        <div>
+          <span class="editor-dialog__eyebrow">Template details</span>
+          <h2 id="template-details-title">Edit title & description</h2>
+        </div>
+        <button
+          type="button"
+          class="icon-btn"
+          aria-label="Close"
+          (click)="closeMetaEditor()"
+        >
+          <span class="material-symbols-rounded" aria-hidden="true">close</span>
+        </button>
+      </header>
+
+      <div class="editor-dialog__body">
+        <label class="field">
+          <span>Template title</span>
+          <input
+            type="text"
+            [(ngModel)]="editName"
+            maxlength="100"
+            placeholder="Template title"
+          />
+        </label>
+
+        <label class="field">
+          <span>Description</span>
+          <textarea
+            [(ngModel)]="editDescription"
+            rows="4"
+            maxlength="300"
+            placeholder="Short description (optional)"
+          ></textarea>
+        </label>
+      </div>
+
+      <footer class="editor-dialog__footer">
+        <button
+          type="button"
+          class="secondary-btn"
+          (click)="closeMetaEditor()"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          class="primary-btn"
+          (click)="applyMetaEditor()"
+        >
+          Save details
+        </button>
+      </footer>
+    </section>
+  </div>
+}
+
+
+@if (pendingAction()) {
+  <div class="dialog-backdrop" (click)="cancelPendingAction()">
+    <section
+      class="editor-dialog editor-dialog--confirm"
+      role="alertdialog"
+      aria-modal="true"
+      aria-labelledby="discard-title"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="confirm-icon confirm-icon--warning">
+        <span class="material-symbols-rounded" aria-hidden="true">warning</span>
+      </div>
+
+      <div class="confirm-copy">
+        <h2 id="discard-title">Unsaved changes</h2>
+        <p>
+          @if (pendingAction() === 'blank') {
+            Starting a blank design will discard your current unsaved changes.
+          } @else {
+            Opening the gallery now may discard your current unsaved changes.
+          }
+        </p>
+      </div>
+
+      <footer class="editor-dialog__footer">
+        <button
+          type="button"
+          class="secondary-btn"
+          (click)="cancelPendingAction()"
+        >
+          Keep editing
+        </button>
+        <button
+          type="button"
+          class="warning-btn"
+          (click)="confirmPendingAction()"
+        >
+          Continue
+        </button>
+      </footer>
+    </section>
+  </div>
+}
+
+
+@if (toast(); as notice) {
+  <aside
+    class="editor-toast"
+    [class.editor-toast--success]="notice.kind === 'success'"
+    [class.editor-toast--error]="notice.kind === 'error'"
+    [class.editor-toast--warning]="notice.kind === 'warning'"
+    [class.editor-toast--info]="notice.kind === 'info'"
+    role="status"
+    aria-live="polite"
+  >
+    <span class="editor-toast__icon material-symbols-rounded" aria-hidden="true">
+      @switch (notice.kind) {
+        @case ('success') { check_circle }
+        @case ('error') { error }
+        @case ('warning') { warning }
+        @default { info }
+      }
+    </span>
+
+    <span class="editor-toast__copy">
+      <strong>{{ notice.title }}</strong>
+      <small>{{ notice.message }}</small>
+    </span>
+
+    <button
+      type="button"
+      class="editor-toast__close"
+      aria-label="Dismiss notification"
+      (click)="dismissToast()"
+    >
+      <span class="material-symbols-rounded" aria-hidden="true">close</span>
+    </button>
+  </aside>
 }

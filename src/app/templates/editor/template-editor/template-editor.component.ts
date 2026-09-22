@@ -9,6 +9,7 @@ import { FormsModule } from '@angular/forms';
 
 import {
   ActivatedRoute,
+  Router,
   RouterLink
 } from '@angular/router';
 
@@ -19,7 +20,16 @@ import { TemplateDraft } from '../../../core/models';
 import { TemplateStorageService } from '../../../core/template-storage.service';
 
 import { HtmlviewerComponent } from '../htmlviewer.component';
-import { UnlayerEditorComponent } from '../unlayer-editor.component';
+import { BraintechnoEditorComponent } from '../braintechno-editor/braintechno-editor.component';
+
+type EditorToastKind = 'success' | 'error' | 'warning' | 'info';
+type PendingEditorAction = 'blank' | 'gallery' | null;
+
+interface EditorToast {
+  kind: EditorToastKind;
+  title: string;
+  message: string;
+}
 
 @Component({
   selector: 'app-template-editor',
@@ -28,7 +38,7 @@ import { UnlayerEditorComponent } from '../unlayer-editor.component';
   imports: [
     FormsModule,
     RouterLink,
-    UnlayerEditorComponent,
+    BraintechnoEditorComponent,
     HtmlviewerComponent
   ],
 
@@ -38,7 +48,7 @@ import { UnlayerEditorComponent } from '../unlayer-editor.component';
 export class TemplateEditorComponent implements OnInit {
 
   @ViewChild('editor')
-  editor?: UnlayerEditorComponent;
+  editor?: BraintechnoEditorComponent;
 
   template: TemplateDraft = {
     id: '',
@@ -60,8 +70,20 @@ export class TemplateEditorComponent implements OnInit {
   readonly showPreview = signal(false);
   readonly previewHtml = signal('');
 
+  readonly showMetaEditor = signal(false);
+  readonly addMenuOpen = signal(false);
+  readonly saveAsMenuOpen = signal(false);
+  readonly pendingAction = signal<PendingEditorAction>(null);
+  readonly toast = signal<EditorToast | null>(null);
+
+  editName = '';
+  editDescription = '';
+
+  private toastTimer?: ReturnType<typeof setTimeout>;
+
   constructor(
     private route: ActivatedRoute,
+    private router: Router,
     private storage: TemplateStorageService
   ) {}
 
@@ -100,6 +122,12 @@ export class TemplateEditorComponent implements OnInit {
           'Template unavailable'
         );
 
+        this.notify(
+          'error',
+          'Template unavailable',
+          'Template id is missing.'
+        );
+
         return;
       }
 
@@ -119,6 +147,12 @@ export class TemplateEditorComponent implements OnInit {
 
         this.status.set(
           'Template not found'
+        );
+
+        this.notify(
+          'error',
+          'Template not found',
+          'No data was found for this template.'
         );
 
         return;
@@ -153,6 +187,12 @@ export class TemplateEditorComponent implements OnInit {
 
       this.status.set(
         'Failed to load'
+      );
+
+      this.notify(
+        'error',
+        'Template load failed',
+        this.message(error) || 'Could not load the template.'
       );
 
     } finally {
@@ -213,8 +253,10 @@ export class TemplateEditorComponent implements OnInit {
 
     if (!this.editor) {
 
-      alert(
-        'Editor is not ready yet.'
+      this.notify(
+        'error',
+        'Editor not ready',
+        'Please wait for the editor to finish loading.'
       );
 
       return;
@@ -222,7 +264,9 @@ export class TemplateEditorComponent implements OnInit {
 
     if (!this.template.id) {
 
-      alert(
+      this.notify(
+        'error',
+        'Template unavailable',
         'Template id is missing.'
       );
 
@@ -282,6 +326,12 @@ export class TemplateEditorComponent implements OnInit {
         'Saved'
       );
 
+      this.notify(
+        'success',
+        'Template saved',
+        'Your latest changes have been saved successfully.'
+      );
+
     } catch (error) {
 
       console.error(
@@ -293,8 +343,9 @@ export class TemplateEditorComponent implements OnInit {
         'Save failed'
       );
 
-      alert(
-        'Save failed. ' +
+      this.notify(
+        'error',
+        'Save failed',
         this.message(error)
       );
 
@@ -306,7 +357,7 @@ export class TemplateEditorComponent implements OnInit {
   }
 
   /**
-   * Import Unlayer JSON.
+   * Import  JSON.
    *
    * Supports:
    *
@@ -362,7 +413,7 @@ export class TemplateEditorComponent implements OnInit {
       ) {
 
         throw new Error(
-          'This file is not a valid Unlayer design JSON.'
+          'This file is not a valid Braintechno design JSON.'
         );
 
       }
@@ -398,6 +449,12 @@ export class TemplateEditorComponent implements OnInit {
         'JSON imported'
       );
 
+      this.notify(
+        'success',
+        'Design imported',
+        'The JSON design was imported successfully.'
+      );
+
     } catch (error) {
 
       console.error(
@@ -409,8 +466,10 @@ export class TemplateEditorComponent implements OnInit {
         'Import failed'
       );
 
-      alert(
-        'Invalid JSON file. Please select a valid BRAIN TECHNO design JSON.'
+      this.notify(
+        'error',
+        'Import failed',
+        'Please select a valid BRAIN TECHNO design JSON file.'
       );
 
     } finally {
@@ -429,15 +488,6 @@ export class TemplateEditorComponent implements OnInit {
    * Start blank design.
    */
   async newDesign(): Promise<void> {
-
-    if (
-      this.dirty() &&
-      !confirm(
-        'Discard current unsaved changes and start a blank design?'
-      )
-    ) {
-      return;
-    }
 
     const design =
       this.createEmptyDesign();
@@ -462,6 +512,12 @@ export class TemplateEditorComponent implements OnInit {
 
     this.status.set(
       'New blank design'
+    );
+
+    this.notify(
+      'success',
+      'Blank design ready',
+      'A new blank design is ready to edit.'
     );
   }
 
@@ -509,6 +565,12 @@ export class TemplateEditorComponent implements OnInit {
         true
       );
 
+      this.notify(
+        'success',
+        'Preview ready',
+        'Your current design is ready to preview.'
+      );
+
     } catch (error) {
 
       console.error(
@@ -516,8 +578,9 @@ export class TemplateEditorComponent implements OnInit {
         error
       );
 
-      alert(
-        'Preview failed. ' +
+      this.notify(
+        'error',
+        'Preview failed',
         this.message(error)
       );
 
@@ -576,6 +639,12 @@ export class TemplateEditorComponent implements OnInit {
         '.json'
       );
 
+      this.notify(
+        'success',
+        'JSON downloaded',
+        'The design JSON file was downloaded successfully.'
+      );
+
     } catch (error) {
 
       console.error(
@@ -583,8 +652,9 @@ export class TemplateEditorComponent implements OnInit {
         error
       );
 
-      alert(
-        'JSON export failed. ' +
+      this.notify(
+        'error',
+        'JSON export failed',
         this.message(error)
       );
 
@@ -622,6 +692,12 @@ export class TemplateEditorComponent implements OnInit {
         '.html'
       );
 
+      this.notify(
+        'success',
+        'HTML downloaded',
+        'The HTML file was downloaded successfully.'
+      );
+
     } catch (error) {
 
       console.error(
@@ -629,8 +705,9 @@ export class TemplateEditorComponent implements OnInit {
         error
       );
 
-      alert(
-        'HTML export failed. ' +
+      this.notify(
+        'error',
+        'HTML export failed',
         this.message(error)
       );
 
@@ -688,6 +765,12 @@ export class TemplateEditorComponent implements OnInit {
         '.jpg'
       );
 
+      this.notify(
+        'success',
+        'JPG downloaded',
+        'The JPG image was downloaded successfully.'
+      );
+
     } catch (error) {
 
       console.error(
@@ -695,8 +778,9 @@ export class TemplateEditorComponent implements OnInit {
         error
       );
 
-      alert(
-        'JPG export failed. ' +
+      this.notify(
+        'error',
+        'JPG export failed',
         this.message(error)
       );
 
@@ -782,6 +866,12 @@ export class TemplateEditorComponent implements OnInit {
         '.pdf'
       );
 
+      this.notify(
+        'success',
+        'PDF downloaded',
+        'The PDF file was downloaded successfully.'
+      );
+
     } catch (error) {
 
       console.error(
@@ -789,8 +879,9 @@ export class TemplateEditorComponent implements OnInit {
         error
       );
 
-      alert(
-        'PDF export failed. ' +
+      this.notify(
+        'error',
+        'PDF export failed',
         this.message(error)
       );
 
@@ -801,6 +892,141 @@ export class TemplateEditorComponent implements OnInit {
       this.busy.set(false);
 
     }
+  }
+
+  openMetaEditor(): void {
+    this.editName = this.template.name || '';
+    this.editDescription = this.template.description || '';
+    this.showMetaEditor.set(true);
+    this.closeMenus();
+  }
+
+  closeMetaEditor(): void {
+    this.showMetaEditor.set(false);
+  }
+
+  applyMetaEditor(): void {
+    const name = String(this.editName || '').trim();
+
+    if (!name) {
+      this.notify(
+        'error',
+        'Template name required',
+        'Please enter a template name before saving the details.'
+      );
+      return;
+    }
+
+    this.template = {
+      ...this.template,
+      name,
+      description: String(this.editDescription || '').trim()
+    };
+
+    this.markDirty();
+    this.showMetaEditor.set(false);
+
+    this.notify(
+      'success',
+      'Template details updated',
+      'Title and description were updated.'
+    );
+  }
+
+  toggleAddMenu(): void {
+    this.saveAsMenuOpen.set(false);
+    this.addMenuOpen.update(value => !value);
+  }
+
+  toggleSaveAsMenu(): void {
+    this.addMenuOpen.set(false);
+    this.saveAsMenuOpen.update(value => !value);
+  }
+
+  closeMenus(): void {
+    this.addMenuOpen.set(false);
+    this.saveAsMenuOpen.set(false);
+  }
+
+  requestBlankDesign(): void {
+    this.closeMenus();
+
+    if (this.dirty()) {
+      this.pendingAction.set('blank');
+      this.notify(
+        'warning',
+        'Unsaved changes',
+        'Starting a blank design will discard the current unsaved changes.'
+      );
+      return;
+    }
+
+    void this.newDesign();
+  }
+
+  requestGallery(): void {
+    this.closeMenus();
+
+    if (this.dirty()) {
+      this.pendingAction.set('gallery');
+      this.notify(
+        'warning',
+        'Unsaved changes',
+        'Open the gallery only after saving if you want to keep these changes.'
+      );
+      return;
+    }
+
+    void this.router.navigateByUrl('/app/templates');
+  }
+
+  cancelPendingAction(): void {
+    this.pendingAction.set(null);
+  }
+
+  confirmPendingAction(): void {
+    const action = this.pendingAction();
+    this.pendingAction.set(null);
+
+    if (action === 'blank') {
+      void this.newDesign();
+      return;
+    }
+
+    if (action === 'gallery') {
+      void this.router.navigateByUrl('/app/templates');
+    }
+  }
+
+  triggerImport(input: HTMLInputElement): void {
+    this.closeMenus();
+    input.click();
+  }
+
+  private notify(
+    kind: EditorToastKind,
+    title: string,
+    message: string
+  ): void {
+    if (this.toastTimer) {
+      clearTimeout(this.toastTimer);
+    }
+
+    this.toast.set({ kind, title, message });
+
+    this.toastTimer = setTimeout(() => {
+      this.toast.set(null);
+      this.toastTimer = undefined;
+    }, 4200);
+  }
+
+  dismissToast(): void {
+    if (this.toastTimer) {
+      clearTimeout(this.toastTimer);
+      this.toastTimer = undefined;
+    }
+
+    this.toast.set(null);
   }
 
   /**

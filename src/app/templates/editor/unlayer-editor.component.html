@@ -1,8 +1,9 @@
-<div class="bt-editor-shell" [class.has-left-presets]="!!activePresetType" (click)="clearSelection($event)">
+<div class="bt-editor-shell" [class.has-left-presets]="!!activePresetType" [class.mobile-elements-open]="mobilePanel === 'elements'" [class.mobile-properties-open]="mobilePanel === 'properties'" (click)="clearSelection($event)">
   <aside class="bt-panel bt-panel--left" (click)="$event.stopPropagation()">
     @if (!activePresetType) {
       <div class="bt-panel-head">
         <div><strong>Elements</strong><span>Search, pin and choose an element</span></div>
+        <button type="button" class="bt-mobile-sheet-close" (click)="closeMobilePanel()" aria-label="Close elements"><mat-icon fontSet="material-symbols-rounded">close</mat-icon></button>
       </div>
 
       <div class="bt-left-workspace">
@@ -64,7 +65,7 @@
       <div class="bt-preset-pane bt-preset-pane--full">
         <div class="bt-preset-picker">
           <div class="bt-preset-picker__head bt-preset-picker__head--full">
-            <button type="button" class="bt-back-button" (click)="closePresetPicker()" aria-label="Back to elements">
+            <button type="button" class="bt-back-button" (click)="closePresetPicker(); openMobileElements()" aria-label="Back to elements">
               <mat-icon fontSet="material-symbols-rounded">arrow_back</mat-icon>
             </button>
             <div class="bt-preset-title">
@@ -212,7 +213,7 @@
 
   <aside class="bt-panel bt-panel--right" (click)="$event.stopPropagation()">
     @if (selected; as block) {
-      <div class="bt-panel-head"><div><strong>Properties</strong><span>{{ block.type | titlecase }} @if (selectedIsNested) { · Inside Block }</span></div></div>
+      <div class="bt-panel-head"><div><strong>Properties</strong><span>{{ block.type | titlecase }} @if (selectedIsNested) { · Inside Block }</span></div><button type="button" class="bt-mobile-sheet-close" (click)="closeMobilePanel()" aria-label="Close properties"><mat-icon fontSet="material-symbols-rounded">close</mat-icon></button></div>
       <div class="bt-properties">
         @if (presetOptions(block.type).length) {
           <label>Style
@@ -469,4 +470,23 @@
       <div class="bt-no-selection"><mat-icon fontSet="material-symbols-rounded">touch_app</mat-icon><h3>Select an element</h3><p>Click any block on the canvas to edit its content and style.</p></div>
     }
   </aside>
+
+  <nav class="bt-mobile-toolbar" aria-label="Editor tools" (click)="$event.stopPropagation()">
+    <button type="button" [class.active]="mobilePanel === 'elements'" (click)="openMobileElements()">
+      <mat-icon fontSet="material-symbols-rounded">add_circle</mat-icon>
+      <span>Add</span>
+    </button>
+    <button type="button" [class.active]="mobilePanel === 'properties'" [disabled]="!selected" (click)="openMobileProperties()">
+      <mat-icon fontSet="material-symbols-rounded">tune</mat-icon>
+      <span>Style</span>
+    </button>
+    <button type="button" (click)="undo()" [disabled]="!canUndo">
+      <mat-icon fontSet="material-symbols-rounded">undo</mat-icon>
+      <span>Undo</span>
+    </button>
+    <button type="button" (click)="redo()" [disabled]="!canRedo">
+      <mat-icon fontSet="material-symbols-rounded">redo</mat-icon>
+      <span>Redo</span>
+    </button>
+  </nav>
 </div>

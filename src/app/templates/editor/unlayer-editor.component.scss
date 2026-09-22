@@ -19,6 +19,7 @@
 button, input, textarea, select { font: inherit; }
 button { -webkit-tap-highlight-color: transparent; }
 mat-icon { width: 20px; height: 20px; font-size: 20px; line-height: 20px; }
+.bt-mobile-toolbar, .bt-mobile-sheet-close { display: none; }
 
 .bt-editor-shell {
   display: grid;
@@ -911,6 +912,282 @@ mat-icon { width: 20px; height: 20px; font-size: 20px; line-height: 20px; }
 }
 
 @media (max-width: 1300px) {
+  .bt-icon-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+
+/* =========================================================
+   MOBILE-FIRST EDITOR WORKSPACE
+   Canvas stays full width. Elements and Properties become
+   touch-friendly bottom sheets instead of squeezed columns.
+   ========================================================= */
+@media (max-width: 767px) {
+  :host {
+    min-height: 0;
+  }
+
+  .bt-editor-shell,
+  .bt-editor-shell.has-left-presets {
+    display: block;
+    position: relative;
+    height: calc(100dvh - 134px);
+    min-height: 500px;
+    overflow: hidden;
+    padding-bottom: calc(62px + env(safe-area-inset-bottom));
+  }
+
+  .bt-workspace {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+  }
+
+  .bt-panel--left,
+  .bt-panel--right {
+    display: none;
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: auto;
+    bottom: calc(61px + env(safe-area-inset-bottom));
+    width: 100%;
+    height: min(78dvh, 680px);
+    max-height: calc(100dvh - 92px);
+    z-index: 120;
+    border: 0;
+    border-top: 1px solid var(--border);
+    border-radius: 18px 18px 0 0;
+    box-shadow: 0 -18px 48px rgba(15, 23, 42, .18);
+    background: #fff;
+    overflow: hidden;
+  }
+
+  .bt-editor-shell.mobile-elements-open .bt-panel--left,
+  .bt-editor-shell.mobile-properties-open .bt-panel--right {
+    display: flex;
+  }
+
+  .bt-panel-head {
+    flex: 0 0 58px;
+    min-height: 58px;
+    padding: 10px 14px;
+  }
+
+  .bt-mobile-sheet-close {
+    display: inline-grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    flex: 0 0 36px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: #fff;
+    color: var(--text-2);
+  }
+
+  .bt-element-search {
+    margin: 10px 12px 0;
+    min-height: 44px;
+  }
+
+  .bt-element-search input {
+    font-size: 16px;
+  }
+
+  .bt-element-grid {
+    height: calc(100% - 54px);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 9px;
+    padding: 10px 12px 18px;
+  }
+
+  .bt-element-card-wrap {
+    min-width: 0;
+  }
+
+  .bt-element-card {
+    min-height: 94px;
+    padding: 11px 8px 9px;
+  }
+
+  .bt-preset-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 9px;
+    padding: 10px 12px 18px;
+  }
+
+  .bt-preset-card {
+    grid-template-columns: 50px minmax(0, 1fr);
+    min-height: 72px;
+  }
+
+  .bt-preset-card--template {
+    grid-column: 1 / -1;
+  }
+
+  .bt-canvas-head {
+    flex: 0 0 50px;
+    height: 50px;
+    padding: 0 8px;
+    gap: 6px;
+    position: sticky;
+    top: 0;
+    z-index: 20;
+  }
+
+  .bt-device-tabs,
+  .bt-canvas-tools {
+    gap: 2px;
+  }
+
+  .bt-device-tabs button,
+  .bt-canvas-tools button {
+    min-width: 36px;
+    min-height: 36px;
+    padding: 0 7px;
+    justify-content: center;
+  }
+
+  .bt-device-tabs button span {
+    display: none;
+  }
+
+  .bt-canvas-tools .bt-zoom-value {
+    display: none;
+  }
+
+  .bt-canvas-stage {
+    padding: 8px 6px 84px;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .bt-device-frame,
+  .bt-device-frame.is-tablet,
+  .bt-device-frame.is-mobile {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+  }
+
+  .bt-page-canvas {
+    min-height: 430px;
+    padding: 7px;
+    border-radius: 11px;
+  }
+
+  .bt-canvas-block {
+    border-radius: 9px;
+  }
+
+  .bt-block-toolbar {
+    min-height: 42px;
+    height: 42px;
+    padding: 0 6px;
+    gap: 3px;
+  }
+
+  .bt-block-toolbar button,
+  .bt-drag-handle {
+    width: 34px;
+    height: 34px;
+    min-width: 34px;
+    touch-action: manipulation;
+  }
+
+  .bt-block-type {
+    font-size: 9px;
+  }
+
+  .bt-drop-end {
+    min-height: 46px;
+    font-size: 10px;
+  }
+
+  .bt-properties {
+    padding: 12px 14px 24px;
+    gap: 14px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .bt-properties input:not([type='checkbox']),
+  .bt-properties textarea,
+  .bt-properties select {
+    min-height: 44px;
+    font-size: 16px;
+  }
+
+  .bt-property-footer {
+    padding-bottom: calc(12px + env(safe-area-inset-bottom));
+  }
+
+  .bt-icon-grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+
+  .bt-mobile-toolbar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 150;
+    min-height: calc(61px + env(safe-area-inset-bottom));
+    padding: 6px 8px calc(6px + env(safe-area-inset-bottom));
+    border-top: 1px solid var(--border);
+    background: rgba(255, 255, 255, .97);
+    backdrop-filter: blur(12px);
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 4px;
+    box-shadow: 0 -8px 24px rgba(15, 23, 42, .08);
+  }
+
+  .bt-mobile-toolbar button {
+    min-width: 0;
+    min-height: 48px;
+    border: 0;
+    border-radius: 11px;
+    background: transparent;
+    color: #64748b;
+    display: grid;
+    place-items: center;
+    align-content: center;
+    gap: 2px;
+    font-size: 10px;
+    font-weight: 800;
+  }
+
+  .bt-mobile-toolbar button.active {
+    background: var(--primary-soft);
+    color: var(--primary);
+  }
+
+  .bt-mobile-toolbar button:disabled {
+    opacity: .35;
+  }
+
+  .bt-mobile-toolbar mat-icon {
+    width: 22px;
+    height: 22px;
+    font-size: 22px;
+  }
+
+  .bt-mobile-toolbar span {
+    line-height: 1;
+  }
+}
+
+@media (max-width: 390px) {
+  .bt-element-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .bt-preset-list {
+    grid-template-columns: 1fr;
+  }
+
   .bt-icon-grid {
     grid-template-columns: repeat(5, minmax(0, 1fr));
   }

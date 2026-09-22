@@ -553,6 +553,7 @@ export class UnlayerEditorComponent implements OnChanges, OnDestroy {
   presetExpanded = false;
   elementSearch = '';
   elementMenuType = '';
+  mobilePanel: 'none' | 'elements' | 'properties' = 'none';
   readonly pinnedElementTypes = new Set<string>(this.readPinnedElements());
   initialized = false;
 
@@ -601,6 +602,9 @@ export class UnlayerEditorComponent implements OnChanges, OnDestroy {
     this.history = [];
     this.future = [];
     this.initialized = true;
+    if (firstLoad && typeof window !== 'undefined' && window.matchMedia('(max-width: 767px)').matches) {
+      this.device = 'mobile';
+    }
     if (firstLoad) setTimeout(() => this.ready.emit());
   }
 
@@ -674,6 +678,19 @@ export class UnlayerEditorComponent implements OnChanges, OnDestroy {
     this.elementSearch = '';
   }
 
+  openMobileElements(): void {
+    this.mobilePanel = 'elements';
+  }
+
+  openMobileProperties(): void {
+    if (!this.selected) return;
+    this.mobilePanel = 'properties';
+  }
+
+  closeMobilePanel(): void {
+    this.mobilePanel = 'none';
+  }
+
   onElementClick(type: string): void {
     this.elementMenuType = '';
     if (!this.hasPresets(type)) {
@@ -683,6 +700,7 @@ export class UnlayerEditorComponent implements OnChanges, OnDestroy {
     const same = this.activePresetType === type;
     this.activePresetType = same ? '' : type;
     this.presetExpanded = false;
+    this.mobilePanel = 'elements';
   }
 
   hasPresets(type: string): boolean {
@@ -737,37 +755,49 @@ export class UnlayerEditorComponent implements OnChanges, OnDestroy {
     const block = this.createBlock(type, preset || this.defaultPreset(type));
     const insertAt = Number.isInteger(index)
       ? Math.max(0, Math.min(index as number, this.blocks.length))
-      : this.blocks.length;
+      : this.insertIndexAfterSelection();
     this.blocks.splice(insertAt, 0, block);
     this.selectedId = block.id;
     this.clearNestedSelection();
     this.closePresetPicker();
+    this.mobilePanel = 'properties';
     this.commitChange();
   }
 
   insertTemplatePreset(preset: string): void {
     this.pushHistory();
     const bundle = this.templateBundle(preset);
-    this.blocks.push(...bundle);
+    const insertAt = this.insertIndexAfterSelection();
+    this.blocks.splice(insertAt, 0, ...bundle);
     this.selectedId = bundle[0]?.id || this.selectedId;
     this.clearNestedSelection();
     this.closePresetPicker();
+    this.mobilePanel = 'properties';
     this.commitChange();
   }
 
   insertEcommercePreset(preset: string): void {
     this.pushHistory();
     const bundle = this.ecommerceBundle(preset);
-    this.blocks.push(...bundle);
+    const insertAt = this.insertIndexAfterSelection();
+    this.blocks.splice(insertAt, 0, ...bundle);
     this.selectedId = bundle[0]?.id || this.selectedId;
     this.clearNestedSelection();
     this.closePresetPicker();
+    this.mobilePanel = 'properties';
     this.commitChange();
+  }
+
+  private insertIndexAfterSelection(): number {
+    if (!this.selectedId) return this.blocks.length;
+    const selectedIndex = this.blocks.findIndex(block => block.id === this.selectedId);
+    return selectedIndex >= 0 ? selectedIndex + 1 : this.blocks.length;
   }
 
   select(block: EditorBlock): void {
     this.selectedId = block.id;
     this.clearNestedSelection();
+    this.mobilePanel = 'properties';
   }
 
   selectNested(parent: EditorBlock, slotIndex: number, child: EditorBlock, event?: Event): void {
@@ -776,6 +806,7 @@ export class UnlayerEditorComponent implements OnChanges, OnDestroy {
     this.selectedNestedParentId = parent.id;
     this.selectedNestedSlot = slotIndex;
     this.selectedNestedId = child.id;
+    this.mobilePanel = 'properties';
   }
 
   clearSelection(event?: Event): void {
@@ -783,6 +814,7 @@ export class UnlayerEditorComponent implements OnChanges, OnDestroy {
     this.elementMenuType = '';
     this.selectedId = '';
     this.clearNestedSelection();
+    this.mobilePanel = 'none';
   }
 
   private clearNestedSelection(): void {

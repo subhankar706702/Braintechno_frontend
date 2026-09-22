@@ -163,12 +163,12 @@ export class TemplateEditorComponent implements OnInit {
   }
 
   /**
-   * Unlayer editor ready.
+   * Page editor ready.
    */
   onReady(): void {
 
     console.log(
-      '[Template Editor] Editor ready'
+      '[Template Editor] Page editor ready'
     );
 
     /*
@@ -426,7 +426,7 @@ export class TemplateEditorComponent implements OnInit {
       );
 
       alert(
-        'Invalid JSON file. Please select a valid Unlayer design JSON.'
+        'Invalid JSON file. Please select a valid BRAIN TECHNO design JSON.'
       );
 
     } finally {

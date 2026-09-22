@@ -39,7 +39,7 @@ export class TemplatesComponent {
     private storage: TemplateStorageService,
     private router: Router,
     private cdr: ChangeDetectorRef
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     void this.refresh();
@@ -62,7 +62,7 @@ export class TemplatesComponent {
   ): string {
     return this.truncate(
       String(value || 'Untitled template'),
-      12
+      30
     );
   }
 
@@ -75,8 +75,7 @@ export class TemplatesComponent {
 
     return this.truncate(
       text,
-      30
-    );
+      100);
   }
 
   toggleMenu(

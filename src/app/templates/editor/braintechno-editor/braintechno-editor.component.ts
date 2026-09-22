@@ -713,7 +713,7 @@ export class BraintechnoEditorComponent implements OnChanges, OnDestroy {
 
   visiblePresetOptions(type: string): ElementPreset[] {
     const options = this.presetOptions(type);
-    return this.presetExpanded ? options : options.slice(0, 6);
+    return this.presetExpanded ? options : options.slice(0, 8);
   }
 
   hasMorePresets(type: string): boolean {

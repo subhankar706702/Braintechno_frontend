@@ -2,8 +2,7 @@ import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
-import { AuthService } from '../core/auth.service';
-
+import { AuthService } from '../../core/auth.service';
 @Component({
   standalone: true,
   imports: [FormsModule, RouterLink],
@@ -26,8 +25,8 @@ export class LoginComponent {
     if(this.loading) return;
     this.loading=true; this.error='';
     this.auth.login(this.email.trim().toLowerCase(), this.password).pipe(finalize(()=>this.loading=false)).subscribe({
-      next:(res)=>this.router.navigateByUrl(res.user.role === 'admin' ? '/admin/dashboard' : '/app/dashboard'),
-      error:(err)=>this.error=err?.error?.message || 'Login failed. Check backend and MongoDB connection.'
+      next:(res:any)=>this.router.navigateByUrl(res.user.role === 'admin' ? '/admin/dashboard' : '/app/dashboard'),
+      error:(err:any)=>this.error=err?.error?.message || 'Login failed. Check backend and MongoDB connection.'
     });
   }
 }

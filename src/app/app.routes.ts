@@ -5,8 +5,8 @@ import { authGuard } from './core/auth.guard';
 export const routes: Routes = [
   {
     path: 'auth', loadComponent: () => import('./auth/auth-shell.component').then(m => m.AuthShellComponent), children: [
-      { path: 'login', loadComponent: () => import('./auth/login.component').then(m => m.LoginComponent) },
-      { path: 'register', loadComponent: () => import('./auth/register.component').then(m => m.RegisterComponent) },
+      { path: 'login', loadComponent: () => import('./auth/login/login.component').then(m => m.LoginComponent) },
+      { path: 'register', loadComponent: () => import('./auth/registation/register.component').then(m => m.RegisterComponent) },
       { path: '', pathMatch: 'full', redirectTo: 'login' }
     ]
   },

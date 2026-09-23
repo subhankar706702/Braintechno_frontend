@@ -27,6 +27,7 @@ type ShellNavItem = {
 export class DashboardShellComponent {
 
   mobileMenuOpen = false;
+  braintechnoLogo = '';
 
   readonly sidebarItems: ShellNavItem[] = [
     {
@@ -45,7 +46,7 @@ export class DashboardShellComponent {
       route: '/app/campaigns',
     },
     {
-      label: 'customers',
+      label: 'Customers',
       icon: 'contacts_product',
       route: '/app/customers',
     },
@@ -70,7 +71,7 @@ export class DashboardShellComponent {
       route: '/app/settings',
     },
     {
-      label: 'logout',
+      label: 'Logout',
       icon: 'logout',
       route: '/app/logout',
     },
@@ -119,7 +120,7 @@ export class DashboardShellComponent {
       ''
     ).trim();
 
-    return uploadedLogo || 'assets/logo/braintechno.png';
+    return uploadedLogo || this.braintechnoLogo;
   }
 
   openPage(
@@ -172,12 +173,12 @@ export class DashboardShellComponent {
 
     if (
       image.src.includes(
-        '/assets/logo/braintechno.png'
+        this.braintechnoLogo
       )) {
       return;
     }
 
     image.src =
-      '/assets/logo/braintechno.png'
+      this.braintechnoLogo;
   }
 }

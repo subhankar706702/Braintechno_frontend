@@ -1,16 +1,17 @@
 :host {
-  --bt-primary: #ff4d6d;
-  --bt-primary-hover: #ff6680;
-  --bt-danger: #ef4444;
+  /* Theme values come from the global app theme. */
+  --bt-primary: var(--color-primary);
+  --bt-primary-hover: var(--color-primary-hover);
+  --bt-danger: var(--color-danger);
 
-  --bt-bg: #f5f7fa;
-  --bt-surface: #ffffff;
-  --bt-surface-2: #f8fafc;
-  --bt-border: #e2e8f0;
+  --bt-bg: var(--color-bg);
+  --bt-surface: var(--color-surface);
+  --bt-surface-2: var(--color-surface-2);
+  --bt-border: var(--color-border);
 
-  --bt-text: #0f172a;
-  --bt-text-secondary: #475569;
-  --bt-text-muted: #64748b;
+  --bt-text: var(--color-text-primary);
+  --bt-text-secondary: var(--color-text-secondary);
+  --bt-text-muted: var(--color-text-muted);
 
   display: block;
   min-height: 100%;
@@ -136,7 +137,7 @@ button {
   background:
     var(--bt-primary);
 
-  color: #ffffff;
+  color: var(--bt-primary-contrast);
 
   font-weight: 700;
 
@@ -209,7 +210,7 @@ button {
 
   box-shadow:
     0 8px 22px
-    rgba(15, 23, 42, 0.05);
+    color-mix(in srgb, var(--bt-text) 5%, transparent);
 
   transition:
     transform 180ms ease,
@@ -223,7 +224,7 @@ button {
 
   box-shadow:
     0 14px 30px
-    rgba(15, 23, 42, 0.09);
+    color-mix(in srgb, var(--bt-text) 9%, transparent);
 }
 
 
@@ -238,7 +239,7 @@ button {
     0 0;
 
   background:
-    #edf1f5;
+    var(--bt-surface-2);
 }
 
 
@@ -263,12 +264,12 @@ button {
   background:
     linear-gradient(
       135deg,
-      #eef2f6,
-      #e4e9ef
+      var(--bt-surface-2),
+      var(--bt-border)
     );
 
   color:
-    #94a3b8;
+    var(--bt-text-muted);
 }
 
 
@@ -449,7 +450,7 @@ button {
 
   box-shadow:
     0 16px 36px
-    rgba(15, 23, 42, 0.16);
+    color-mix(in srgb, var(--bt-text) 16%, transparent);
 }
 
 
@@ -560,7 +561,7 @@ button {
   border-radius: 10px;
 
   background:
-    rgba(239, 68, 68, 0.09);
+    color-mix(in srgb, var(--bt-danger) 9%, var(--bt-surface));
 
   color:
     var(--bt-danger);
@@ -618,7 +619,7 @@ button {
 
   border:
     3px solid
-    #e2e8f0;
+    var(--bt-border);
 
   border-top-color:
     var(--bt-primary);
@@ -656,7 +657,7 @@ button {
   border-radius: 16px;
 
   background:
-    rgba(255, 77, 109, 0.09);
+    color-mix(in srgb, var(--bt-primary) 9%, var(--bt-surface));
 
   color:
     var(--bt-primary);

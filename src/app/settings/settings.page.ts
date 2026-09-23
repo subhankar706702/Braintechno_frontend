@@ -1,9 +1,15 @@
 import { CommonModule } from '@angular/common';
 import {
   Component,
+  inject,
   signal,
 } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
+
+import {
+  ThemeMode,
+  ThemeService
+} from '../core/theme.service';
 
 type SettingsSection =
   | 'appearance'
@@ -13,11 +19,6 @@ type SettingsSection =
   | 'accessibility'
   | 'privacy'
   | 'security'
-  | 'system';
-
-type ThemeMode =
-  | 'light'
-  | 'dark'
   | 'system';
 
 type DensityMode =
@@ -63,15 +64,16 @@ type SettingsMenuItem = {
 })
 export class SettingsPage {
 
+  private readonly themeService =
+    inject(ThemeService);
+
   readonly activeSection =
     signal<SettingsSection>(
       'appearance',
     );
 
   readonly theme =
-    signal<ThemeMode>(
-      'system',
-    );
+    this.themeService.theme;
 
   readonly density =
     signal<DensityMode>(
@@ -135,81 +137,78 @@ export class SettingsPage {
 
   readonly menuItems:
     SettingsMenuItem[] = [
+      {
+        id: 'appearance',
+        label: 'Appearance',
+        description:
+          'Theme, layout and display',
+        icon: 'light_mode',
+        tone: 'pink',
+      },
 
-    {
-      id: 'appearance',
-      label: 'Appearance',
-      description:
-        'Theme, layout and display',
-      icon: 'light_mode',
-      tone: 'pink',
-    },
+      {
+        id: 'language',
+        label: 'Language & Region',
+        description:
+          'Language, timezone and format',
+        icon: 'language',
+        tone: 'blue',
+      },
 
-    {
-      id: 'language',
-      label: 'Language & Region',
-      description:
-        'Language, timezone and format',
-      icon: 'language',
-      tone: 'blue',
-    },
+      {
+        id: 'notifications',
+        label: 'Notifications',
+        description:
+          'Manage your alerts',
+        icon: 'notifications_none',
+        tone: 'green',
+      },
 
-    {
-      id: 'notifications',
-      label: 'Notifications',
-      description:
-        'Manage your alerts',
-      icon: 'notifications_none',
-      tone: 'green',
-    },
+      {
+        id: 'editor',
+        label: 'Editor Preferences',
+        description:
+          'Customize your editor experience',
+        icon: 'edit_square',
+        tone: 'blue',
+      },
 
-    {
-      id: 'editor',
-      label: 'Editor Preferences',
-      description:
-        'Customize your editor experience',
-      icon: 'edit_square',
-      tone: 'blue',
-    },
+      {
+        id: 'accessibility',
+        label: 'Accessibility',
+        description:
+          'Make the app work for you',
+        icon: 'accessibility_new',
+        tone: 'violet',
+      },
 
-    {
-      id: 'accessibility',
-      label: 'Accessibility',
-      description:
-        'Make the app work for you',
-      icon: 'accessibility_new',
-      tone: 'violet',
-    },
+      {
+        id: 'privacy',
+        label: 'Privacy & Data',
+        description:
+          'Control your data and privacy',
+        icon: 'shield',
+        tone: 'green',
+      },
 
-    {
-      id: 'privacy',
-      label: 'Privacy & Data',
-      description:
-        'Control your data and privacy',
-      icon: 'shield',
-      tone: 'green',
-    },
+      {
+        id: 'security',
+        label: 'Security',
+        description:
+          'Password and active sessions',
+        icon: 'lock',
+        tone: 'orange',
+      },
 
-    {
-      id: 'security',
-      label: 'Security',
-      description:
-        'Password and active sessions',
-      icon: 'lock',
-      tone: 'orange',
-    },
-
-    {
-      id: 'system',
-      label: 'System',
-      description:
-        'App version and maintenance',
-      icon: 'info',
-      tone: 'blue',
-    },
-
-  ];
-
+      {
+        id: 'system',
+        label: 'System',
+        description:
+          'App version and maintenance',
+        icon: 'info',
+        tone: 'blue',
+      },
+    ];
 
   setSection(
     section: SettingsSection,
@@ -221,17 +220,15 @@ export class SettingsPage {
 
   }
 
-
   setTheme(
     theme: ThemeMode,
   ): void {
 
-    this.theme.set(
+    this.themeService.setTheme(
       theme,
     );
 
   }
-
 
   setDensity(
     density: DensityMode,
@@ -243,7 +240,6 @@ export class SettingsPage {
 
   }
 
-
   setSidebarMode(
     mode: SidebarMode,
   ): void {
@@ -253,7 +249,6 @@ export class SettingsPage {
     );
 
   }
-
 
   setDefaultPreview(
     mode: PreviewMode,
@@ -265,7 +260,6 @@ export class SettingsPage {
 
   }
 
-
   toggleReduceAnimations():
     void {
 
@@ -274,7 +268,6 @@ export class SettingsPage {
     );
 
   }
-
 
   togglePageTransitions():
     void {
@@ -285,7 +278,6 @@ export class SettingsPage {
 
   }
 
-
   toggleBrowserNotifications():
     void {
 
@@ -294,7 +286,6 @@ export class SettingsPage {
     );
 
   }
-
 
   toggleEnquiryAlerts():
     void {
@@ -305,7 +296,6 @@ export class SettingsPage {
 
   }
 
-
   toggleCampaignAlerts():
     void {
 
@@ -314,7 +304,6 @@ export class SettingsPage {
     );
 
   }
-
 
   toggleExpiryAlerts():
     void {
@@ -325,7 +314,6 @@ export class SettingsPage {
 
   }
 
-
   toggleAutoSave():
     void {
 
@@ -334,7 +322,6 @@ export class SettingsPage {
     );
 
   }
-
 
   toggleShowGrid():
     void {
@@ -345,7 +332,6 @@ export class SettingsPage {
 
   }
 
-
   toggleSnapElements():
     void {
 
@@ -354,7 +340,6 @@ export class SettingsPage {
     );
 
   }
-
 
   toggleConfirmDelete():
     void {
@@ -365,7 +350,6 @@ export class SettingsPage {
 
   }
 
-
   toggleRestoreLastDesign():
     void {
 
@@ -374,7 +358,6 @@ export class SettingsPage {
     );
 
   }
-
 
   toggleHighContrast():
     void {
@@ -385,7 +368,6 @@ export class SettingsPage {
 
   }
 
-
   toggleLargerText():
     void {
 
@@ -394,7 +376,6 @@ export class SettingsPage {
     );
 
   }
-
 
   toggleKeyboardShortcuts():
     void {
@@ -405,7 +386,6 @@ export class SettingsPage {
 
   }
 
-
   toggleAnalytics():
     void {
 
@@ -415,22 +395,20 @@ export class SettingsPage {
 
   }
 
-
   clearCache(): void {
 
     try {
       localStorage.clear();
       sessionStorage.clear();
     } catch {
-      // UI first. Connect app-specific cache handling later.
+      // no-op
     }
 
   }
 
-
   resetSettings(): void {
 
-    this.theme.set(
+    this.setTheme(
       'system',
     );
 
@@ -507,7 +485,6 @@ export class SettingsPage {
     );
 
   }
-
 
   saveChanges(): void {
 

@@ -27,7 +27,7 @@ type ShellNavItem = {
 export class DashboardShellComponent {
 
   mobileMenuOpen = false;
-  braintechnoLogo = '';
+  braintechnoLogo = '/assets/images/braintechno.png';
 
   readonly sidebarItems: ShellNavItem[] = [
     {

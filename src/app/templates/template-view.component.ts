@@ -353,15 +353,19 @@ type PreviewMode =
 
   styles: [`
     :host {
-      --bt-primary: #ff4d6d;
-      --bt-primary-hover: #ff6680;
-      --bt-bg: #f5f7fa;
-      --bt-surface: #ffffff;
-      --bt-surface-2: #f8fafc;
-      --bt-border: #e2e8f0;
-      --bt-text: #0f172a;
-      --bt-text-secondary: #475569;
-      --bt-text-muted: #64748b;
+      /* Theme values come from the global app theme. */
+      --bt-primary: var(--color-primary);
+      --bt-primary-hover: var(--color-primary-hover);
+      --bt-danger: var(--color-danger);
+
+      --bt-bg: var(--color-bg);
+      --bt-surface: var(--color-surface);
+      --bt-surface-2: var(--color-surface-2);
+      --bt-border: var(--color-border);
+
+      --bt-text: var(--color-text-primary);
+      --bt-text-secondary: var(--color-text-secondary);
+      --bt-text-muted: var(--color-text-muted);
 
       display: block;
       min-height: 100%;
@@ -455,19 +459,17 @@ type PreviewMode =
         var(--bt-primary);
 
       border-color:
-        rgba(
-          255,
-          77,
-          109,
-          .35
+        color-mix(
+          in srgb,
+          var(--bt-primary) 35%,
+          var(--bt-border)
         );
 
       background:
-        rgba(
-          255,
-          77,
-          109,
-          .05
+        color-mix(
+          in srgb,
+          var(--bt-primary) 5%,
+          var(--bt-surface)
         );
     }
 
@@ -583,11 +585,10 @@ type PreviewMode =
         var(--bt-text);
 
       background:
-        rgba(
-          15,
-          23,
-          42,
-          .04
+        color-mix(
+          in srgb,
+          var(--bt-text) 4%,
+          var(--bt-surface)
         );
     }
 
@@ -601,11 +602,10 @@ type PreviewMode =
 
       box-shadow:
         0 1px 4px
-        rgba(
-          15,
-          23,
-          42,
-          .09
+        color-mix(
+          in srgb,
+          var(--bt-text) 9%,
+          transparent
         );
     }
 
@@ -642,7 +642,7 @@ type PreviewMode =
       background:
         var(--bt-primary);
 
-      color: #ffffff;
+      color: var(--bt-primary-contrast);
 
       font-weight: 700;
 
@@ -692,7 +692,7 @@ type PreviewMode =
       border-radius: 14px;
 
       background:
-        #e9edf2;
+        var(--bt-surface-2);
     }
 
 
@@ -724,11 +724,11 @@ type PreviewMode =
       flex: 0 0 auto;
 
       background:
-        #ffffff;
+        var(--bt-surface);
 
       border:
         1px solid
-        #d8e0e8;
+        var(--bt-border);
 
       transition:
         width 200ms ease,
@@ -753,11 +753,10 @@ type PreviewMode =
 
       box-shadow:
         0 8px 28px
-        rgba(
-          15,
-          23,
-          42,
-          .08
+        color-mix(
+          in srgb,
+          var(--bt-text) 8%,
+          transparent
         );
     }
 
@@ -781,11 +780,10 @@ type PreviewMode =
 
       box-shadow:
         0 18px 46px
-        rgba(
-          15,
-          23,
-          42,
-          .16
+        color-mix(
+          in srgb,
+          var(--bt-text) 16%,
+          transparent
         );
     }
 
@@ -809,11 +807,10 @@ type PreviewMode =
 
       box-shadow:
         0 18px 46px
-        rgba(
-          15,
-          23,
-          42,
-          .18
+        color-mix(
+          in srgb,
+          var(--bt-text) 18%,
+          transparent
         );
     }
 
@@ -858,7 +855,7 @@ type PreviewMode =
       border: 0;
 
       background:
-        #ffffff;
+        var(--bt-surface);
     }
 
 
@@ -892,7 +889,7 @@ type PreviewMode =
       padding: 12px;
 
       background:
-        #eef2f6;
+        var(--bt-surface-2);
     }
 
 
@@ -906,7 +903,7 @@ type PreviewMode =
       border-radius: 8px;
 
       background:
-        #ffffff;
+        var(--bt-surface);
     }
 
 
@@ -958,7 +955,7 @@ type PreviewMode =
       border-radius: 12px;
 
       background:
-        #f1f5f9;
+        var(--bt-surface-2);
 
       color:
         var(--bt-text-muted);
@@ -968,15 +965,14 @@ type PreviewMode =
     .view-state--error
     .view-state__icon {
       background:
-        rgba(
-          239,
-          68,
-          68,
-          .09
+        color-mix(
+          in srgb,
+          var(--bt-danger) 9%,
+          var(--bt-surface)
         );
 
       color:
-        #ef4444;
+        var(--bt-danger);
     }
 
 
@@ -1005,7 +1001,7 @@ type PreviewMode =
 
       border:
         3px solid
-        #e2e8f0;
+        var(--bt-border);
 
       border-top-color:
         var(--bt-primary);

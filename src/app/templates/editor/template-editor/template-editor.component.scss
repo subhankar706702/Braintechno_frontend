@@ -1,19 +1,19 @@
 :host {
-  --bt-primary: var(--color-primary, #FF4D6D);
-  --bt-primary-hover: var(--color-primary-hover, #FF6680);
-  --bt-secondary: var(--color-secondary, #38BDF8);
-  --bt-success: var(--color-success, #22C55E);
-  --bt-warning: var(--color-warning, #F59E0B);
-  --bt-danger: var(--color-danger, #EF4444);
-  --bt-info: var(--color-info, #60A5FA);
+  --bt-primary: var(--color-primary);
+  --bt-primary-hover: var(--color-primary-hover);
+  --bt-secondary: var(--color-secondary);
+  --bt-success: var(--color-success);
+  --bt-warning: var(--color-warning);
+  --bt-danger: var(--color-danger);
+  --bt-info: var(--color-info);
 
-  --bt-bg: var(--color-bg, #F5F7FA);
-  --bt-surface: var(--color-surface, #FFFFFF);
-  --bt-surface-2: var(--color-surface-2, #F8FAFC);
-  --bt-border: var(--color-border, #E2E8F0);
-  --bt-text: var(--color-text-primary, #0F172A);
-  --bt-text-secondary: var(--color-text-secondary, #475569);
-  --bt-text-muted: var(--color-text-muted, #64748B);
+  --bt-bg: var(--color-bg);
+  --bt-surface: var(--color-surface);
+  --bt-surface-2: var(--color-surface-2);
+  --bt-border: var(--color-border);
+  --bt-text: var(--color-text-primary);
+  --bt-text-secondary: var(--color-text-secondary);
+  --bt-text-muted: var(--color-text-muted);
 
   --bt-radius-sm: 6px;
   --bt-radius-md: 10px;
@@ -21,12 +21,20 @@
   --bt-radius-xl: 18px;
   --bt-radius-pill: 999px;
 
-  --bt-shadow-card: 0 8px 24px rgba(15, 23, 42, .10);
+  --bt-shadow-card:
+    0 8px 24px
+    color-mix(
+      in srgb,
+      var(--bt-text) 10%,
+      transparent
+    );
+
   --bt-transition-fast: 150ms ease;
   --bt-transition-normal: 200ms ease;
 
   display: block;
   font-family: 'Inter', 'Noto Sans Bengali', sans-serif;
+  color: var(--bt-text);
 }
 
 * {
@@ -187,8 +195,8 @@ button {
 }
 
 .status-pill--warning {
-  color: #92400E;
-  background: #FEF3C7;
+  color: color-mix(in srgb, var(--bt-warning) 70%, var(--bt-text));
+  background: color-mix(in srgb, var(--bt-warning) 18%, var(--bt-surface));
 }
 
 .editor-topbar__actions {
@@ -244,7 +252,7 @@ button {
 .primary-btn {
   border: 1px solid var(--bt-primary);
   background: var(--bt-primary);
-  color: #fff;
+  color: var(--bt-primary-contrast);
 }
 
 .save:hover:not(:disabled),
@@ -256,7 +264,7 @@ button {
 .warning-btn {
   border: 1px solid var(--bt-warning);
   background: var(--bt-warning);
-  color: #111827;
+  color: var(--bt-text);
 }
 
 .tool:active:not(:disabled),
@@ -284,8 +292,8 @@ button {
 .button-spinner {
   width: 16px;
   height: 16px;
-  border: 2px solid rgba(255,255,255,.45);
-  border-top-color: #fff;
+  border: 2px solid color-mix(in srgb, var(--bt-primary-contrast) 45%, transparent);
+  border-top-color: var(--bt-primary-contrast);
   border-radius: 50%;
   animation: editor-spin .7s linear infinite;
 }
@@ -439,7 +447,7 @@ button {
   display: grid;
   place-items: center;
   padding: 20px;
-  background: rgba(7, 17, 31, .58);
+  background: color-mix(in srgb, #07111f 58%, transparent);
   backdrop-filter: blur(3px);
 }
 
@@ -451,7 +459,7 @@ button {
   border-radius: var(--bt-radius-xl);
   background: var(--bt-surface);
   color: var(--bt-text);
-  box-shadow: 0 24px 60px rgba(0,0,0,.24);
+  box-shadow: 0 24px 60px color-mix(in srgb, #000 24%, transparent);
   animation: dialog-in var(--bt-transition-normal);
 }
 
@@ -563,8 +571,8 @@ button {
 }
 
 .confirm-icon--warning {
-  background: #FEF3C7;
-  color: #B45309;
+  background: color-mix(in srgb, var(--bt-warning) 18%, var(--bt-surface));
+  color: var(--bt-warning);
 }
 
 .confirm-copy {

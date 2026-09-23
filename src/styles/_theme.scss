@@ -1,0 +1,220 @@
+/* =========================================================
+   BRAIN TECHNO - GLOBAL THEME TOKENS
+   Single source of truth for Light / Dark theme.
+   ========================================================= */
+
+:root,
+:root[data-theme='light'] {
+  color-scheme: light;
+
+  /* Brand */
+  --color-primary: #ff4d6d;
+  --color-primary-hover: #ff6680;
+  --color-primary-soft: #fff1f4;
+  --color-primary-contrast: #ffffff;
+  --color-secondary: #38bdf8;
+
+  /* Status */
+  --color-success: #22c55e;
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
+  --color-info: #60a5fa;
+
+  /* Surfaces */
+  --color-bg: #f5f7fa;
+  --color-surface: #ffffff;
+  --color-surface-2: #f8fafc;
+  --color-surface-3: #f1f5f9;
+  --color-surface-hover: #f8fafc;
+  --color-overlay: rgba(15, 23, 42, 0.52);
+
+  /* Text */
+  --color-text-primary: #0f172a;
+  --color-text-strong: #12213f;
+  --color-text-secondary: #475569;
+  --color-text-muted: #64748b;
+  --color-text-disabled: #94a3b8;
+  --color-text-inverse: #ffffff;
+
+  /* Borders */
+  --color-border: #e2e8f0;
+  --color-border-soft: #edf2f8;
+  --color-border-strong: #cbd5e1;
+
+  /* Inputs */
+  --color-input-bg: #ffffff;
+  --color-input-border: #d0d5dd;
+  --color-input-placeholder: #94a3b8;
+  --color-focus-ring: rgba(255, 77, 109, 0.14);
+
+  /* Semantic soft colors */
+  --color-success-soft: #ecfdf3;
+  --color-warning-soft: #fffbeb;
+  --color-danger-soft: #fff1f2;
+  --color-info-soft: #eff6ff;
+
+  /* Dashboard accents */
+  --color-accent-blue: #2f80ed;
+  --color-accent-blue-soft: rgba(47, 128, 237, 0.12);
+  --color-accent-green: #27ae60;
+  --color-accent-green-soft: rgba(39, 174, 96, 0.12);
+  --color-accent-violet: #7c3aed;
+  --color-accent-violet-soft: rgba(124, 58, 237, 0.12);
+  --color-accent-orange: #f59e0b;
+  --color-accent-orange-soft: rgba(245, 158, 11, 0.12);
+
+  /* Radius */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+  --radius-2xl: 22px;
+  --radius-pill: 999px;
+
+  /* Spacing */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 28px;
+  --space-8: 32px;
+
+  /* Shadows */
+  --shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-sm: 0 4px 14px rgba(15, 23, 42, 0.06);
+  --shadow-card: 0 8px 24px rgba(15, 23, 42, 0.08);
+  --shadow-lg: 0 12px 32px rgba(15, 23, 42, 0.10);
+
+  /* Motion */
+  --transition-fast: 150ms ease;
+  --transition-normal: 200ms ease;
+  --transition-slow: 300ms ease;
+
+  /* =====================================================
+     App aliases - use these in component SCSS.
+     ===================================================== */
+  --bt-primary: var(--color-primary);
+  --bt-primary-hover: var(--color-primary-hover);
+  --bt-primary-soft: var(--color-primary-soft);
+  --bt-primary-contrast: var(--color-primary-contrast);
+  --bt-secondary: var(--color-secondary);
+  --bt-success: var(--color-success);
+  --bt-warning: var(--color-warning);
+  --bt-danger: var(--color-danger);
+  --bt-info: var(--color-info);
+
+  --bt-bg: var(--color-bg);
+  --bt-surface: var(--color-surface);
+  --bt-surface-2: var(--color-surface-2);
+  --bt-surface-soft: var(--color-surface-2);
+  --bt-surface-3: var(--color-surface-3);
+
+  --bt-text: var(--color-text-primary);
+  --bt-text-strong: var(--color-text-strong);
+  --bt-text-secondary: var(--color-text-secondary);
+  --bt-text-muted: var(--color-text-muted);
+  --bt-muted: var(--color-text-muted);
+
+  --bt-border: var(--color-border);
+  --bt-border-soft: var(--color-border-soft);
+  --bt-border-strong: var(--color-border-strong);
+
+  --bt-radius-sm: var(--radius-sm);
+  --bt-radius-md: var(--radius-md);
+  --bt-radius-lg: var(--radius-lg);
+  --bt-radius-xl: var(--radius-xl);
+  --bt-radius-pill: var(--radius-pill);
+  --bt-radius: var(--radius-lg);
+
+  --bt-space-1: var(--space-1);
+  --bt-space-2: var(--space-2);
+  --bt-space-3: var(--space-3);
+  --bt-space-4: var(--space-4);
+  --bt-space-5: var(--space-5);
+  --bt-space-6: var(--space-6);
+
+  --bt-shadow: var(--shadow-lg);
+  --bt-shadow-card: var(--shadow-card);
+  --bt-transition-fast: var(--transition-fast);
+  --bt-transition-normal: var(--transition-normal);
+
+  /* Legacy editor aliases - migration safe */
+  --primary: var(--bt-primary);
+  --primary-soft: var(--bt-primary-soft);
+  --bg: var(--bt-bg);
+  --surface: var(--bt-surface);
+  --surface-2: var(--bt-surface-2);
+  --border: var(--bt-border);
+  --text: var(--bt-text);
+  --text-2: var(--bt-text-secondary);
+  --muted: var(--bt-text-muted);
+  --danger: var(--bt-danger);
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  /* Brand stays recognizable in dark mode */
+  --color-primary: #ff6680;
+  --color-primary-hover: #ff7f95;
+  --color-primary-soft: #3a1b25;
+  --color-primary-contrast: #ffffff;
+  --color-secondary: #38bdf8;
+
+  /* Status */
+  --color-success: #4ade80;
+  --color-warning: #fbbf24;
+  --color-danger: #f87171;
+  --color-info: #60a5fa;
+
+  /* Surfaces */
+  --color-bg: #0b1120;
+  --color-surface: #111827;
+  --color-surface-2: #172033;
+  --color-surface-3: #1e293b;
+  --color-surface-hover: #1e293b;
+  --color-overlay: rgba(2, 6, 23, 0.72);
+
+  /* Text */
+  --color-text-primary: #f8fafc;
+  --color-text-strong: #ffffff;
+  --color-text-secondary: #cbd5e1;
+  --color-text-muted: #94a3b8;
+  --color-text-disabled: #64748b;
+  --color-text-inverse: #0f172a;
+
+  /* Borders */
+  --color-border: #273449;
+  --color-border-soft: #202c3e;
+  --color-border-strong: #3b4a61;
+
+  /* Inputs */
+  --color-input-bg: #111827;
+  --color-input-border: #334155;
+  --color-input-placeholder: #64748b;
+  --color-focus-ring: rgba(255, 102, 128, 0.18);
+
+  /* Semantic soft colors */
+  --color-success-soft: #102a1d;
+  --color-warning-soft: #30240e;
+  --color-danger-soft: #34161b;
+  --color-info-soft: #12233d;
+
+  /* Dashboard accents */
+  --color-accent-blue: #60a5fa;
+  --color-accent-blue-soft: rgba(96, 165, 250, 0.14);
+  --color-accent-green: #4ade80;
+  --color-accent-green-soft: rgba(74, 222, 128, 0.14);
+  --color-accent-violet: #a78bfa;
+  --color-accent-violet-soft: rgba(167, 139, 250, 0.14);
+  --color-accent-orange: #fbbf24;
+  --color-accent-orange-soft: rgba(251, 191, 36, 0.14);
+
+  /* Shadows */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.18);
+  --shadow-sm: 0 4px 14px rgba(0, 0, 0, 0.20);
+  --shadow-card: 0 8px 24px rgba(0, 0, 0, 0.24);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.30);
+}

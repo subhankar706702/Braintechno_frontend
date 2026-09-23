@@ -1,0 +1,26 @@
+/*
+  COMPONENT MIGRATION EXAMPLE
+  ---------------------------
+  Do not create component-local hardcoded theme colors anymore.
+
+  OLD:
+  :host {
+    --primary: #ff4d6d;
+    --surface: #ffffff;
+    --text: #0f172a;
+  }
+
+  NEW:
+  :host {
+    display: block;
+  }
+
+  Then directly use:
+    color: var(--bt-text);
+    background: var(--bt-surface);
+    border-color: var(--bt-border);
+
+  Existing editor code using var(--primary), var(--surface), var(--text),
+  var(--text-2), var(--muted) is also supported globally by _theme.scss.
+  Just remove the local hardcoded declarations that override them.
+*/

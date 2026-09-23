@@ -122,13 +122,19 @@ import {
 
   styles: [`
     :host {
-      --preview-primary: #ff4d6d;
-      --preview-bg: #f5f7fa;
-      --preview-surface: #ffffff;
-      --preview-surface-2: #f8fafc;
-      --preview-border: #e2e8f0;
-      --preview-text: #0f172a;
-      --preview-text-secondary: #475569;
+      /* Preview UI follows the global application theme. */
+      --preview-primary: var(--color-primary);
+      --preview-primary-hover: var(--color-primary-hover);
+      --preview-danger: var(--color-danger);
+
+      --preview-bg: var(--color-bg);
+      --preview-surface: var(--color-surface);
+      --preview-surface-2: var(--color-surface-2);
+      --preview-border: var(--color-border);
+
+      --preview-text: var(--color-text-primary);
+      --preview-text-secondary: var(--color-text-secondary);
+      --preview-text-muted: var(--color-text-muted);
 
       position: relative;
       z-index: 1000;
@@ -191,7 +197,11 @@ import {
 
       box-shadow:
         0 24px 70px
-        rgba(0, 0, 0, 0.28);
+        color-mix(
+          in srgb,
+          #000 28%,
+          transparent
+        );
     }
 
 
@@ -315,11 +325,10 @@ import {
         var(--preview-primary);
 
       background:
-        rgba(
-          255,
-          77,
-          109,
-          0.1
+        color-mix(
+          in srgb,
+          var(--preview-primary) 10%,
+          var(--preview-surface)
         );
 
       color:
@@ -329,23 +338,20 @@ import {
 
     .preview-close:hover {
       border-color:
-        rgba(
-          239,
-          68,
-          68,
-          0.3
+        color-mix(
+          in srgb,
+          var(--preview-danger) 30%,
+          var(--preview-border)
         );
 
       background:
-        rgba(
-          239,
-          68,
-          68,
-          0.08
+        color-mix(
+          in srgb,
+          var(--preview-danger) 8%,
+          var(--preview-surface)
         );
 
-      color:
-        #ef4444;
+      color: var(--preview-danger);
     }
 
 
@@ -394,7 +400,7 @@ import {
       justify-content: center;
 
       background:
-        #e9edf2;
+        var(--preview-surface-2);
     }
 
 
@@ -412,13 +418,17 @@ import {
 
       border:
         1px solid
-        #dbe2ea;
+        var(--preview-border);
 
       border-radius: 10px;
 
       box-shadow:
         0 8px 28px
-        rgba(15, 23, 42, 0.08);
+        color-mix(
+          in srgb,
+          var(--preview-text) 8%,
+          transparent
+        );
 
       transition:
         width 200ms ease,
@@ -480,7 +490,11 @@ import {
 
       box-shadow:
         0 18px 50px
-        rgba(15, 23, 42, 0.2);
+        color-mix(
+          in srgb,
+          var(--preview-text) 20%,
+          transparent
+        );
     }
 
 
@@ -647,6 +661,7 @@ export class HtmlviewerComponent {
                   padding:32px;
                   font-family:Arial,sans-serif;
                   color:#64748b;
+                  background:#ffffff;
                   text-align:center;
                 "
               >

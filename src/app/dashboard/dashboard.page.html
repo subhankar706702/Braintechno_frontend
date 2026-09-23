@@ -1,52 +1,186 @@
-<section class="dashboard-header">
+<section class="dashboard-page">
+
+  <!-- =========================================
+       PAGE HEADER
+       ========================================= -->
+  <header class="dashboard-page__header">
+
+    <div class="dashboard-page__heading">
+      <h1>Dashboard</h1>
+      <p>
+        Track your business activity, promotional pages,
+        customers and recent performance.
+      </p>
+    </div>
+
+    <div class="dashboard-page__header-actions">
+      <button
+        type="button"
+        class="header-action header-action--secondary"
+      >
+        <mat-icon>insights</mat-icon>
+        <span>View Analytics</span>
+      </button>
+
+      <button
+        type="button"
+        class="header-action header-action--primary"
+      >
+        <mat-icon>add</mat-icon>
+        <span>Create Page</span>
+      </button>
+    </div>
+
+  </header>
+
+
+  <!-- =========================================
+       PROFILE + PROMO
+       ========================================= -->
   <section class="dashboard-grid">
-    <div class="profile-card surface-card">
+
+    <article class="profile-card surface-card">
+
       <div class="profile-card__header">
-        <h3>My Profile</h3>
-        <button type="button" class="soft-button">Edit Profile</button>
+        <div>
+          <span class="section-eyebrow">Business profile</span>
+          <h2>My Profile</h2>
+        </div>
+
+        <button
+          type="button"
+          class="soft-button soft-button--compact"
+        >
+          <mat-icon>edit</mat-icon>
+          <span>Edit Profile</span>
+        </button>
       </div>
 
+
       <div class="profile-card__body">
+
         <div class="business-avatar">
           <span>RB</span>
         </div>
 
-        <div class="profile-meta">
-          <div class="meta-row">
-            <span>Business Name</span>
+
+        <div class="profile-main">
+
+          <div class="profile-main__title">
             <strong>Riya Home Bakery</strong>
+
+            <span class="profile-badge">
+              <mat-icon>verified</mat-icon>
+              Active business
+            </span>
           </div>
 
-          <div class="meta-row">
-            <span>Contact</span>
-            <strong>+91 9876543210</strong>
+
+          <div class="profile-meta">
+
+            <div class="meta-row">
+              <span>
+                <mat-icon>storefront</mat-icon>
+                Business Name
+              </span>
+
+              <strong>
+                Riya Home Bakery
+              </strong>
+            </div>
+
+
+            <div class="meta-row">
+              <span>
+                <mat-icon>call</mat-icon>
+                Contact
+              </span>
+
+              <strong>
+                +91 9876543210
+              </strong>
+            </div>
+
+
+            <div class="meta-row">
+              <span>
+                <mat-icon>public</mat-icon>
+                Facebook
+              </span>
+
+              <strong>
+                facebook.com/riyahomebakery
+              </strong>
+            </div>
+
+
+            <div class="meta-row">
+              <span>
+                <mat-icon>photo_camera</mat-icon>
+                Instagram
+              </span>
+
+              <strong>
+                instagram.com/riyahomebakery
+              </strong>
+            </div>
+
           </div>
 
-          <div class="meta-row">
-            <span>Facebook</span>
-            <strong>facebook.com/riyahomebakery</strong>
-          </div>
-
-          <div class="meta-row">
-            <span>Instagram</span>
-            <strong>instagram.com/riyahomebakery</strong>
-          </div>
         </div>
-      </div>
-    </div>
 
-    <div class="promo-card surface-card">
-      <div class="promo-card__image"></div>
+      </div>
+
+    </article>
+
+
+    <article class="promo-card surface-card">
+
+      <div class="promo-card__image">
+
+        <div class="promo-card__badge">
+          <mat-icon>auto_awesome</mat-icon>
+          Featured campaign
+        </div>
+
+        <div class="promo-card__art">
+          <span class="promo-card__art-circle promo-card__art-circle--one"></span>
+          <span class="promo-card__art-circle promo-card__art-circle--two"></span>
+
+          <mat-icon>cake</mat-icon>
+        </div>
+
+      </div>
+
 
       <div class="promo-card__copy">
-        <h3>Sweet Moments</h3>
-        <p>Happier People</p>
-        <span>Homemade Happiness Always</span>
+
+        <div>
+          <span class="section-eyebrow">
+            Current promotion
+          </span>
+
+          <h2>Sweet Moments</h2>
+
+          <p>Happier People</p>
+        </div>
+
+        <span>
+          Homemade Happiness Always
+        </span>
+
       </div>
-    </div>
+
+    </article>
+
   </section>
 
+
+  <!-- =========================================
+       STATS
+       ========================================= -->
   <section class="stats-grid">
+
     <article
       *ngFor="let stat of statCards"
       class="stat-card surface-card"
@@ -55,68 +189,202 @@
       [class.stat-card--violet]="stat.tone === 'violet'"
       [class.stat-card--orange]="stat.tone === 'orange'"
     >
+
       <div class="stat-card__icon">
-        <mat-icon>{{ stat.icon }}</mat-icon>
+        <mat-icon>
+          {{ stat.icon }}
+        </mat-icon>
       </div>
+
 
       <div class="stat-card__content">
-        <p>{{ stat.label }}</p>
-        <h3>{{ stat.value }}</h3>
-        <span>{{ stat.change }}</span>
-      </div>
-    </article>
-  </section>
 
-  <section class="surface-card section-card">
-    <div class="section-card__header">
-      <h3>My Pages</h3>
-      <button type="button" class="primary-button">
-        <mat-icon>add</mat-icon>
-        <span>Create New Page</span>
-      </button>
-    </div>
+        <p>
+          {{ stat.label }}
+        </p>
 
-    <div class="pages-list">
-      <article *ngFor="let item of pages" class="page-row">
-        <div class="page-row__left">
-          <div class="page-row__thumb"></div>
+        <div class="stat-card__value-row">
+          <h3>
+            {{ stat.value }}
+          </h3>
 
-          <div class="page-row__copy">
-            <strong>{{ item.url }}</strong>
-            <p>{{ item.title }}</p>
-          </div>
-        </div>
-
-        <div class="page-row__status">
-          <span
-            class="status-badge"
-            [class.status-badge--inactive]="item.status === 'Inactive'"
-          >
-            {{ item.status }}
+          <span>
+            {{ stat.change }}
           </span>
         </div>
 
-        <div class="page-row__meta">
-          <p>Validity: {{ item.validity }}</p>
-          <span>Expires: {{ item.expiry }}</span>
-        </div>
+      </div>
 
-        <div class="page-row__actions">
-          <button type="button" class="outline-button">View</button>
-          <button type="button" class="outline-button">Edit</button>
-          <button type="button" class="outline-button">Share</button>
-        </div>
-      </article>
-    </div>
+    </article>
+
   </section>
 
+
+  <!-- =========================================
+       MY PAGES
+       ========================================= -->
   <section class="surface-card section-card">
+
     <div class="section-card__header">
-      <h3>Customers</h3>
-      <a class="section-link" href="javascript:void(0)">View All</a>
+
+      <div>
+        <span class="section-eyebrow">
+          Published content
+        </span>
+
+        <h2>My Pages</h2>
+
+        <p>
+          Manage your live and inactive promotional pages.
+        </p>
+      </div>
+
+
+      <button
+        type="button"
+        class="primary-button"
+      >
+        <mat-icon>add</mat-icon>
+        <span>Create New Page</span>
+      </button>
+
     </div>
 
+
+    <div class="pages-list">
+
+      <article
+        *ngFor="let item of pages"
+        class="page-row"
+      >
+
+        <div class="page-row__left">
+
+          <div class="page-row__thumb">
+            <mat-icon>web</mat-icon>
+          </div>
+
+
+          <div class="page-row__copy">
+
+            <strong>
+              {{ item.url }}
+            </strong>
+
+            <p>
+              {{ item.title }}
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <div class="page-row__status">
+
+          <span
+            class="status-badge"
+            [class.status-badge--inactive]="
+              item.status === 'Inactive'
+            "
+          >
+            <span class="status-badge__dot"></span>
+            {{ item.status }}
+          </span>
+
+        </div>
+
+
+        <div class="page-row__meta">
+
+          <span>
+            Validity
+            <strong>
+              {{ item.validity }}
+            </strong>
+          </span>
+
+          <span>
+            Expires
+            <strong>
+              {{ item.expiry }}
+            </strong>
+          </span>
+
+        </div>
+
+
+        <div class="page-row__actions">
+
+          <button
+            type="button"
+            class="icon-action"
+            title="View"
+            aria-label="View"
+          >
+            <mat-icon>visibility</mat-icon>
+          </button>
+
+          <button
+            type="button"
+            class="icon-action"
+            title="Edit"
+            aria-label="Edit"
+          >
+            <mat-icon>edit</mat-icon>
+          </button>
+
+          <button
+            type="button"
+            class="icon-action"
+            title="Share"
+            aria-label="Share"
+          >
+            <mat-icon>share</mat-icon>
+          </button>
+
+        </div>
+
+      </article>
+
+    </div>
+
+  </section>
+
+
+  <!-- =========================================
+       CUSTOMERS
+       ========================================= -->
+  <section class="surface-card section-card">
+
+    <div class="section-card__header">
+
+      <div>
+        <span class="section-eyebrow">
+          Customer activity
+        </span>
+
+        <h2>Customers</h2>
+
+        <p>
+          Quick view of your latest lead and customer activity.
+        </p>
+      </div>
+
+
+      <a
+        class="section-link"
+        href="javascript:void(0)"
+      >
+        <span>View All</span>
+        <mat-icon>arrow_forward</mat-icon>
+      </a>
+
+    </div>
+
+
     <div class="lead-grid">
+
       <article
         *ngFor="let item of leads"
         class="lead-card"
@@ -125,15 +393,30 @@
         [class.lead-card--violet]="item.tone === 'violet'"
         [class.lead-card--pink]="item.tone === 'pink'"
       >
+
         <div class="lead-card__icon">
-          <mat-icon>{{ item.icon }}</mat-icon>
+          <mat-icon>
+            {{ item.icon }}
+          </mat-icon>
         </div>
 
+
         <div class="lead-card__copy">
-          <p>{{ item.label }}</p>
-          <strong>{{ item.value }}</strong>
+
+          <p>
+            {{ item.label }}
+          </p>
+
+          <strong>
+            {{ item.value }}
+          </strong>
+
         </div>
+
       </article>
+
     </div>
+
   </section>
+
 </section>

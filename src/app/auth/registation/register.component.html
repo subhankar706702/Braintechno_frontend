@@ -1,362 +1,301 @@
- <main class="register-page">
-      <section class="register-visual">
-        <img
-          src="/assets/images/banner.jpg"
-          alt="BRAIN TECHNO"
-          class="register-visual__image"
-        />
+<main class="register-page">
+  <section class="register-visual">
+    <img
+      src="https://static.vecteezy.com/system/resources/thumbnails/075/737/165/small/sustainable-growth-concept-with-wooden-blocks-and-rising-line-chart-free-photo.jpeg"
+      alt="BRAIN TECHNO" class="register-visual__image" />
 
-        <div class="register-visual__overlay"></div>
+    <div class="register-visual__overlay"></div>
 
-        <div class="register-visual__content">
-          <div class="brand-mark">
+    <div class="register-visual__content">
+      <div class="brand-mark">
+        <span class="material-symbols-rounded">
+          auto_awesome
+        </span>
+
+        <strong>BRAIN TECHNO</strong>
+      </div>
+
+      <div class="visual-copy">
+        <span class="visual-copy__eyebrow">
+          Grow your business
+        </span>
+
+        <h1>
+          Create engaging digital experiences for your customers.
+        </h1>
+
+        <p>
+          Create campaigns, manage your business and connect with
+          customers from one simple workspace.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="register-form-panel">
+    <div class="register-form-scroll">
+      <div class="register-form">
+        <header class="register-header">
+          <div class="register-header__icon">
             <span class="material-symbols-rounded">
-              auto_awesome
+              person_add
             </span>
-
-            <strong>BRAIN TECHNO</strong>
           </div>
 
-          <div class="visual-copy">
-            <span class="visual-copy__eyebrow">
-              Grow your business
+          <div>
+            <span class="register-header__eyebrow">
+              Get started
             </span>
 
-            <h1>
-              Create engaging digital experiences for your customers.
-            </h1>
+            <h2>Create your account</h2>
 
             <p>
-              Create campaigns, manage your business and connect with
-              customers from one simple workspace.
+              Enter your details to create your BRAIN TECHNO business
+              workspace.
             </p>
           </div>
-        </div>
-      </section>
+        </header>
 
-      <section class="register-form-panel">
-        <div class="register-form-scroll">
-          <div class="register-form">
-            <header class="register-header">
-              <div class="register-header__icon">
-                <span class="material-symbols-rounded">
-                  person_add
-                </span>
-              </div>
+        <form #registerForm="ngForm" (ngSubmit)="submit()" novalidate>
+          <div class="form-grid">
+            <div class="bt-field">
+              <label for="ownerName">
+                Owner name
+                <span>*</span>
+              </label>
 
-              <div>
-                <span class="register-header__eyebrow">
-                  Get started
+              <div class="input-shell">
+                <span class="material-symbols-rounded input-icon">
+                  person
                 </span>
 
-                <h2>Create your account</h2>
-
-                <p>
-                  Enter your details to create your BRAIN TECHNO business
-                  workspace.
-                </p>
+                <input id="ownerName" class="bt-input" type="text" name="ownerName" [(ngModel)]="ownerName"
+                  placeholder="Enter your full name" autocomplete="name" required />
               </div>
-            </header>
+            </div>
 
-            <form
-              #registerForm="ngForm"
-              (ngSubmit)="submit()"
-              novalidate
-            >
-              <div class="form-grid">
-                <div class="bt-field">
-                  <label for="ownerName">
-                    Owner name
-                    <span>*</span>
-                  </label>
+            <div class="bt-field">
+              <label for="mobile">
+                Mobile number
+                <span>*</span>
+              </label>
 
-                  <div class="input-shell">
-                    <span class="material-symbols-rounded input-icon">
-                      person
-                    </span>
+              <div class="input-shell">
+                <span class="material-symbols-rounded input-icon">
+                  call
+                </span>
 
-                    <input
-                      id="ownerName"
-                      class="bt-input"
-                      type="text"
-                      name="ownerName"
-                      [(ngModel)]="ownerName"
-                      placeholder="Enter your full name"
-                      autocomplete="name"
-                      required
-                    />
-                  </div>
-                </div>
+                <input id="mobile" class="bt-input" type="tel" name="mobile" [(ngModel)]="mobile"
+                  placeholder="Enter mobile number" autocomplete="tel" inputmode="tel" minlength="10" maxlength="15"
+                  required />
+              </div>
+            </div>
 
-                <div class="bt-field">
-                  <label for="mobile">
-                    Mobile number
-                    <span>*</span>
-                  </label>
+            <div class="bt-field form-grid__full">
+              <label for="email">
+                Email address
+                <span>*</span>
+              </label>
 
-                  <div class="input-shell">
-                    <span class="material-symbols-rounded input-icon">
-                      call
-                    </span>
+              <div class="input-shell">
+                <span class="material-symbols-rounded input-icon">
+                  mail
+                </span>
 
-                    <input
-                      id="mobile"
-                      class="bt-input"
-                      type="tel"
-                      name="mobile"
-                      [(ngModel)]="mobile"
-                      placeholder="Enter mobile number"
-                      autocomplete="tel"
-                      inputmode="tel"
-                      minlength="10"
-                      maxlength="15"
-                      required
-                    />
-                  </div>
-                </div>
+                <input id="email" class="bt-input" type="email" name="email" [(ngModel)]="email"
+                  placeholder="you@example.com" autocomplete="email" required />
+              </div>
+            </div>
 
-                <div class="bt-field form-grid__full">
-                  <label for="email">
-                    Email address
-                    <span>*</span>
-                  </label>
+            <div class="bt-field">
+              <label for="businessName">
+                Business name
+                <span>*</span>
+              </label>
 
-                  <div class="input-shell">
-                    <span class="material-symbols-rounded input-icon">
-                      mail
-                    </span>
+              <div class="input-shell">
+                <span class="material-symbols-rounded input-icon">
+                  store
+                </span>
 
-                    <input
-                      id="email"
-                      class="bt-input"
-                      type="email"
-                      name="email"
-                      [(ngModel)]="email"
-                      placeholder="you@example.com"
-                      autocomplete="email"
-                      required
-                    />
-                  </div>
-                </div>
+                <input id="businessName" class="bt-input" type="text" name="businessName" [(ngModel)]="businessName"
+                  placeholder="Enter business name" autocomplete="organization" required />
+              </div>
+            </div>
 
-                <div class="bt-field">
-                  <label for="businessName">
-                    Business name
-                    <span>*</span>
-                  </label>
+            <div class="bt-field">
+              <label for="businessCategory">
+                Business category
+                <span>*</span>
+              </label>
 
-                  <div class="input-shell">
-                    <span class="material-symbols-rounded input-icon">
-                      store
-                    </span>
+              <div class="input-shell input-shell--select">
+                <span class="material-symbols-rounded input-icon">
+                  category
+                </span>
 
-                    <input
-                      id="businessName"
-                      class="bt-input"
-                      type="text"
-                      name="businessName"
-                      [(ngModel)]="businessName"
-                      placeholder="Enter business name"
-                      autocomplete="organization"
-                      required
-                    />
-                  </div>
-                </div>
+                <select id="businessCategory" class="bt-select" name="businessCategory" [(ngModel)]="businessCategory"
+                  required>
+                  <option value="General">
+                    General
+                  </option>
 
-                <div class="bt-field">
-                  <label for="businessCategory">
-                    Business category
-                    <span>*</span>
-                  </label>
+                  <option value="Others">
+                    Others
+                  </option>
+                </select>
 
-                  <div class="input-shell input-shell--select">
-                    <span class="material-symbols-rounded input-icon">
-                      category
-                    </span>
+                <span class="material-symbols-rounded select-arrow">
+                  expand_more
+                </span>
+              </div>
+            </div>
 
-                    <select
-                      id="businessCategory"
-                      class="bt-select"
-                      name="businessCategory"
-                      [(ngModel)]="businessCategory"
-                      required
-                    >
-                      <option value="General">
-                        General
-                      </option>
+            <div class="bt-field">
+              <label for="password">
+                Password
+                <span>*</span>
+              </label>
 
-                      <option value="Others">
-                        Others
-                      </option>
-                    </select>
+              <div class="input-shell">
+                <span class="material-symbols-rounded input-icon">
+                  lock
+                </span>
 
-                    <span class="material-symbols-rounded select-arrow">
-                      expand_more
-                    </span>
-                  </div>
-                </div>
+                <input id="password" class="bt-input" [type]="showPassword ? 'text' : 'password'" name="password"
+                  [(ngModel)]="password" placeholder="Minimum 8 characters" autocomplete="new-password" minlength="8"
+                  required />
 
-                <div class="bt-field">
-                  <label for="password">
-                    Password
-                    <span>*</span>
-                  </label>
-
-                  <div class="input-shell">
-                    <span class="material-symbols-rounded input-icon">
-                      lock
-                    </span>
-
-                    <input
-                      id="password"
-                      class="bt-input"
-                      [type]="showPassword ? 'text' : 'password'"
-                      name="password"
-                      [(ngModel)]="password"
-                      placeholder="Minimum 8 characters"
-                      autocomplete="new-password"
-                      minlength="8"
-                      required
-                    />
-
-                    <button
-                      type="button"
-                      class="password-toggle"
-                      (click)="showPassword = !showPassword"
-                      [attr.aria-label]="
+                <button type="button" class="password-toggle" (click)="showPassword = !showPassword" [attr.aria-label]="
                         showPassword
                           ? 'Hide password'
                           : 'Show password'
-                      "
-                    >
-                      <span class="material-symbols-rounded">
-                        {{
-                          showPassword
-                            ? 'visibility_off'
-                            : 'visibility'
-                        }}
-                      </span>
-                    </button>
-                  </div>
-                </div>
+                      ">
+                  <span class="material-symbols-rounded">
+                    {{
+                    showPassword
+                    ? 'visibility_off'
+                    : 'visibility'
+                    }}
+                  </span>
+                </button>
+              </div>
+            </div>
 
-                <div class="bt-field">
-                  <label for="confirmPassword">
-                    Confirm password
-                    <span>*</span>
-                  </label>
+            <div class="bt-field">
+              <label for="confirmPassword">
+                Confirm password
+                <span>*</span>
+              </label>
 
-                  <div class="input-shell">
-                    <span class="material-symbols-rounded input-icon">
-                      verified_user
-                    </span>
+              <div class="input-shell">
+                <span class="material-symbols-rounded input-icon">
+                  verified_user
+                </span>
 
-                    <input
-                      id="confirmPassword"
-                      class="bt-input"
-                      [type]="showConfirmPassword ? 'text' : 'password'"
-                      name="confirmPassword"
-                      [(ngModel)]="confirmPassword"
-                      placeholder="Re-enter password"
-                      autocomplete="new-password"
-                      minlength="8"
-                      required
-                    />
+                <input id="confirmPassword" class="bt-input" [type]="showConfirmPassword ? 'text' : 'password'"
+                  name="confirmPassword" [(ngModel)]="confirmPassword" placeholder="Re-enter password"
+                  autocomplete="new-password" minlength="8" required />
 
-                    <button
-                      type="button"
-                      class="password-toggle"
-                      (click)="
+                <button type="button" class="password-toggle" (click)="
                         showConfirmPassword =
                           !showConfirmPassword
-                      "
-                      [attr.aria-label]="
+                      " [attr.aria-label]="
                         showConfirmPassword
                           ? 'Hide password'
                           : 'Show password'
-                      "
-                    >
-                      <span class="material-symbols-rounded">
-                        {{
-                          showConfirmPassword
-                            ? 'visibility_off'
-                            : 'visibility'
-                        }}
-                      </span>
-                    </button>
-                  </div>
-                </div>
+                      ">
+                  <span class="material-symbols-rounded">
+                    {{
+                    showConfirmPassword
+                    ? 'visibility_off'
+                    : 'visibility'
+                    }}
+                  </span>
+                </button>
               </div>
-
-              @if (
-                confirmPassword &&
-                password !== confirmPassword
-              ) {
-                <div class="form-message form-message--error">
-                  <span class="material-symbols-rounded">
-                    error
-                  </span>
-
-                  <span>
-                    Password and confirm password do not match.
-                  </span>
-                </div>
-              }
-
-              @if (error) {
-                <div class="form-message form-message--error">
-                  <span class="material-symbols-rounded">
-                    error
-                  </span>
-
-                  <span>
-                    {{ error }}
-                  </span>
-                </div>
-              }
-
-              <button
-                class="bt-btn register-submit"
-                type="submit"
-                [disabled]="
-                  registerForm.invalid ||
-                  password !== confirmPassword ||
-                  loading
-                "
-              >
-                @if (loading) {
-                  <span class="submit-spinner"></span>
-                  Creating account...
-                } @else {
-                  Create account
-
-                  <span class="material-symbols-rounded">
-                    arrow_forward
-                  </span>
-                }
-              </button>
-            </form>
-
-            <div class="register-divider">
-              <span></span>
-
-              <p>Already have an account?</p>
-
-              <span></span>
             </div>
-
-            <a
-              routerLink="/auth/login"
-              class="sign-in-link"
-            >
-              Sign in to your account
-            </a>
-
-            <p class="register-footer">
-              By creating an account, you agree to BRAIN TECHNO's
-              terms and privacy policy.
-            </p>
           </div>
+
+          @if (
+          confirmPassword &&
+          password !== confirmPassword
+          ) {
+          <div class="form-message form-message--error">
+            <span class="material-symbols-rounded">
+              error
+            </span>
+
+            <span>
+              Password and confirm password do not match.
+            </span>
+          </div>
+          }
+
+          @if (error) {
+          <div class="form-message form-message--error">
+            <span class="material-symbols-rounded">
+              error
+            </span>
+
+            <span>
+              {{ error }}
+            </span>
+          </div>
+          }
+
+          <label class="terms-check">
+
+            <input type="checkbox" name="termsAccepted" [(ngModel)]="termsAccepted" />
+
+            <span>
+              I agree to the
+              <a routerLink="/terms" target="_blank">
+                Terms & Conditions
+              </a>
+              and
+              <a routerLink="/privacy" target="_blank">
+                Privacy Policy
+              </a>
+            </span>
+
+          </label>
+
+          <button type="submit" class="bt-btn register-submit" [disabled]="loading || !termsAccepted">
+            @if (loading) {
+            <span class="button-spinner"></span>
+
+            <span>
+              Creating account...
+            </span>
+            } @else {
+            <span>
+              Create account
+            </span>
+            <span class="material-symbols-rounded">
+              arrow_forward
+            </span>
+            }
+          </button>
+        </form>
+
+        <div class="register-divider">
+          <span></span>
+
+          <p>Already have an account?</p>
+
+          <span></span>
         </div>
-      </section>
-    </main>
+
+        <a routerLink="/auth/login" class="sign-in-link">
+          Sign in to your account
+        </a>
+
+        <p class="register-footer">
+          By creating an account, you agree to BRAIN TECHNO's
+          terms and privacy policy.
+        </p>
+      </div>
+    </div>
+  </section>
+</main>

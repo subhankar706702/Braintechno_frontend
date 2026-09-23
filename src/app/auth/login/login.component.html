@@ -1,0 +1,243 @@
+<section class="auth-page">
+
+  <div class="auth-layout">
+
+    <!-- IMAGE SIDE -->
+
+    <section class="auth-visual">
+
+      <img
+        src="https://s3.amazonaws.com/goanswer-production.io-assets/media/155-scaled.webp"
+        alt="BRAIN TECHNO"
+        class="auth-visual__image"
+      />
+
+      <div class="auth-visual__overlay"></div>
+
+      <div class="auth-visual__content">
+
+        <div class="brand-mark">
+          BT
+        </div>
+
+        <div>
+          <span class="auth-eyebrow">
+            BRAIN TECHNO
+          </span>
+
+          <h1>
+            Welcome back
+          </h1>
+
+          <p>
+            Sign in to manage your business,
+            pages, campaigns and customers.
+          </p>
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- LOGIN SIDE -->
+
+    <main class="auth-content">
+
+      <div class="auth-form-wrap">
+
+        <header class="auth-heading">
+
+          <span class="auth-heading__eyebrow">
+            Welcome back
+          </span>
+
+          <h2>
+            Sign in to your account
+          </h2>
+
+          <p>
+            Enter your account details to continue.
+          </p>
+
+        </header>
+
+
+        @if (errorMessage()) {
+
+          <div class="auth-error">
+
+            <span
+              class="material-symbols-rounded"
+            >
+              error
+            </span>
+
+            <span>
+              {{ errorMessage() }}
+            </span>
+
+          </div>
+
+        }
+
+
+        <form
+          class="auth-form"
+          (ngSubmit)="login()"
+        >
+
+          <!-- IDENTIFIER -->
+
+          <label class="form-field">
+
+            <span class="form-field__label">
+              Username, mobile number or email
+            </span>
+
+            <div class="input-control">
+
+              <span
+                class="material-symbols-rounded
+                       input-control__icon"
+              >
+                person
+              </span>
+
+              <input
+                type="text"
+                name="identifier"
+                [(ngModel)]="identifier"
+                placeholder="Enter username, mobile or email"
+                autocomplete="username"
+                [disabled]="submitting()"
+              />
+
+            </div>
+
+          </label>
+
+
+          <!-- PASSWORD -->
+
+          <label class="form-field">
+
+            <div class="form-field__header">
+
+              <span class="form-field__label">
+                Password
+              </span>
+
+              <a
+                routerLink="/forgot-password"
+                class="forgot-link"
+              >
+                Forgot password?
+              </a>
+
+            </div>
+
+            <div class="input-control">
+
+              <span
+                class="material-symbols-rounded
+                       input-control__icon"
+              >
+                lock
+              </span>
+
+              <input
+                [type]="
+                  showPassword()
+                    ? 'text'
+                    : 'password'
+                "
+                name="password"
+                [(ngModel)]="password"
+                placeholder="Enter your password"
+                autocomplete="current-password"
+                [disabled]="submitting()"
+              />
+
+              <button
+                type="button"
+                class="password-toggle"
+                (click)="togglePassword()"
+                [attr.aria-label]="
+                  showPassword()
+                    ? 'Hide password'
+                    : 'Show password'
+                "
+              >
+
+                <span
+                  class="material-symbols-rounded"
+                >
+                  {{
+                    showPassword()
+                      ? 'visibility_off'
+                      : 'visibility'
+                  }}
+                </span>
+
+              </button>
+
+            </div>
+
+          </label>
+
+
+          <!-- LOGIN -->
+
+          <button
+            type="submit"
+            class="submit-button"
+            [disabled]="submitting()"
+          >
+
+            @if (submitting()) {
+
+              <span class="button-spinner"></span>
+
+              <span>
+                Signing in...
+              </span>
+
+            } @else {
+
+              <span>
+                Sign in
+              </span>
+
+              <span
+                class="material-symbols-rounded"
+              >
+                arrow_forward
+              </span>
+
+            }
+
+          </button>
+
+        </form>
+
+
+        <div class="auth-register">
+
+          <span>
+            Don't have an account?
+          </span>
+
+          <a routerLink="/auth/register">
+            Create account
+          </a>
+
+        </div>
+
+      </div>
+
+    </main>
+
+  </div>
+
+</section>

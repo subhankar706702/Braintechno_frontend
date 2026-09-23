@@ -796,6 +796,57 @@ form {
     grid-column: auto;
   }
 }
+.terms-check {
+  display: grid;
+
+  grid-template-columns:
+    18px
+    minmax(0, 1fr);
+
+  align-items: start;
+
+  gap: 9px;
+
+  color:
+    var(--bt-text-muted);
+
+  font-size: 12px;
+
+  line-height: 1.55;
+
+  cursor: pointer;
+}
+
+.terms-check input {
+  width: 16px;
+  height: 16px;
+
+  margin-top: 2px;
+
+  accent-color:
+    var(--bt-primary);
+
+  cursor: pointer;
+}
+
+.terms-check a {
+  color:
+    var(--bt-primary);
+
+  font-weight: 700;
+
+  text-decoration: none;
+}
+
+.terms-check a:hover {
+  text-decoration: underline;
+}
+
+.submit-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
 
 /* ================================
    SHORT DESKTOP

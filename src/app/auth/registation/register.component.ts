@@ -15,6 +15,8 @@ import { AuthService } from '../../core/auth.service';
   styleUrl: './register.component.scss'
 })
 export class RegisterComponent {
+  termsAccepted = false;
+
   ownerName = '';
   mobile = '';
   email = '';
@@ -39,6 +41,11 @@ export class RegisterComponent {
     if (this.loading) {
       return;
     }
+
+    if (!this.termsAccepted) {
+    this.error = 'Please accept the Terms & Conditions and Privacy Policy.';
+    return;
+  }
 
     if (this.password !== this.confirmPassword) {
       this.error =

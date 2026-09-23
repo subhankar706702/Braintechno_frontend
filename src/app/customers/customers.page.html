@@ -1,0 +1,855 @@
+<section
+  class="customers-page"
+  (click)="closeAddMenu()"
+>
+
+  <header class="customers-header">
+
+    <div class="customers-header__copy">
+
+      <span class="page-eyebrow">
+        Customer relationship management
+      </span>
+
+      <h1>Customers</h1>
+
+      <p>
+        Manage customer relationships, interests,
+        follow-ups and conversions in one place.
+      </p>
+
+    </div>
+
+
+    <div
+      class="add-customer-wrap"
+      (click)="$event.stopPropagation()"
+    >
+
+      <button
+        type="button"
+        class="add-customer-button"
+        (click)="toggleAddMenu()"
+      >
+        <mat-icon>
+          person_add
+        </mat-icon>
+
+        <span>
+          Add Customer
+        </span>
+
+        <mat-icon class="add-customer-button__chevron">
+          expand_more
+        </mat-icon>
+      </button>
+
+
+      @if (addMenuOpen()) {
+
+        <div class="add-customer-menu">
+
+          <button
+            type="button"
+            (click)="addManual()"
+          >
+            <span class="add-customer-menu__icon add-customer-menu__icon--manual">
+              <mat-icon>
+                person_add
+              </mat-icon>
+            </span>
+
+            <span>
+              <strong>
+                Add manually
+              </strong>
+
+              <small>
+                Create one customer profile
+              </small>
+            </span>
+          </button>
+
+
+          <button
+            type="button"
+            (click)="importExcel()"
+          >
+            <span class="add-customer-menu__icon add-customer-menu__icon--excel">
+              <mat-icon>
+                table_view
+              </mat-icon>
+            </span>
+
+            <span>
+              <strong>
+                Excel import
+              </strong>
+
+              <small>
+                Import many customers from Excel
+              </small>
+            </span>
+          </button>
+
+
+          <button
+            type="button"
+            (click)="importWithAI()"
+          >
+            <span class="add-customer-menu__icon add-customer-menu__icon--ai">
+              <mat-icon>
+                auto_awesome
+              </mat-icon>
+            </span>
+
+            <span>
+              <strong>
+                AI import
+              </strong>
+
+              <small>
+                Prepare customer records with AI
+              </small>
+            </span>
+          </button>
+
+        </div>
+
+      }
+
+    </div>
+
+  </header>
+
+
+  <section class="customer-stats">
+
+    @for (
+      item of countCards();
+      track item.key
+    ) {
+
+      <button
+        type="button"
+        class="customer-stat"
+        [class.customer-stat--active]="
+          item.key === 'all'
+            ? !selectedType()
+            : selectedType() === item.key
+        "
+        [class.customer-stat--blue]="
+          item.tone === 'blue'
+        "
+        [class.customer-stat--green]="
+          item.tone === 'green'
+        "
+        [class.customer-stat--violet]="
+          item.tone === 'violet'
+        "
+        [class.customer-stat--orange]="
+          item.tone === 'orange'
+        "
+        [class.customer-stat--pink]="
+          item.tone === 'pink'
+        "
+        [class.customer-stat--teal]="
+          item.tone === 'teal'
+        "
+        (click)="
+          selectCount(
+            item.key
+          )
+        "
+      >
+
+        <span class="customer-stat__icon">
+          <mat-icon>
+            {{ item.icon }}
+          </mat-icon>
+        </span>
+
+        <span class="customer-stat__copy">
+
+          <span>
+            {{ item.label }}
+          </span>
+
+          <strong>
+            {{ item.value }}
+          </strong>
+
+        </span>
+
+      </button>
+
+    }
+
+  </section>
+
+
+  <section class="customer-toolbar">
+
+    <label class="customer-search">
+
+      <mat-icon>
+        search
+      </mat-icon>
+
+      <input
+        type="search"
+        placeholder="Search name, mobile, email..."
+        [ngModel]="searchTerm()"
+        (ngModelChange)="
+          onSearchChange($event)
+        "
+      />
+
+      @if (searchTerm()) {
+
+        <button
+          type="button"
+          aria-label="Clear search"
+          title="Clear search"
+          (click)="
+            onSearchChange('')
+          "
+        >
+          <mat-icon>
+            close
+          </mat-icon>
+        </button>
+
+      }
+
+    </label>
+
+
+    <div class="customer-filters">
+
+      <label class="filter-select">
+        <mat-icon>
+          badge
+        </mat-icon>
+
+        <select
+          [ngModel]="selectedType()"
+          (ngModelChange)="
+            onTypeFilterChange($event)
+          "
+        >
+          <option value="">
+            All types
+          </option>
+
+          @for (
+            type of customerTypes;
+            track type
+          ) {
+            <option [value]="type">
+              {{ type }}
+            </option>
+          }
+        </select>
+      </label>
+
+
+      <label class="filter-select">
+        <mat-icon>
+          hub
+        </mat-icon>
+
+        <select
+          [ngModel]="selectedSource()"
+          (ngModelChange)="
+            onSourceFilterChange($event)
+          "
+        >
+          <option value="">
+            All sources
+          </option>
+
+          @for (
+            source of customerSources;
+            track source
+          ) {
+            <option [value]="source">
+              {{ source }}
+            </option>
+          }
+        </select>
+      </label>
+
+
+      <label class="filter-select filter-select--sort">
+        <mat-icon>
+          sort
+        </mat-icon>
+
+        <select
+          [ngModel]="sortMode()"
+          (ngModelChange)="
+            onSortChange($event)
+          "
+        >
+          <option value="newest">
+            Newest first
+          </option>
+
+          <option value="oldest">
+            Oldest first
+          </option>
+
+          <option value="name_asc">
+            Name A-Z
+          </option>
+
+          <option value="name_desc">
+            Name Z-A
+          </option>
+        </select>
+      </label>
+
+
+      @if (
+        selectedType() ||
+        selectedSource() ||
+        searchTerm()
+      ) {
+
+        <button
+          type="button"
+          class="clear-filter-button"
+          (click)="clearFilters()"
+          title="Clear filters"
+        >
+          <mat-icon>
+            filter_alt_off
+          </mat-icon>
+        </button>
+
+      }
+
+
+      <div
+        class="view-switch"
+        role="group"
+        aria-label="Customer view"
+      >
+
+        <button
+          type="button"
+          [class.active]="
+            viewMode() === 'card'
+          "
+          (click)="
+            setViewMode('card')
+          "
+          aria-label="Card view"
+          title="Card view"
+        >
+          <mat-icon>
+            grid_view
+          </mat-icon>
+        </button>
+
+        <button
+          type="button"
+          [class.active]="
+            viewMode() === 'list'
+          "
+          (click)="
+            setViewMode('list')
+          "
+          aria-label="List view"
+          title="List view"
+        >
+          <mat-icon>
+            view_list
+          </mat-icon>
+        </button>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  @if (apiError()) {
+
+    <div
+      class="api-note"
+      [class.api-note--demo]="
+        usingDemoData()
+      "
+    >
+      <mat-icon>
+        {{
+          usingDemoData()
+            ? 'info'
+            : 'error'
+        }}
+      </mat-icon>
+
+      <span>
+        {{ apiError() }}
+      </span>
+    </div>
+
+  }
+
+
+  <section
+    class="customer-results"
+    (scroll)="
+      onResultsScroll($event)
+    "
+  >
+
+    @if (loading()) {
+
+      <div class="customer-state">
+
+        <span class="customer-state__spinner"></span>
+
+        <div>
+          <strong>
+            Loading customers
+          </strong>
+
+          <p>
+            Fetching your customer records.
+          </p>
+        </div>
+
+      </div>
+
+    } @else if (
+      customers().length === 0
+    ) {
+
+      <div class="customer-state customer-state--empty">
+
+        <span class="customer-state__icon">
+          <mat-icon>
+            group_off
+          </mat-icon>
+        </span>
+
+        <div>
+          <strong>
+            No customers found
+          </strong>
+
+          <p>
+            Change the filters or add a new customer.
+          </p>
+        </div>
+
+      </div>
+
+    } @else {
+
+      @if (
+        viewMode() === 'card'
+      ) {
+
+        <div class="customer-card-grid">
+
+          @for (
+            customer of customers();
+            track customer.id
+          ) {
+
+            <article class="customer-card">
+
+              <div class="customer-card__top">
+
+                <div class="customer-avatar-wrap">
+
+                  <img
+                    [src]="customerImage(customer)"
+                    [alt]="displayName(customer)"
+                    (error)="
+                      onCustomerImageError($event)
+                    "
+                  />
+
+                  <span
+                    class="customer-avatar-status"
+                    aria-hidden="true"
+                  ></span>
+
+                </div>
+
+
+                <div class="customer-card__identity">
+
+                  <h2
+                    [title]="
+                      displayName(customer)
+                    "
+                  >
+                    {{
+                      displayName(customer)
+                    }}
+                  </h2>
+
+                  <span
+                    class="customer-type"
+                    [attr.data-type]="
+                      customer.customerType
+                    "
+                  >
+                    <mat-icon>
+                      {{
+                        typeIcon(
+                          customer.customerType
+                        )
+                      }}
+                    </mat-icon>
+
+                    {{
+                      customer.customerType
+                    }}
+                  </span>
+
+                </div>
+
+              </div>
+
+
+              <div class="customer-card__details">
+
+                <div>
+                  <mat-icon>
+                    call
+                  </mat-icon>
+
+                  <span>
+                    {{
+                      customer.mobile ||
+                      'No mobile number'
+                    }}
+                  </span>
+                </div>
+
+                <div>
+                  <mat-icon>
+                    mail
+                  </mat-icon>
+
+                  <span>
+                    {{
+                      customer.email ||
+                      'No email address'
+                    }}
+                  </span>
+                </div>
+
+              </div>
+
+
+              <div class="customer-card__meta">
+
+                <span class="source-chip">
+                  <mat-icon>
+                    {{
+                      sourceIcon(
+                        customer.source
+                      )
+                    }}
+                  </mat-icon>
+
+                  <span>
+                    Source
+                  </span>
+
+                  <strong>
+                    {{ customer.source }}
+                  </strong>
+                </span>
+
+                <span class="last-contact">
+                  <span>
+                    Last contact
+                  </span>
+
+                  <strong>
+                    {{
+                      lastContactLabel(
+                        customer
+                      )
+                    }}
+                  </strong>
+                </span>
+
+              </div>
+
+
+              <div class="customer-card__actions">
+
+                <button
+                  type="button"
+                  class="customer-action"
+                  (click)="
+                    viewCustomer(customer)
+                  "
+                >
+                  <mat-icon>
+                    visibility
+                  </mat-icon>
+
+                  <span>
+                    View
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  class="customer-action"
+                  (click)="
+                    messageCustomer(customer)
+                  "
+                >
+                  <mat-icon>
+                    chat
+                  </mat-icon>
+
+                  <span>
+                    Message
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  class="customer-action customer-action--danger"
+                  [disabled]="
+                    deletingId() ===
+                    customer.id
+                  "
+                  (click)="
+                    deleteCustomer(customer)
+                  "
+                >
+                  <mat-icon>
+                    delete
+                  </mat-icon>
+
+                  <span>
+                    Delete
+                  </span>
+                </button>
+
+              </div>
+
+            </article>
+
+          }
+
+        </div>
+
+      } @else {
+
+        <div class="customer-list">
+
+          @for (
+            customer of customers();
+            track customer.id
+          ) {
+
+            <article class="customer-list-row">
+
+              <div class="customer-list-row__person">
+
+                <img
+                  [src]="customerImage(customer)"
+                  [alt]="displayName(customer)"
+                  (error)="
+                    onCustomerImageError($event)
+                  "
+                />
+
+                <div>
+                  <strong>
+                    {{
+                      displayName(customer)
+                    }}
+                  </strong>
+
+                  <span>
+                    {{
+                      customer.email ||
+                      'No email address'
+                    }}
+                  </span>
+                </div>
+
+              </div>
+
+
+              <div class="customer-list-row__contact">
+                <span>
+                  Mobile
+                </span>
+
+                <strong>
+                  {{
+                    customer.mobile ||
+                    '—'
+                  }}
+                </strong>
+              </div>
+
+
+              <div class="customer-list-row__type">
+                <span
+                  class="customer-type"
+                  [attr.data-type]="
+                    customer.customerType
+                  "
+                >
+                  <mat-icon>
+                    {{
+                      typeIcon(
+                        customer.customerType
+                      )
+                    }}
+                  </mat-icon>
+
+                  {{
+                    customer.customerType
+                  }}
+                </span>
+              </div>
+
+
+              <div class="customer-list-row__source">
+                <span>
+                  Source
+                </span>
+
+                <strong>
+                  <mat-icon>
+                    {{
+                      sourceIcon(
+                        customer.source
+                      )
+                    }}
+                  </mat-icon>
+
+                  {{ customer.source }}
+                </strong>
+              </div>
+
+
+              <div class="customer-list-row__actions">
+
+                <button
+                  type="button"
+                  title="View"
+                  (click)="
+                    viewCustomer(customer)
+                  "
+                >
+                  <mat-icon>
+                    visibility
+                  </mat-icon>
+                </button>
+
+                <button
+                  type="button"
+                  title="Message"
+                  (click)="
+                    messageCustomer(customer)
+                  "
+                >
+                  <mat-icon>
+                    chat
+                  </mat-icon>
+                </button>
+
+                <button
+                  type="button"
+                  class="danger"
+                  title="Delete"
+                  [disabled]="
+                    deletingId() ===
+                    customer.id
+                  "
+                  (click)="
+                    deleteCustomer(customer)
+                  "
+                >
+                  <mat-icon>
+                    delete
+                  </mat-icon>
+                </button>
+
+              </div>
+
+            </article>
+
+          }
+
+        </div>
+
+      }
+
+
+      @if (loadingMore()) {
+
+        <div class="load-more-state">
+
+          <span class="customer-state__spinner"></span>
+
+          <span>
+            Loading more customers...
+          </span>
+
+        </div>
+
+      } @else if (
+        !usingDemoData() &&
+        hasMore()
+      ) {
+
+        <button
+          type="button"
+          class="load-more-button"
+          (click)="loadMore()"
+        >
+          Load more
+        </button>
+
+      } @else {
+
+        <div class="end-state">
+
+          <mat-icon>
+            check_circle
+          </mat-icon>
+
+          <span>
+            All customers loaded
+          </span>
+
+        </div>
+
+      }
+
+    }
+
+  </section>
+
+</section>
+
+
+
+<app-customer-manual-form
+  [open]="manualFormOpen()"
+  [accountId]="accountId || ''"
+  (closed)="closeManualForm()"
+  (created)="onManualCustomerCreated()"
+></app-customer-manual-form>

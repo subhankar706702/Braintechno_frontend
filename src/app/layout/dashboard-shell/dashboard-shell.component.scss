@@ -1,99 +1,67 @@
 :host {
   --bt-primary:
-    var(
-      --color-primary,
-      #ff4d6d
-    );
+    var(--color-primary,
+      #ff4d6d);
 
   --bt-bg:
-    var(
-      --color-bg,
-      #f5f7fa
-    );
+    var(--color-bg,
+      #f5f7fa);
 
   --bt-surface:
-    var(
-      --color-surface,
-      #ffffff
-    );
+    var(--color-surface,
+      #ffffff);
 
   --bt-surface-soft:
-    var(
-      --color-surface-2,
-      #f8fafc
-    );
+    var(--color-surface-2,
+      #f8fafc);
 
   --bt-border:
-    var(
-      --color-border,
-      #e2e8f0
-    );
+    var(--color-border,
+      #e2e8f0);
 
   --bt-text:
-    var(
-      --color-text-primary,
-      #0f172a
-    );
+    var(--color-text-primary,
+      #0f172a);
 
   --bt-text-secondary:
-    var(
-      --color-text-secondary,
-      #475569
-    );
+    var(--color-text-secondary,
+      #475569);
 
   --bt-text-muted:
-    var(
-      --color-text-muted,
-      #64748b
-    );
+    var(--color-text-muted,
+      #64748b);
 
   --bt-radius-sm:
-    var(
-      --radius-sm,
-      8px
-    );
+    var(--radius-sm,
+      8px);
 
   --bt-radius-md:
-    var(
-      --radius-md,
-      12px
-    );
+    var(--radius-md,
+      12px);
 
   --bt-radius-lg:
-    var(
-      --radius-lg,
-      18px
-    );
+    var(--radius-lg,
+      18px);
 
   --bt-space-1:
-    var(
-      --space-1,
-      4px
-    );
+    var(--space-1,
+      4px);
 
   --bt-space-2:
-    var(
-      --space-2,
-      8px
-    );
+    var(--space-2,
+      8px);
 
   --bt-space-3:
-    var(
-      --space-3,
-      12px
-    );
+    var(--space-3,
+      12px);
 
   --bt-space-4:
-    var(
-      --space-4,
-      16px
-    );
+    var(--space-4,
+      16px);
 
   --bt-space-5:
-    var(
-      --space-5,
-      20px
-    );
+    var(--space-5,
+      20px);
 
   display:
     block;
@@ -128,16 +96,11 @@ button {
     grid;
 
   grid-template-columns:
-    248px
-    minmax(
-      0,
-      1fr
-    );
+    248px minmax(0,
+      1fr);
 
   background:
-    var(
-      --bt-bg
-    );
+    var(--bt-bg);
 }
 
 
@@ -168,20 +131,13 @@ button {
     column;
 
   padding:
-    var(
-      --bt-space-4
-    );
+    var(--bt-space-4);
 
   border-right:
-    1px solid
-    var(
-      --bt-border
-    );
+    1px solid var(--bt-border);
 
   background:
-    var(
-      --bt-surface
-    );
+    var(--bt-surface);
 }
 
 
@@ -190,31 +146,20 @@ button {
     grid;
 
   grid-template-columns:
-    42px
-    minmax(
-      0,
-      1fr
-    );
+    42px minmax(0,
+      1fr);
 
   align-items:
     center;
 
   gap:
-    var(
-      --bt-space-3
-    );
+    var(--bt-space-3);
 
   min-height:
     54px;
 
   padding:
-    0
-    var(
-      --bt-space-1
-    )
-    var(
-      --bt-space-4
-    );
+    0 var(--bt-space-1) var(--bt-space-4);
 }
 
 
@@ -232,20 +177,13 @@ button {
     cover;
 
   border:
-    1px solid
-    var(
-      --bt-border
-    );
+    1px solid var(--bt-border);
 
   border-radius:
-    var(
-      --bt-radius-md
-    );
+    var(--bt-radius-md);
 
   background:
-    var(
-      --bt-surface-soft
-    );
+    var(--bt-surface-soft);
 }
 
 
@@ -266,9 +204,7 @@ button {
     hidden;
 
   color:
-    var(
-      --bt-text
-    );
+    var(--bt-text);
 
   font-size:
     14px;
@@ -289,9 +225,7 @@ button {
     hidden;
 
   color:
-    var(
-      --bt-text-muted
-    );
+    var(--bt-text-muted);
 
   font-size:
     10px;
@@ -319,9 +253,7 @@ button {
     grid;
 
   gap:
-    var(
-      --bt-space-1
-    );
+    var(--bt-space-1);
 }
 
 
@@ -342,26 +274,19 @@ button {
     11px;
 
   padding:
-    0
-    var(
-      --bt-space-3
-    );
+    0 var(--bt-space-3);
 
   border:
     0;
 
   border-radius:
-    var(
-      --bt-radius-md
-    );
+    var(--bt-radius-md);
 
   background:
     transparent;
 
   color:
-    var(
-      --bt-text-secondary
-    );
+    var(--bt-text-secondary);
 
   font-size:
     13px;
@@ -376,46 +301,32 @@ button {
     pointer;
 
   transition:
-    background
-    150ms ease,
-    color
-    150ms ease;
+    background 150ms ease,
+    color 150ms ease;
 }
 
 
 .sidebar-nav__item:hover {
   background:
-    var(
-      --bt-surface-soft
-    );
+    var(--bt-surface-soft);
 
   color:
-    var(
-      --bt-text
-    );
+    var(--bt-text);
 }
 
 
 .sidebar-nav__item--active {
   background:
-    color-mix(
-      in srgb,
-      var(
-        --bt-primary
-      )
-      10%,
-      transparent
-    );
+    color-mix(in srgb,
+      var(--bt-primary) 10%,
+      transparent);
 
   color:
-    var(
-      --bt-primary
-    );
+    var(--bt-primary);
 }
 
 
-.sidebar-nav__item
-mat-icon {
+.sidebar-nav__item mat-icon {
   width:
     20px;
 
@@ -423,13 +334,26 @@ mat-icon {
     20px;
 
   flex:
-    0 0
-    20px;
+    0 0 20px;
 
   font-size:
     20px;
 }
 
+
+
+/* Danger Item default state */
+.sidebar-nav__item--danger {
+  color: var(--bt-danger, #dc2626);
+}
+
+/* Danger Item hover state */
+.sidebar-nav__item--danger:hover {
+  background: color-mix(in srgb,
+      var(--bt-danger, #dc2626) 10%,
+      transparent);
+  color: var(--bt-danger, #dc2626);
+}
 
 /* =========================
    PROMO
@@ -440,25 +364,18 @@ mat-icon {
     auto;
 
   padding:
-    var(
-      --bt-space-4
-    );
+    var(--bt-space-4);
 
   border:
-    1px solid
-    #dbeafe;
+    1px solid #dbeafe;
 
   border-radius:
-    var(
-      --bt-radius-lg
-    );
+    var(--bt-radius-lg);
 
   background:
-    linear-gradient(
-      160deg,
+    linear-gradient(160deg,
       #f0f7ff,
-      #e8f2ff
-    );
+      #e8f2ff);
 }
 
 
@@ -476,22 +393,16 @@ mat-icon {
     center;
 
   margin-bottom:
-    var(
-      --bt-space-3
-    );
+    var(--bt-space-3);
 
   border-radius:
-    var(
-      --bt-radius-md
-    );
+    var(--bt-radius-md);
 
   background:
-    rgba(
-      37,
+    rgba(37,
       99,
       235,
-      .10
-    );
+      .10);
 
   color:
     #2563eb;
@@ -503,9 +414,7 @@ mat-icon {
     block;
 
   margin-bottom:
-    var(
-      --bt-space-1
-    );
+    var(--bt-space-1);
 
   color:
     #17315e;
@@ -566,36 +475,21 @@ mat-icon {
     center;
 
   gap:
-    var(
-      --bt-space-3
-    );
+    var(--bt-space-3);
 
   padding:
-    0
-    var(
-      --bt-space-5
-    );
+    0 var(--bt-space-5);
 
   border-bottom:
-    1px solid
-    var(
-      --bt-border
-    );
+    1px solid var(--bt-border);
 
   background:
-    color-mix(
-      in srgb,
-      var(
-        --bt-surface
-      )
-      96%,
-      transparent
-    );
+    color-mix(in srgb,
+      var(--bt-surface) 96%,
+      transparent);
 
   backdrop-filter:
-    blur(
-      12px
-    );
+    blur(12px);
 }
 
 
@@ -619,9 +513,7 @@ mat-icon {
     center;
 
   gap:
-    var(
-      --bt-space-2
-    );
+    var(--bt-space-2);
 }
 
 
@@ -642,21 +534,16 @@ mat-icon {
     0;
 
   border:
-    1px solid
-    transparent;
+    1px solid transparent;
 
   border-radius:
-    var(
-      --bt-radius-md
-    );
+    var(--bt-radius-md);
 
   background:
     transparent;
 
   color:
-    var(
-      --bt-text-secondary
-    );
+    var(--bt-text-secondary);
 
   cursor:
     pointer;
@@ -665,14 +552,10 @@ mat-icon {
 
 .topbar-icon-button:hover {
   border-color:
-    var(
-      --bt-border
-    );
+    var(--bt-border);
 
   background:
-    var(
-      --bt-surface-soft
-    );
+    var(--bt-surface-soft);
 }
 
 
@@ -687,33 +570,19 @@ mat-icon {
     center;
 
   gap:
-    var(
-      --bt-space-2
-    );
+    var(--bt-space-2);
 
   padding:
-    3px
-    var(
-      --bt-space-3
-    )
-    3px
-    4px;
+    3px var(--bt-space-3) 3px 4px;
 
   border:
-    1px solid
-    var(
-      --bt-border
-    );
+    1px solid var(--bt-border);
 
   border-radius:
-    var(
-      --bt-radius-md
-    );
+    var(--bt-radius-md);
 
   background:
-    var(
-      --bt-surface
-    );
+    var(--bt-surface);
 }
 
 
@@ -734,9 +603,7 @@ mat-icon {
     9px;
 
   background:
-    var(
-      --bt-surface-soft
-    );
+    var(--bt-surface-soft);
 }
 
 
@@ -748,9 +615,7 @@ mat-icon {
     hidden;
 
   color:
-    var(
-      --bt-text
-    );
+    var(--bt-text);
 
   font-size:
     12px;
@@ -771,10 +636,7 @@ mat-icon {
     0;
 
   min-height:
-    calc(
-      100dvh -
-      64px
-    );
+    calc(100dvh - 64px);
 }
 
 
@@ -788,10 +650,7 @@ mat-icon {
 }
 
 
-@media (
-  max-width:
-    767px
-) {
+@media (max-width: 767px) {
 
   .shell {
     display:
@@ -801,10 +660,8 @@ mat-icon {
 
   .sidebar {
     width:
-      min(
-        86vw,
-        300px
-      );
+      min(86vw,
+        300px);
 
     position:
       fixed;
@@ -822,43 +679,29 @@ mat-icon {
       100dvh;
 
     transform:
-      translateX(
-        -102%
-      );
+      translateX(-102%);
 
     box-shadow:
-      18px
-      0
-      44px
-      rgba(
-        15,
+      18px 0 44px rgba(15,
         23,
         42,
-        .15
-      );
+        .15);
 
     transition:
-      transform
-      180ms ease;
+      transform 180ms ease;
   }
 
 
   .sidebar--open {
     transform:
-      translateX(
-        0
-      );
+      translateX(0);
   }
 
 
   .sidebar__brand {
     grid-template-columns:
-      42px
-      minmax(
-        0,
-        1fr
-      )
-      38px;
+      42px minmax(0,
+        1fr) 38px;
   }
 
 
@@ -882,17 +725,13 @@ mat-icon {
       0;
 
     border-radius:
-      var(
-        --bt-radius-md
-      );
+      var(--bt-radius-md);
 
     background:
       transparent;
 
     color:
-      var(
-        --bt-text-secondary
-      );
+      var(--bt-text-secondary);
 
     cursor:
       pointer;
@@ -925,12 +764,10 @@ mat-icon {
       0;
 
     background:
-      rgba(
-        15,
+      rgba(15,
         23,
         42,
-        .38
-      );
+        .38);
   }
 
 
@@ -939,10 +776,7 @@ mat-icon {
       58px;
 
     padding:
-      0
-      var(
-        --bt-space-3
-      );
+      0 var(--bt-space-3);
   }
 
 
@@ -957,9 +791,7 @@ mat-icon {
       center;
 
     gap:
-      var(
-        --bt-space-2
-      );
+      var(--bt-space-2);
   }
 
 
@@ -983,17 +815,13 @@ mat-icon {
       0;
 
     border-radius:
-      var(
-        --bt-radius-md
-      );
+      var(--bt-radius-md);
 
     background:
       transparent;
 
     color:
-      var(
-        --bt-text
-      );
+      var(--bt-text);
 
     cursor:
       pointer;
@@ -1002,14 +830,11 @@ mat-icon {
 
   .mobile-menu-button:hover {
     background:
-      var(
-        --bt-surface-soft
-      );
+      var(--bt-surface-soft);
   }
 
 
-  .mobile-menu-button
-  .material-symbols-outlined {
+  .mobile-menu-button .material-symbols-outlined {
     font-size:
       24px;
 
@@ -1032,18 +857,13 @@ mat-icon {
       cover;
 
     border:
-      1px solid
-      var(
-        --bt-border
-      );
+      1px solid var(--bt-border);
 
     border-radius:
       10px;
 
     background:
-      var(
-        --bt-surface-soft
-      );
+      var(--bt-surface-soft);
   }
 
 
@@ -1064,10 +884,7 @@ mat-icon {
 
   .page-content {
     min-height:
-      calc(
-        100dvh -
-        58px
-      );
+      calc(100dvh - 58px);
   }
 
 }

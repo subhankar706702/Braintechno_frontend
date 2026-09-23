@@ -6,6 +6,7 @@ import {
 } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { AuthService } from '../../core/auth.service';
+import { ConfirmDialogComponent } from '../../Common/components/confirm-dialog/confirm-dialog.component';
 
 type ShellNavItem = {
   label: string;
@@ -70,11 +71,6 @@ export class DashboardShellComponent {
       icon: 'settings',
       route: '/app/settings',
     },
-    {
-      label: 'Logout',
-      icon: 'logout',
-      route: '/app/logout',
-    },
   ];
 
   constructor(
@@ -102,6 +98,15 @@ export class DashboardShellComponent {
     ).trim();
     return tagName.length > 25 ? tagName.substring(0, 25) + '...' : tagName;
 
+  }
+
+
+  logout(): void {
+  //  this.ConfirmDialogComponent.w
+    this.auth.logout();
+    void this.router.navigateByUrl(
+      '/auth/login',
+    );
   }
 
   get businessLogo(): string {

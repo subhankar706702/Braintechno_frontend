@@ -86,7 +86,7 @@
                 </span>
 
                 <input id="mobile" class="bt-input" type="tel" name="mobile" [(ngModel)]="mobile"
-                  placeholder="Enter mobile number" autocomplete="tel" inputmode="tel" minlength="10" maxlength="15"
+                  placeholder="Enter mobile number" autocomplete="tel" inputmode="tel" minlength="10" maxlength="10"
                   required />
               </div>
             </div>
@@ -133,15 +133,11 @@
                 <span class="material-symbols-rounded input-icon">
                   category
                 </span>
-
                 <select id="businessCategory" class="bt-select" name="businessCategory" [(ngModel)]="businessCategory"
                   required>
-                  <option value="General">
-                    General
-                  </option>
-
-                  <option value="Others">
-                    Others
+                  <option value="" disabled selected>Select a category</option>
+                  <option *ngFor="let category of businessCategorys">
+                    {{ category }}
                   </option>
                 </select>
 

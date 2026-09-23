@@ -56,7 +56,7 @@ export class AuthService {
 
   constructor(
     private http: HttpClient
-  ) {}
+  ) { }
 
   get token(): string | null {
     return localStorage.getItem(
@@ -128,14 +128,9 @@ export class AuthService {
   }
 
   logout(): void {
-    localStorage.removeItem(
-      this.tokenKey
-    );
-
-    localStorage.removeItem(
-      this.userKey
-    );
-
+    localStorage.removeItem(this.tokenKey);
+    localStorage.removeItem(this.userKey);
+    localStorage.clear();
     this.userSignal.set(null);
   }
 

@@ -40,9 +40,9 @@ type PreviewMode =
 
         <a
           class="back-button"
-          routerLink="/app/templates"
-          aria-label="Back to templates"
-          title="Back to templates"
+          [routerLink]="backLink"
+          aria-label="{{ backText }}"
+          [title]="backTitle"
         >
           <span
             class="material-symbols-rounded"
@@ -150,24 +150,26 @@ type PreviewMode =
           </div>
 
 
-          <a
-            class="edit-button"
-            [routerLink]="[
-              '/template',
-              template.id
-            ]"
-          >
-            <span
-              class="material-symbols-rounded"
-              aria-hidden="true"
+          @if (!viewOnly) {
+            <a
+              class="edit-button"
+              [routerLink]="[
+                '/template',
+                template.id
+              ]"
             >
-              edit
-            </span>
+              <span
+                class="material-symbols-rounded"
+                aria-hidden="true"
+              >
+                edit
+              </span>
 
-            <span class="edit-button__label">
-              Edit
-            </span>
-          </a>
+              <span class="edit-button__label">
+                Edit
+              </span>
+            </a>
+          }
 
         }
 
@@ -233,9 +235,9 @@ type PreviewMode =
 
           <a
             class="state-back"
-            routerLink="/app/templates"
+            [routerLink]="backLink"
           >
-            Back to templates
+            {{ backText }}
           </a>
 
         </section>
@@ -1266,6 +1268,11 @@ export class TemplateViewComponent {
 
   loadError = '';
 
+  backLink = '/app/templates';
+  backText = 'Back to templates';
+  backTitle = 'Back to templates';
+  viewOnly = false;
+
 
   constructor(
     private route:
@@ -1283,6 +1290,32 @@ export class TemplateViewComponent {
 
 
   ngOnInit(): void {
+
+    const returnUrl =
+      this.route.snapshot
+        .queryParamMap
+        .get('returnUrl');
+
+    const mode =
+      this.route.snapshot
+        .queryParamMap
+        .get('mode');
+
+    if (
+      returnUrl &&
+      returnUrl.startsWith('/app/')
+    ) {
+      this.backLink = returnUrl;
+    }
+
+    this.viewOnly =
+      mode === 'view' &&
+      this.backLink === '/app/campaigns';
+
+    if (this.backLink === '/app/campaigns') {
+      this.backText = 'Back to campaigns';
+      this.backTitle = 'Back to campaigns';
+    }
 
     this.previewMode =
       window.innerWidth <

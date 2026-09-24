@@ -10,7 +10,6 @@ export const routes: Routes = [
       { path: '', pathMatch: 'full', redirectTo: 'login' }
     ]
   },
-  { path: 'c/:slug', loadComponent: () => import('./public/campaign-page.component').then(m => m.CampaignPageComponent) },
   { path: 'template/:id/view', canActivate: [authGuard], loadComponent: () => import('./templates/template-view.component').then(m => m.TemplateViewComponent) },
   { path: 'template/:id', canActivate: [authGuard], loadComponent: () => import('./templates/editor/template-editor/template-editor.component').then(m => m.TemplateEditorComponent) },
   {
@@ -29,6 +28,7 @@ export const routes: Routes = [
       { path: '', pathMatch: 'full', redirectTo: 'dashboard' }
     ]
   },
+  { path: ':businessSlug/:pageSlug', loadComponent: () => import('./public/campaign-page.component').then(m => m.TemplateApiService) },
   { path: '', pathMatch: 'full', redirectTo: 'auth/login' },
   { path: '**', redirectTo: 'auth/login' }
 ];

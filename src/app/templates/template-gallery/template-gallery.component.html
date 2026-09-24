@@ -1,0 +1,468 @@
+<main class="gallery-page">
+
+  <header class="gallery-head">
+
+    <button
+      type="button"
+      class="gallery-head__back"
+      aria-label="Back to templates"
+      title="Back to templates"
+      (click)="back()"
+    >
+      <mat-icon>
+        arrow_back
+      </mat-icon>
+    </button>
+
+
+    <div class="gallery-head__copy">
+
+      <h1>
+        Template Gallery
+      </h1>
+
+      <p>
+        Choose a professional design and add it to your templates.
+      </p>
+
+    </div>
+
+  </header>
+
+
+  <section class="gallery-toolbar">
+
+    <label class="gallery-search">
+
+      <span
+        class="
+          material-symbols-rounded
+        "
+        aria-hidden="true"
+      >
+        search
+      </span>
+
+
+      <input
+        type="search"
+        [(ngModel)]="searchText"
+        placeholder="
+          Search templates...
+        "
+        autocomplete="off"
+      />
+
+
+      @if (searchText) {
+
+        <button
+          type="button"
+          aria-label="Clear search"
+          title="Clear search"
+          (click)="clearSearch()"
+        >
+          <span
+            class="
+              material-symbols-rounded
+            "
+            aria-hidden="true"
+          >
+            close
+          </span>
+        </button>
+
+      }
+
+    </label>
+
+
+    <div
+      class="gallery-types"
+      role="tablist"
+      aria-label="
+        Template types
+      "
+    >
+
+      @for (
+        type of typeFilters;
+        track type.value
+      ) {
+
+        <button
+          type="button"
+          class="gallery-type"
+          [class.gallery-type--active]="
+            selectedType ===
+            type.value
+          "
+          (click)="
+            selectType(
+              type.value
+            )
+          "
+        >
+          {{ type.label }}
+        </button>
+
+      }
+
+    </div>
+
+  </section>
+
+
+  <section class="gallery-content">
+
+    @if (loading) {
+
+      <div class="gallery-state">
+
+        <span
+          class="
+            gallery-state__spinner
+          "
+          aria-hidden="true"
+        ></span>
+
+        <strong>
+          Loading gallery
+        </strong>
+
+        <p>
+          Finding available templates...
+        </p>
+
+      </div>
+
+    } @else if (error) {
+
+      <div
+        class="
+          gallery-state
+          gallery-state--error
+        "
+      >
+
+        <span
+          class="
+            material-symbols-rounded
+          "
+          aria-hidden="true"
+        >
+          error
+        </span>
+
+        <strong>
+          Gallery unavailable
+        </strong>
+
+        <p>
+          {{ error }}
+        </p>
+
+        <button
+          type="button"
+          class="gallery-state__action"
+          (click)="reload()"
+        >
+          Try again
+        </button>
+
+      </div>
+
+    } @else if (
+      filteredItems.length === 0
+    ) {
+
+      <div class="gallery-state">
+
+        <span
+          class="
+            material-symbols-rounded
+          "
+          aria-hidden="true"
+        >
+          search_off
+        </span>
+
+        <strong>
+          No templates found
+        </strong>
+
+        <p>
+          Try another search or template type.
+        </p>
+
+      </div>
+
+    } @else {
+
+      <div class="gallery-grid">
+
+        @for (
+          item of filteredItems;
+          track item.id
+        ) {
+
+          <article class="gallery-card">
+
+            <div
+              class="
+                gallery-card__preview
+              "
+            >
+
+              @if (
+                category(item) ===
+                'new'
+              ) {
+
+                <span
+                  class="
+                    gallery-ribbon
+                    gallery-ribbon--new
+                  "
+                >
+                  NEW
+                </span>
+
+              }
+
+
+              @if (
+                category(item) ===
+                'locked'
+              ) {
+
+                <span
+                  class="
+                    gallery-ribbon
+                    gallery-ribbon--locked
+                  "
+                >
+                  <span
+                    class="
+                      material-symbols-rounded
+                    "
+                    aria-hidden="true"
+                  >
+                    lock
+                  </span>
+
+                  LOCKED
+                </span>
+
+              }
+
+
+              @if (
+                category(item) ===
+                'free'
+              ) {
+
+                <span
+                  class="
+                    gallery-badge
+                    gallery-badge--free
+                  "
+                >
+                  Free
+                </span>
+
+              }
+
+
+              @if (
+                category(item) ===
+                'coming_soon'
+              ) {
+
+                <span
+                  class="
+                    gallery-badge
+                    gallery-badge--coming
+                  "
+                >
+                  Coming Soon
+                </span>
+
+              }
+
+
+              @if (previewUrl(item)) {
+
+                <img
+                  [src]="
+                    previewUrl(item)
+                  "
+                  [alt]="item.name"
+                />
+
+              } @else {
+
+                <div
+                  class="
+                    gallery-card__placeholder
+                  "
+                >
+                  <span
+                    class="
+                      material-symbols-rounded
+                    "
+                    aria-hidden="true"
+                  >
+                    image
+                  </span>
+                </div>
+
+              }
+
+            </div>
+
+
+            <div
+              class="
+                gallery-card__body
+              "
+            >
+
+              <div
+                class="
+                  gallery-card__meta
+                "
+              >
+                {{
+                  typeLabel(
+                    item.templateType
+                  )
+                }}
+              </div>
+
+
+              <h2>
+                {{
+                  item.name ||
+                  'Untitled template'
+                }}
+              </h2>
+
+
+              <p>
+                {{
+                  item.description ||
+                  'Professional ready-to-use template.'
+                }}
+              </p>
+
+
+              <div
+                class="
+                  gallery-card__actions
+                "
+              >
+
+                <button
+                  type="button"
+                  class="
+                    gallery-card__view
+                  "
+                  (click)="view(item)"
+                >
+                  <span
+                    class="
+                      material-symbols-rounded
+                    "
+                    aria-hidden="true"
+                  >
+                    visibility
+                  </span>
+
+                  View
+                </button>
+
+
+                <button
+                  type="button"
+                  class="
+                    gallery-card__use
+                  "
+                  [disabled]="
+                    !isUsable(item) ||
+                    !!usingId
+                  "
+                  (click)="
+                    useTemplate(item)
+                  "
+                >
+
+                  @if (
+                    usingId ===
+                    item.id
+                  ) {
+
+                    <span
+                      class="
+                        gallery-card__spinner
+                      "
+                      aria-hidden="true"
+                    ></span>
+
+                    Adding...
+
+                  } @else if (
+                    category(item) ===
+                    'locked'
+                  ) {
+
+                    <span
+                      class="
+                        material-symbols-rounded
+                      "
+                      aria-hidden="true"
+                    >
+                      lock
+                    </span>
+
+                    Locked
+
+                  } @else if (
+                    category(item) ===
+                    'coming_soon'
+                  ) {
+
+                    Coming soon
+
+                  } @else {
+
+                    <span
+                      class="
+                        material-symbols-rounded
+                      "
+                      aria-hidden="true"
+                    >
+                      add_circle
+                    </span>
+
+                    Use
+
+                  }
+
+                </button>
+
+              </div>
+
+            </div>
+
+          </article>
+
+        }
+
+      </div>
+
+    }
+
+  </section>
+
+</main>

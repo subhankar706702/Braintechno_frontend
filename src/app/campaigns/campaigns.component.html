@@ -35,7 +35,7 @@
           <span>Campaign category <b>*</b></span>
           <select [(ngModel)]="category">
             @for (option of categoryOptions; track option.value) {
-              <option [value]="option.value">{{ option.label }}</option>
+            <option [value]="option.value">{{ option.label }}</option>
             }
           </select>
           <small>{{ selectedCategoryDescription }}</small>
@@ -50,14 +50,8 @@
             {{ publicDomain }}/{{ businessSlug || 'business-page' }}/
           </div>
 
-          <input
-            type="text"
-            [(ngModel)]="pageSlug"
-            [readonly]="!!editingId"
-            autocomplete="off"
-            autocapitalize="off"
-            spellcheck="false"
-          />
+          <input type="text" [(ngModel)]="pageSlug" [readonly]="!!editingId" autocomplete="off" autocapitalize="off"
+            spellcheck="false" />
         </div>
 
         <small>
@@ -69,7 +63,7 @@
         </small>
 
         @if (editingId) {
-          <small class="lock-note">Page slug cannot be changed after campaign creation.</small>
+        <small class="lock-note">Page slug cannot be changed after campaign creation.</small>
         }
       </label>
 
@@ -86,14 +80,11 @@
             <option value="">Select template</option>
             <option [value]="blankTemplateId">&lt;blank&gt;</option>
             @for (template of templates; track template.id || template._id) {
-              <option [value]="template.id || template._id">{{ template.name }}</option>
+            <option [value]="template.id || template._id">{{ template.name }}</option>
             }
           </select>
 
-          <button
-            mat-stroked-button
-            type="button"
-            (click)="viewSelectedTemplate()"
+          <button mat-stroked-button type="button" (click)="viewSelectedTemplate()"
             [disabled]="!templateId || isBlankTemplateSelected || loadingTemplates">
             <mat-icon>visibility</mat-icon>
             View template
@@ -101,100 +92,127 @@
         </div>
 
         @if (loadingTemplates) {
-          <div class="inline-loading">
-            <mat-spinner diameter="18"></mat-spinner>
-            <span>Loading templates...</span>
-          </div>
+        <div class="inline-loading">
+          <mat-spinner diameter="18"></mat-spinner>
+          <span>Loading templates...</span>
+        </div>
         }
 
         @if (isBlankTemplateSelected) {
-          <small class="lock-note">Blank creates the page without a saved template design.</small>
+        <small class="lock-note">Blank creates the page without a saved template design.</small>
         }
       </div>
 
       <div class="field-grid field-grid--two">
         @if (!isBusinessMainPage) {
-          <label class="field">
-            <span>End date</span>
-            <input type="datetime-local" [(ngModel)]="endAt" />
-            <small>If empty, validity defaults to 1 year.</small>
-          </label>
+        <label class="field">
+          <span>End date</span>
+          <input type="datetime-local" [(ngModel)]="endAt" />
+          <small>If empty, validity defaults to 1 year.</small>
+        </label>
         } @else {
-          <div class="validity-card">
-            <mat-icon aria-hidden="true">event_available</mat-icon>
-            <div>
-              <span>Default validity</span>
-              <strong>10 years</strong>
-              <small>Business Main Web Page does not require an end date.</small>
-            </div>
+        <div class="validity-card">
+          <mat-icon aria-hidden="true">event_available</mat-icon>
+          <div>
+            <span>Default validity</span>
+            <strong>10 years</strong>
+            <small>Business Main Web Page does not require an end date.</small>
           </div>
+        </div>
         }
 
         @if (!editingId) {
-          <div class="field">
-            <span>Publish action</span>
+        <div class="field">
+          <span>Publish action</span>
 
-            <div class="publish-stack">
-              <label class="publish-option" [class.publish-option--active]="publishMode === 'draft'">
-                <input type="radio" name="publishMode" value="draft" [(ngModel)]="publishMode" />
-                <div>
-                  <strong>Save draft</strong>
-                  <small>Create now and publish later.</small>
-                </div>
-              </label>
+          <div class="publish-stack">
+            <label class="publish-option" [class.publish-option--active]="publishMode === 'draft'">
+              <input type="radio" name="publishMode" value="draft" [(ngModel)]="publishMode" />
+              <div>
+                <strong>Save draft</strong>
+                <small>Create now and publish later.</small>
+              </div>
+            </label>
 
-              <label class="publish-option" [class.publish-option--active]="publishMode === 'now'">
-                <input type="radio" name="publishMode" value="now" [(ngModel)]="publishMode" />
-                <div>
-                  <strong>Publish now</strong>
-                  <small>Activate the campaign immediately.</small>
-                </div>
-              </label>
+            <label class="publish-option" [class.publish-option--active]="publishMode === 'now'">
+              <input type="radio" name="publishMode" value="now" [(ngModel)]="publishMode" />
+              <div>
+                <strong>Publish now</strong>
+                <small>Activate the campaign immediately.</small>
+              </div>
+            </label>
 
-              <label class="publish-option" [class.publish-option--active]="publishMode === 'schedule'">
-                <input type="radio" name="publishMode" value="schedule" [(ngModel)]="publishMode" />
-                <div>
-                  <strong>Schedule</strong>
-                  <small>Publish at a future date and time.</small>
-                </div>
-              </label>
-            </div>
+            <label class="publish-option" [class.publish-option--active]="publishMode === 'schedule'">
+              <input type="radio" name="publishMode" value="schedule" [(ngModel)]="publishMode" />
+              <div>
+                <strong>Schedule</strong>
+                <small>Publish at a future date and time.</small>
+              </div>
+            </label>
           </div>
+        </div>
         }
       </div>
 
       @if (!editingId && publishMode === 'schedule') {
-        <label class="field">
-          <span>Publish date & time <b>*</b></span>
-          <input type="datetime-local" [(ngModel)]="scheduleAt" />
-        </label>
+      <label class="field">
+        <span>Publish date & time <b>*</b></span>
+        <input type="datetime-local" [(ngModel)]="scheduleAt" />
+      </label>
       }
 
-      <div class="form-actions">
-        <button mat-flat-button type="button" (click)="submitCampaign()" [disabled]="loading || loadingContext || loadingTemplates">
-          @if (loading) {
-            <mat-spinner diameter="18"></mat-spinner>
-            Saving...
-          } @else {
-            <mat-icon>{{ editingId ? 'save' : 'add_circle' }}</mat-icon>
-            @if (editingId) {
-              Save changes
-            } @else if (publishMode === 'now') {
-              Create & publish
-            } @else if (publishMode === 'schedule') {
-              Create & schedule
-            } @else {
-              Save draft
-            }
-          }
-        </button>
+      <button mat-flat-button type="button" (click)="submitCampaign()"
+        [disabled]="loading || loadingContext || loadingTemplates">
+        @if (loading) {
 
-        @if (editingId) {
-          <button mat-stroked-button type="button" (click)="cancelEdit()" [disabled]="loading">
-            Cancel
-          </button>
+        <mat-spinner diameter="18"></mat-spinner>
+
+        <span>
+          Saving...
+        </span>
+
+        } @else {
+
+        <ng-container>
+
+          <mat-icon>
+            {{
+            editingId
+            ? 'save'
+            : 'add_circle'
+            }}
+          </mat-icon>
+
+          <span>
+
+            @if (editingId) {
+
+            Save changes
+
+            } @else if (
+            publishMode === 'now'
+            ) {
+
+            Create & publish
+
+            } @else if (
+            publishMode === 'schedule'
+            ) {
+
+            Create & schedule
+
+            } @else {
+
+            Save draft
+
+            }
+
+          </span>
+
+        </ng-container>
+
         }
-      </div>
+      </button>
     </section>
 
     <aside class="campaign-list-panel">
@@ -205,233 +223,195 @@
           <p>Manage your live and inactive promotional pages.</p>
         </div>
 
-        <button
-          mat-icon-button
-          type="button"
-          matTooltip="Refresh campaign list"
-          (click)="loadCampaigns(true)"
+        <button mat-icon-button type="button" matTooltip="Refresh campaign list" (click)="loadCampaigns(true)"
           [disabled]="loadingCampaigns">
           @if (loadingCampaigns) {
-            <mat-spinner diameter="20"></mat-spinner>
+          <mat-spinner diameter="20"></mat-spinner>
           } @else {
-            <mat-icon>refresh</mat-icon>
+          <mat-icon>refresh</mat-icon>
           }
         </button>
       </div>
 
       @if (!loadingCampaigns && campaigns.length === 0) {
-        <div class="empty-state">
-          <mat-icon aria-hidden="true">campaign</mat-icon>
-          <strong>No campaigns yet</strong>
-          <span>Create your first campaign from the form.</span>
-        </div>
+      <div class="empty-state">
+        <mat-icon aria-hidden="true">campaign</mat-icon>
+        <strong>No campaigns yet</strong>
+        <span>Create your first campaign from the form.</span>
+      </div>
       }
 
       @if (campaigns.length > 0) {
-        <mat-accordion class="campaign-accordion" multi="true">
-          @for (campaign of campaigns; track trackByCampaign($index, campaign)) {
-            <mat-expansion-panel
-              class="campaign-panel"
-              [class.campaign-panel--busy]="actionBusy(campaign)">
+      <mat-accordion class="campaign-accordion" multi="true">
+        @for (campaign of campaigns; track trackByCampaign($index, campaign)) {
+        <mat-expansion-panel class="campaign-panel" [class.campaign-panel--busy]="actionBusy(campaign)">
 
-              <mat-expansion-panel-header class="campaign-panel__header">
-                <mat-panel-title class="campaign-summary">
-                  <div class="campaign-summary__icon" aria-hidden="true">
-                    <mat-icon>web</mat-icon>
-                  </div>
-
-                  <div class="campaign-summary__main">
-                    <strong>{{ campaign.name }}</strong>
-                    <span>{{ categoryLabel(campaign.category) }}</span>
-                    <small>{{ pagePath(campaign) }}</small>
-                  </div>
-                </mat-panel-title>
-
-                <mat-panel-description class="campaign-summary__meta">
-                  <span class="status-pill" [class.status-pill--inactive]="!isActive(campaign)">
-                    <i></i>
-                    {{ isActive(campaign) ? 'Active' : statusLabel(campaign.status) }}
-                  </span>
-
-                  <div class="summary-metric">
-                    <span>Validity</span>
-                    <strong>{{ validDays(campaign) }} days</strong>
-                  </div>
-
-                  <div class="summary-metric">
-                    <span>Expires</span>
-                    <strong>{{ campaign.endAt ? (campaign.endAt | date:'dd MMM y') : 'No expiry' }}</strong>
-                  </div>
-                </mat-panel-description>
-              </mat-expansion-panel-header>
-
-              <div class="campaign-details">
-                <div class="campaign-details__url">
-                  <div>
-                    <span>Public URL</span>
-                    <strong>{{ publicUrl(campaign) }}</strong>
-                  </div>
-
-                  <div class="campaign-details__quick-actions">
-                    @if (canOpen(campaign)) {
-                      <button
-                        mat-icon-button
-                        type="button"
-                        matTooltip="View page"
-                        (click)="openPublic(campaign)"
-                        [disabled]="actionBusy(campaign)">
-                        <mat-icon>visibility</mat-icon>
-                      </button>
-                    }
-
-                    <button
-                      mat-icon-button
-                      type="button"
-                      matTooltip="Copy link"
-                      (click)="copyPublicLink(campaign)"
-                      [disabled]="actionBusy(campaign)">
-                      <mat-icon>content_copy</mat-icon>
-                    </button>
-
-                    <button
-                      mat-icon-button
-                      type="button"
-                      matTooltip="Share link"
-                      (click)="shareCampaign(campaign)"
-                      [disabled]="actionBusy(campaign)">
-                      <mat-icon>share</mat-icon>
-                    </button>
-                  </div>
-                </div>
-
-                <div class="campaign-details__grid">
-                  <div class="detail-item">
-                    <span>Status</span>
-                    <strong>{{ statusLabel(campaign.status) }}</strong>
-                  </div>
-
-                  <div class="detail-item">
-                    <span>Active</span>
-                    <strong>{{ activeLabel(campaign) }}</strong>
-                  </div>
-
-                  <div class="detail-item">
-                    <span>Template</span>
-                    <strong>{{ templateLabel(campaign) }}</strong>
-                  </div>
-
-                  <div class="detail-item">
-                    <span>Category</span>
-                    <strong>{{ categoryLabel(campaign.category) }}</strong>
-                  </div>
-
-                  <div class="detail-item">
-                    <span>Page path</span>
-                    <strong>{{ pagePath(campaign) }}</strong>
-                  </div>
-
-                  <div class="detail-item">
-                    <span>Cycle</span>
-                    <strong>#{{ campaign.cycleNumber || 1 }}</strong>
-                  </div>
-
-                  <div class="detail-item">
-                    <span>Valid days</span>
-                    <strong>{{ validDays(campaign) }} days</strong>
-                  </div>
-
-                  <div class="detail-item">
-                    <span>Expires in</span>
-                    <strong>{{ expiresInLabel(campaign) }}</strong>
-                  </div>
-
-                  <div class="detail-item">
-                    <span>Created</span>
-                    <strong>{{ campaign.createdAt ? (campaign.createdAt | date:'dd MMM y, h:mm a') : '—' }}</strong>
-                  </div>
-
-                  <div class="detail-item">
-                    <span>Updated</span>
-                    <strong>{{ campaign.updatedAt ? (campaign.updatedAt | date:'dd MMM y, h:mm a') : '—' }}</strong>
-                  </div>
-
-                  <div class="detail-item">
-                    <span>Publish date</span>
-                    <strong>{{ campaign.publishAt ? (campaign.publishAt | date:'dd MMM y, h:mm a') : '—' }}</strong>
-                  </div>
-
-                  <div class="detail-item">
-                    <span>Valid till</span>
-                    <strong>{{ campaign.endAt ? (campaign.endAt | date:'dd MMM y, h:mm a') : '—' }}</strong>
-                  </div>
-                </div>
-
-                @if (campaign.description) {
-                  <div class="campaign-details__description">
-                    <span>Description</span>
-                    <p>{{ campaign.description }}</p>
-                  </div>
-                }
-
-                <div class="campaign-details__actions">
-                  <button
-                    mat-stroked-button
-                    type="button"
-                    (click)="startEdit(campaign)"
-                    [disabled]="actionBusy(campaign)">
-                    <mat-icon>edit</mat-icon>
-                    Edit
-                  </button>
-
-                  <button
-                    mat-stroked-button
-                    type="button"
-                    (click)="reuse(campaign)"
-                    [disabled]="actionBusy(campaign)">
-                    <mat-icon>replay</mat-icon>
-                    Reuse
-                  </button>
-
-                  @if (canPublish(campaign)) {
-                    <button
-                      mat-flat-button
-                      type="button"
-                      (click)="publish(campaign)"
-                      [disabled]="actionBusy(campaign)">
-                      <mat-icon>publish</mat-icon>
-                      Publish
-                    </button>
-                  }
-
-                  @if (canUnpublish(campaign)) {
-                    <button
-                      mat-stroked-button
-                      type="button"
-                      (click)="unpublish(campaign)"
-                      [disabled]="actionBusy(campaign)">
-                      <mat-icon>visibility_off</mat-icon>
-                      Unpublish
-                    </button>
-                  }
-
-                  <button
-                    mat-stroked-button
-                    type="button"
-                    class="danger-action"
-                    (click)="remove(campaign)"
-                    [disabled]="actionBusy(campaign)">
-                    <mat-icon>delete</mat-icon>
-                    Delete
-                  </button>
-                </div>
+          <mat-expansion-panel-header class="campaign-panel__header">
+            <mat-panel-title class="campaign-summary">
+              <div class="campaign-summary__icon" aria-hidden="true">
+                <mat-icon>web</mat-icon>
               </div>
 
-              @if (actionBusy(campaign)) {
-                <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+              <div class="campaign-summary__main">
+                <strong>{{ campaign.name }}</strong>
+                <span>{{ categoryLabel(campaign.category) }}</span>
+                <small>{{ pagePath(campaign) }}</small>
+              </div>
+            </mat-panel-title>
+
+            <mat-panel-description class="campaign-summary__meta">
+              <span class="status-pill" [class.status-pill--inactive]="!isActive(campaign)">
+                <i></i>
+                {{ isActive(campaign) ? 'Active' : statusLabel(campaign.status) }}
+              </span>
+
+              <div class="summary-metric">
+                <span>Validity</span>
+                <strong>{{ validDays(campaign) }} days</strong>
+              </div>
+
+              <div class="summary-metric">
+                <span>Expires</span>
+                <strong>{{ campaign.endAt ? (campaign.endAt | date:'dd MMM y') : 'No expiry' }}</strong>
+              </div>
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+
+          <div class="campaign-details">
+            <div class="campaign-details__url">
+              <div>
+                <span>Public URL</span>
+                <strong>{{ publicUrl(campaign) }}</strong>
+              </div>
+
+              <div class="campaign-details__quick-actions">
+                @if (canOpen(campaign)) {
+                <button mat-icon-button type="button" matTooltip="View page" (click)="openPublic(campaign)"
+                  [disabled]="actionBusy(campaign)">
+                  <mat-icon>visibility</mat-icon>
+                </button>
+                }
+
+                <button mat-icon-button type="button" matTooltip="Copy link" (click)="copyPublicLink(campaign)"
+                  [disabled]="actionBusy(campaign)">
+                  <mat-icon>content_copy</mat-icon>
+                </button>
+
+                <button mat-icon-button type="button" matTooltip="Share link" (click)="shareCampaign(campaign)"
+                  [disabled]="actionBusy(campaign)">
+                  <mat-icon>share</mat-icon>
+                </button>
+              </div>
+            </div>
+
+            <div class="campaign-details__grid">
+              <div class="detail-item">
+                <span>Status</span>
+                <strong>{{ statusLabel(campaign.status) }}</strong>
+              </div>
+
+              <div class="detail-item">
+                <span>Active</span>
+                <strong>{{ activeLabel(campaign) }}</strong>
+              </div>
+
+              <div class="detail-item">
+                <span>Template</span>
+                <strong>{{ templateLabel(campaign) }}</strong>
+              </div>
+
+              <div class="detail-item">
+                <span>Category</span>
+                <strong>{{ categoryLabel(campaign.category) }}</strong>
+              </div>
+
+              <div class="detail-item">
+                <span>Page path</span>
+                <strong>{{ pagePath(campaign) }}</strong>
+              </div>
+
+              <div class="detail-item">
+                <span>Cycle</span>
+                <strong>#{{ campaign.cycleNumber || 1 }}</strong>
+              </div>
+
+              <div class="detail-item">
+                <span>Valid days</span>
+                <strong>{{ validDays(campaign) }} days</strong>
+              </div>
+
+              <div class="detail-item">
+                <span>Expires in</span>
+                <strong>{{ expiresInLabel(campaign) }}</strong>
+              </div>
+
+              <div class="detail-item">
+                <span>Created</span>
+                <strong>{{ campaign.createdAt ? (campaign.createdAt | date:'dd MMM y, h:mm a') : '—' }}</strong>
+              </div>
+
+              <div class="detail-item">
+                <span>Updated</span>
+                <strong>{{ campaign.updatedAt ? (campaign.updatedAt | date:'dd MMM y, h:mm a') : '—' }}</strong>
+              </div>
+
+              <div class="detail-item">
+                <span>Publish date</span>
+                <strong>{{ campaign.publishAt ? (campaign.publishAt | date:'dd MMM y, h:mm a') : '—' }}</strong>
+              </div>
+
+              <div class="detail-item">
+                <span>Valid till</span>
+                <strong>{{ campaign.endAt ? (campaign.endAt | date:'dd MMM y, h:mm a') : '—' }}</strong>
+              </div>
+            </div>
+
+            @if (campaign.description) {
+            <div class="campaign-details__description">
+              <span>Description</span>
+              <p>{{ campaign.description }}</p>
+            </div>
+            }
+
+            <div class="campaign-details__actions">
+              <button mat-stroked-button type="button" (click)="startEdit(campaign)" [disabled]="actionBusy(campaign)">
+                <mat-icon>edit</mat-icon>
+                Edit
+              </button>
+
+              <button mat-stroked-button type="button" (click)="reuse(campaign)" [disabled]="actionBusy(campaign)">
+                <mat-icon>replay</mat-icon>
+                Reuse
+              </button>
+
+              @if (canPublish(campaign)) {
+              <button mat-flat-button type="button" (click)="publish(campaign)" [disabled]="actionBusy(campaign)">
+                <mat-icon>publish</mat-icon>
+                Publish
+              </button>
               }
-            </mat-expansion-panel>
+
+              @if (canUnpublish(campaign)) {
+              <button mat-stroked-button type="button" (click)="unpublish(campaign)" [disabled]="actionBusy(campaign)">
+                <mat-icon>visibility_off</mat-icon>
+                Unpublish
+              </button>
+              }
+
+              <button mat-stroked-button type="button" class="danger-action" (click)="remove(campaign)"
+                [disabled]="actionBusy(campaign)">
+                <mat-icon>delete</mat-icon>
+                Delete
+              </button>
+            </div>
+          </div>
+
+          @if (actionBusy(campaign)) {
+          <mat-progress-bar mode="indeterminate"></mat-progress-bar>
           }
-        </mat-accordion>
+        </mat-expansion-panel>
+        }
+      </mat-accordion>
       }
     </aside>
   </div>

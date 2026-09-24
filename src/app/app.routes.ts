@@ -22,6 +22,7 @@ export const routes: Routes = [
     path: 'app', canActivate: [authGuard], loadComponent: () => import('./layout/dashboard-shell/dashboard-shell.component').then(m => m.DashboardShellComponent), children: [
       { path: 'dashboard', loadComponent: () => import('./dashboard/dashboard.page').then(m => m.DashboardPage) },
       { path: 'templates', loadComponent: () => import('./templates/templates.component').then(m => m.TemplatesComponent) },
+       {path: 'template-gallery',loadComponent: () =>import('./templates/template-gallery/template-gallery.component').then(m => m.TemplateGalleryComponent)},
       { path: 'campaigns', loadComponent: () => import('./campaigns/campaigns.component').then(m => m.CampaignsComponent) },
       { path: 'customers', loadComponent: () => import('./customers/customers.page').then(m => m.CustomersPage) },
       { path: 'settings', loadComponent: () => import('./settings/settings.page').then(m => m.SettingsPage) },

@@ -6,47 +6,98 @@
   <header class="templates-head">
 
     <div class="templates-head__copy">
-      <h1>Templates</h1>
+
+      <h1>
+        Templates
+      </h1>
 
       <p>
         Create and manage your promotional designs.
       </p>
+
     </div>
 
-    <button
-      class="create-design"
-      type="button"
-      [disabled]="loading"
-      (click)="create(); $event.stopPropagation()"
-    >
-      <span
-        class="material-symbols-rounded"
-        aria-hidden="true"
-      >
-        add
-      </span>
 
-      <span>Create design</span>
-    </button>
+    <div class="templates-head__actions">
+
+      <button
+        class="gallery-button"
+        type="button"
+        [disabled]="loading"
+        (click)="
+          openTemplateGallery();
+          $event.stopPropagation()
+        "
+      >
+        <span
+          class="material-symbols-rounded"
+          aria-hidden="true"
+        >
+          grid_view
+        </span>
+
+        <span>
+          Template gallery
+        </span>
+      </button>
+
+
+      <button
+        class="create-design"
+        type="button"
+        [disabled]="loading"
+        (click)="
+          create();
+          $event.stopPropagation()
+        "
+      >
+        <span
+          class="material-symbols-rounded"
+          aria-hidden="true"
+        >
+          add
+        </span>
+
+        <span>
+          Create design
+        </span>
+      </button>
+
+    </div>
 
   </header>
 
 
   @if (loadError) {
 
-    <section class="page-state page-state--error">
+    <section
+      class="
+        page-state
+        page-state--error
+      "
+    >
 
       <span
-        class="page-state__icon material-symbols-rounded"
+        class="
+          page-state__icon
+          material-symbols-rounded
+        "
         aria-hidden="true"
       >
         error
       </span>
 
+
       <div>
-        <h2>Could not load templates</h2>
-        <p>{{ loadError }}</p>
+        <h2>
+          Could not load templates
+        </h2>
+
+        <p>
+          {{ loadError }}
+        </p>
       </div>
+
 
       <button
         type="button"
@@ -68,9 +119,17 @@
         aria-hidden="true"
       ></span>
 
+
       <div>
-        <h2>Loading templates</h2>
-        <p>Please wait while your designs are loaded.</p>
+
+        <h2>
+          Loading templates
+        </h2>
+
+        <p>
+          Please wait while your designs are loaded.
+        </p>
+
       </div>
 
     </section>
@@ -80,35 +139,66 @@
     <section class="empty-state">
 
       <div class="empty-state__visual">
+
         <span
           class="material-symbols-rounded"
           aria-hidden="true"
         >
           dashboard_customize
         </span>
+
       </div>
 
-      <h2>Create your first template</h2>
+
+      <h2>
+        Create your first template
+      </h2>
+
 
       <p>
-        Start with a blank design and build your
-        promotional page or campaign.
+        Start with a blank design or choose a ready-made design from the template gallery.
       </p>
 
-      <button
-        type="button"
-        class="create-design create-design--empty"
-        (click)="create()"
-      >
-        <span
-          class="material-symbols-rounded"
-          aria-hidden="true"
-        >
-          add
-        </span>
 
-        Create design
-      </button>
+      <div class="empty-state__actions">
+
+        <button
+          type="button"
+          class="gallery-button"
+          (click)="
+            openTemplateGallery()
+          "
+        >
+          <span
+            class="material-symbols-rounded"
+            aria-hidden="true"
+          >
+            grid_view
+          </span>
+
+          Browse gallery
+        </button>
+
+
+        <button
+          type="button"
+          class="
+            create-design
+            create-design--empty
+          "
+          (click)="create()"
+        >
+          <span
+            class="material-symbols-rounded"
+            aria-hidden="true"
+          >
+            add
+          </span>
+
+          Create design
+        </button>
+
+      </div>
 
     </section>
 
@@ -116,11 +206,16 @@
 
     <section class="templates-grid">
 
-      @for (item of items; track item.id) {
+      @for (
+        item of items;
+        track item.id
+      ) {
 
         <article
           class="template-card"
-          (click)="$event.stopPropagation()"
+          (click)="
+            $event.stopPropagation()
+          "
         >
 
           <div class="template-card__preview">
@@ -134,9 +229,15 @@
 
             } @else {
 
-              <div class="template-card__placeholder">
+              <div
+                class="
+                  template-card__placeholder
+                "
+              >
                 <span
-                  class="material-symbols-rounded"
+                  class="
+                    material-symbols-rounded
+                  "
                   aria-hidden="true"
                 >
                   image
@@ -150,27 +251,57 @@
 
           <div class="template-card__body">
 
-            <div class="template-card__title-row">
+            <div
+              class="
+                template-card__title-row
+              "
+            >
 
               <h2
-                [title]="item.name || 'Untitled template'"
+                [title]="
+                  item.name ||
+                  'Untitled template'
+                "
               >
-                {{ displayTitle(item.name) }}
+                {{
+                  displayTitle(
+                    item.name
+                  )
+                }}
               </h2>
 
 
-              <div class="template-card__menu-wrap">
+              <div
+                class="
+                  template-card__menu-wrap
+                "
+              >
 
                 <button
                   type="button"
-                  class="template-card__menu-trigger"
-                  aria-label="Template actions"
-                  title="Template actions"
-                  [attr.aria-expanded]="isMenuOpen(item)"
-                  (click)="toggleMenu(item, $event)"
+                  class="
+                    template-card__menu-trigger
+                  "
+                  aria-label="
+                    Template actions
+                  "
+                  title="
+                    Template actions
+                  "
+                  [attr.aria-expanded]="
+                    isMenuOpen(item)
+                  "
+                  (click)="
+                    toggleMenu(
+                      item,
+                      $event
+                    )
+                  "
                 >
                   <span
-                    class="material-symbols-rounded"
+                    class="
+                      material-symbols-rounded
+                    "
                     aria-hidden="true"
                   >
                     more_vert
@@ -178,10 +309,14 @@
                 </button>
 
 
-                @if (isMenuOpen(item)) {
+                @if (
+                  isMenuOpen(item)
+                ) {
 
                   <div
-                    class="template-card__menu"
+                    class="
+                      template-card__menu
+                    "
                     role="menu"
                   >
 
@@ -191,13 +326,17 @@
                       (click)="view(item)"
                     >
                       <span
-                        class="material-symbols-rounded"
+                        class="
+                          material-symbols-rounded
+                        "
                         aria-hidden="true"
                       >
                         visibility
                       </span>
 
-                      <span>View</span>
+                      <span>
+                        View
+                      </span>
                     </button>
 
 
@@ -207,13 +346,17 @@
                       (click)="edit(item)"
                     >
                       <span
-                        class="material-symbols-rounded"
+                        class="
+                          material-symbols-rounded
+                        "
                         aria-hidden="true"
                       >
                         edit
                       </span>
 
-                      <span>Edit</span>
+                      <span>
+                        Edit
+                      </span>
                     </button>
 
 
@@ -221,37 +364,58 @@
                       type="button"
                       role="menuitem"
                       [disabled]="loading"
-                      (click)="duplicate(item)"
+                      (click)="
+                        duplicate(item)
+                      "
                     >
                       <span
-                        class="material-symbols-rounded"
+                        class="
+                          material-symbols-rounded
+                        "
                         aria-hidden="true"
                       >
                         content_copy
                       </span>
 
-                      <span>Duplicate</span>
+                      <span>
+                        Duplicate
+                      </span>
                     </button>
 
 
-                    <div class="template-card__menu-divider"></div>
+                    <div
+                      class="
+                        template-card__menu-divider
+                      "
+                    ></div>
 
 
                     <button
                       type="button"
                       role="menuitem"
-                      class="template-card__menu-danger"
-                      [disabled]="loading"
-                      (click)="requestDelete(item)"
+                      class="
+                        template-card__menu-danger
+                      "
+                      [disabled]="
+                        loading ||
+                        deleting
+                      "
+                      (click)="
+                        requestDelete(item)
+                      "
                     >
                       <span
-                        class="material-symbols-rounded"
+                        class="
+                          material-symbols-rounded
+                        "
                         aria-hidden="true"
                       >
                         delete
                       </span>
 
-                      <span>Delete</span>
+                      <span>
+                        Delete
+                      </span>
                     </button>
 
                   </div>
@@ -264,24 +428,44 @@
 
 
             <p
-              class="template-card__description"
-              [title]="item.description || 'No description added yet.'"
+              class="
+                template-card__description
+              "
+              [title]="
+                item.description ||
+                'No description added yet.'
+              "
             >
-              {{ displayDescription(item.description) }}
+              {{
+                displayDescription(
+                  item.description
+                )
+              }}
             </p>
 
 
-            <div class="template-card__saved">
+            <div
+              class="
+                template-card__saved
+              "
+            >
 
               <span
-                class="material-symbols-rounded"
+                class="
+                  material-symbols-rounded
+                "
                 aria-hidden="true"
               >
                 schedule
               </span>
 
+
               <span>
-                Saved {{ item.updatedAt | indiaDate }}
+                Saved
+                {{
+                  item.updatedAt |
+                  indiaDate
+                }}
               </span>
 
             </div>

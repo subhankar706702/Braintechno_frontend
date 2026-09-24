@@ -155,3 +155,66 @@ a {
     flex-direction: column;
   }
 }
+
+
+
+/* existing styles... */
+
+@media (max-width: 760px) {
+  .bt-page {
+    padding: 16px;
+  }
+
+  .bt-page-head {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+
+/* =========================
+   Template Gallery Dialog
+   ========================= */
+
+.bt-template-gallery-dialog {
+  width: 90vw !important;
+  max-width: 90vw !important;
+
+  height: 90vh !important;
+  max-height: 90vh !important;
+}
+
+.bt-template-gallery-dialog
+.mat-mdc-dialog-container {
+  padding: 0 !important;
+}
+
+.bt-template-gallery-dialog
+.mat-mdc-dialog-surface {
+  overflow: hidden !important;
+
+  border-radius:
+    var(--bt-radius-xl) !important;
+
+  background:
+    var(--bt-surface) !important;
+}
+
+
+/* Mobile */
+
+@media (max-width: 767px) {
+
+  .bt-template-gallery-dialog {
+    width: 100vw !important;
+    max-width: 100vw !important;
+
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+  }
+
+  .bt-template-gallery-dialog
+  .mat-mdc-dialog-surface {
+    border-radius: 0 !important;
+  }
+}

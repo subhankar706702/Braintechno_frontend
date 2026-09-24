@@ -2,24 +2,49 @@ import {
   ChangeDetectorRef,
   Component
 } from '@angular/core';
-import { Router } from '@angular/router';
 
-import { AuthService } from '../core/auth.service';
-import { TemplateDraft } from '../core/models';
-import { TemplateStorageService } from '../core/template-storage.service';
-import { IndiaDatePipe } from '../shared/india-date.pipe';
-import { ConfirmDialogComponent } from '../Common/components/confirm-dialog/confirm-dialog.component';
-import { ConfirmDialogService } from '../Common/components/confirm-dialog/confirm-dialog.service';
+import {
+  Router
+} from '@angular/router';
+
+import {
+  AuthService
+} from '../core/auth.service';
+
+import {
+  TemplateDraft
+} from '../core/models';
+
+import {
+  TemplateStorageService
+} from '../core/template-storage.service';
+
+import {
+  IndiaDatePipe
+} from '../shared/india-date.pipe';
+
+import {
+  ConfirmDialogComponent
+} from '../Common/components/confirm-dialog/confirm-dialog.component';
+
+import {
+  ConfirmDialogService
+} from '../Common/components/confirm-dialog/confirm-dialog.service';
+
 
 @Component({
   selector: 'app-templates',
   standalone: true,
+
   imports: [
-    IndiaDatePipe,
-    ConfirmDialogComponent
+    IndiaDatePipe
   ],
-  templateUrl: './templates.component.html',
-  styleUrl: './templates.component.scss'
+
+  templateUrl:
+    './templates.component.html',
+
+  styleUrl:
+    './templates.component.scss'
 })
 export class TemplatesComponent {
 
@@ -31,80 +56,139 @@ export class TemplatesComponent {
 
   openMenuId = '';
 
-  deleteTarget: TemplateDraft | null = null;
+  deleteTarget:
+    TemplateDraft | null =
+    null;
 
   deleting = false;
 
+
   constructor(
-    public auth: AuthService,
-    private storage: TemplateStorageService,
-    private router: Router,
-    private cdr: ChangeDetectorRef,
-    private confirmDialogService: ConfirmDialogService
-  ) { }
+    public auth:
+      AuthService,
+
+    private storage:
+      TemplateStorageService,
+
+    private router:
+      Router,
+
+    private cdr:
+      ChangeDetectorRef,
+
+    private confirmDialogService:
+      ConfirmDialogService
+  ) {}
+
 
   ngOnInit(): void {
     void this.refresh();
   }
 
+
   get accountId(): string {
+
     return String(
-      this.auth.user()?.accountId ?? ''
+      this.auth.user()
+        ?.accountId ??
+      ''
     );
   }
+
 
   previewUrl(
     item: TemplateDraft
   ): string {
-    return this.storage.previewUrl(item);
+
+    return this.storage.previewUrl(
+      item
+    );
   }
 
+
   displayTitle(
-    value: string | null | undefined
+    value:
+      string |
+      null |
+      undefined
   ): string {
+
     return this.truncate(
-      String(value || 'Untitled template'),
+      String(
+        value ||
+        'Untitled template'
+      ),
       30
     );
   }
 
+
   displayDescription(
-    value: string | null | undefined
+    value:
+      string |
+      null |
+      undefined
   ): string {
+
     const text =
-      String(value || 'No description added yet.')
-        .trim();
+      String(
+        value ||
+        'No description added yet.'
+      ).trim();
 
     return this.truncate(
       text,
-      100);
+      100
+    );
   }
+
 
   toggleMenu(
     item: TemplateDraft,
     event?: Event
   ): void {
+
     event?.stopPropagation();
 
     this.openMenuId =
-      this.openMenuId === item.id
+      this.openMenuId ===
+      item.id
         ? ''
         : item.id;
   }
+
 
   closeMenu(): void {
     this.openMenuId = '';
   }
 
+
   isMenuOpen(
     item: TemplateDraft
   ): boolean {
-    return this.openMenuId === item.id;
+
+    return (
+      this.openMenuId ===
+      item.id
+    );
   }
 
-  async refresh(): Promise<void> {
 
-    const accountId = this.accountId;
+  openTemplateGallery():
+    void {
+
+    void this.router
+      .navigateByUrl(
+        '/app/template-gallery'
+      );
+  }
+
+
+  async refresh():
+    Promise<void> {
+
+    const accountId =
+      this.accountId;
 
     if (!accountId) {
 
@@ -114,23 +198,29 @@ export class TemplatesComponent {
       this.loadError =
         'Your account session is unavailable. Please sign in again.';
 
-      this.cdr.detectChanges();
+      this.cdr
+        .detectChanges();
 
       return;
     }
+
 
     try {
 
       this.loading = true;
       this.loadError = '';
+
       this.closeMenu();
 
-      this.cdr.detectChanges();
+      this.cdr
+        .detectChanges();
+
 
       const result =
         await this.storage.list(
           accountId
         );
+
 
       this.items =
         Array.isArray(result)
@@ -153,23 +243,29 @@ export class TemplatesComponent {
 
       this.loading = false;
 
-      this.cdr.detectChanges();
-
+      this.cdr
+        .detectChanges();
     }
   }
 
-  async create(): Promise<void> {
+
+  async create():
+    Promise<void> {
 
     try {
 
       this.loading = true;
       this.loadError = '';
+
       this.closeMenu();
 
-      this.cdr.detectChanges();
+      this.cdr
+        .detectChanges();
+
 
       const item =
         await this.storage.create();
+
 
       await this.router.navigate([
         '/template',
@@ -190,10 +286,11 @@ export class TemplatesComponent {
 
       this.loading = false;
 
-      this.cdr.detectChanges();
-
+      this.cdr
+        .detectChanges();
     }
   }
+
 
   async edit(
     item: TemplateDraft
@@ -205,8 +302,8 @@ export class TemplatesComponent {
       '/template',
       item.id
     ]);
-
   }
+
 
   async view(
     item: TemplateDraft
@@ -219,8 +316,8 @@ export class TemplatesComponent {
       item.id,
       'view'
     ]);
-
   }
+
 
   async duplicate(
     item: TemplateDraft
@@ -233,12 +330,15 @@ export class TemplatesComponent {
       this.loading = true;
       this.loadError = '';
 
-      this.cdr.detectChanges();
+      this.cdr
+        .detectChanges();
+
 
       const copy =
         await this.storage.create(
           `${item.name} Copy`
         );
+
 
       await this.storage.save({
         ...copy,
@@ -254,6 +354,7 @@ export class TemplatesComponent {
         html:
           item.html
       });
+
 
       await this.refresh();
 
@@ -271,10 +372,11 @@ export class TemplatesComponent {
 
       this.loading = false;
 
-      this.cdr.detectChanges();
-
+      this.cdr
+        .detectChanges();
     }
   }
+
 
   requestDelete(
     item: TemplateDraft
@@ -282,30 +384,45 @@ export class TemplatesComponent {
 
     this.closeMenu();
 
-    this.confirmDialogService.confirm({
-      title: 'Delete template?',
-      subtitle:
-        `Delete "${item.name}"? This action cannot be undone.`,
-      type: 'danger',
-      icon: 'delete',
-      showCancel: true,
-      successButtonName: 'Delete template',
 
-      success: () => {
-        void this.deleteTemplate(item);
-      },
+    this.confirmDialogService
+      .confirm({
 
-      cancel: () => {
-        this.closeMenu();
-      }
-    });
+        title:
+          'Delete template?',
+
+        subtitle:
+          `Delete "${item.name}"? This action cannot be undone.`,
+
+        type:
+          'danger',
+
+        icon:
+          'delete',
+
+        showCancel:
+          true,
+
+        successButtonName:
+          'Delete template',
+
+        cancelButtonName:
+          'Cancel',
+
+        success: () => {
+          void this
+            .deleteTemplate(
+              item
+            );
+        },
+
+        cancel: () => {
+          this.closeMenu();
+        }
+      });
   }
 
-  /*
-   * Kept only so the existing template remains compile-safe
-   * until the old <bt-confirm-dialog> block is removed from HTML.
-   * New delete flow uses ConfirmDialogService above.
-   */
+
   cancelDelete(): void {
 
     if (this.deleting) {
@@ -315,17 +432,24 @@ export class TemplatesComponent {
     this.deleteTarget = null;
   }
 
-  async confirmDelete(): Promise<void> {
+
+  async confirmDelete():
+    Promise<void> {
 
     const item =
       this.deleteTarget;
 
-    if (!item || this.deleting) {
+    if (
+      !item ||
+      this.deleting
+    ) {
       return;
     }
 
-    await this.deleteTemplate(item);
+    await this
+      .deleteTemplate(item);
   }
+
 
   private async deleteTemplate(
     item: TemplateDraft
@@ -335,18 +459,23 @@ export class TemplatesComponent {
       return;
     }
 
+
     try {
 
       this.deleting = true;
       this.loadError = '';
 
-      this.cdr.detectChanges();
+      this.cdr
+        .detectChanges();
+
 
       await this.storage.delete(
         item.id
       );
 
+
       this.deleteTarget = null;
+
 
       await this.refresh();
 
@@ -364,10 +493,11 @@ export class TemplatesComponent {
 
       this.deleting = false;
 
-      this.cdr.detectChanges();
-
+      this.cdr
+        .detectChanges();
     }
   }
+
 
   private truncate(
     value: string,
@@ -378,16 +508,20 @@ export class TemplatesComponent {
       value.trim();
 
     if (
-      text.length <= limit
+      text.length <=
+      limit
     ) {
       return text;
     }
 
+
     return (
-      text.slice(
-        0,
-        limit
-      ).trimEnd() +
+      text
+        .slice(
+          0,
+          limit
+        )
+        .trimEnd() +
       '...'
     );
   }

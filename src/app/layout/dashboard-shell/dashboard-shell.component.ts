@@ -4,9 +4,11 @@ import {
   Router,
   RouterOutlet,
 } from '@angular/router';
+
 import { MatIconModule } from '@angular/material/icon';
+
 import { AuthService } from '../../core/auth.service';
-import { ConfirmDialogComponent } from '../../Common/components/confirm-dialog/confirm-dialog.component';
+import { ConfirmDialogService } from '../../Common/components/confirm-dialog/confirm-dialog.service';
 
 type ShellNavItem = {
   label: string;
@@ -28,7 +30,9 @@ type ShellNavItem = {
 export class DashboardShellComponent {
 
   mobileMenuOpen = false;
-  braintechnoLogo = '/assets/images/braintechno.png';
+
+  braintechnoLogo =
+    '/assets/images/braintechno.png';
 
   readonly sidebarItems: ShellNavItem[] = [
     {
@@ -61,7 +65,7 @@ export class DashboardShellComponent {
       icon: 'travel_explore',
       route: '/app/social',
     },
-     {
+    {
       label: 'Analytics',
       icon: 'query_stats',
       route: '/app/analytics',
@@ -76,41 +80,66 @@ export class DashboardShellComponent {
   constructor(
     public auth: AuthService,
     private router: Router,
-  ) { }
+    private confirmDialogService: ConfirmDialogService,
+  ) {}
 
   get businessName(): string {
-  const user = this.auth.user() as any;
+    const user =
+      this.auth.user() as any;
 
-  const name = String(
-    user?.businessName ||
-    user?.name ||
-    'BRAIN TECHNO'
-  ).trim();
-  return name.length > 15 ? name.substring(0, 15) + '...' : name;
-}
+    const name = String(
+      user?.businessName ||
+      user?.name ||
+      'BRAIN TECHNO',
+    ).trim();
+
+    return name.length > 15
+      ? name.substring(0, 15) + '...'
+      : name;
+  }
 
   get businessTagName(): string {
-    const user = this.auth.user() as any;
+    const user =
+      this.auth.user() as any;
 
     const tagName = String(
       user?.businessTagName ||
-      'Business workspace'
+      'Business workspace',
     ).trim();
-    return tagName.length > 25 ? tagName.substring(0, 25) + '...' : tagName;
 
+    return tagName.length > 25
+      ? tagName.substring(0, 25) + '...'
+      : tagName;
   }
 
-
   logout(): void {
-  //  this.ConfirmDialogComponent.w
-    this.auth.logout();
-    void this.router.navigateByUrl(
-      '/auth/login',
-    );
+    this.confirmDialogService.confirm({
+      title: 'Sign out?',
+      subtitle:
+        'Are you sure you want to sign out of the application?',
+      type: 'warning',
+      icon: 'warning',
+      successButtonName: 'Sign out',
+      cancelButtonName: 'Cancel',
+      showCancel: true,
+
+      success: () => {
+        this.auth.logout();
+
+        void this.router.navigateByUrl(
+          '/auth/login',
+        );
+      },
+
+      cancel: () => {
+        // User cancelled logout.
+      },
+    });
   }
 
   get businessLogo(): string {
-    const user = this.auth.user() as any;
+    const user =
+      this.auth.user() as any;
 
     const uploadedLogo = String(
       user?.business_logo_url ||
@@ -122,10 +151,11 @@ export class DashboardShellComponent {
       user?.logo ||
       user?.business?.logo_url ||
       user?.business?.logo ||
-      ''
+      '',
     ).trim();
 
-    return uploadedLogo || this.braintechnoLogo;
+    return uploadedLogo ||
+      this.braintechnoLogo;
   }
 
   openPage(
@@ -151,8 +181,11 @@ export class DashboardShellComponent {
       return false;
     }
 
-    if (route === '/app/dashboard') {
-      return this.router.url === '/app/dashboard';
+    if (
+      route === '/app/dashboard'
+    ) {
+      return this.router.url ===
+        '/app/dashboard';
     }
 
     return this.router.url.startsWith(
@@ -178,8 +211,9 @@ export class DashboardShellComponent {
 
     if (
       image.src.includes(
-        this.braintechnoLogo
-      )) {
+        this.braintechnoLogo,
+      )
+    ) {
       return;
     }
 

@@ -15,6 +15,7 @@ import { TemplateStorageService } from '../core/template-storage.service';
 import { TemplateApiService } from '../core/template-api.service';
 import { AuthService } from '../core/auth.service';
 import { MaterialModule } from '../shared/material/material.module';
+import { ConfirmDialogService } from '../Common/components/confirm-dialog/confirm-dialog.service';
 import { SnackbarService } from '../shared/material/notification/snackbar.service';
 
 interface CampaignCategoryOption {
@@ -104,6 +105,7 @@ export class CampaignsComponent implements OnInit {
     private auth: AuthService,
     private router: Router,
     private snackbar: SnackbarService,
+    private confirmDialogService: ConfirmDialogService,
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -512,9 +514,28 @@ export class CampaignsComponent implements OnInit {
     const id = this.idOf(campaign);
     if (!id || this.actionId) return;
 
-    if (!window.confirm(`Delete "${campaign.name}"?`)) {
-      return;
-    }
+    this.confirmDialogService.confirm({
+      title: 'Delete campaign?',
+      subtitle: `Delete "${campaign.name}"? This action cannot be undone.`,
+      type: 'danger',
+      icon: 'delete',
+      showCancel: true,
+      successButtonName: 'Delete campaign',
+      cancelButtonName: 'Cancel',
+
+      success: () => {
+        this.deleteCampaign(campaign);
+      },
+
+      cancel: () => {
+        this.refreshView();
+      }
+    });
+  }
+
+  private deleteCampaign(campaign: Campaign): void {
+    const id = this.idOf(campaign);
+    if (!id || this.actionId) return;
 
     this.actionId = id;
     this.refreshView();
@@ -529,15 +550,22 @@ export class CampaignsComponent implements OnInit {
       )
       .subscribe({
         next: () => {
-          this.campaigns = this.campaigns.filter((item) => this.idOf(item) !== id);
+          this.campaigns = this.campaigns.filter(
+            (item) => this.idOf(item) !== id
+          );
+
           if (this.editingId === id) {
             this.cancelEdit();
           }
+
           this.snackbar.success('Campaign deleted successfully.');
           this.refreshView();
         },
         error: (error) => {
-          this.snackbar.fromApiError(error, 'Could not delete campaign.');
+          this.snackbar.fromApiError(
+            error,
+            'Could not delete campaign.'
+          );
         }
       });
   }

@@ -22,23 +22,48 @@ import {
   AuthUser
 } from './models';
 
+export interface RegistrationAvailabilityRequest {
+  mobile?: string;
+  email?: string;
+  businessName?: string;
+  businessSlug?: string;
+}
+
+export interface RegistrationAvailabilityResponse {
+  mobileAvailable: boolean | null;
+  emailAvailable: boolean | null;
+  slugAvailable: boolean | null;
+
+  normalizedSlug?: string;
+
+  mobileMessage?: string;
+  emailMessage?: string;
+  slugMessage?: string;
+
+  slugRecommendations: string[];
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
+
   private readonly tokenKey =
     'brain_techno_token';
 
   private readonly userKey =
     'brain_techno_user';
 
+
   private readonly userSignal =
     signal<AuthUser | null>(
       this.readUser()
     );
 
+
   readonly user =
     this.userSignal.asReadonly();
+
 
   readonly isLoggedIn =
     computed(
@@ -47,6 +72,7 @@ export class AuthService {
         !!this.userSignal()
     );
 
+
   readonly isAdmin =
     computed(
       () =>
@@ -54,9 +80,11 @@ export class AuthService {
         'admin'
     );
 
+
   constructor(
     private http: HttpClient
   ) { }
+
 
   get token(): string | null {
     return localStorage.getItem(
@@ -64,10 +92,12 @@ export class AuthService {
     );
   }
 
+
   login(
     email: string,
     password: string
   ): Observable<AuthResponse> {
+
     return this.http
       .post<AuthResponse>(
         `${API_BASE_URL}/auth/login`,
@@ -83,14 +113,29 @@ export class AuthService {
       );
   }
 
+
+  checkRegistrationAvailability(
+    payload: RegistrationAvailabilityRequest
+  ): Observable<RegistrationAvailabilityResponse> {
+
+    return this.http
+      .post<RegistrationAvailabilityResponse>(
+        `${API_BASE_URL}/auth/register/availability`,
+        payload
+      );
+  }
+
+
   register(
     ownerName: string,
     mobile: string,
     email: string,
     password: string,
     businessName: string,
-    businessCategory: string
+    businessCategory: string,
+    businessSlug: string
   ): Observable<AuthResponse> {
+
     return this.http
       .post<AuthResponse>(
         `${API_BASE_URL}/auth/register`,
@@ -100,7 +145,8 @@ export class AuthService {
           email,
           password,
           businessName,
-          businessCategory
+          businessCategory,
+          businessSlug
         }
       )
       .pipe(
@@ -110,33 +156,50 @@ export class AuthService {
       );
   }
 
+
   refreshMe(): Observable<AuthUser> {
+
     return this.http
       .get<AuthUser>(
         `${API_BASE_URL}/auth/me`
       )
       .pipe(
         tap((user) => {
+
           localStorage.setItem(
             this.userKey,
             JSON.stringify(user)
           );
 
-          this.userSignal.set(user);
+          this.userSignal.set(
+            user
+          );
+
         })
       );
   }
 
+
   logout(): void {
-    localStorage.removeItem(this.tokenKey);
-    localStorage.removeItem(this.userKey);
-    localStorage.clear();
-    this.userSignal.set(null);
+
+    localStorage.removeItem(
+      this.tokenKey
+    );
+
+    localStorage.removeItem(
+      this.userKey
+    );
+
+    this.userSignal.set(
+      null
+    );
   }
+
 
   private setSession(
     res: AuthResponse
   ): void {
+
     localStorage.setItem(
       this.tokenKey,
       res.token
@@ -144,7 +207,9 @@ export class AuthService {
 
     localStorage.setItem(
       this.userKey,
-      JSON.stringify(res.user)
+      JSON.stringify(
+        res.user
+      )
     );
 
     this.userSignal.set(
@@ -152,20 +217,28 @@ export class AuthService {
     );
   }
 
+
   private readUser():
     AuthUser | null {
+
     try {
+
       const raw =
         localStorage.getItem(
           this.userKey
         );
 
+
       if (!raw) {
         return null;
       }
 
+
       const user =
-        JSON.parse(raw) as AuthUser;
+        JSON.parse(
+          raw
+        ) as AuthUser;
+
 
       return {
         ...user,
@@ -175,8 +248,11 @@ export class AuthService {
             ? 'admin'
             : 'owner'
       };
+
     } catch {
+
       return null;
+
     }
   }
 }

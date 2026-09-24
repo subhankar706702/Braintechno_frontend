@@ -297,20 +297,3 @@
   }
 
 </div>
-
-
-<bt-confirm-dialog
-  [open]="!!deleteTarget"
-  [busy]="deleting"
-  tone="danger"
-  title="Delete template?"
-  [message]="
-    deleteTarget
-      ? 'Delete &quot;' + deleteTarget.name + '&quot;? This action cannot be undone.'
-      : ''
-  "
-  confirmText="Delete template"
-  cancelText="Cancel"
-  (confirmed)="confirmDelete()"
-  (cancelled)="cancelDelete()"
-></bt-confirm-dialog>

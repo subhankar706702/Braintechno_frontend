@@ -1,63 +1,76 @@
-import {
-  Component,
-  EventEmitter,
-  Input,
-  Output
-} from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Component, Inject } from '@angular/core';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+
+export type ConfirmDialogType = 'success' | 'warning' | 'danger' | 'info';
+export type ConfirmDialogIcon = 'tick' | 'inform' | 'delete' | 'warning';
+
+export interface ConfirmDialogConfig {
+  title: string;
+  subtitle?: string;
+  type?: ConfirmDialogType;
+  icon?: ConfirmDialogIcon;
+  showCancel?: boolean;
+  successButtonName?: string;
+  cancelButtonName?: string;
+}
 
 @Component({
-  selector: 'bt-confirm-dialog',
+  selector: 'app-confirm-dialog',
   standalone: true,
+  imports: [
+    CommonModule,
+    MatDialogModule,
+    MatButtonModule,
+    MatIconModule
+  ],
   templateUrl: './confirm-dialog.component.html',
   styleUrl: './confirm-dialog.component.scss'
 })
 export class ConfirmDialogComponent {
+  readonly type: ConfirmDialogType;
+  readonly showCancel: boolean;
+  readonly successButtonName: string;
+  readonly cancelButtonName: string;
 
-  @Input()
-  open = false;
+  constructor(
+    @Inject(MAT_DIALOG_DATA)
+    public data: ConfirmDialogConfig,
+    private dialogRef: MatDialogRef<ConfirmDialogComponent, boolean>
+  ) {
+    this.type = data?.type || 'info';
+    this.showCancel = data?.showCancel !== false;
+    this.successButtonName = String(data?.successButtonName || 'Ok').trim() || 'Ok';
+    this.cancelButtonName = String(data?.cancelButtonName || 'Cancel').trim() || 'Cancel';
+  }
 
-  @Input()
-  busy = false;
+  get resolvedIcon(): string {
+    const icon = this.data?.icon;
 
-  @Input()
-  title = 'Are you sure?';
+    if (icon === 'tick') return 'check';
+    if (icon === 'inform') return 'info';
+    if (icon === 'delete') return 'delete';
+    if (icon === 'warning') return 'priority_high';
 
-  @Input()
-  message = '';
-
-  @Input()
-  confirmText = 'Confirm';
-
-  @Input()
-  cancelText = 'Cancel';
-
-  @Input()
-  tone: 'danger' | 'warning' | 'primary' =
-    'primary';
-
-  @Output()
-  readonly confirmed =
-    new EventEmitter<void>();
-
-  @Output()
-  readonly cancelled =
-    new EventEmitter<void>();
+    switch (this.type) {
+      case 'success':
+        return 'check';
+      case 'warning':
+        return 'priority_high';
+      case 'danger':
+        return 'delete';
+      default:
+        return 'info';
+    }
+  }
 
   confirm(): void {
-
-    if (this.busy) {
-      return;
-    }
-
-    this.confirmed.emit();
+    this.dialogRef.close(true);
   }
 
   cancel(): void {
-
-    if (this.busy) {
-      return;
-    }
-
-    this.cancelled.emit();
+    this.dialogRef.close(false);
   }
 }

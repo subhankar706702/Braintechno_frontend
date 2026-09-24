@@ -1,98 +1,28 @@
-@if (open) {
-
-  <div
-    class="confirm-backdrop"
-    (click)="cancel()"
-  >
-
-    <section
-      class="confirm-dialog"
-      role="alertdialog"
-      aria-modal="true"
-      aria-labelledby="confirm-dialog-title"
-      (click)="$event.stopPropagation()"
-    >
-
-      <div
-        class="confirm-dialog__icon"
-        [class.confirm-dialog__icon--danger]="tone === 'danger'"
-        [class.confirm-dialog__icon--warning]="tone === 'warning'"
-        [class.confirm-dialog__icon--primary]="tone === 'primary'"
-      >
-        <span
-          class="material-symbols-rounded"
-          aria-hidden="true"
-        >
-          @if (tone === 'danger') {
-            delete
-          } @else if (tone === 'warning') {
-            warning
-          } @else {
-            help
-          }
-        </span>
-      </div>
-
-
-      <div class="confirm-dialog__copy">
-
-        <h2 id="confirm-dialog-title">
-          {{ title }}
-        </h2>
-
-        <p>
-          {{ message }}
-        </p>
-
-      </div>
-
-
-      <div class="confirm-dialog__actions">
-
-        <button
-          type="button"
-          class="confirm-dialog__cancel"
-          [disabled]="busy"
-          (click)="cancel()"
-        >
-          {{ cancelText }}
-        </button>
-
-
-        <button
-          type="button"
-          class="confirm-dialog__confirm"
-          [class.confirm-dialog__confirm--danger]="tone === 'danger'"
-          [class.confirm-dialog__confirm--warning]="tone === 'warning'"
-          [disabled]="busy"
-          (click)="confirm()"
-        >
-
-          @if (busy) {
-
-            <span
-              class="confirm-dialog__spinner"
-              aria-hidden="true"
-            ></span>
-
-            <span>
-              Please wait...
-            </span>
-
-          } @else {
-
-            <span>
-              {{ confirmText }}
-            </span>
-
-          }
-
-        </button>
-
-      </div>
-
-    </section>
-
+<div class="confirm-dialog" [class.confirm-dialog--success]="type === 'success'" [class.confirm-dialog--warning]="type === 'warning'" [class.confirm-dialog--danger]="type === 'danger'" [class.confirm-dialog--info]="type === 'info'">
+  <div class="confirm-dialog__icon-wrap">
+    <div class="confirm-dialog__icon-ring"></div>
+    <div class="confirm-dialog__icon">
+      <mat-icon>{{ resolvedIcon }}</mat-icon>
+    </div>
   </div>
 
-}
+  <div class="confirm-dialog__body">
+    <h2>{{ data.title }}</h2>
+
+    @if (data.subtitle) {
+      <p>{{ data.subtitle }}</p>
+    }
+  </div>
+
+  <div class="confirm-dialog__actions" [class.confirm-dialog__actions--single]="!showCancel">
+    @if (showCancel) {
+      <button type="button" class="confirm-dialog__button confirm-dialog__button--cancel" (click)="cancel()">
+        {{ cancelButtonName }}
+      </button>
+    }
+
+    <button type="button" class="confirm-dialog__button confirm-dialog__button--confirm" (click)="confirm()">
+      {{ successButtonName }}
+    </button>
+  </div>
+</div>

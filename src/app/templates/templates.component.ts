@@ -9,6 +9,7 @@ import { TemplateDraft } from '../core/models';
 import { TemplateStorageService } from '../core/template-storage.service';
 import { IndiaDatePipe } from '../shared/india-date.pipe';
 import { ConfirmDialogComponent } from '../Common/components/confirm-dialog/confirm-dialog.component';
+import { ConfirmDialogService } from '../Common/components/confirm-dialog/confirm-dialog.service';
 
 @Component({
   selector: 'app-templates',
@@ -38,7 +39,8 @@ export class TemplatesComponent {
     public auth: AuthService,
     private storage: TemplateStorageService,
     private router: Router,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private confirmDialogService: ConfirmDialogService
   ) { }
 
   ngOnInit(): void {
@@ -280,9 +282,30 @@ export class TemplatesComponent {
 
     this.closeMenu();
 
-    this.deleteTarget = item;
+    this.confirmDialogService.confirm({
+      title: 'Delete template?',
+      subtitle:
+        `Delete "${item.name}"? This action cannot be undone.`,
+      type: 'danger',
+      icon: 'delete',
+      showCancel: true,
+      successButtonName: 'Delete template',
+
+      success: () => {
+        void this.deleteTemplate(item);
+      },
+
+      cancel: () => {
+        this.closeMenu();
+      }
+    });
   }
 
+  /*
+   * Kept only so the existing template remains compile-safe
+   * until the old <bt-confirm-dialog> block is removed from HTML.
+   * New delete flow uses ConfirmDialogService above.
+   */
   cancelDelete(): void {
 
     if (this.deleting) {
@@ -298,6 +321,17 @@ export class TemplatesComponent {
       this.deleteTarget;
 
     if (!item || this.deleting) {
+      return;
+    }
+
+    await this.deleteTemplate(item);
+  }
+
+  private async deleteTemplate(
+    item: TemplateDraft
+  ): Promise<void> {
+
+    if (this.deleting) {
       return;
     }
 

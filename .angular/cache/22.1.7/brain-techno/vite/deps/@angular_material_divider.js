@@ -1,6 +1,6 @@
 import { t as _defineProperty } from "./defineProperty-wQpB4Zl9.js";
-import { Dr as ViewEncapsulation, In as Input, Wi as setClassMetadata, cn as Component, kl as ɵɵdefineInjector, qn as NgModule, ro as ɵɵdefineNgModule, to as ɵɵdefineComponent, xa as ɵɵclassProp, ya as ɵɵattribute } from "./core-BQkULX7_.js";
-import { t as BidiModule } from "./bidi-BE1zMB3V.js";
+import { Dr as ViewEncapsulation, In as Input, Wi as setClassMetadata, cn as Component, kl as ɵɵdefineInjector, qn as NgModule, ro as ɵɵdefineNgModule, to as ɵɵdefineComponent, xa as ɵɵclassProp, ya as ɵɵattribute } from "./core-D4fY0-5O.js";
+import { t as BidiModule } from "./bidi-B_7QWA7a.js";
 import { t as coerceBooleanProperty } from "./coercion-BM5FQA51.js";
 //#region node_modules/@angular/material/fesm2022/divider.mjs
 var _MatDivider;

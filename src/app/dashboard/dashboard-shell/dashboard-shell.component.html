@@ -1,0 +1,132 @@
+<div class="shell">
+  @if (mobileMenuOpen) {
+    <button type="button" class="mobile-backdrop" aria-label="Close menu" (click)="closeMobileMenu()"></button>
+  }
+
+  <aside class="sidebar" [class.sidebar--open]="mobileMenuOpen">
+    <div class="sidebar__brand">
+      <img class="sidebar__brand-logo" src="/assets/images/braintechno.png" alt="BRAIN TECHNO" />
+
+      <div class="sidebar__brand-copy">
+        <strong>brain techno</strong>
+        <span>Business workspace</span>
+      </div>
+
+      <button type="button" class="sidebar__close" aria-label="Close menu" (click)="closeMobileMenu()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+
+    <nav class="sidebar-nav" aria-label="Main navigation">
+      @for (item of sidebarItems; track item.route) {
+        <button
+          type="button"
+          class="sidebar-nav__item"
+          [class.sidebar-nav__item--active]="isActive(item.route)"
+          (click)="openPage(item.route)"
+        >
+          <mat-icon>{{ item.icon }}</mat-icon>
+          <span>{{ item.label }}</span>
+
+          @if (item.label === 'Messages') {
+            <span class="sidebar-nav__badge">12</span>
+          }
+        </button>
+      }
+    </nav>
+
+    <article class="sidebar-promo">
+      <div class="sidebar-promo__icon"><mat-icon>rocket_launch</mat-icon></div>
+      <strong>Grow Your Business</strong>
+      <p>Create campaigns, engage customers and boost your sales online.</p>
+      <button type="button" (click)="openPage('/app/campaigns')">Create Campaign</button>
+    </article>
+
+    <button type="button" class="sidebar-logout" (click)="logout()">
+      <mat-icon>logout</mat-icon>
+      <span>Logout</span>
+    </button>
+  </aside>
+
+  <section class="shell-content">
+    <header class="topbar">
+      <div class="topbar__mobile-left">
+        <button type="button" class="mobile-menu-button" aria-label="Open menu" (click)="toggleMobileMenu()">
+          <mat-icon>menu</mat-icon>
+        </button>
+
+        <img class="topbar__mobile-logo" src="/assets/images/braintechno.png" alt="BRAIN TECHNO" />
+
+        <div class="topbar__mobile-brand">
+          <strong>brain techno</strong>
+          <span>Business workspace</span>
+        </div>
+      </div>
+
+      <div class="topbar-search">
+        <mat-icon>search</mat-icon>
+        <input type="search" placeholder="Search anything..." aria-label="Search" />
+      </div>
+
+      <div class="topbar__spacer"></div>
+
+      <div class="topbar__actions">
+        <button type="button" class="topbar-icon-button" aria-label="Notifications" title="Notifications">
+          <mat-icon>notifications_none</mat-icon>
+          <span class="notification-badge">12</span>
+        </button>
+
+        <div class="topbar-business">
+          <div class="topbar-business__logo-wrap">
+            @if (businessLogo && businessLogo !== braintechnoLogo) {
+              <img class="topbar-business__logo" [src]="businessLogo" [alt]="businessName" (error)="onLogoError($event)" />
+            } @else {
+              <span>{{ businessName.slice(0, 2).toUpperCase() }}</span>
+            }
+          </div>
+
+          <div class="topbar-business__copy">
+            <strong>{{ businessName }}</strong>
+            <span>Business Owner</span>
+          </div>
+
+          <mat-icon class="topbar-business__chevron">keyboard_arrow_down</mat-icon>
+        </div>
+      </div>
+    </header>
+
+    <main class="page-content">
+      <router-outlet />
+    </main>
+
+    <nav class="mobile-bottom-nav" aria-label="Mobile navigation">
+      <button type="button" [class.mobile-bottom-nav__item--active]="isActive('/app/dashboard')" (click)="openPage('/app/dashboard')">
+        <mat-icon>home</mat-icon>
+        <span>Home</span>
+      </button>
+
+      <button type="button" [class.mobile-bottom-nav__item--active]="isActive('/app/campaigns')" (click)="openPage('/app/campaigns')">
+        <mat-icon>campaign</mat-icon>
+        <span>Campaigns</span>
+      </button>
+
+      <button type="button" [class.mobile-bottom-nav__item--active]="isActive('/app/customers')" (click)="openPage('/app/customers')">
+        <mat-icon>contacts</mat-icon>
+        <span>Customers</span>
+      </button>
+
+      <button type="button" [class.mobile-bottom-nav__item--active]="isActive('/app/messages')" (click)="openPage('/app/messages')">
+        <span class="mobile-bottom-nav__icon-wrap">
+          <mat-icon>chat_bubble_outline</mat-icon>
+          <i>12</i>
+        </span>
+        <span>Messages</span>
+      </button>
+
+      <button type="button" (click)="toggleMobileMenu()">
+        <mat-icon>more_horiz</mat-icon>
+        <span>More</span>
+      </button>
+    </nav>
+  </section>
+</div>

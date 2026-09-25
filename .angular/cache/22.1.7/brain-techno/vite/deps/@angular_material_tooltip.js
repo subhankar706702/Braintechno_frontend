@@ -1,2 +1,2 @@
-import { a as SCROLL_THROTTLE_MS, c as getMatTooltipInvalidPositionError, i as MatTooltip, n as MAT_TOOLTIP_DEFAULT_OPTIONS, o as TOOLTIP_PANEL_CLASS, r as MAT_TOOLTIP_SCROLL_STRATEGY, s as TooltipComponent, t as MatTooltipModule } from "./tooltip-GqkjU07q.js";
+import { a as SCROLL_THROTTLE_MS, c as getMatTooltipInvalidPositionError, i as MatTooltip, n as MAT_TOOLTIP_DEFAULT_OPTIONS, o as TOOLTIP_PANEL_CLASS, r as MAT_TOOLTIP_SCROLL_STRATEGY, s as TooltipComponent, t as MatTooltipModule } from "./tooltip-BrPfHgvm.js";
 export { MAT_TOOLTIP_DEFAULT_OPTIONS, MAT_TOOLTIP_SCROLL_STRATEGY, MatTooltip, MatTooltipModule, SCROLL_THROTTLE_MS, TOOLTIP_PANEL_CLASS, TooltipComponent, getMatTooltipInvalidPositionError };

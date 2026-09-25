@@ -1,6 +1,6 @@
 import { t as _defineProperty } from "./defineProperty-wQpB4Zl9.js";
-import { Ei as performanceMarkFeature, Fn as Injectable, Gc as RuntimeError, Hl as _objectSpread2, Lc as NgZone, Ml as ɵɵinject, Ol as ɵɵdefineInjectable, Pn as Inject, Wi as setClassMetadata, ar as RendererFactory2, dc as ANIMATION_MODULE_TYPE, gc as DOCUMENT, kl as ɵɵdefineInjector, lc as _objectWithoutProperties, ll as inject, qn as NgModule, ro as ɵɵdefineNgModule } from "./core-BQkULX7_.js";
-import { d as DomRendererFactory2, r as BrowserModule } from "./_browser-chunk-kyF87AQ2.js";
+import { Ei as performanceMarkFeature, Fn as Injectable, Gc as RuntimeError, Hl as _objectSpread2, Lc as NgZone, Ml as ɵɵinject, Ol as ɵɵdefineInjectable, Pn as Inject, Wi as setClassMetadata, ar as RendererFactory2, dc as ANIMATION_MODULE_TYPE, gc as DOCUMENT, kl as ɵɵdefineInjector, lc as _objectWithoutProperties, ll as inject, qn as NgModule, ro as ɵɵdefineNgModule } from "./core-D4fY0-5O.js";
+import { d as DomRendererFactory2, r as BrowserModule } from "./_browser-chunk-C5L3R0sI.js";
 //#region node_modules/@angular/animations/fesm2022/_private_export-chunk.mjs
 /**
 * @license Angular v22.1.7

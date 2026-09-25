@@ -1,0 +1,309 @@
+<section class="profile-setup-page">
+  <header class="profile-setup-header">
+    <div class="profile-setup-header__copy">
+      <button type="button" class="back-link" (click)="backToDashboard()">
+        <mat-icon>arrow_back</mat-icon>
+        <span>Dashboard</span>
+      </button>
+      <span class="eyebrow">Business profile</span>
+      <h1>Build a profile customers can trust</h1>
+      <p>Complete your business information step by step. You can leave anytime and continue later.</p>
+    </div>
+
+    <div class="completion-card" aria-label="Profile completion">
+      <div class="completion-card__top">
+        <span>Profile completion</span>
+        <strong>{{ profile.profileCompletion || 0 }}%</strong>
+      </div>
+      <div class="completion-bar">
+        <span [style.width.%]="profile.profileCompletion || 0"></span>
+      </div>
+      <small>{{ profile.completedSteps.length || 0 }} of 6 setup steps saved</small>
+    </div>
+  </header>
+
+  @if (loading()) {
+    <div class="state-card">
+      <span class="loader"></span>
+      <div>
+        <strong>Loading your business profile</strong>
+        <p>Please wait a moment.</p>
+      </div>
+    </div>
+  } @else {
+    @if (error()) {
+      <div class="feedback feedback--error" role="alert">
+        <mat-icon>error_outline</mat-icon>
+        <span>{{ error() }}</span>
+        <button type="button" aria-label="Dismiss" (click)="error.set('')"><mat-icon>close</mat-icon></button>
+      </div>
+    }
+
+    @if (success()) {
+      <div class="feedback feedback--success" role="status">
+        <mat-icon>check_circle</mat-icon>
+        <span>{{ success() }}</span>
+        <button type="button" aria-label="Dismiss" (click)="success.set('')"><mat-icon>close</mat-icon></button>
+      </div>
+    }
+
+    <div class="profile-setup-layout">
+      <aside class="setup-nav-card">
+        <div class="business-mini-card">
+          <div class="business-mini-card__logo">
+            @if (profile.businessLogo) {
+              <img [src]="profile.businessLogo" [alt]="account.businessName" />
+            } @else {
+              <span>{{ initials }}</span>
+            }
+          </div>
+          <div>
+            <strong>{{ account.businessName || 'Your business' }}</strong>
+            <span>{{ account.businessCategory || 'Business profile' }}</span>
+          </div>
+        </div>
+
+        <nav class="setup-nav" aria-label="Business profile steps">
+          @for (step of steps; track step.id) {
+            <button
+              type="button"
+              class="setup-nav__item"
+              [class.setup-nav__item--active]="activeStep() === step.id"
+              [class.setup-nav__item--done]="profile.completedSteps.includes(step.id)"
+              (click)="goToStep(step.id)"
+            >
+              <span class="setup-nav__icon">
+                <mat-icon>{{ profile.completedSteps.includes(step.id) ? 'check' : step.icon }}</mat-icon>
+              </span>
+              <span class="setup-nav__copy">
+                <small>Step {{ step.id }}</small>
+                <strong>{{ step.shortTitle }}</strong>
+              </span>
+              <mat-icon class="setup-nav__chevron">chevron_right</mat-icon>
+            </button>
+          }
+        </nav>
+      </aside>
+
+      <main class="setup-content-card">
+        <div class="step-heading">
+          <div class="step-heading__icon"><mat-icon>{{ currentStep.icon }}</mat-icon></div>
+          <div>
+            <span>Step {{ currentStep.id }} of 6</span>
+            <h2>{{ currentStep.title }}</h2>
+            <p>{{ currentStep.description }}</p>
+          </div>
+        </div>
+
+        @if (activeStep() === 1) {
+          <section class="form-section">
+            <div class="section-heading">
+              <h3>Account information</h3>
+              <p>These details come from registration and stay connected to your account.</p>
+            </div>
+
+            <div class="form-grid form-grid--two">
+              <label class="field">
+                <span>Business name</span>
+                <div class="readonly-control"><mat-icon>storefront</mat-icon><span>{{ account.businessName }}</span><mat-icon>lock</mat-icon></div>
+              </label>
+              <label class="field">
+                <span>Business slug</span>
+                <div class="readonly-control"><mat-icon>link</mat-icon><span>{{ account.businessSlug }}</span><mat-icon>lock</mat-icon></div>
+              </label>
+              <label class="field">
+                <span>Business owner</span>
+                <div class="readonly-control"><mat-icon>person</mat-icon><span>{{ account.ownerName }}</span><mat-icon>lock</mat-icon></div>
+              </label>
+              <label class="field">
+                <span>Owner mobile</span>
+                <div class="readonly-control"><mat-icon>phone</mat-icon><span>{{ account.ownerMobileNumber }}</span><mat-icon>lock</mat-icon></div>
+              </label>
+              <label class="field field--wide">
+                <span>Email address</span>
+                <div class="readonly-control"><mat-icon>mail</mat-icon><span>{{ account.email }}</span><mat-icon>lock</mat-icon></div>
+              </label>
+            </div>
+          </section>
+
+          <section class="form-section form-section--soft">
+            <div class="section-heading">
+              <h3>Public business details</h3>
+              <p>Add the information customers should see on your public profile.</p>
+            </div>
+
+            <div class="logo-editor">
+              <div class="logo-editor__preview">
+                @if (profile.businessLogo) {
+                  <img [src]="profile.businessLogo" [alt]="account.businessName" />
+                } @else {
+                  <span>{{ initials }}</span>
+                }
+              </div>
+              <div class="logo-editor__body">
+                <strong>Business logo</strong>
+                <p>PNG, JPG or WebP up to 3 MB. A square image works best.</p>
+                <div class="inline-actions">
+                  <label class="secondary-button file-button">
+                    <mat-icon>upload</mat-icon><span>{{ profile.businessLogo ? 'Change logo' : 'Upload logo' }}</span>
+                    <input type="file" accept="image/*" (change)="onLogoSelected($event)" />
+                  </label>
+                  @if (profile.businessLogo) {
+                    <button type="button" class="text-button text-button--danger" (click)="removeLogo()">Remove</button>
+                  }
+                </div>
+              </div>
+            </div>
+
+            <div class="form-grid form-grid--two">
+              <label class="field">
+                <span>Business category <b>*</b></span>
+                <select [(ngModel)]="account.businessCategory">
+                  @for (category of categories; track category) { <option [value]="category">{{ category }}</option> }
+                </select>
+              </label>
+              <label class="field">
+                <span>Tagline</span>
+                <input type="text" maxlength="80" [(ngModel)]="profile.tagline" placeholder="e.g. Freshly baked, made with love" />
+                <small>{{ profile.tagline.length }}/80</small>
+              </label>
+              <label class="field field--wide">
+                <span>About business</span>
+                <textarea rows="5" maxlength="600" [(ngModel)]="profile.aboutBusiness" placeholder="Tell customers what makes your business special..."></textarea>
+                <small>{{ profile.aboutBusiness.length }}/600</small>
+              </label>
+            </div>
+          </section>
+        }
+
+        @if (activeStep() === 2) {
+          <section class="form-section">
+            <div class="section-heading">
+              <h3>Customer contact details</h3>
+              <p>Your owner mobile remains private. Add separate customer-facing contact numbers here.</p>
+            </div>
+
+            <div class="info-banner">
+              <mat-icon>lock</mat-icon>
+              <div><strong>Owner mobile: {{ account.ownerMobileNumber }}</strong><span>This is your login identifier and cannot be changed from Business Profile.</span></div>
+            </div>
+
+            <div class="form-grid form-grid--two">
+              <label class="field">
+                <span>Business mobile number</span>
+                <div class="phone-control"><span>+91</span><input inputmode="numeric" maxlength="10" [(ngModel)]="profile.businessMobileNumber" placeholder="9876543210" /></div>
+              </label>
+              <label class="field">
+                <span>Business WhatsApp number</span>
+                <div class="phone-control"><span>+91</span><input inputmode="numeric" maxlength="10" [(ngModel)]="profile.businessWhatsAppNumber" placeholder="9876543210" /></div>
+                @if (profile.businessMobileNumber) {
+                  <button type="button" class="field-link" (click)="copyBusinessMobileToWhatsApp()">Use business mobile number</button>
+                }
+              </label>
+            </div>
+          </section>
+        }
+
+        @if (activeStep() === 3) {
+          <section class="form-section">
+            <div class="section-heading">
+              <h3>Where customers can find you</h3>
+              <p>A physical shop is optional. Service and online businesses can simply describe their operating location.</p>
+            </div>
+
+            <div class="form-grid form-grid--two">
+              <label class="field field--wide"><span>Address</span><textarea rows="3" [(ngModel)]="profile.address" placeholder="Street, building, landmark or service area"></textarea></label>
+              <label class="field"><span>Area / Locality</span><input [(ngModel)]="profile.area" placeholder="e.g. Salt Lake Sector V" /></label>
+              <label class="field"><span>City</span><input [(ngModel)]="profile.city" placeholder="e.g. Kolkata" /></label>
+              <label class="field"><span>State</span><select [(ngModel)]="profile.state"><option value="">Select state</option>@for (state of indianStates; track state) { <option [value]="state">{{ state }}</option> }</select></label>
+              <label class="field"><span>PIN code</span><input inputmode="numeric" maxlength="6" [(ngModel)]="profile.pinCode" placeholder="700001" /></label>
+              <label class="field field--wide"><span>Google Maps link</span><input type="url" [(ngModel)]="profile.googleMapsUrl" placeholder="https://maps.google.com/..." /></label>
+            </div>
+          </section>
+        }
+
+        @if (activeStep() === 4) {
+          <section class="form-section">
+            <div class="section-heading section-heading--inline">
+              <div><h3>Business availability</h3><p>Turn this on only if fixed business hours are useful to your customers.</p></div>
+              <label class="switch-control"><input type="checkbox" [(ngModel)]="profile.businessHoursEnabled" /><span></span></label>
+            </div>
+
+            @if (profile.businessHoursEnabled) {
+              <div class="hours-list">
+                @for (day of days; track day.key) {
+                  <div class="hours-row" [class.hours-row--closed]="dayHours(day.key).closed">
+                    <strong>{{ day.label }}</strong>
+                    <label class="closed-toggle"><input type="checkbox" [(ngModel)]="dayHours(day.key).closed" /><span>Closed</span></label>
+                    <div class="hours-row__times">
+                      <label><span>Opens</span><input type="time" [(ngModel)]="dayHours(day.key).open" [disabled]="dayHours(day.key).closed" /></label>
+                      <span>to</span>
+                      <label><span>Closes</span><input type="time" [(ngModel)]="dayHours(day.key).close" [disabled]="dayHours(day.key).closed" /></label>
+                    </div>
+                  </div>
+                }
+              </div>
+            } @else {
+              <div class="empty-option-card"><mat-icon>schedule</mat-icon><strong>Business hours are currently hidden</strong><p>You can continue without adding hours.</p></div>
+            }
+          </section>
+        }
+
+        @if (activeStep() === 5) {
+          <section class="form-section">
+            <div class="section-heading"><h3>Social & online presence</h3><p>Add only the profiles you actively use. All fields are optional.</p></div>
+            <div class="form-grid form-grid--two">
+              <label class="field"><span>Facebook page</span><div class="icon-input"><mat-icon>facebook</mat-icon><input type="url" [(ngModel)]="profile.socialLinks.facebook" placeholder="https://facebook.com/yourpage" /></div></label>
+              <label class="field"><span>Instagram</span><div class="icon-input"><mat-icon>photo_camera</mat-icon><input type="url" [(ngModel)]="profile.socialLinks.instagram" placeholder="https://instagram.com/yourbusiness" /></div></label>
+              <label class="field"><span>YouTube</span><div class="icon-input"><mat-icon>smart_display</mat-icon><input type="url" [(ngModel)]="profile.socialLinks.youtube" placeholder="https://youtube.com/@yourbusiness" /></div></label>
+              <label class="field"><span>Other website</span><div class="icon-input"><mat-icon>language</mat-icon><input type="url" [(ngModel)]="profile.socialLinks.website" placeholder="https://yourbusiness.com" /></div></label>
+            </div>
+          </section>
+        }
+
+        @if (activeStep() === 6) {
+          <section class="form-section">
+            <div class="section-heading"><h3>Brand identity</h3><p>Use a cover image and your brand colours to keep pages and campaigns visually consistent.</p></div>
+
+            <div class="cover-editor">
+              @if (profile.coverImage) {
+                <img [src]="profile.coverImage" alt="Business cover" />
+                <div class="cover-editor__overlay">
+                  <label class="secondary-button file-button"><mat-icon>photo_camera</mat-icon><span>Change cover</span><input type="file" accept="image/*" (change)="onCoverSelected($event)" /></label>
+                  <button type="button" class="secondary-button" (click)="removeCover()"><mat-icon>delete_outline</mat-icon><span>Remove</span></button>
+                </div>
+              } @else {
+                <div class="cover-editor__empty"><mat-icon>add_photo_alternate</mat-icon><strong>Add a cover image</strong><p>Recommended wide image, up to 3 MB.</p><label class="primary-button file-button"><mat-icon>upload</mat-icon><span>Choose image</span><input type="file" accept="image/*" (change)="onCoverSelected($event)" /></label></div>
+              }
+            </div>
+
+            <div class="brand-grid">
+              <label class="color-field"><span>Primary brand color</span><div><input type="color" [(ngModel)]="profile.brandColors.primary" /><input type="text" maxlength="7" [(ngModel)]="profile.brandColors.primary" /></div></label>
+              <label class="color-field"><span>Secondary brand color</span><div><input type="color" [(ngModel)]="profile.brandColors.secondary" /><input type="text" maxlength="7" [(ngModel)]="profile.brandColors.secondary" /></div></label>
+            </div>
+
+            <div class="brand-preview" [style.--preview-primary]="profile.brandColors.primary" [style.--preview-secondary]="profile.brandColors.secondary">
+              <div class="brand-preview__cover"></div>
+              <div class="brand-preview__content">
+                <div class="brand-preview__logo">@if (profile.businessLogo) { <img [src]="profile.businessLogo" [alt]="account.businessName" /> } @else { <span>{{ initials }}</span> }</div>
+                <div><strong>{{ account.businessName }}</strong><p>{{ profile.tagline || 'Your business tagline will appear here' }}</p><small>{{ publicUrl }}</small></div>
+              </div>
+            </div>
+          </section>
+        }
+
+        <footer class="setup-footer">
+          <div class="setup-footer__left">
+            @if (activeStep() > 1) { <button type="button" class="secondary-button" [disabled]="saving()" (click)="previous()"><mat-icon>arrow_back</mat-icon><span>Previous</span></button> }
+          </div>
+          <div class="setup-footer__right">
+            <button type="button" class="text-button" [disabled]="saving()" (click)="backToDashboard()">Save later</button>
+            <button type="button" class="primary-button" [disabled]="saving()" (click)="activeStep() === 6 ? finish() : saveAndContinue()">
+              @if (saving()) { <span class="button-spinner"></span><span>Saving...</span> } @else { <span>{{ activeStep() === 6 ? 'Save profile' : 'Save & Continue' }}</span><mat-icon>{{ activeStep() === 6 ? 'check' : 'arrow_forward' }}</mat-icon> }
+            </button>
+          </div>
+        </footer>
+      </main>
+    </div>
+  }
+</section>

@@ -1,6 +1,6 @@
 import { t as _defineProperty } from "./defineProperty-wQpB4Zl9.js";
-import { Dr as ViewEncapsulation, In as Input, Oc as InjectionToken, Wi as setClassMetadata, as as ɵɵprojectionDef, cn as Component, do as ɵɵdomElementEnd, fo as ɵɵdomElementStart, is as ɵɵprojection, kl as ɵɵdefineInjector, ll as inject, no as ɵɵdefineDirective, qn as NgModule, ro as ɵɵdefineNgModule, to as ɵɵdefineComponent, wn as Directive, xa as ɵɵclassProp } from "./core-BQkULX7_.js";
-import { t as BidiModule } from "./bidi-BE1zMB3V.js";
+import { Dr as ViewEncapsulation, In as Input, Oc as InjectionToken, Wi as setClassMetadata, as as ɵɵprojectionDef, cn as Component, do as ɵɵdomElementEnd, fo as ɵɵdomElementStart, is as ɵɵprojection, kl as ɵɵdefineInjector, ll as inject, no as ɵɵdefineDirective, qn as NgModule, ro as ɵɵdefineNgModule, to as ɵɵdefineComponent, wn as Directive, xa as ɵɵclassProp } from "./core-D4fY0-5O.js";
+import { t as BidiModule } from "./bidi-B_7QWA7a.js";
 //#region node_modules/@angular/material/fesm2022/card.mjs
 var _MatCard;
 var _MatCardTitle;

@@ -2,9 +2,7 @@
   <section class="register-visual">
     <img
       src="https://static.vecteezy.com/system/resources/thumbnails/075/737/165/small/sustainable-growth-concept-with-wooden-blocks-and-rising-line-chart-free-photo.jpeg"
-      alt="BRAIN TECHNO"
-      class="register-visual__image"
-    />
+      alt="BRAIN TECHNO" class="register-visual__image" />
 
     <div class="register-visual__overlay"></div>
 
@@ -56,16 +54,8 @@
               <div class="input-shell">
                 <span class="material-symbols-rounded input-icon">person</span>
 
-                <input
-                  id="ownerName"
-                  class="bt-input"
-                  type="text"
-                  name="ownerName"
-                  [(ngModel)]="ownerName"
-                  placeholder="Enter your full name"
-                  autocomplete="name"
-                  required
-                />
+                <input id="ownerName" class="bt-input" type="text" name="ownerName" [(ngModel)]="ownerName"
+                  placeholder="Enter your full name" autocomplete="name" required />
               </div>
             </div>
 
@@ -75,39 +65,25 @@
                 <span>*</span>
               </label>
 
-              <div
-                class="input-shell"
-                [class.input-shell--success]="mobileAvailable === true"
-                [class.input-shell--error]="mobileAvailable === false"
-              >
+              <div class="input-shell" [class.input-shell--success]="mobileAvailable === true"
+                [class.input-shell--error]="mobileAvailable === false">
                 <span class="material-symbols-rounded input-icon">call</span>
 
-                <input
-                  id="mobile"
-                  class="bt-input"
-                  type="tel"
-                  name="mobile"
-                  [(ngModel)]="mobile"
-                  placeholder="Enter mobile number"
-                  autocomplete="tel"
-                  inputmode="numeric"
-                  minlength="10"
-                  maxlength="10"
-                  (blur)="checkMobileAvailability()"
-                  required
-                />
+                <input id="mobile" class="bt-input" type="tel" name="mobile" [(ngModel)]="mobile"
+                  placeholder="Enter mobile number" autocomplete="tel" inputmode="numeric" minlength="10" maxlength="10"
+                  (blur)="checkMobileAvailability()" required />
 
                 @if (mobileAvailable === true) {
-                  <mat-icon class="availability-icon availability-icon--success">check_circle</mat-icon>
+                <mat-icon class="availability-icon availability-icon--success">check_circle</mat-icon>
                 } @else if (mobileAvailable === false) {
-                  <mat-icon class="availability-icon availability-icon--error">error</mat-icon>
+                <mat-icon class="availability-icon availability-icon--error">error</mat-icon>
                 }
               </div>
 
               @if (mobileAvailable === false) {
-                <small class="field-status field-status--error">
-                  This mobile number is already registered.
-                </small>
+              <small class="field-status field-status--error">
+                This mobile number is already registered.
+              </small>
               }
             </div>
 
@@ -117,36 +93,24 @@
                 <span>*</span>
               </label>
 
-              <div
-                class="input-shell"
-                [class.input-shell--success]="emailAvailable === true"
-                [class.input-shell--error]="emailAvailable === false"
-              >
+              <div class="input-shell" [class.input-shell--success]="emailAvailable === true"
+                [class.input-shell--error]="emailAvailable === false">
                 <span class="material-symbols-rounded input-icon">mail</span>
 
-                <input
-                  id="email"
-                  class="bt-input"
-                  type="email"
-                  name="email"
-                  [(ngModel)]="email"
-                  placeholder="you@example.com"
-                  autocomplete="email"
-                  (blur)="checkEmailAvailability()"
-                  required
-                />
+                <input id="email" class="bt-input" type="email" name="email" [(ngModel)]="email"
+                  placeholder="you@example.com" autocomplete="email" (blur)="checkEmailAvailability()" required />
 
                 @if (emailAvailable === true) {
-                  <mat-icon class="availability-icon availability-icon--success">check_circle</mat-icon>
+                <mat-icon class="availability-icon availability-icon--success">check_circle</mat-icon>
                 } @else if (emailAvailable === false) {
-                  <mat-icon class="availability-icon availability-icon--error">error</mat-icon>
+                <mat-icon class="availability-icon availability-icon--error">error</mat-icon>
                 }
               </div>
 
               @if (emailAvailable === false) {
-                <small class="field-status field-status--error">
-                  This email address is already registered.
-                </small>
+              <small class="field-status field-status--error">
+                This email address is already registered.
+              </small>
               }
             </div>
 
@@ -159,17 +123,9 @@
               <div class="input-shell">
                 <span class="material-symbols-rounded input-icon">store</span>
 
-                <input
-                  id="businessName"
-                  class="bt-input"
-                  type="text"
-                  name="businessName"
-                  [(ngModel)]="businessName"
-                  placeholder="Enter business name"
-                  autocomplete="organization"
-                  (ngModelChange)="onBusinessNameInput()"
-                  required
-                />
+                <input id="businessName" class="bt-input" type="text" name="businessName" [(ngModel)]="businessName"
+                  placeholder="Enter business name" autocomplete="organization" (ngModelChange)="onBusinessNameInput()"
+                  required />
               </div>
             </div>
 
@@ -182,16 +138,11 @@
               <div class="input-shell input-shell--select">
                 <span class="material-symbols-rounded input-icon">category</span>
 
-                <select
-                  id="businessCategory"
-                  class="bt-select"
-                  name="businessCategory"
-                  [(ngModel)]="businessCategory"
-                  required
-                >
+                <select id="businessCategory" class="bt-select" name="businessCategory" [(ngModel)]="businessCategory"
+                  required>
                   <option value="" disabled>Select a category</option>
-                  <option *ngFor="let category of businessCategorys" [value]="category">
-                    {{ category }}
+                  <option *ngFor="let category of businessCategorys" [value]="category.name">
+                    {{ category.name }}
                   </option>
                 </select>
 
@@ -205,32 +156,19 @@
                 <span>*</span>
               </label>
 
-              <div
-                class="slug-shell"
-                [class.slug-shell--success]="slugAvailable === true"
-                [class.slug-shell--error]="slugAvailable === false"
-              >
+              <div class="slug-shell" [class.slug-shell--success]="slugAvailable === true"
+                [class.slug-shell--error]="slugAvailable === false">
                 <span class="slug-prefix">braintechno.in/</span>
 
-                <input
-                  id="businessSlug"
-                  class="slug-input"
-                  type="text"
-                  name="businessSlug"
-                  [(ngModel)]="businessSlug"
-                  (ngModelChange)="onSlugInput()"
-                  autocomplete="off"
-                  autocapitalize="off"
-                  spellcheck="false"
-                  required
-                />
+                <input id="businessSlug" class="slug-input" type="text" name="businessSlug" [(ngModel)]="businessSlug"
+                  (ngModelChange)="onSlugInput()" autocomplete="off" autocapitalize="off" spellcheck="false" required />
 
                 @if (checkingSlug) {
-                  <mat-spinner class="slug-spinner" [diameter]="18"></mat-spinner>
+                <mat-spinner class="slug-spinner" [diameter]="18"></mat-spinner>
                 } @else if (slugAvailable === true) {
-                  <mat-icon class="availability-icon availability-icon--success">check_circle</mat-icon>
+                <mat-icon class="availability-icon availability-icon--success">check_circle</mat-icon>
                 } @else if (slugAvailable === false) {
-                  <mat-icon class="availability-icon availability-icon--error">error</mat-icon>
+                <mat-icon class="availability-icon availability-icon--error">error</mat-icon>
                 }
               </div>
 
@@ -241,29 +179,24 @@
                 </small>
 
                 @if (slugAvailable === true) {
-                  <small class="field-status field-status--success">
-                    This business slug is available.
-                  </small>
+                <small class="field-status field-status--success">
+                  This business slug is available.
+                </small>
                 }
               </div>
 
               @if (slugAvailable === false && slugRecommendations.length > 0) {
-                <div class="slug-recommendations">
-                  <span>That slug is already taken. Try one of these:</span>
+              <div class="slug-recommendations">
+                <span>That slug is already taken. Try one of these:</span>
 
-                  <div class="slug-recommendations__list">
-                    @for (slug of slugRecommendations; track slug) {
-                      <button
-                        mat-stroked-button
-                        type="button"
-                        class="slug-suggestion"
-                        (click)="useSuggestedSlug(slug)"
-                      >
-                        {{ slug }}
-                      </button>
-                    }
-                  </div>
+                <div class="slug-recommendations__list">
+                  @for (slug of slugRecommendations; track slug) {
+                  <button mat-stroked-button type="button" class="slug-suggestion" (click)="useSuggestedSlug(slug)">
+                    {{ slug }}
+                  </button>
+                  }
                 </div>
+              </div>
               }
             </div>
 
@@ -276,24 +209,12 @@
               <div class="input-shell">
                 <span class="material-symbols-rounded input-icon">lock</span>
 
-                <input
-                  id="password"
-                  class="bt-input"
-                  [type]="showPassword ? 'text' : 'password'"
-                  name="password"
-                  [(ngModel)]="password"
-                  placeholder="Minimum 8 characters"
-                  autocomplete="new-password"
-                  minlength="8"
-                  required
-                />
+                <input id="password" class="bt-input" [type]="showPassword ? 'text' : 'password'" name="password"
+                  [(ngModel)]="password" placeholder="Minimum 8 characters" autocomplete="new-password" minlength="8"
+                  required />
 
-                <button
-                  type="button"
-                  class="password-toggle"
-                  (click)="showPassword = !showPassword"
-                  [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'"
-                >
+                <button type="button" class="password-toggle" (click)="showPassword = !showPassword"
+                  [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'">
                   <span class="material-symbols-rounded">
                     {{ showPassword ? 'visibility_off' : 'visibility' }}
                   </span>
@@ -310,24 +231,12 @@
               <div class="input-shell">
                 <span class="material-symbols-rounded input-icon">verified_user</span>
 
-                <input
-                  id="confirmPassword"
-                  class="bt-input"
-                  [type]="showConfirmPassword ? 'text' : 'password'"
-                  name="confirmPassword"
-                  [(ngModel)]="confirmPassword"
-                  placeholder="Re-enter password"
-                  autocomplete="new-password"
-                  minlength="8"
-                  required
-                />
+                <input id="confirmPassword" class="bt-input" [type]="showConfirmPassword ? 'text' : 'password'"
+                  name="confirmPassword" [(ngModel)]="confirmPassword" placeholder="Re-enter password"
+                  autocomplete="new-password" minlength="8" required />
 
-                <button
-                  type="button"
-                  class="password-toggle"
-                  (click)="showConfirmPassword = !showConfirmPassword"
-                  [attr.aria-label]="showConfirmPassword ? 'Hide password' : 'Show password'"
-                >
+                <button type="button" class="password-toggle" (click)="showConfirmPassword = !showConfirmPassword"
+                  [attr.aria-label]="showConfirmPassword ? 'Hide password' : 'Show password'">
                   <span class="material-symbols-rounded">
                     {{ showConfirmPassword ? 'visibility_off' : 'visibility' }}
                   </span>
@@ -337,18 +246,14 @@
           </div>
 
           @if (confirmPassword && password !== confirmPassword) {
-            <div class="form-message form-message--error">
-              <span class="material-symbols-rounded">error</span>
-              <span>Password and confirm password do not match.</span>
-            </div>
+          <div class="form-message form-message--error">
+            <span class="material-symbols-rounded">error</span>
+            <span>Password and confirm password do not match.</span>
+          </div>
           }
 
           <label class="terms-check">
-            <input
-              type="checkbox"
-              name="termsAccepted"
-              [(ngModel)]="termsAccepted"
-            />
+            <input type="checkbox" name="termsAccepted" [(ngModel)]="termsAccepted" />
 
             <span>
               I agree to the
@@ -358,19 +263,15 @@
             </span>
           </label>
 
-          <button
-            type="submit"
-            class="bt-btn register-submit"
-            [disabled]="!canSubmit"
-          >
+          <button type="submit" class="bt-btn register-submit" [disabled]="!canSubmit">
             @if (loading || checkingAvailability) {
-              <span class="button-spinner"></span>
-              <span>
-                {{ checkingAvailability ? 'Checking details...' : 'Creating account...' }}
-              </span>
+            <span class="button-spinner"></span>
+            <span>
+              {{ checkingAvailability ? 'Checking details...' : 'Creating account...' }}
+            </span>
             } @else {
-              <span>Create account</span>
-              <span class="material-symbols-rounded">arrow_forward</span>
+            <span>Create account</span>
+            <span class="material-symbols-rounded">arrow_forward</span>
             }
           </button>
         </form>

@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
 import { BusinessProfileAccount, BusinessProfileData, BusinessProfileService, BusinessDayHours, BusinessProfileResponse } from './business-profile.service';
+import { CommonApiService } from '../../core/common.service';
 
 
 interface StepItem {
@@ -52,20 +53,8 @@ export class BusinessProfilePage implements OnInit {
     { key: 'sunday', label: 'Sunday' }
   ];
 
-  readonly categories = [
-    'General',
-    'Bakery & Cakes',
-    'Fashion & Clothing',
-    'Jewellery',
-    'Photography',
-    'Restaurant & Food',
-    'Salon & Beauty',
-    'Professional Services',
-    'Home Services',
-    'Education',
-    'Health & Wellness',
-    'Retail'
-  ];
+  businessCategories: any = [];
+  selectedBusinessCategory = '';
 
   readonly indianStates = [
     'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh',
@@ -86,11 +75,27 @@ export class BusinessProfilePage implements OnInit {
 
   constructor(
     private profileApi: BusinessProfileService,
-    private router: Router
-  ) {}
+    private router: Router,
+    private commonService: CommonApiService
+  ) { }
 
   ngOnInit(): void {
+    this.loadBusinessCategories();
     this.loadProfile();
+  }
+
+  private loadBusinessCategories(): void {
+    this.commonService.getbusinessCategorys().subscribe({
+      next: (response) => {
+        this.businessCategories =
+          Array.isArray(response?.data)
+            ? response.data
+            : [];
+      },
+      error: (error) => {
+        this.businessCategories = [];
+      },
+    });
   }
 
   get currentStep(): StepItem {

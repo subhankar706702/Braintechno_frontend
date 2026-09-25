@@ -159,7 +159,7 @@
               <label class="field">
                 <span>Business category <b>*</b></span>
                 <select [(ngModel)]="account.businessCategory">
-                  @for (category of categories; track category) { <option [value]="category">{{ category }}</option> }
+                  @for (category of businessCategories; track category) { <option [value]="category.name">{{ category.name }}</option> }
                 </select>
               </label>
               <label class="field">

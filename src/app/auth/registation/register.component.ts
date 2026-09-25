@@ -14,6 +14,7 @@ import {
 } from '../../core/auth.service';
 import { MaterialModule } from '../../shared/material/material.module';
 import { SnackbarService } from '../../shared/material/notification/snackbar.service';
+import { CommonApiService } from '../../core/common.service';
 
 @Component({
   standalone: true,
@@ -56,50 +57,26 @@ export class RegisterComponent implements OnDestroy {
   private slugWasManuallyEdited = false;
   private slugCheckTimer: ReturnType<typeof setTimeout> | null = null;
 
-  businessCategorys = [
-    'General',
-    'Food & Beverage',
-    'Grocery & Daily Needs',
-    'Fashion & Clothing',
-    'Beauty & Personal Care',
-    'Health & Medical',
-    'Education & Training',
-    'Home & Living',
-    'Construction & Property',
-    'Automobile',
-    'Electronics & Technology',
-    'Retail & Shopping',
-    'Jewellery & Accessories',
-    'Art, Craft & Handmade',
-    'Photography & Media',
-    'Events & Wedding',
-    'Travel & Hospitality',
-    'Professional Services',
-    'Marketing & Creative Services',
-    'Repair & Maintenance',
-    'Home Services',
-    'Real Estate',
-    'Automotive',
-    'Fashion & Apparel',
-    'Sports & Recreation',
-    'Arts & Culture',
-    'Non-Profit & Charity',
-    'Fitness & Sports',
-    'Pet & Animal Services',
-    'Agriculture & Farming',
-    'Manufacturing & Wholesale',
-    'Logistics & Delivery',
-    'Online & E-commerce',
-    'Religious & Cultural Services',
-    'Others'
-  ];
+  businessCategorys:any = [];
 
   constructor(
     private auth: AuthService,
     private router: Router,
     private snackbar: SnackbarService,
-    private cdr: ChangeDetectorRef
-  ) {}
+    private cdr: ChangeDetectorRef,
+    private commonService: CommonApiService
+  ) { }
+
+  ngOnInit(): void {
+    this.commonService.getbusinessCategorys().subscribe({
+      next: (response) => {
+        this.businessCategorys = Array.isArray(response?.data) ? response.data : [];
+      },
+      error: (error) => {
+        this.businessCategorys = [];
+      },
+    });
+  }
 
   ngOnDestroy(): void {
     if (this.slugCheckTimer) {
@@ -239,13 +216,13 @@ export class RegisterComponent implements OnDestroy {
         })
       )
       .subscribe({
-        next: (result:any) => {
+        next: (result: any) => {
           this.applyAvailability(result);
 
           if (!result.mobileAvailable) {
             this.snackbar.warning(
               result.mobileMessage ||
-                'This mobile number is already registered.'
+              'This mobile number is already registered.'
             );
             return;
           }
@@ -253,7 +230,7 @@ export class RegisterComponent implements OnDestroy {
           if (!result.emailAvailable) {
             this.snackbar.warning(
               result.emailMessage ||
-                'This email address is already registered.'
+              'This email address is already registered.'
             );
             return;
           }
@@ -261,7 +238,7 @@ export class RegisterComponent implements OnDestroy {
           if (!result.slugAvailable) {
             this.snackbar.warning(
               result.slugMessage ||
-                'This business slug is already in use. Choose another one.'
+              'This business slug is already in use. Choose another one.'
             );
             return;
           }

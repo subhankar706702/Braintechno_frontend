@@ -105,7 +105,7 @@ export class CustomerApiService {
   constructor(
     private readonly http:
       HttpClient
-  ) {}
+  ) { }
 
 
   list(

@@ -1,5 +1,5 @@
-<section class="dashboard-page">
-  <header class="hero-strip">
+<section class="dashboard-page" [style.--bt-primary]="themePrimary" [style.--owner-secondary]="themeSecondary">
+  <!-- <header class="hero-strip">
     <div class="hero-strip__copy">
       <h1>Good Morning, {{ greetingName }}! <span aria-hidden="true">👋</span></h1>
       <p>Here's what's happening with your business today.</p>
@@ -17,16 +17,19 @@
         <mat-icon class="create-button__chevron">keyboard_arrow_down</mat-icon>
       </button>
     </div>
-  </header>
+  </header> -->
 
   <section class="top-grid">
     <article class="surface-card business-card">
+      @if (coverImage) {
+      <div class="business-card__cover" [style.background-image]="coverImageStyle"></div>
+      }
       <div class="business-card__main">
         <div class="business-avatar">
           @if (businessLogo) {
-            <img [src]="businessLogo" [alt]="businessName" />
+          <img [src]="businessLogo" [alt]="businessName" />
           } @else {
-            <span>{{ businessInitials }}</span>
+          <span>{{ businessInitials }}</span>
           }
         </div>
 
@@ -47,16 +50,54 @@
           </div>
 
           <div class="business-meta">
-            <span><mat-icon>person</mat-icon>{{ businessContact }}</span>
+            @if (businessContact) {
+            <a [href]="phoneUrl">
+              <mat-icon>call</mat-icon>
+              <span>{{ businessContact }}</span>
+            </a>
+            } @else {
+            <span><mat-icon>call</mat-icon>Add contact number</span>
+            }
+
+            @if (googleMapsUrl) {
+            <a [href]="googleMapsUrl" target="_blank" rel="noopener noreferrer">
+              <mat-icon>location_on</mat-icon>
+              <span>{{ profileLocation }}</span>
+            </a>
+            } @else {
             <span><mat-icon>location_on</mat-icon>{{ profileLocation }}</span>
+            }
+
+            @if (publicPageUrl) {
+            <a [href]="publicPageUrl" target="_blank" rel="noopener noreferrer">
+              <mat-icon>language</mat-icon>
+              <span>{{ publicUrl }}</span>
+            </a>
+            } @else {
             <span><mat-icon>language</mat-icon>{{ publicUrl }}</span>
+            }
           </div>
 
           <div class="social-row" aria-label="Social profiles">
-            <span class="social-pill social-pill--facebook">f</span>
-            <span class="social-pill social-pill--instagram">◎</span>
-            @if (whatsappNumber) {
-              <span class="social-pill social-pill--whatsapp">◔</span>
+            @if (facebookUrl) {
+            <a class="social-pill social-pill--facebook" [href]="facebookUrl" target="_blank" rel="noopener noreferrer"
+              aria-label="Facebook">f</a>
+            }
+            @if (instagramUrl) {
+            <a class="social-pill social-pill--instagram" [href]="instagramUrl" target="_blank"
+              rel="noopener noreferrer" aria-label="Instagram">◎</a>
+            }
+            @if (youtubeUrl) {
+            <a class="social-pill social-pill--youtube" [href]="youtubeUrl" target="_blank" rel="noopener noreferrer"
+              aria-label="YouTube">▶</a>
+            }
+            @if (websiteUrl) {
+            <a class="social-pill social-pill--website" [href]="websiteUrl" target="_blank" rel="noopener noreferrer"
+              aria-label="Website"><mat-icon>language</mat-icon></a>
+            }
+            @if (whatsappUrl) {
+            <a class="social-pill social-pill--whatsapp" [href]="whatsappUrl" target="_blank" rel="noopener noreferrer"
+              aria-label="WhatsApp">◔</a>
             }
           </div>
 
@@ -83,10 +124,12 @@
       <div class="campaign-feature__content">
         <div class="campaign-feature__eyebrow">
           <span>Current Campaign</span>
-          <span class="status-pill status-pill--active"><span></span>{{ currentCampaign ? campaignStatusLabel(currentCampaign.status) : 'Ready' }}</span>
+          <span class="status-pill status-pill--active"><span></span>{{ currentCampaign ?
+            campaignStatusLabel(currentCampaign.status) : 'Ready' }}</span>
         </div>
         <h2>{{ currentCampaign?.name || 'Create your first campaign' }}</h2>
-        <p>{{ currentCampaign ? ('Valid till ' + campaignDate(currentCampaign)) : 'Start promoting your business in a few clicks.' }}</p>
+        <p>{{ currentCampaign ? ('Valid till ' + campaignDate(currentCampaign)) : 'Start promoting your business in a
+          few clicks.' }}</p>
       </div>
 
       <button type="button" class="campaign-feature__arrow" aria-label="Open campaigns" (click)="viewCampaigns()">
@@ -104,14 +147,14 @@
 
   <section class="stats-grid">
     @for (stat of stats; track stat.label) {
-      <article class="surface-card stat-card" [class]="'surface-card stat-card stat-card--' + stat.tone">
-        <div class="stat-card__icon"><mat-icon>{{ stat.icon }}</mat-icon></div>
-        <div>
-          <p>{{ stat.label }}</p>
-          <strong>{{ stat.value }}</strong>
-          <span>{{ stat.change }}</span>
-        </div>
-      </article>
+    <article class="surface-card stat-card" [class]="'surface-card stat-card stat-card--' + stat.tone">
+      <div class="stat-card__icon"><mat-icon>{{ stat.icon }}</mat-icon></div>
+      <div>
+        <p>{{ stat.label }}</p>
+        <strong>{{ stat.value }}</strong>
+        <span>{{ stat.change }}</span>
+      </div>
+    </article>
     }
   </section>
 
@@ -135,18 +178,30 @@
         <span><i class="legend-dot legend-dot--green"></i>WhatsApp Clicks</span>
       </div>
 
-      <div class="chart-wrap" aria-label="Campaign performance chart">
-        <div class="chart-grid-lines"><i></i><i></i><i></i><i></i></div>
-        <div class="chart-bars">
+      <div class="line-chart" aria-label="Campaign performance line chart">
+        <svg class="line-chart__svg" viewBox="0 0 700 190" role="img" aria-label="Dummy campaign performance trend">
+          <line x1="12" y1="28" x2="688" y2="28" class="line-chart__grid" />
+          <line x1="12" y1="70" x2="688" y2="70" class="line-chart__grid" />
+          <line x1="12" y1="112" x2="688" y2="112" class="line-chart__grid" />
+          <line x1="12" y1="154" x2="688" y2="154" class="line-chart__grid" />
+
+          <polyline [attr.points]="linePoints('views')" class="line-chart__line line-chart__line--views" />
+          <polyline [attr.points]="linePoints('enquiries')" class="line-chart__line line-chart__line--enquiries" />
+          <polyline [attr.points]="linePoints('whatsapp')" class="line-chart__line line-chart__line--whatsapp" />
+
+          @for (point of performance; track point.label; let i = $index) {
+          <circle [attr.cx]="linePointX(i)" [attr.cy]="linePointY(point, 'views')" r="3.5"
+            class="line-chart__dot line-chart__dot--views" />
+          <circle [attr.cx]="linePointX(i)" [attr.cy]="linePointY(point, 'enquiries')" r="3.5"
+            class="line-chart__dot line-chart__dot--enquiries" />
+          <circle [attr.cx]="linePointX(i)" [attr.cy]="linePointY(point, 'whatsapp')" r="3.5"
+            class="line-chart__dot line-chart__dot--whatsapp" />
+          }
+        </svg>
+
+        <div class="line-chart__labels">
           @for (point of performance; track point.label) {
-            <div class="chart-group">
-              <div class="chart-group__bars">
-                <span class="bar bar--pink" [style.height]="performanceHeight(point.views)"></span>
-                <span class="bar bar--blue" [style.height]="performanceHeight(point.enquiries)"></span>
-                <span class="bar bar--green" [style.height]="performanceHeight(point.whatsapp)"></span>
-              </div>
-              <small>{{ point.label }}</small>
-            </div>
+          <span>{{ point.label }}</span>
           }
         </div>
       </div>
@@ -165,9 +220,9 @@
         <div class="campaign-row campaign-row--business">
           <div class="campaign-row__thumb business-mini-logo">
             @if (businessLogo) {
-              <img [src]="businessLogo" [alt]="businessName" />
+            <img [src]="businessLogo" [alt]="businessName" />
             } @else {
-              <span>{{ businessInitials }}</span>
+            <span>{{ businessInitials }}</span>
             }
           </div>
           <div class="campaign-row__copy">
@@ -176,54 +231,59 @@
             <div><span class="status-pill status-pill--active"><span></span>Active</span></div>
           </div>
           <div class="campaign-row__actions">
-            <button type="button" aria-label="View business page"><mat-icon>visibility</mat-icon><span>View</span></button>
-            <button type="button" aria-label="Edit profile" (click)="editProfile()"><mat-icon>edit</mat-icon><span>Edit</span></button>
+            <button type="button"
+              aria-label="View business page"><mat-icon>visibility</mat-icon><span>View</span></button>
+            <button type="button" aria-label="Edit profile"
+              (click)="editProfile()"><mat-icon>edit</mat-icon><span>Edit</span></button>
             <button type="button" aria-label="Share business page"><mat-icon>share</mat-icon><span>Share</span></button>
           </div>
         </div>
 
         @for (item of visibleCampaigns; track item.id || item._id || item.pageSlug) {
-          <div class="campaign-row">
-            <div class="campaign-row__thumb campaign-mini-art"><mat-icon>auto_awesome</mat-icon></div>
-            <div class="campaign-row__copy">
-              <strong>{{ item.name }}</strong>
-              <span>/{{ item.pageSlug }}</span>
-              <div>
-                <span class="status-pill" [class.status-pill--active]="item.status === 'published'" [class.status-pill--scheduled]="item.status === 'scheduled'">
-                  <span></span>{{ campaignStatusLabel(item.status) }}
-                </span>
-                <small>{{ campaignDate(item) }}</small>
-              </div>
-            </div>
-            <div class="campaign-row__actions">
-              <button type="button" aria-label="View campaign"><mat-icon>visibility</mat-icon><span>View</span></button>
-              <button type="button" aria-label="Edit campaign" (click)="viewCampaigns()"><mat-icon>edit</mat-icon><span>Edit</span></button>
-              <button type="button" aria-label="Share campaign"><mat-icon>share</mat-icon><span>Share</span></button>
+        <div class="campaign-row">
+          <div class="campaign-row__thumb campaign-mini-art"><mat-icon>auto_awesome</mat-icon></div>
+          <div class="campaign-row__copy">
+            <strong>{{ item.name }}</strong>
+            <span>/{{ item.pageSlug }}</span>
+            <div>
+              <span class="status-pill" [class.status-pill--active]="item.status === 'published'"
+                [class.status-pill--scheduled]="item.status === 'scheduled'">
+                <span></span>{{ campaignStatusLabel(item.status) }}
+              </span>
+              <small>{{ campaignDate(item) }}</small>
             </div>
           </div>
+          <div class="campaign-row__actions">
+            <button type="button" aria-label="View campaign"><mat-icon>visibility</mat-icon><span>View</span></button>
+            <button type="button" aria-label="Edit campaign"
+              (click)="viewCampaigns()"><mat-icon>edit</mat-icon><span>Edit</span></button>
+            <button type="button" aria-label="Share campaign"><mat-icon>share</mat-icon><span>Share</span></button>
+          </div>
+        </div>
         }
 
         @if (!visibleCampaigns.length) {
-          <div class="empty-state">
-            <mat-icon>campaign</mat-icon>
-            <strong>No campaigns yet</strong>
-            <p>Create your first campaign and it will appear here.</p>
-            <button type="button" class="outline-button" (click)="createCampaign()"><mat-icon>add</mat-icon>Create Campaign</button>
-          </div>
+        <div class="empty-state">
+          <mat-icon>campaign</mat-icon>
+          <strong>No campaigns yet</strong>
+          <p>Create your first campaign and it will appear here.</p>
+          <button type="button" class="outline-button" (click)="createCampaign()"><mat-icon>add</mat-icon>Create
+            Campaign</button>
+        </div>
         }
       </div>
     </article>
   </section>
 
   @if (currentCampaign && expiringSoon > 0) {
-    <section class="expiry-banner">
-      <div class="expiry-banner__icon"><mat-icon>warning_amber</mat-icon></div>
-      <div class="expiry-banner__copy">
-        <strong>{{ currentCampaign.name }} expires soon</strong>
-        <span>Don't miss your valuable audience. Renew or reuse your campaign.</span>
-      </div>
-      <button type="button" class="create-button create-button--small" (click)="viewCampaigns()">View Campaign</button>
-      <button type="button" class="text-button" (click)="viewCampaigns()">Reuse</button>
-    </section>
+  <section class="expiry-banner">
+    <div class="expiry-banner__icon"><mat-icon>warning_amber</mat-icon></div>
+    <div class="expiry-banner__copy">
+      <strong>{{ currentCampaign.name }} expires soon</strong>
+      <span>Don't miss your valuable audience. Renew or reuse your campaign.</span>
+    </div>
+    <button type="button" class="create-button create-button--small" (click)="viewCampaigns()">View Campaign</button>
+    <button type="button" class="text-button" (click)="viewCampaigns()">Reuse</button>
+  </section>
   }
 </section>

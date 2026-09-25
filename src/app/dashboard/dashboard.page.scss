@@ -861,3 +861,202 @@ button {
     display: none;
   }
 }
+
+/* =========================================
+   Owner branding + cover
+   ========================================= */
+
+.dashboard-page {
+  --owner-secondary: #38bdf8;
+}
+
+.business-card {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.business-card__cover {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: -2;
+  height: 76px;
+  background-position: center;
+  background-size: cover;
+  opacity: 0.22;
+}
+
+.business-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      115deg,
+      color-mix(in srgb, var(--bt-primary) 7%, transparent),
+      transparent 42%,
+      color-mix(in srgb, var(--owner-secondary) 5%, transparent)
+    );
+}
+
+.business-card__main {
+  position: relative;
+  z-index: 1;
+}
+
+.business-avatar {
+  border-color: color-mix(in srgb, var(--bt-primary) 28%, var(--bt-border));
+  box-shadow: 0 10px 24px color-mix(in srgb, var(--bt-primary) 10%, transparent);
+}
+
+.business-meta a,
+.business-meta span {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--bt-text-secondary);
+  font-size: 11px;
+  overflow: hidden;
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.business-meta a {
+  width: fit-content;
+  max-width: 100%;
+  border-radius: 6px;
+  transition: color var(--bt-transition-fast), background var(--bt-transition-fast);
+}
+
+.business-meta a:hover {
+  color: var(--bt-primary);
+}
+
+.business-meta a:hover mat-icon {
+  color: var(--bt-primary);
+}
+
+.social-pill {
+  flex: 0 0 auto;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform var(--bt-transition-fast), box-shadow var(--bt-transition-fast);
+}
+
+.social-pill:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(15, 23, 42, 0.14);
+}
+
+.social-pill--youtube {
+  background: #ff0000;
+  font-size: 10px;
+}
+
+.social-pill--website {
+  background: var(--owner-secondary);
+}
+
+.social-pill--website mat-icon {
+  width: 15px;
+  height: 15px;
+  font-size: 15px;
+}
+
+/* =========================================
+   Campaign performance line chart
+   ========================================= */
+
+.line-chart {
+  position: relative;
+  min-width: 0;
+  margin-top: 4px;
+  padding-top: 4px;
+}
+
+.line-chart__svg {
+  display: block;
+  width: 100%;
+  height: 205px;
+  overflow: visible;
+}
+
+.line-chart__grid {
+  stroke: var(--bt-border-soft);
+  stroke-width: 1;
+  stroke-dasharray: 4 5;
+}
+
+.line-chart__line {
+  fill: none;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.line-chart__line--views {
+  stroke: var(--bt-primary);
+}
+
+.line-chart__line--enquiries {
+  stroke: var(--color-accent-blue);
+}
+
+.line-chart__line--whatsapp {
+  stroke: var(--color-accent-green);
+}
+
+.line-chart__dot {
+  stroke: var(--bt-surface);
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+}
+
+.line-chart__dot--views {
+  fill: var(--bt-primary);
+}
+
+.line-chart__dot--enquiries {
+  fill: var(--color-accent-blue);
+}
+
+.line-chart__dot--whatsapp {
+  fill: var(--color-accent-green);
+}
+
+.line-chart__labels {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  gap: 4px;
+  margin-top: -2px;
+}
+
+.line-chart__labels span {
+  color: var(--bt-text-muted);
+  font-size: 8px;
+  line-height: 1.2;
+  text-align: center;
+  white-space: nowrap;
+}
+
+@media (max-width: 767px) {
+  .business-card__cover {
+    height: 92px;
+    opacity: 0.18;
+  }
+
+  .line-chart {
+    overflow-x: auto;
+    padding-bottom: 2px;
+  }
+
+  .line-chart__svg,
+  .line-chart__labels {
+    min-width: 620px;
+  }
+}

@@ -888,3 +888,223 @@ button {
   }
 
 }
+.sidebar-platform {
+  flex: 0 0 auto;
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  margin-top: 12px;
+  padding: 14px 12px 16px;
+  border-top: 1px solid var(--fx-border-soft, rgba(148, 163, 184, .18));
+  text-align: center;
+}
+.sidebar-platform__brand { position: relative; display: inline-flex; }
+.sidebar-platform__logo { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; display: block; }
+.sidebar-platform__tm { position: absolute; top: -2px; right: -15px; font-size: 8px; font-weight: 700; color: var(--fx-text-muted, #64748b); }
+.sidebar-platform__powered { font-size: 10px; line-height: 1.35; color: var(--fx-text-secondary, #64748b); }
+.sidebar-platform__powered strong { color: var(--fx-text-primary, #0f172a); font-weight: 700; }
+.sidebar-platform__copyright { font-size: 9px; line-height: 1.35; color: var(--fx-text-muted, #94a3b8); }
+@media (max-width: 900px) {
+  .sidebar-platform { margin-top: auto; padding-bottom: max(18px, env(safe-area-inset-bottom)); }
+  .sidebar-platform__logo { width: 34px; height: 34px; }
+}
+
+
+/* =========================================
+   FINAL BUSINESS BRAND + PLATFORM FOOTER
+   ========================================= */
+
+.sidebar {
+  overflow: hidden;
+}
+
+.sidebar__brand {
+  grid-template-columns: 46px minmax(0, 1fr);
+  min-height: 66px;
+  padding-bottom: var(--bt-space-3);
+}
+
+.sidebar__brand-logo {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.sidebar__brand-copy {
+  gap: 1px;
+}
+
+.sidebar__brand-copy strong {
+  font-size: 14px;
+  line-height: 1.25;
+}
+
+.sidebar__brand-tagline {
+  font-size: 10px !important;
+  line-height: 1.3;
+}
+
+.sidebar__brand-powered {
+  margin-top: 2px;
+  color: var(--bt-primary) !important;
+  font-size: 8px !important;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: .015em;
+}
+
+.sidebar-nav--account {
+  margin-top: 2px;
+}
+
+.sidebar-bottom {
+  margin-top: auto;
+  display: grid;
+  gap: 10px;
+  min-height: 0;
+}
+
+.sidebar-promo {
+  margin-top: 0;
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  align-items: start;
+  gap: 10px;
+  padding: 12px;
+}
+
+.sidebar-promo__icon {
+  width: 34px;
+  height: 34px;
+  margin-bottom: 0;
+}
+
+.sidebar-promo__copy {
+  min-width: 0;
+}
+
+.sidebar-promo strong {
+  margin-bottom: 2px;
+  font-size: 11px;
+}
+
+.sidebar-promo p {
+  font-size: 9px;
+  line-height: 1.4;
+}
+
+.sidebar-platform {
+  flex: 0 0 auto;
+  display: grid;
+  justify-items: center;
+  gap: 5px;
+  margin: 0;
+  padding: 10px 8px 2px;
+  border-top: 1px solid var(--bt-border);
+  text-align: center;
+}
+
+.sidebar-platform__brand {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sidebar-platform__logo {
+  display: block;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: #000;
+}
+
+.sidebar-platform__tm {
+  position: absolute;
+  top: -1px;
+  right: -15px;
+  color: var(--bt-text-muted);
+  font-size: 8px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.sidebar-platform__powered {
+  color: var(--bt-text-secondary);
+  font-size: 9px;
+  line-height: 1.35;
+}
+
+.sidebar-platform__powered strong {
+  color: var(--bt-text);
+  font-weight: 800;
+}
+
+.sidebar-platform__copyright {
+  color: var(--bt-text-muted);
+  font-size: 8px;
+  line-height: 1.35;
+}
+
+.topbar__mobile-copy {
+  min-width: 0;
+  display: grid;
+  gap: 1px;
+}
+
+.topbar__mobile-copy strong {
+  overflow: hidden;
+  color: var(--bt-text);
+  font-size: 12px;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.topbar__mobile-copy span {
+  overflow: hidden;
+  color: var(--bt-text-muted);
+  font-size: 8px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 767px) {
+  .sidebar {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .sidebar__brand {
+    grid-template-columns: 42px minmax(0, 1fr) 38px;
+  }
+
+  .sidebar__brand-logo {
+    width: 42px;
+    height: 42px;
+  }
+
+  .sidebar-bottom {
+    margin-top: auto;
+    padding-top: 12px;
+  }
+
+  .sidebar-promo {
+    display: grid;
+  }
+
+  .sidebar-platform {
+    padding-bottom: max(14px, env(safe-area-inset-bottom));
+  }
+
+  .sidebar-platform__logo {
+    width: 36px;
+    height: 36px;
+  }
+}
+.sidebar__brand {
+  cursor: pointer;
+}

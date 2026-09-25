@@ -1,5 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import {
+  Component,
+  OnInit,
+} from '@angular/core';
 import {
   Router,
   RouterOutlet,
@@ -7,8 +10,9 @@ import {
 
 import { MatIconModule } from '@angular/material/icon';
 
-import { AuthService } from '../../core/auth.service';
 import { ConfirmDialogService } from '../../Common/components/confirm-dialog/confirm-dialog.service';
+import { BusinessProfileService } from '../../dashboard/business-profile/business-profile.service';
+import { AuthService } from '../../core/auth.service';
 
 type ShellNavItem = {
   label: string;
@@ -27,12 +31,14 @@ type ShellNavItem = {
   templateUrl: './dashboard-shell.component.html',
   styleUrl: './dashboard-shell.component.scss',
 })
-export class DashboardShellComponent {
+export class DashboardShellComponent implements OnInit {
 
   mobileMenuOpen = false;
 
-  braintechnoLogo =
-    '/assets/images/braintechno.png';
+  readonly currentYear = new Date().getFullYear();
+
+  readonly braintechnoLogo =
+    '/assets/images/braintechno-mark.png';
 
   readonly sidebarItems: ShellNavItem[] = [
     {
@@ -49,6 +55,11 @@ export class DashboardShellComponent {
       label: 'Campaigns',
       icon: 'campaign',
       route: '/app/campaigns',
+    },
+    {
+      label: 'Campaign Outreach',
+      icon: 'outgoing_mail',
+      route: '/app/campaign-outreach',
     },
     {
       label: 'Customers',
@@ -78,38 +89,61 @@ export class DashboardShellComponent {
   ];
 
   constructor(
-    public auth: AuthService,
+    private auth: AuthService,
     private router: Router,
     private confirmDialogService: ConfirmDialogService,
+    private businessProfileService: BusinessProfileService,
   ) {}
 
+  ngOnInit(): void {
+    this.businessProfileService
+      .getProfile()
+      .subscribe({
+        error: () => {
+          // Keep shell usable even if profile loading fails.
+        },
+      });
+  }
+
   get businessName(): string {
-    const user =
-      this.auth.user() as any;
+    const data =
+      this.businessProfileService.profile();
 
     const name = String(
-      user?.businessName ||
-      user?.name ||
-      'BRAIN TECHNO',
+      data?.account?.businessName ||
+      'Business',
     ).trim();
 
-    return name.length > 15
-      ? name.substring(0, 15) + '...'
+    return name.length > 22
+      ? `${name.substring(0, 22)}...`
       : name;
   }
 
   get businessTagName(): string {
-    const user =
-      this.auth.user() as any;
+    const data =
+      this.businessProfileService.profile();
 
-    const tagName = String(
-      user?.businessTagName ||
+    const tagline = String(
+      data?.profile?.tagline ||
+      data?.account?.businessCategory ||
       'Business workspace',
     ).trim();
 
-    return tagName.length > 25
-      ? tagName.substring(0, 25) + '...'
-      : tagName;
+    return tagline.length > 30
+      ? `${tagline.substring(0, 30)}...`
+      : tagline;
+  }
+
+  get businessLogo(): string {
+    const data =
+      this.businessProfileService.profile();
+
+    const uploadedLogo = String(
+      data?.profile?.businessLogo || '',
+    ).trim();
+
+    return uploadedLogo ||
+      this.braintechnoLogo;
   }
 
   logout(): void {
@@ -135,27 +169,6 @@ export class DashboardShellComponent {
         // User cancelled logout.
       },
     });
-  }
-
-  get businessLogo(): string {
-    const user =
-      this.auth.user() as any;
-
-    const uploadedLogo = String(
-      user?.business_logo_url ||
-      user?.businessLogoUrl ||
-      user?.business_logo ||
-      user?.businessLogo ||
-      user?.logo_url ||
-      user?.logoUrl ||
-      user?.logo ||
-      user?.business?.logo_url ||
-      user?.business?.logo ||
-      '',
-    ).trim();
-
-    return uploadedLogo ||
-      this.braintechnoLogo;
   }
 
   openPage(
@@ -202,7 +215,7 @@ export class DashboardShellComponent {
     this.mobileMenuOpen = false;
   }
 
-  onLogoError(
+  onBusinessLogoError(
     event: Event,
   ): void {
 
@@ -210,7 +223,7 @@ export class DashboardShellComponent {
       event.target as HTMLImageElement;
 
     if (
-      image.src.includes(
+      image.src.endsWith(
         this.braintechnoLogo,
       )
     ) {

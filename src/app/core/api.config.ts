@@ -1,14 +1,37 @@
-import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
-import { provideRouter } from '@angular/router';
-import { provideHttpClient } from '@angular/common/http'; 
-import { routes } from '../app.routes';
+import {
+  ApplicationConfig,
+  provideZoneChangeDetection,
+} from '@angular/core';
 
-export const API_BASE_URL = 'http://localhost:3000/api';
+import {
+  provideRouter,
+} from '@angular/router';
+
+import {
+  provideHttpClient,
+} from '@angular/common/http';
+
+import {
+  routes,
+} from '../app.routes';
+
+import {
+  environment,
+} from '../../environments/environment';
+
+export const API_BASE_URL =
+  environment.apiBaseUrl;
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideZoneChangeDetection({ eventCoalescing: true }),
-    provideRouter(routes),
-    provideHttpClient() 
-  ]
+    provideZoneChangeDetection({
+      eventCoalescing: true,
+    }),
+
+    provideRouter(
+      routes,
+    ),
+
+    provideHttpClient(),
+  ],
 };

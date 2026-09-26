@@ -1,17 +1,31 @@
 <div class="shell">
 
   @if (mobileMenuOpen) {
-  <button type="button" class="mobile-backdrop" aria-label="Close menu" (click)="closeMobileMenu()">
+  <button
+    type="button"
+    class="mobile-backdrop"
+    aria-label="Close menu"
+    (click)="closeMobileMenu()">
   </button>
   }
 
-  <aside class="sidebar" [class.sidebar--open]="mobileMenuOpen">
+  <aside
+    class="sidebar"
+    [class.sidebar--open]="mobileMenuOpen">
 
-    <div class="sidebar__brand" (click)="openPage('/app/dashboard')" (keydown.enter)="openPage('/app/dashboard')"
+    <div
+      class="sidebar__brand"
+      role="button"
+      tabindex="0"
+      (click)="openPage('/app/dashboard')"
+      (keydown.enter)="openPage('/app/dashboard')"
       (keydown.space)="openPage('/app/dashboard')">
 
-      <img class="sidebar__brand-logo" [src]="businessLogo" [alt]="businessName"
-        (error)="onBusinessLogoError($event)" />
+      <img
+        class="sidebar__brand-logo"
+        [src]="businessLogo"
+        (error)="onBusinessLogoError($event)"
+      />
 
       <div class="sidebar__brand-copy">
         <strong>
@@ -23,7 +37,11 @@
         </span>
       </div>
 
-      <button type="button" class="sidebar__close" aria-label="Close menu" (click)="closeMobileMenu()">
+      <button
+        type="button"
+        class="sidebar__close"
+        aria-label="Close menu"
+        (click)="$event.stopPropagation(); closeMobileMenu()">
         <mat-icon>close</mat-icon>
       </button>
 
@@ -36,7 +54,10 @@
       track item.route
       ) {
 
-      <button type="button" class="sidebar-nav__item" [class.sidebar-nav__item--active]="isActive(item.route)"
+      <button
+        type="button"
+        class="sidebar-nav__item"
+        [class.sidebar-nav__item--active]="isActive(item.route)"
         (click)="openPage(item.route)">
 
         <mat-icon>
@@ -54,7 +75,10 @@
     </nav>
 
     <nav class="sidebar-nav sidebar-nav--account">
-      <button type="button" class="sidebar-nav__item sidebar-nav__item--danger" (click)="logout()">
+      <button
+        type="button"
+        class="sidebar-nav__item sidebar-nav__item--danger"
+        (click)="logout()">
         <mat-icon>logout</mat-icon>
         <span>Logout</span>
       </button>
@@ -82,17 +106,31 @@
 
       <footer class="sidebar-platform">
 
-        <div class="sidebar-platform__brand">
-          <img class="sidebar-platform__logo" [src]="braintechnoLogo" alt="BRAIN TECHNO" />
-          <span class="sidebar-platform__tm">TM</span>
-        </div>
+        <a
+          class="sidebar-platform__brand"
+          [href]="appResource.links.website"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Open BRAIN TECHNO website">
+
+          <img
+            class="sidebar-platform__logo"
+            [src]="appResource.images.logoMark"
+            [alt]="appResource.brand.name"
+          />
+
+          <span class="sidebar-platform__tm">
+            TM
+          </span>
+
+        </a>
 
         <div class="sidebar-platform__powered">
-          Powered by <strong>BRAIN TECHNO</strong>
+          {{ appResource.brand.poweredBy }}
         </div>
 
         <div class="sidebar-platform__copyright">
-          © {{ currentYear }} BRAIN TECHNO. All rights reserved.
+          {{ appResource.copyrightText }}
         </div>
 
       </footer>
@@ -107,12 +145,19 @@
 
       <div class="topbar__mobile-left">
 
-        <button type="button" class="mobile-menu-button" aria-label="Open menu" (click)="toggleMobileMenu()">
+        <button
+          type="button"
+          class="mobile-menu-button"
+          aria-label="Open menu"
+          (click)="toggleMobileMenu()">
           <mat-icon>menu</mat-icon>
         </button>
 
-        <img class="topbar__mobile-logo" [src]="businessLogo" [alt]="businessName"
-          (error)="onBusinessLogoError($event)" />
+        <img
+          class="topbar__mobile-logo"
+          [src]="businessLogo"
+          (error)="onBusinessLogoError($event)"
+        />
 
         <div class="topbar__mobile-copy">
           <strong>
@@ -120,8 +165,8 @@
           </strong>
 
           <span class="sidebar__brand-tagline">
-          {{ businessTagName }}
-        </span>
+            {{ businessTagName }}
+          </span>
         </div>
 
       </div>
@@ -130,20 +175,13 @@
 
       <div class="topbar__actions">
 
-        <button type="button" class="topbar-icon-button" aria-label="Notifications" title="Notifications">
+        <button
+          type="button"
+          class="topbar-icon-button"
+          aria-label="Notifications"
+          title="Notifications">
           <mat-icon>notifications_none</mat-icon>
         </button>
-
-        <!-- <div class="topbar-business">
-
-          <img class="topbar-business__logo" [src]="businessLogo" [alt]="businessName"
-            (error)="onBusinessLogoError($event)" />
-
-          <span class="topbar-business__name">
-            {{ businessName }}
-          </span>
-
-        </div> -->
 
       </div>
 

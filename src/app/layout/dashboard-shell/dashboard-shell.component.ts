@@ -12,6 +12,7 @@ import { MatIconModule } from '@angular/material/icon';
 
 import { ConfirmDialogService } from '../../Common/components/confirm-dialog/confirm-dialog.service';
 import { BusinessProfileService } from '../../dashboard/business-profile/business-profile.service';
+import { AppResourceService } from '../../core/app-resource.service';
 import { AuthService } from '../../core/auth.service';
 
 type ShellNavItem = {
@@ -35,11 +36,6 @@ export class DashboardShellComponent implements OnInit {
 
   mobileMenuOpen = false;
 
-  readonly currentYear = new Date().getFullYear();
-
-  readonly braintechnoLogo =
-    '/assets/images/braintechno-mark.png';
-
   readonly sidebarItems: ShellNavItem[] = [
     {
       label: 'Dashboard',
@@ -48,27 +44,27 @@ export class DashboardShellComponent implements OnInit {
     },
     {
       label: 'Templates',
-      icon: 'book_4',
+      icon: 'content_copy',
       route: '/app/templates',
     },
     {
-      label: 'Campaigns',
-      icon: 'campaign',
+      label: 'My website',
+      icon: 'language',
       route: '/app/campaigns',
     },
     {
-      label: 'Campaign Outreach',
-      icon: 'outgoing_mail',
-      route: '/app/campaign-outreach',
+      label: 'Broadcast',
+      icon: 'campaign',
+      route: '/app/broadcast',
     },
     {
       label: 'Customers',
-      icon: 'contacts_product',
+      icon: 'group',
       route: '/app/customers',
     },
     {
       label: 'Messages',
-      icon: 'chat',
+      icon: 'message',
       route: '/app/messages',
     },
     {
@@ -89,10 +85,11 @@ export class DashboardShellComponent implements OnInit {
   ];
 
   constructor(
-    private auth: AuthService,
-    private router: Router,
-    private confirmDialogService: ConfirmDialogService,
-    private businessProfileService: BusinessProfileService,
+    private readonly auth: AuthService,
+    private readonly router: Router,
+    private readonly confirmDialogService: ConfirmDialogService,
+    private readonly businessProfileService: BusinessProfileService,
+    public readonly appResource: AppResourceService,
   ) {}
 
   ngOnInit(): void {
@@ -134,15 +131,25 @@ export class DashboardShellComponent implements OnInit {
       : tagline;
   }
 
+  get braintechnoLogo(): string {
+    return this.appResource
+      .images
+      .logoMark;
+  }
+
   get businessLogo(): string {
     const data =
       this.businessProfileService.profile();
 
     const uploadedLogo = String(
-      data?.profile?.businessLogo || '',
+      data?.profile?.businessLogo ||
+      '',
     ).trim();
 
     return uploadedLogo ||
+      this.appResource
+        .images
+        .businessPlaceholder ||
       this.braintechnoLogo;
   }
 
@@ -222,15 +229,20 @@ export class DashboardShellComponent implements OnInit {
     const image =
       event.target as HTMLImageElement;
 
+    const fallback =
+      this.appResource
+        .images
+        .businessPlaceholder ||
+      this.braintechnoLogo;
+
     if (
-      image.src.endsWith(
-        this.braintechnoLogo,
-      )
+      image.src === fallback ||
+      image.src.endsWith(fallback)
     ) {
       return;
     }
 
     image.src =
-      this.braintechnoLogo;
+      fallback;
   }
 }

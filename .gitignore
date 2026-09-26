@@ -53,3 +53,5 @@ node_modules/
 .vscode/
 .npm
 package-lock.json
+.tsbuildinfo
+.env

@@ -1561,3 +1561,92 @@ mat-icon { width: 20px; height: 20px; font-size: 20px; line-height: 20px; }
     line-height: 20px;
   }
 }
+
+
+/* Navbar / Hero / Services property groups */
+.bt-property-section {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  margin-bottom: 14px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--surface-2) 72%, transparent);
+}
+
+.bt-property-section__title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .02em;
+  color: var(--text);
+}
+
+.bt-property-section__title mat-icon {
+  width: 18px;
+  height: 18px;
+  font-size: 18px;
+  line-height: 18px;
+  color: var(--primary);
+}
+
+.repeat-card--nav,
+.repeat-card--service {
+  border-radius: 14px;
+  background: var(--surface);
+}
+
+.bt-media-field__preview--compact {
+  width: 76px;
+  min-height: 54px;
+}
+
+.bt-service-item-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+}
+
+.bt-media-field--mini {
+  min-width: 0;
+}
+
+.bt-media-field--mini .bt-media-field__preview {
+  min-height: 76px;
+  max-height: 110px;
+}
+
+.bt-media-field--mini .bt-media-field__actions {
+  gap: 6px;
+}
+
+.bt-media-field--mini .bt-media-choose,
+.bt-media-field--mini .bt-media-remove {
+  min-height: 36px;
+  padding: 7px 9px;
+}
+
+.bt-add-repeat {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+}
+
+.bt-add-repeat mat-icon {
+  width: 18px;
+  height: 18px;
+  font-size: 18px;
+  line-height: 18px;
+}
+
+@media (max-width: 560px) {
+  .bt-service-item-grid {
+    grid-template-columns: 1fr;
+  }
+}

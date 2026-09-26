@@ -250,92 +250,122 @@
             <label>Gap (px)<input type="number" [(ngModel)]="block.style['gap']" (ngModelChange)="updateSelected()"></label>
           }
           @case ('navbar') {
-            <label>Brand<input [(ngModel)]="block.content['brand']" (ngModelChange)="updateSelected()"></label>
-            <div class="bt-media-field">
-              <span class="bt-field-label">Logo</span>
-              @if (block.content['logo']) { <div class="bt-media-field__preview"><img [src]="block.content['logo']" alt="Navbar logo"></div> }
-              <div class="bt-media-field__actions">
-                <button type="button" class="bt-media-choose" (click)="openBlockImagePicker(block, 'logo', 'Choose navbar logo')"><mat-icon fontSet="material-symbols-rounded">photo_library</mat-icon>{{ block.content['logo'] ? 'Change image' : 'Choose from gallery' }}</button>
-                @if (block.content['logo']) { <button type="button" class="bt-media-remove" (click)="removeBlockImage(block, 'logo')"><mat-icon fontSet="material-symbols-rounded">delete</mat-icon>Remove</button> }
+            <div class="bt-property-section">
+              <div class="bt-property-section__title"><mat-icon fontSet="material-symbols-rounded">branding_watermark</mat-icon><span>Brand</span></div>
+              <label>Brand name<input [(ngModel)]="block.content['brand']" (ngModelChange)="updateSelected()"></label>
+              <label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['showTagline']" (ngModelChange)="updateSelected()"><span>Show tagline</span></label>
+              @if (block.content['showTagline']) { <label>Tagline<input [(ngModel)]="block.content['tagline']" (ngModelChange)="updateSelected()" placeholder="A short brand line"></label> }
+              <div class="bt-media-field">
+                <span class="bt-field-label">Logo</span>
+                @if (block.content['logo']) { <div class="bt-media-field__preview bt-media-field__preview--compact"><img [src]="block.content['logo']" alt="Navbar logo"></div> }
+                <div class="bt-media-field__actions">
+                  <button type="button" class="bt-media-choose" (click)="openBlockImagePicker(block, 'logo', 'Choose navbar logo')"><mat-icon fontSet="material-symbols-rounded">photo_library</mat-icon>{{ block.content['logo'] ? 'Change logo' : 'Choose logo' }}</button>
+                  @if (block.content['logo']) { <button type="button" class="bt-media-remove" (click)="removeBlockImage(block, 'logo')"><mat-icon fontSet="material-symbols-rounded">delete</mat-icon>Remove</button> }
+                </div>
               </div>
             </div>
-            <div class="bt-info-box"><mat-icon fontSet="material-symbols-rounded">devices</mat-icon><span>Responsive navbar: desktop menus + mobile hamburger in published output.</span></div>
-            <div class="repeat-editor">
-              @for (item of block.content['menuItems']; track $index) {
-                <div class="repeat-card">
-                  <div class="repeat-card__head"><strong>Menu {{ $index + 1 }}</strong><span><button type="button" (click)="moveRepeatItem(block, 'menuItems', $index, -1)">↑</button><button type="button" (click)="moveRepeatItem(block, 'menuItems', $index, 1)">↓</button><button type="button" (click)="removeRepeatItem(block, 'menuItems', $index, 1)">×</button></span></div>
-                  <label>Label<input [(ngModel)]="item.label" (ngModelChange)="updateSelected()"></label>
-                  <label>URL / route<input [(ngModel)]="item.url" (ngModelChange)="updateSelected()"></label>
-                  <label>Icon<input [(ngModel)]="item.icon" (ngModelChange)="updateSelected()" placeholder="home, call, store..."></label>
-                  <label>Open<select [(ngModel)]="item.target" (ngModelChange)="updateSelected()"><option value="_self">Same tab</option><option value="_blank">New tab</option></select></label>
-                </div>
-              }
+
+            <div class="bt-property-section">
+              <div class="bt-property-section__title"><mat-icon fontSet="material-symbols-rounded">menu</mat-icon><span>Menu items</span></div>
+              <div class="bt-info-box"><mat-icon fontSet="material-symbols-rounded">devices</mat-icon><span>Desktop shows the full menu. Published mobile view automatically uses the hamburger menu.</span></div>
+              <div class="repeat-editor">
+                @for (item of block.content['menuItems']; track $index) {
+                  <div class="repeat-card repeat-card--nav">
+                    <div class="repeat-card__head"><strong>{{ item.label || ('Menu ' + ($index + 1)) }}</strong><span><button type="button" (click)="moveRepeatItem(block, 'menuItems', $index, -1)" title="Move up">↑</button><button type="button" (click)="moveRepeatItem(block, 'menuItems', $index, 1)" title="Move down">↓</button><button type="button" (click)="removeRepeatItem(block, 'menuItems', $index, 1)" title="Delete">×</button></span></div>
+                    <label>Label<input [(ngModel)]="item.label" (ngModelChange)="updateSelected()"></label>
+                    <label>URL / route<input [(ngModel)]="item.url" (ngModelChange)="updateSelected()" placeholder="#about or /contact"></label>
+                    <div class="bt-icon-field">
+                      <span class="bt-field-label">Icon</span>
+                      <details class="bt-icon-picker">
+                        <summary><span class="bt-icon-selected"><mat-icon fontSet="material-symbols-rounded">{{ item.icon || 'link' }}</mat-icon></span><span>{{ item.icon ? 'Change icon' : 'Choose icon' }}</span><mat-icon class="bt-icon-picker-chevron" fontSet="material-symbols-rounded">expand_more</mat-icon></summary>
+                        <div class="bt-icon-picker-panel">
+                          @for (category of materialIconCategories; track category.label) { <div class="bt-icon-category"><div class="bt-icon-category-title">{{ category.label }}</div><div class="bt-icon-grid">@for (iconName of category.icons; track iconName) { <button type="button" class="bt-icon-option" [class.active]="item.icon === iconName" (click)="item.icon = iconName; updateSelected()"><mat-icon fontSet="material-symbols-rounded">{{ iconName }}</mat-icon></button> }</div></div> }
+                        </div>
+                      </details>
+                    </div>
+                    <label>Open<select [(ngModel)]="item.target" (ngModelChange)="updateSelected()"><option value="_self">Same tab</option><option value="_blank">New tab</option></select></label>
+                  </div>
+                }
+              </div>
+              <button type="button" class="bt-add-repeat" (click)="addRepeatItem(block, 'menuItems')"><mat-icon fontSet="material-symbols-rounded">add</mat-icon>Add menu item</button>
             </div>
-            <button type="button" class="bt-add-repeat" (click)="addRepeatItem(block, 'menuItems')">+ Add menu</button>
-            <label>CTA text<input [(ngModel)]="block.content['cta']" (ngModelChange)="updateSelected()"></label>
-            <label>CTA URL<input [(ngModel)]="block.content['ctaUrl']" (ngModelChange)="updateSelected()"></label>
-            <label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['showIcons']" (ngModelChange)="updateSelected()"><span>Show menu icons</span></label>
-            <label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['mobileMenu']" (ngModelChange)="updateSelected()"><span>Mobile hamburger menu</span></label>
+
+            <div class="bt-property-section">
+              <div class="bt-property-section__title"><mat-icon fontSet="material-symbols-rounded">ads_click</mat-icon><span>Action & responsive</span></div>
+              <label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['showCta']" (ngModelChange)="updateSelected()"><span>Show CTA button</span></label>
+              @if (block.content['showCta']) {
+                <label>CTA text<input [(ngModel)]="block.content['cta']" (ngModelChange)="updateSelected()"></label>
+                <label>CTA URL<input [(ngModel)]="block.content['ctaUrl']" (ngModelChange)="updateSelected()"></label>
+                <label>CTA icon<input [(ngModel)]="block.content['ctaIcon']" (ngModelChange)="updateSelected()" placeholder="arrow_forward"></label>
+              }
+              <label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['showIcons']" (ngModelChange)="updateSelected()"><span>Show menu icons</span></label>
+              <label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['mobileMenu']" (ngModelChange)="updateSelected()"><span>Use mobile hamburger</span></label>
+              <label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['sticky']" (ngModelChange)="updateSelected()"><span>Sticky in published page</span></label>
+              <label>Menu alignment<select [(ngModel)]="block.content['menuAlign']" (ngModelChange)="updateSelected()"><option value="right">Right</option><option value="center">Center</option></select></label>
+            </div>
           }
           @case ('hero') {
-            <label>Eyebrow<input [(ngModel)]="block.content['eyebrow']" (ngModelChange)="updateSelected()"></label>
-            <label>Title<textarea [(ngModel)]="block.content['title']" rows="3" (ngModelChange)="updateSelected()"></textarea></label>
-            <label>Text<textarea [(ngModel)]="block.content['text']" rows="4" (ngModelChange)="updateSelected()"></textarea></label>
-            <label>Primary button<input [(ngModel)]="block.content['primary']" (ngModelChange)="updateSelected()"></label>
-            <label>Primary URL<input [(ngModel)]="block.content['primaryUrl']" (ngModelChange)="updateSelected()"></label>
-            <label>Secondary button<input [(ngModel)]="block.content['secondary']" (ngModelChange)="updateSelected()"></label>
-            <label>Secondary URL<input [(ngModel)]="block.content['secondaryUrl']" (ngModelChange)="updateSelected()"></label>
-            <div class="bt-media-field">
-              <span class="bt-field-label">Hero image</span>
-              @if (block.content['image']) { <div class="bt-media-field__preview"><img [src]="block.content['image']" alt="Hero image"></div> }
-              <div class="bt-media-field__actions">
-                <button type="button" class="bt-media-choose" (click)="openBlockImagePicker(block, 'image', 'Choose hero image')"><mat-icon fontSet="material-symbols-rounded">photo_library</mat-icon>{{ block.content['image'] ? 'Change image' : 'Choose from gallery' }}</button>
-                @if (block.content['image']) { <button type="button" class="bt-media-remove" (click)="removeBlockImage(block, 'image')"><mat-icon fontSet="material-symbols-rounded">delete</mat-icon>Remove</button> }
-              </div>
+            <div class="bt-property-section">
+              <div class="bt-property-section__title"><mat-icon fontSet="material-symbols-rounded">title</mat-icon><span>Content</span></div>
+              <label>Eyebrow<input [(ngModel)]="block.content['eyebrow']" (ngModelChange)="updateSelected()"></label>
+              <label>Badge<input [(ngModel)]="block.content['badge']" (ngModelChange)="updateSelected()" placeholder="Optional badge"></label>
+              <label>Title<textarea [(ngModel)]="block.content['title']" rows="3" (ngModelChange)="updateSelected()"></textarea></label>
+              <label>Description<textarea [(ngModel)]="block.content['text']" rows="4" (ngModelChange)="updateSelected()"></textarea></label>
+              <label>Trust / proof text<input [(ngModel)]="block.content['trustText']" (ngModelChange)="updateSelected()" placeholder="Trusted by... / Fast response..."></label>
+            </div>
+
+            <div class="bt-property-section">
+              <div class="bt-property-section__title"><mat-icon fontSet="material-symbols-rounded">smart_button</mat-icon><span>Buttons</span></div>
+              <label>Primary button<input [(ngModel)]="block.content['primary']" (ngModelChange)="updateSelected()"></label>
+              <label>Primary URL<input [(ngModel)]="block.content['primaryUrl']" (ngModelChange)="updateSelected()"></label>
+              <label>Primary icon<input [(ngModel)]="block.content['primaryIcon']" (ngModelChange)="updateSelected()" placeholder="arrow_forward"></label>
+              <label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['showSecondary']" (ngModelChange)="updateSelected()"><span>Show secondary button</span></label>
+              @if (block.content['showSecondary']) { <label>Secondary button<input [(ngModel)]="block.content['secondary']" (ngModelChange)="updateSelected()"></label><label>Secondary URL<input [(ngModel)]="block.content['secondaryUrl']" (ngModelChange)="updateSelected()"></label> }
+            </div>
+
+            <div class="bt-property-section">
+              <div class="bt-property-section__title"><mat-icon fontSet="material-symbols-rounded">image</mat-icon><span>Hero visual</span></div>
+              <label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['showImage']" (ngModelChange)="updateSelected()"><span>Show image</span></label>
+              @if (block.content['showImage']) {
+                <div class="bt-media-field">
+                  <span class="bt-field-label">Image</span>
+                  @if (block.content['image']) { <div class="bt-media-field__preview"><img [src]="block.content['image']" alt="Hero image"></div> }
+                  <div class="bt-media-field__actions"><button type="button" class="bt-media-choose" (click)="openBlockImagePicker(block, 'image', 'Choose hero image')"><mat-icon fontSet="material-symbols-rounded">photo_library</mat-icon>{{ block.content['image'] ? 'Change image' : 'Choose image' }}</button>@if (block.content['image']) { <button type="button" class="bt-media-remove" (click)="removeBlockImage(block, 'image')"><mat-icon fontSet="material-symbols-rounded">delete</mat-icon>Remove</button> }</div>
+                </div>
+                <label>Image position<select [(ngModel)]="block.content['imagePosition']" (ngModelChange)="updateSelected()"><option value="right">Right</option><option value="left">Left</option></select></label>
+                <label>Image fit<select [(ngModel)]="block.content['imageFit']" (ngModelChange)="updateSelected()"><option value="cover">Cover</option><option value="contain">Contain</option></select></label>
+              }
             </div>
           }
           @case ('services') {
-            <label>Title<input [(ngModel)]="block.content['title']" (ngModelChange)="updateSelected()"></label>
-            <div class="repeat-editor">
-              @for (item of block.content['items']; track $index) {
-                <div class="repeat-card">
-                  <div class="repeat-card__head"><strong>Service {{ $index + 1 }}</strong><span><button type="button" (click)="moveRepeatItem(block, 'items', $index, -1)">↑</button><button type="button" (click)="moveRepeatItem(block, 'items', $index, 1)">↓</button><button type="button" (click)="removeRepeatItem(block, 'items', $index)">×</button></span></div>
-                  <div class="bt-icon-field">
-                    <span class="bt-field-label">Icon</span>
-                    <details class="bt-icon-picker">
-                      <summary>
-                        <span class="bt-icon-selected"><mat-icon fontSet="material-symbols-rounded">{{ item.icon || 'star' }}</mat-icon></span>
-                        <span>Choose icon</span>
-                        <mat-icon class="bt-icon-picker-chevron" fontSet="material-symbols-rounded">expand_more</mat-icon>
-                      </summary>
-                      <div class="bt-icon-picker-panel">
-                        @for (category of materialIconCategories; track category.label) {
-                          <div class="bt-icon-category">
-                            <div class="bt-icon-category-title">{{ category.label }}</div>
-                            <div class="bt-icon-grid">
-                              @for (iconName of category.icons; track iconName) {
-                                <button
-                                  type="button"
-                                  class="bt-icon-option"
-                                  [class.active]="item.icon === iconName"
-                                  (click)="item.icon = iconName; updateSelected()"
-                                  aria-label="Select icon"
-                                >
-                                  <mat-icon fontSet="material-symbols-rounded">{{ iconName }}</mat-icon>
-                                </button>
-                              }
-                            </div>
-                          </div>
-                        }
-                      </div>
-                    </details>
-                  </div>
-                  <label>Title<input [(ngModel)]="item.title" (ngModelChange)="updateSelected()"></label>
-                  <label>Text<textarea [(ngModel)]="item.text" rows="2" (ngModelChange)="updateSelected()"></textarea></label>
-                </div>
-              }
+            <div class="bt-property-section">
+              <div class="bt-property-section__title"><mat-icon fontSet="material-symbols-rounded">design_services</mat-icon><span>Section</span></div>
+              <label>Eyebrow<input [(ngModel)]="block.content['eyebrow']" (ngModelChange)="updateSelected()"></label>
+              <label>Title<input [(ngModel)]="block.content['title']" (ngModelChange)="updateSelected()"></label>
+              <label>Description<textarea [(ngModel)]="block.content['text']" rows="3" (ngModelChange)="updateSelected()"></textarea></label>
+              @if (block.content['variant'] === 'carousel') { <label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['showArrows']" (ngModelChange)="updateSelected()"><span>Show left/right arrows</span></label><label>Card width (px)<input type="number" min="220" max="520" [(ngModel)]="block.content['cardMinWidth']" (ngModelChange)="updateSelected()"></label> }
             </div>
-            <button type="button" class="bt-add-repeat" (click)="addRepeatItem(block, 'items')">+ Add service</button>
+
+            <div class="bt-property-section">
+              <div class="bt-property-section__title"><mat-icon fontSet="material-symbols-rounded">view_carousel</mat-icon><span>Service items</span></div>
+              <div class="repeat-editor">
+                @for (item of block.content['items']; track $index) {
+                  <div class="repeat-card repeat-card--service">
+                    <div class="repeat-card__head"><strong>{{ item.title || ('Service ' + ($index + 1)) }}</strong><span><button type="button" (click)="moveRepeatItem(block, 'items', $index, -1)">↑</button><button type="button" (click)="moveRepeatItem(block, 'items', $index, 1)">↓</button><button type="button" (click)="removeRepeatItem(block, 'items', $index)">×</button></span></div>
+                    <div class="bt-service-item-grid">
+                      <div class="bt-icon-field"><span class="bt-field-label">Icon</span><details class="bt-icon-picker"><summary><span class="bt-icon-selected"><mat-icon fontSet="material-symbols-rounded">{{ item.icon || 'star' }}</mat-icon></span><span>Choose icon</span><mat-icon class="bt-icon-picker-chevron" fontSet="material-symbols-rounded">expand_more</mat-icon></summary><div class="bt-icon-picker-panel">@for (category of materialIconCategories; track category.label) { <div class="bt-icon-category"><div class="bt-icon-category-title">{{ category.label }}</div><div class="bt-icon-grid">@for (iconName of category.icons; track iconName) { <button type="button" class="bt-icon-option" [class.active]="item.icon === iconName" (click)="item.icon = iconName; updateSelected()"><mat-icon fontSet="material-symbols-rounded">{{ iconName }}</mat-icon></button> }</div></div> }</div></details></div>
+                      <div class="bt-media-field bt-media-field--mini"><span class="bt-field-label">Image</span>@if (item.image) { <div class="bt-media-field__preview"><img [src]="item.image" alt="Service image"></div> }<div class="bt-media-field__actions"><button type="button" class="bt-media-choose" (click)="openRepeatImagePicker(block, item, 'Choose service image')"><mat-icon fontSet="material-symbols-rounded">photo_library</mat-icon>{{ item.image ? 'Change' : 'Choose' }}</button>@if (item.image) { <button type="button" class="bt-media-remove" (click)="removeRepeatImage(block, item)"><mat-icon fontSet="material-symbols-rounded">delete</mat-icon></button> }</div></div>
+                    </div>
+                    <label>Badge<input [(ngModel)]="item.badge" (ngModelChange)="updateSelected()" placeholder="Optional"></label>
+                    <label>Title<input [(ngModel)]="item.title" (ngModelChange)="updateSelected()"></label>
+                    <label>Text<textarea [(ngModel)]="item.text" rows="3" (ngModelChange)="updateSelected()"></textarea></label>
+                    <label>CTA text<input [(ngModel)]="item.cta" (ngModelChange)="updateSelected()"></label>
+                    <label>URL / route<input [(ngModel)]="item.url" (ngModelChange)="updateSelected()"></label>
+                  </div>
+                }
+              </div>
+              <button type="button" class="bt-add-repeat" (click)="addRepeatItem(block, 'items')"><mat-icon fontSet="material-symbols-rounded">add</mat-icon>Add service</button>
+            </div>
           }
           @case ('testimonial') {
             <label>Title<input [(ngModel)]="block.content['title']" (ngModelChange)="updateSelected()"></label>

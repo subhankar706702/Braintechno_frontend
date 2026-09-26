@@ -12,6 +12,8 @@ import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { MATERIAL_ICON_CATEGORIES, MATERIAL_ICON_LIST } from '../material-icon-list';
+import { MediaPickerComponent } from '../../../shared/media-picker/media-picker.component';
+import { MediaLibraryItem } from '../../../core/media-library.service';
 
 interface EditorBlock {
   id: string;
@@ -43,10 +45,18 @@ interface MediaItem {
   dataUrl: string;
 }
 
+interface MediaPickerTarget {
+  kind: 'block-content' | 'repeat-item' | 'gallery' | 'background';
+  block: EditorBlock;
+  contentKey?: string;
+  mediaIdKey?: string;
+  item?: Record<string, any>;
+}
+
 @Component({
   selector: 'bt-braintechno-editor',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatIconModule],
+  imports: [CommonModule, FormsModule, MatIconModule, MediaPickerComponent],
   templateUrl: './braintechno-editor.component.html',
   styleUrls: ['./braintechno-editor.component.scss']
 })
@@ -61,44 +71,45 @@ export class BraintechnoEditorComponent implements OnChanges, OnDestroy {
   readonly materialIconList = MATERIAL_ICON_LIST;
 
   readonly elements = [
-    { type: 'section', label: 'Section', icon: 'view_quilt' },
+    { type: 'section', label: 'Section', icon: 'view_agenda' },
     { type: 'block', label: 'Block', icon: 'dashboard_customize' },
     { type: 'navbar', label: 'Navbar', icon: 'web_asset' },
-    { type: 'hero', label: 'Hero', icon: 'view_day' },
-    { type: 'services', label: 'Services', icon: 'grid_view' },
-    { type: 'testimonial', label: 'Testimonial', icon: 'reviews' },
-    { type: 'pricing', label: 'Pricing', icon: 'price_change' },
+    { type: 'hero', label: 'Hero', icon: 'featured_play_list' },
+    { type: 'services', label: 'Services', icon: 'apps' },
+    { type: 'testimonial', label: 'Testimonial', icon: 'format_quote' },
+    { type: 'pricing', label: 'Pricing', icon: 'payments' },
     { type: 'faq', label: 'FAQ', icon: 'quiz' },
     { type: 'stats', label: 'Stats', icon: 'monitoring' },
     { type: 'tabs', label: 'Tabs', icon: 'tab' },
     { type: 'timeline', label: 'Timeline', icon: 'timeline' },
     { type: 'team', label: 'Team', icon: 'groups' },
-    { type: 'footer', label: 'Footer', icon: 'bottom_navigation' },
-    { type: 'popup', label: 'Popup', icon: 'open_in_new' },
-    { type: 'floating', label: 'Floating Action', icon: 'touch_app' },
+    { type: 'footer', label: 'Footer', icon: 'vertical_align_bottom' },
+    { type: 'popup', label: 'Popup', icon: 'web_asset_off' },
+    { type: 'floating', label: 'Floating Action', icon: 'ads_click' },
     { type: 'heading', label: 'Heading', icon: 'title' },
-    { type: 'text', label: 'Text', icon: 'notes' },
+    { type: 'text', label: 'Text', icon: 'subject' },
     { type: 'link', label: 'Link URL', icon: 'link' },
     { type: 'image', label: 'Image', icon: 'image' },
     { type: 'video', label: 'Video', icon: 'smart_display' },
     { type: 'slider', label: 'Image Slider', icon: 'view_carousel' },
     { type: 'gallery', label: 'Gallery', icon: 'photo_library' },
     { type: 'button', label: 'Button', icon: 'smart_button' },
-    { type: 'icon', label: 'Icon', icon: 'interests' },
+    { type: 'icon', label: 'Icon', icon: 'stars' },
     { type: 'social', label: 'Social Links', icon: 'share' },
     { type: 'product', label: 'Product', icon: 'inventory_2' },
-    { type: 'offer', label: 'Offer', icon: 'sell' },
-    { type: 'ecommerce', label: 'E-commerce', icon: 'storefront' },
+    { type: 'offer', label: 'Offer', icon: 'local_offer' },
+    { type: 'ecommerce', label: 'E-commerce', icon: 'shopping_bag' },
     { type: 'template', label: 'Templates', icon: 'dashboard' },
     { type: 'html', label: 'HTML', icon: 'code' },
     { type: 'form', label: 'Contact Form', icon: 'dynamic_form' },
-    { type: 'contact', label: 'Contact', icon: 'contact_phone' },
+    { type: 'contact', label: 'Contact', icon: 'contact_mail' },
     { type: 'whatsapp', label: 'WhatsApp', icon: 'chat' },
     { type: 'map', label: 'Map', icon: 'map' },
     { type: 'scanner', label: 'Scanner', icon: 'qr_code_scanner' },
     { type: 'timer', label: 'Timer', icon: 'timer' },
-    { type: 'counter', label: 'Counter', icon: '123' },
-    { type: 'chart', label: 'Chart', icon: 'insert_chart' },
+    { type: 'counter', label: 'Counter', icon: 'pin' },
+    { type: 'rating', label: 'Customer Rating', icon: 'star' },
+    { type: 'chart', label: 'Chart', icon: 'bar_chart' },
     { type: 'media', label: 'Your Media', icon: 'perm_media' },
     { type: 'divider', label: 'Divider', icon: 'horizontal_rule' },
     { type: 'spacer', label: 'Spacer', icon: 'height' }
@@ -557,6 +568,14 @@ export class BraintechnoEditorComponent implements OnChanges, OnDestroy {
   readonly pinnedElementTypes = new Set<string>(this.readPinnedElements());
   initialized = false;
 
+  mediaPickerOpen = false;
+  mediaPickerMultiple = false;
+  mediaPickerTitle = 'Choose image';
+  mediaPickerSelectedIds: Array<string | number> = [];
+  mediaPickerMaxSelection = 0;
+
+  private mediaPickerTarget: MediaPickerTarget | null = null;
+
   private designTimer?: ReturnType<typeof setTimeout>;
   private history: EditorBlock[][] = [];
   private future: EditorBlock[][] = [];
@@ -880,6 +899,87 @@ export class BraintechnoEditorComponent implements OnChanges, OnDestroy {
     this.commitChange();
   }
 
+  addRepeatItem(block: EditorBlock, key: string): void {
+    const list = Array.isArray(block.content[key]) ? block.content[key] : [];
+    this.pushHistory();
+    list.push(this.repeatItemTemplate(block.type, key, list.length));
+    block.content[key] = list;
+    this.commitChange();
+  }
+
+  removeRepeatItem(block: EditorBlock, key: string, index: number, minimum = 1): void {
+    const list = Array.isArray(block.content[key]) ? block.content[key] : [];
+    if (list.length <= minimum || index < 0 || index >= list.length) return;
+    this.pushHistory();
+    list.splice(index, 1);
+    block.content[key] = list;
+    this.commitChange();
+  }
+
+  moveRepeatItem(block: EditorBlock, key: string, index: number, delta: number): void {
+    const list = Array.isArray(block.content[key]) ? block.content[key] : [];
+    const next = index + delta;
+    if (index < 0 || next < 0 || next >= list.length) return;
+    this.pushHistory();
+    [list[index], list[next]] = [list[next], list[index]];
+    block.content[key] = list;
+    this.commitChange();
+  }
+
+  addFormField(block: EditorBlock, type = 'text'): void {
+    const fields = Array.isArray(block.content['fields']) ? block.content['fields'] : [];
+    this.pushHistory();
+    fields.push(this.formFieldTemplate(type, fields.length));
+    block.content['fields'] = fields;
+    this.commitChange();
+  }
+
+  changeFormFieldType(block: EditorBlock, field: Record<string, any>, type: string): void {
+    const next = this.formFieldTemplate(type, 0);
+    field['type'] = type;
+    field['options'] = next.options || field['options'] || '';
+    this.commitChange();
+  }
+
+  private formFieldTemplate(type: string, index: number): Record<string, any> {
+    const labelMap: Record<string, string> = { text: 'Name', email: 'Email', phone: 'Phone', number: 'Number', textarea: 'Message', select: 'Select option', radio: 'Choose one', checkbox: 'I agree', date: 'Date', time: 'Time', datetime: 'Date & time' };
+    return {
+      id: this.uid('field'),
+      type,
+      name: `${type}_${index + 1}`,
+      label: labelMap[type] || 'Field',
+      placeholder: type === 'textarea' ? 'Write your message' : '',
+      required: ['email', 'phone'].includes(type),
+      options: ['select', 'radio'].includes(type) ? 'Option 1\nOption 2\nOption 3' : '',
+      width: 'full'
+    };
+  }
+
+  private repeatItemTemplate(type: string, key: string, index: number): Record<string, any> {
+    switch (type) {
+      case 'services': return { icon: 'design_services', title: `Service ${index + 1}`, text: 'Add a short description of this service.', url: '#' };
+      case 'testimonial': return { name: `Customer ${index + 1}`, role: 'Verified customer', rating: 5, quote: 'Add your customer review here.', image: '' };
+      case 'pricing': return { name: `Plan ${index + 1}`, price: '₹999', oldPrice: '', period: '/month', features: 'Feature one\nFeature two\nFeature three', badge: '', cta: 'Choose Plan', url: '#' };
+      case 'faq': return { q: `Question ${index + 1}`, a: 'Add your answer here.' };
+      case 'stats': return { icon: 'monitoring', value: '100+', prefix: '', suffix: '', label: `Metric ${index + 1}`, text: '' };
+      case 'tabs': return { title: `Tab ${index + 1}`, text: 'Add tab content here.', image: '' };
+      case 'timeline': return { title: `Step ${index + 1}`, text: 'Describe this step.', icon: 'radio_button_checked' };
+      case 'team': return { name: `Team Member ${index + 1}`, role: 'Team', bio: '', image: '', facebook: '', instagram: '', linkedin: '', x: '' };
+      case 'button': return { label: `Button ${index + 1}`, url: '#', target: '_self', icon: '' };
+      case 'icon': return { materialIcon: 'star', label: `Icon ${index + 1}`, url: '#' };
+      case 'social': return { platform: 'facebook', url: '#', label: 'Facebook' };
+      case 'navbar': return { label: `Menu ${index + 1}`, url: '#', icon: '', target: '_self' };
+      case 'product': return { name: `Product ${index + 1}`, price: '₹499', oldPrice: '', badge: '', description: 'Short product description.', image: '', cta: 'Buy Now', url: '#', rating: 5 };
+      case 'offer': return { badge: 'LIMITED OFFER', title: `Offer ${index + 1}`, discount: '20% OFF', description: 'Offer valid for a limited time.', cta: 'Unlock Offer', url: '#', image: '' };
+      case 'contact': return { platform: 'whatsapp', label: 'WhatsApp', url: '#' };
+      case 'floating': return { icon: 'chat', label: `Action ${index + 1}`, url: '#' };
+      case 'counter': return { start: 0, end: 100, prefix: '', suffix: '+', label: `Counter ${index + 1}`, duration: 1600 };
+      case 'chart': return { label: `Item ${index + 1}`, value: 50 };
+      case 'rating': return { label: 'Your rating', max: 5 };
+      default: return { label: `Item ${index + 1}` };
+    }
+  }
+
   applyPresetToBlock(block: EditorBlock, variant: string): void {
     const fresh = this.createBlock(block.type, variant);
     block.content = { ...block.content, variant };
@@ -983,6 +1083,147 @@ export class BraintechnoEditorComponent implements OnChanges, OnDestroy {
     this.commitChange();
   }
 
+  openBlockImagePicker(
+    block: EditorBlock,
+    contentKey: string,
+    title = 'Choose image',
+    mediaIdKey = `${contentKey}MediaId`
+  ): void {
+    this.mediaPickerTarget = {
+      kind: 'block-content',
+      block,
+      contentKey,
+      mediaIdKey
+    };
+    this.mediaPickerMultiple = false;
+    this.mediaPickerTitle = title;
+    const currentId = block.content[mediaIdKey];
+    this.mediaPickerSelectedIds = currentId === undefined || currentId === null || currentId === '' ? [] : [currentId];
+    this.mediaPickerMaxSelection = 1;
+    this.mediaPickerOpen = true;
+  }
+
+  openRepeatImagePicker(
+    block: EditorBlock,
+    item: Record<string, any>,
+    title = 'Choose image'
+  ): void {
+    this.mediaPickerTarget = {
+      kind: 'repeat-item',
+      block,
+      item
+    };
+    this.mediaPickerMultiple = false;
+    this.mediaPickerTitle = title;
+    const currentId = item['mediaId'];
+    this.mediaPickerSelectedIds = currentId === undefined || currentId === null || currentId === '' ? [] : [currentId];
+    this.mediaPickerMaxSelection = 1;
+    this.mediaPickerOpen = true;
+  }
+
+  openGalleryPicker(
+    block: EditorBlock,
+    title = 'Choose images',
+    maxSelection = 16
+  ): void {
+    this.mediaPickerTarget = {
+      kind: 'gallery',
+      block
+    };
+    this.mediaPickerMultiple = true;
+    this.mediaPickerTitle = title;
+    this.mediaPickerSelectedIds = Array.isArray(block.content['mediaIds'])
+      ? [...block.content['mediaIds']]
+      : [];
+    this.mediaPickerMaxSelection = maxSelection;
+    this.mediaPickerOpen = true;
+  }
+
+  openBackgroundImagePicker(block: EditorBlock): void {
+    this.mediaPickerTarget = {
+      kind: 'background',
+      block
+    };
+    this.mediaPickerMultiple = false;
+    this.mediaPickerTitle = 'Choose background image';
+    const currentId = block.style['backgroundMediaId'];
+    this.mediaPickerSelectedIds = currentId === undefined || currentId === null || currentId === '' ? [] : [currentId];
+    this.mediaPickerMaxSelection = 1;
+    this.mediaPickerOpen = true;
+  }
+
+  closeMediaPicker(): void {
+    this.mediaPickerOpen = false;
+    this.mediaPickerTarget = null;
+    this.mediaPickerSelectedIds = [];
+    this.mediaPickerMultiple = false;
+    this.mediaPickerMaxSelection = 0;
+  }
+
+  onMediaPickerSelected(items: MediaLibraryItem[]): void {
+    const target = this.mediaPickerTarget;
+    if (!target || !items.length) {
+      this.closeMediaPicker();
+      return;
+    }
+
+    this.pushHistory();
+
+    if (target.kind === 'block-content') {
+      const item = items[0];
+      const contentKey = target.contentKey || 'url';
+      const mediaIdKey = target.mediaIdKey || `${contentKey}MediaId`;
+      target.block.content[contentKey] = item.url;
+      target.block.content[mediaIdKey] = item.id;
+      if (target.block.type === 'image' && !target.block.content['alt']) {
+        target.block.content['alt'] = item.altText || item.originalName || '';
+      }
+    }
+
+    if (target.kind === 'repeat-item' && target.item) {
+      const item = items[0];
+      target.item['image'] = item.url;
+      target.item['mediaId'] = item.id;
+    }
+
+    if (target.kind === 'gallery') {
+      target.block.content['images'] = items.map(item => item.url);
+      target.block.content['mediaIds'] = items.map(item => item.id);
+      target.block.content['imagesText'] = target.block.content['images'].join('\n');
+    }
+
+    if (target.kind === 'background') {
+      const item = items[0];
+      target.block.style['backgroundImage'] = item.url;
+      target.block.style['backgroundMediaId'] = item.id;
+      if (target.block.style['backgroundType'] === 'color') {
+        target.block.style['backgroundType'] = 'image';
+      }
+      if (target.block.style['backgroundType'] === 'gradient') {
+        target.block.style['backgroundType'] = 'gradient-image';
+      }
+    }
+
+    this.commitChange();
+    this.closeMediaPicker();
+  }
+
+  removeBlockImage(block: EditorBlock, contentKey: string, mediaIdKey = `${contentKey}MediaId`): void {
+    if (!block.content[contentKey]) return;
+    this.pushHistory();
+    block.content[contentKey] = '';
+    block.content[mediaIdKey] = null;
+    this.commitChange();
+  }
+
+  removeRepeatImage(block: EditorBlock, item: Record<string, any>): void {
+    if (!item['image']) return;
+    this.pushHistory();
+    item['image'] = '';
+    item['mediaId'] = null;
+    this.commitChange();
+  }
+
   updateGalleryImages(block: EditorBlock): void {
     const text = String(block.content['imagesText'] || '');
     block.content['images'] = text.split('\n').map(value => value.trim()).filter(Boolean);
@@ -1037,6 +1278,7 @@ export class BraintechnoEditorComponent implements OnChanges, OnDestroy {
   clearBackgroundImage(block: EditorBlock): void {
     this.pushHistory();
     block.style['backgroundImage'] = '';
+    block.style['backgroundMediaId'] = null;
     if (block.style['backgroundType'] === 'image') block.style['backgroundType'] = 'color';
     if (block.style['backgroundType'] === 'gradient-image') block.style['backgroundType'] = 'gradient';
     this.commitChange();
@@ -1065,7 +1307,10 @@ export class BraintechnoEditorComponent implements OnChanges, OnDestroy {
     if (index < 0 || index >= images.length) return;
     this.pushHistory();
     images.splice(index, 1);
+    const mediaIds = Array.isArray(block.content['mediaIds']) ? [...block.content['mediaIds']] : [];
+    if (index < mediaIds.length) mediaIds.splice(index, 1);
     block.content['images'] = images;
+    block.content['mediaIds'] = mediaIds;
     block.content['imagesText'] = images.join('\n');
     this.commitChange();
   }
@@ -1396,19 +1641,19 @@ export class BraintechnoEditorComponent implements OnChanges, OnDestroy {
           'icon-left': { buttonBg: '#111827', buttonText: '#FFFFFF', radius: 12, icon: 'arrow_forward' },
           danger: { buttonBg: '#DC2626', buttonText: '#FFFFFF', radius: 10 }
         };
-        return { ...base, content: { variant, label: 'Contact Us', url: '#', target: '_self' }, style: { ...base.style, align: 'center', fontSize: 15, ...styleMap[variant] } };
+        return { ...base, content: { variant, label: 'Contact Us', url: '#', target: '_self', items: [{ label: 'Contact Us', url: '#', target: '_self', icon: '' }] }, style: { ...base.style, align: 'center', fontSize: 15, ...styleMap[variant] } };
       }
       case 'icon': {
         return {
           ...base,
-          content: { variant, materialIcon: 'star', label: variant === 'icon-label' ? 'Popular service' : '' },
+          content: { variant, materialIcon: 'star', label: variant === 'icon-label' ? 'Popular service' : '', url: '#', items: [{ materialIcon: 'star', label: variant === 'icon-label' ? 'Popular service' : '', url: '#' }] },
           style: { ...base.style, align: 'center', iconSize: variant === 'large' ? 64 : 36, iconColor: '#FF4D6D', iconBg: variant === 'plain' ? 'transparent' : '#FFF1F4', radius: variant === 'square' ? 14 : 999 }
         };
       }
       case 'social': {
         return {
           ...base,
-          content: { variant, facebook: '#', instagram: '#', youtube: '#', linkedin: '#', x: '', whatsapp: '' },
+          content: { variant, facebook: '#', instagram: '#', youtube: '#', linkedin: '#', x: '', whatsapp: '', items: [{ platform: 'facebook', url: '#', label: 'Facebook' }] },
           style: { ...base.style, align: variant === 'center' ? 'center' : 'left', background: variant === 'dark' ? '#0F172A' : '#FFFFFF', color: variant === 'dark' ? '#FFFFFF' : '#0F172A', radius: 14 }
         };
       }
@@ -1424,7 +1669,10 @@ export class BraintechnoEditorComponent implements OnChanges, OnDestroy {
             description: 'Short product description that explains the main benefit.',
             image: '',
             cta: 'Buy Now',
-            url: '#'
+            url: '#',
+            layout: variant === 'horizontal' ? 'list' : 'grid',
+            slider: false,
+            items: [{ name: 'Product Name', price: '₹499', oldPrice: variant === 'sale' ? '₹699' : '', badge: variant === 'sale' ? 'SAVE 29%' : '', description: 'Short product description that explains the main benefit.', image: '', cta: 'Buy Now', url: '#', rating: 5 }]
           },
           style: { ...base.style, background: variant === 'dark' ? '#0F172A' : '#FFFFFF', color: variant === 'dark' ? '#FFFFFF' : '#0F172A', radius: variant === 'luxury' ? 4 : 16, padding: 18 }
         };
@@ -1433,7 +1681,7 @@ export class BraintechnoEditorComponent implements OnChanges, OnDestroy {
         const dark = variant === 'dark';
         return {
           ...base,
-          content: { variant, badge: variant === 'flash' ? 'FLASH DEAL' : 'LIMITED OFFER', title: 'Special Offer', discount: '20% OFF', description: 'Offer valid for a limited time.', cta: 'Unlock Offer', url: '#' },
+          content: { variant, badge: variant === 'flash' ? 'FLASH DEAL' : 'LIMITED OFFER', title: 'Special Offer', discount: '20% OFF', description: 'Offer valid for a limited time.', cta: 'Unlock Offer', url: '#', items: [{ badge: variant === 'flash' ? 'FLASH DEAL' : 'LIMITED OFFER', title: 'Special Offer', discount: '20% OFF', description: 'Offer valid for a limited time.', cta: 'Unlock Offer', url: '#', image: '' }] },
           style: { ...base.style, background: dark ? '#0F172A' : '#FFF7F8', color: dark ? '#FFFFFF' : '#0F172A', accent: '#FF4D6D', align: variant === 'center' ? 'center' : 'left', radius: 18 }
         };
       }
@@ -1453,12 +1701,21 @@ export class BraintechnoEditorComponent implements OnChanges, OnDestroy {
       case 'form': {
         return {
           ...base,
-          content: { variant, title: variant === 'newsletter' ? 'Join our newsletter' : variant === 'appointment' ? 'Book an appointment' : variant === 'quote' ? 'Get a free quote' : 'Get in touch', subtitle: 'Send your details and we will contact you.', submitLabel: variant === 'newsletter' ? 'Subscribe' : variant === 'appointment' ? 'Request Appointment' : 'Send Enquiry', submitUrl: '/api/leads' },
+          content: {
+            variant,
+            title: variant === 'newsletter' ? 'Join our newsletter' : variant === 'appointment' ? 'Book an appointment' : variant === 'quote' ? 'Get a free quote' : 'Get in touch',
+            subtitle: 'Send your details and we will contact you.',
+            fields: [this.formFieldTemplate('text', 0), this.formFieldTemplate('email', 1), this.formFieldTemplate('phone', 2), this.formFieldTemplate('textarea', 3)],
+            submitLabel: variant === 'newsletter' ? 'Subscribe' : variant === 'appointment' ? 'Request Appointment' : 'Send Enquiry',
+            submitUrl: '/campaignForm/accountId',
+            successMessage: 'Thank You For your Response',
+            errorMessage: 'Something went wrong. Please try again.'
+          },
           style: { ...base.style, background: variant === 'dark' ? '#0F172A' : variant === 'soft' ? '#F8FAFC' : '#FFFFFF', color: variant === 'dark' ? '#FFFFFF' : '#0F172A', align: variant === 'center' ? 'center' : 'left', radius: 16 }
         };
       }
       case 'contact': {
-        return { ...base, content: { variant, phone: '+91 99999 99999', email: 'hello@example.com', address: 'Your business address', hours: 'Mon - Sat: 10 AM - 8 PM' }, style: { ...base.style, background: variant === 'dark' ? '#0F172A' : variant === 'soft' ? '#F8FAFC' : '#FFFFFF', color: variant === 'dark' ? '#FFFFFF' : '#0F172A', align: variant === 'center' ? 'center' : 'left', radius: 16 } };
+        return { ...base, content: { variant, phone: '+91 99999 99999', email: 'hello@example.com', address: 'Your business address', hours: 'Mon - Sat: 10 AM - 8 PM', actions: [{ platform: 'whatsapp', label: 'WhatsApp', url: '#' }, { platform: 'instagram', label: 'Instagram', url: '#' }, { platform: 'facebook', label: 'Facebook', url: '#' }] }, style: { ...base.style, background: variant === 'dark' ? '#0F172A' : variant === 'soft' ? '#F8FAFC' : '#FFFFFF', color: variant === 'dark' ? '#FFFFFF' : '#0F172A', align: variant === 'center' ? 'center' : 'left', radius: 16 } };
       }
       case 'whatsapp': {
         return { ...base, content: { variant, phone: '919999999999', message: 'Hello, I want to know more.', label: 'Chat on WhatsApp' }, style: { ...base.style, align: 'center', buttonBg: variant === 'dark' ? '#0F172A' : '#22C55E', buttonText: '#FFFFFF', radius: variant === 'pill' || variant === 'floating' ? 999 : 12, fullWidth: variant === 'full' } };
@@ -1468,7 +1725,7 @@ export class BraintechnoEditorComponent implements OnChanges, OnDestroy {
         return { ...base, content: { variant, url: 'https://www.google.com/maps?q=Kolkata&output=embed', height, title: 'Our location' }, style: { ...base.style, padding: variant === 'flush' ? 0 : 16, radius: variant === 'rounded' || variant === 'card' ? 18 : 10, background: variant === 'dark' ? '#0F172A' : '#FFFFFF' } };
       }
       case 'scanner': {
-        return { ...base, content: { variant, title: variant === 'barcode' ? 'Scan barcode' : 'Scan QR code', buttonLabel: 'Start scanner', successLabel: 'Scanned value', formats: variant === 'barcode' ? 'code_128,ean_13,ean_8,upc_a,upc_e' : 'qr_code' }, style: { ...base.style, background: variant === 'dark' ? '#0F172A' : '#FFFFFF', color: variant === 'dark' ? '#FFFFFF' : '#0F172A', align: 'center', radius: 16 } };
+        return { ...base, content: { variant, title: variant === 'barcode' ? 'Scan barcode' : 'Scan QR code', successLabel: 'Scanned value', formats: variant === 'barcode' ? 'code_128,ean_13,ean_8,upc_a,upc_e' : 'qr_code' }, style: { ...base.style, background: variant === 'dark' ? '#0F172A' : '#FFFFFF', color: variant === 'dark' ? '#FFFFFF' : '#0F172A', align: 'center', radius: 16 } };
       }
       case 'timer': {
         const tomorrow = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString().slice(0, 16);
@@ -1476,17 +1733,20 @@ export class BraintechnoEditorComponent implements OnChanges, OnDestroy {
       }
       case 'counter': {
         const percentage = variant === 'percentage';
-        return { ...base, content: { variant, start: 0, end: percentage ? 98 : 100, prefix: variant === 'money' ? '₹' : '', suffix: percentage ? '%' : '+', label: percentage ? 'Customer satisfaction' : 'Completed projects', duration: 1600 }, style: { ...base.style, background: variant === 'dark' ? '#0F172A' : variant === 'soft' ? '#F8FAFC' : '#FFFFFF', color: variant === 'dark' ? '#FFFFFF' : '#0F172A', accent: '#FF4D6D', align: 'center', radius: 16 } };
+        return { ...base, content: { variant, start: 0, end: percentage ? 98 : 100, prefix: variant === 'money' ? '₹' : '', suffix: percentage ? '%' : '+', label: percentage ? 'Customer satisfaction' : 'Completed projects', duration: 1600, items: [{ start: 0, end: percentage ? 98 : 100, prefix: variant === 'money' ? '₹' : '', suffix: percentage ? '%' : '+', label: percentage ? 'Customer satisfaction' : 'Completed projects', duration: 1600 }] }, style: { ...base.style, background: variant === 'dark' ? '#0F172A' : variant === 'soft' ? '#F8FAFC' : '#FFFFFF', color: variant === 'dark' ? '#FFFFFF' : '#0F172A', accent: '#FF4D6D', align: 'center', radius: 16 } };
+      }
+      case 'rating': {
+        return { ...base, content: { variant, title: 'Rate your experience', text: 'Your feedback helps us improve.', max: 5, submitUrl: '/rating/accountId', submitLabel: 'Submit Rating', successMessage: 'Thank You For your Rating', allowComment: true, commentPlaceholder: 'Write a comment (optional)' }, style: { ...base.style, background: '#FFFFFF', color: '#0F172A', accent: '#F59E0B', align: 'center', radius: 16, padding: 24 } };
       }
       case 'chart': {
-        return { ...base, content: { variant, title: 'Performance', data: 'Jan:35, Feb:52, Mar:48, Apr:76, May:68' }, style: { ...base.style, background: variant === 'dark' ? '#0F172A' : '#FFFFFF', color: variant === 'dark' ? '#FFFFFF' : '#0F172A', accent: '#FF4D6D', radius: 16, padding: 22 } };
+        return { ...base, content: { variant, title: 'Performance', chartType: variant === 'pie' ? 'pie' : variant === 'line' ? 'line' : 'bar', data: 'Jan:35, Feb:52, Mar:48, Apr:76, May:68', items: [{ label: 'Jan', value: 35 }, { label: 'Feb', value: 52 }, { label: 'Mar', value: 48 }, { label: 'Apr', value: 76 }, { label: 'May', value: 68 }], showLegend: true, showValues: true }, style: { ...base.style, background: variant === 'dark' ? '#0F172A' : '#FFFFFF', color: variant === 'dark' ? '#FFFFFF' : '#0F172A', accent: '#FF4D6D', radius: 16, padding: 22 } };
       }
       case 'media': {
         return { ...base, content: { variant, title: 'Your Media', files: [] as MediaItem[] }, style: { ...base.style, background: '#FFFFFF', radius: 16, padding: 18 } };
       }
 
       case 'navbar': {
-        return { ...base, content: { variant, brand: 'BRAIN TECHNO', links: 'Home, Services, About, Contact', cta: 'Get Started', ctaUrl: '#' }, style: { ...base.style, background: variant === 'dark' ? '#0F172A' : '#FFFFFF', color: variant === 'dark' ? '#FFFFFF' : '#0F172A', padding: variant === 'compact' ? 12 : 18, radius: 0 } };
+        return { ...base, content: { variant, brand: 'BRAIN TECHNO', logo: '', links: 'Home, Services, About, Contact', menuItems: [{ label: 'Home', url: '#', icon: 'home', target: '_self' }, { label: 'Services', url: '#services', icon: 'design_services', target: '_self' }, { label: 'About', url: '#about', icon: 'info', target: '_self' }, { label: 'Contact', url: '#contact', icon: 'contact_mail', target: '_self' }], cta: 'Get Started', ctaUrl: '#', showIcons: false, mobileMenu: true }, style: { ...base.style, background: variant === 'dark' ? '#0F172A' : '#FFFFFF', color: variant === 'dark' ? '#FFFFFF' : '#0F172A', padding: variant === 'compact' ? 12 : 18, radius: 0 } };
       }
       case 'hero': {
         return { ...base, content: { variant, eyebrow: 'WELCOME', title: 'Build a stronger online presence', text: 'Use this section to explain your value clearly and guide visitors to the next action.', primary: 'Get Started', primaryUrl: '#', secondary: 'Learn More', secondaryUrl: '#', image: '' }, style: { ...base.style, background: variant === 'dark' ? '#0F172A' : '#FFFFFF', color: variant === 'dark' ? '#FFFFFF' : '#0F172A', padding: 48, radius: 18, align: variant === 'centered' ? 'center' : 'left', gradientFrom: '#FFF1F4', gradientTo: '#EEF2FF', backgroundType: variant === 'gradient' ? 'gradient' : 'color' } };
@@ -1497,28 +1757,28 @@ export class BraintechnoEditorComponent implements OnChanges, OnDestroy {
       }
       case 'testimonial': {
         const count = variant === 'three' ? 3 : 1;
-        return { ...base, content: { variant, title: 'What customers say', items: Array.from({ length: count }, (_, i) => ({ name: `Customer ${i+1}`, role: 'Verified customer', rating: 5, quote: 'A great experience from start to finish. Add your customer review here.' })) }, style: { ...base.style, background: variant === 'dark' ? '#0F172A' : '#FFFFFF', color: variant === 'dark' ? '#FFFFFF' : '#0F172A', columns: count, gap: 12, radius: 16 } };
+        return { ...base, content: { variant, title: 'What customers say', items: Array.from({ length: count }, (_, i) => ({ name: `Customer ${i+1}`, role: 'Verified customer', rating: 5, quote: 'A great experience from start to finish. Add your customer review here.', image: '' })) }, style: { ...base.style, background: variant === 'dark' ? '#0F172A' : '#FFFFFF', color: variant === 'dark' ? '#FFFFFF' : '#0F172A', columns: count, gap: 12, radius: 16 } };
       }
       case 'pricing': {
         const count = variant === 'single' ? 1 : variant === 'two' ? 2 : 3;
         return { ...base, content: { variant, title: 'Simple pricing', plans: Array.from({ length: count }, (_, i) => ({ name: ['Starter','Business','Premium'][i] || `Plan ${i+1}`, price: ['₹999','₹1,999','₹3,999'][i] || '₹999', period: '/month', features: 'Feature one\nFeature two\nFeature three', cta: 'Choose Plan' })) }, style: { ...base.style, background: variant === 'dark' ? '#0F172A' : '#FFFFFF', color: variant === 'dark' ? '#FFFFFF' : '#0F172A', columns: count, gap: 12, radius: 16 } };
       }
       case 'faq': {
-        return { ...base, content: { variant, title: 'Frequently asked questions', items: [ { q: 'What do you offer?', a: 'Add your answer here.' }, { q: 'How does it work?', a: 'Explain the process clearly.' }, { q: 'How can I contact you?', a: 'Add your contact guidance here.' } ] }, style: { ...base.style, background: variant === 'dark' ? '#0F172A' : '#FFFFFF', color: variant === 'dark' ? '#FFFFFF' : '#0F172A', radius: 16 } };
+        return { ...base, content: { variant, title: 'Frequently asked questions', items: [ { q: 'What do you offer?', a: 'Add your answer here.' } ] }, style: { ...base.style, background: variant === 'dark' ? '#0F172A' : '#FFFFFF', color: variant === 'dark' ? '#FFFFFF' : '#0F172A', radius: 16 } };
       }
       case 'stats': {
         const count = variant === 'three' ? 3 : 4;
         return { ...base, content: { variant, title: 'Our impact', items: Array.from({ length: count }, (_, i) => ({ value: ['100+','98%','10+','24/7'][i] || '100+', label: ['Projects','Satisfaction','Years','Support'][i] || `Metric ${i+1}` })) }, style: { ...base.style, background: variant === 'dark' ? '#0F172A' : '#FFFFFF', color: variant === 'dark' ? '#FFFFFF' : '#0F172A', columns: count, gap: 12, radius: 16, accent: '#FF4D6D' } };
       }
       case 'tabs': {
-        return { ...base, content: { variant, active: 0, items: [ { title: 'Overview', text: 'Add overview content here.' }, { title: 'Features', text: 'Add feature details here.' }, { title: 'Details', text: 'Add detailed content here.' } ] }, style: { ...base.style, background: variant === 'dark' ? '#0F172A' : '#FFFFFF', color: variant === 'dark' ? '#FFFFFF' : '#0F172A', radius: 16, accent: '#FF4D6D' } };
+        return { ...base, content: { variant, active: 0, items: [ { title: 'Overview', text: 'Add overview content here.', image: '' }, { title: 'Features', text: 'Add feature details here.', image: '' }, { title: 'Details', text: 'Add detailed content here.', image: '' } ] }, style: { ...base.style, background: variant === 'dark' ? '#0F172A' : '#FFFFFF', color: variant === 'dark' ? '#FFFFFF' : '#0F172A', radius: 16, accent: '#FF4D6D' } };
       }
       case 'timeline': {
         return { ...base, content: { variant, title: 'How it works', items: [ { title: 'Discover', text: 'Tell us what you need.' }, { title: 'Plan', text: 'We prepare the right approach.' }, { title: 'Deliver', text: 'Launch and improve.' } ] }, style: { ...base.style, background: variant === 'dark' ? '#0F172A' : '#FFFFFF', color: variant === 'dark' ? '#FFFFFF' : '#0F172A', radius: 16, accent: '#FF4D6D' } };
       }
       case 'team': {
         const count = variant === 'four' ? 4 : variant === 'two' ? 2 : 3;
-        return { ...base, content: { variant, title: 'Meet the team', items: Array.from({ length: count }, (_, i) => ({ name: `Team Member ${i+1}`, role: ['Founder','Designer','Specialist','Support'][i] || 'Team', image: '' })) }, style: { ...base.style, background: variant === 'dark' ? '#0F172A' : '#FFFFFF', color: variant === 'dark' ? '#FFFFFF' : '#0F172A', columns: count, gap: 12, radius: 16 } };
+        return { ...base, content: { variant, title: 'Meet the team', items: Array.from({ length: count }, (_, i) => ({ name: `Team Member ${i+1}`, role: ['Founder','Designer','Specialist','Support'][i] || 'Team', bio: '', image: '', facebook: '', instagram: '', linkedin: '', x: '' })) }, style: { ...base.style, background: variant === 'dark' ? '#0F172A' : '#FFFFFF', color: variant === 'dark' ? '#FFFFFF' : '#0F172A', columns: count, gap: 12, radius: 16 } };
       }
       case 'footer': {
         return { ...base, content: { variant, brand: 'BRAIN TECHNO', text: 'Technology made simple.', links: 'About, Services, Contact, Privacy', phone: '+91 99999 99999', email: 'hello@example.com', copyright: '© 2026 BRAIN TECHNO. All rights reserved.' }, style: { ...base.style, background: variant === 'dark' || variant === 'business' ? '#0F172A' : '#F8FAFC', color: variant === 'dark' || variant === 'business' ? '#FFFFFF' : '#0F172A', padding: 32, radius: 0 } };
@@ -1528,7 +1788,7 @@ export class BraintechnoEditorComponent implements OnChanges, OnDestroy {
       }
       case 'floating': {
         const icon = variant === 'call' ? 'call' : variant === 'email' ? 'mail' : variant === 'top' ? 'arrow_upward' : variant === 'book' ? 'calendar_month' : 'chat';
-        return { ...base, content: { variant, label: variant === 'top' ? 'Back to top' : variant === 'call' ? 'Call now' : variant === 'email' ? 'Email us' : variant === 'book' ? 'Book now' : 'WhatsApp', url: variant === 'call' ? 'tel:+919999999999' : variant === 'email' ? 'mailto:hello@example.com' : '#', icon }, style: { ...base.style, background: '#FF4D6D', color: '#FFFFFF', radius: 999, padding: 12, align: 'right' } };
+        return { ...base, content: { variant, label: variant === 'top' ? 'Back to top' : variant === 'call' ? 'Call now' : variant === 'email' ? 'Email us' : variant === 'book' ? 'Book now' : 'WhatsApp', url: variant === 'call' ? 'tel:+919999999999' : variant === 'email' ? 'mailto:hello@example.com' : '#', icon, items: [{ icon, label: variant === 'top' ? 'Back to top' : variant === 'call' ? 'Call now' : variant === 'email' ? 'Email us' : variant === 'book' ? 'Book now' : 'WhatsApp', url: variant === 'call' ? 'tel:+919999999999' : variant === 'email' ? 'mailto:hello@example.com' : '#' }] }, style: { ...base.style, background: '#FF4D6D', color: '#FFFFFF', radius: 999, padding: 12, align: 'right' } };
       }
       case 'divider': {
         const map: Record<string, any> = {
@@ -1832,17 +2092,34 @@ export class BraintechnoEditorComponent implements OnChanges, OnDestroy {
     };
   }
 
+  private renderFormField(field: Record<string, any>): string {
+    const type = String(field['type'] || 'text');
+    const name = this.attr(field['name'] || field['id'] || 'field');
+    const label = this.escape(field['label'] || 'Field');
+    const placeholder = this.attr(field['placeholder'] || '');
+    const required = field['required'] ? ' required' : '';
+    const width = field['width'] === 'half' ? 'half' : field['width'] === 'third' ? 'third' : 'full';
+    const options = String(field['options'] || '').split('\n').map((x:string)=>x.trim()).filter(Boolean);
+    let control = '';
+    if (type === 'textarea') control = `<textarea name="${name}" rows="4" placeholder="${placeholder}"${required}></textarea>`;
+    else if (type === 'select') control = `<select name="${name}"${required}><option value="">Select...</option>${options.map((x:string)=>`<option value="${this.attr(x)}">${this.escape(x)}</option>`).join('')}</select>`;
+    else if (type === 'radio') control = `<div class="bt-choice-list">${options.map((x:string,i:number)=>`<label><input type="radio" name="${name}" value="${this.attr(x)}"${required && i===0 ? ' required' : ''}> <span>${this.escape(x)}</span></label>`).join('')}</div>`;
+    else if (type === 'checkbox') control = `<label class="bt-choice"><input type="checkbox" name="${name}" value="yes"${required}> <span>${label}</span></label>`;
+    else { const htmlType = type === 'phone' ? 'tel' : type === 'datetime' ? 'datetime-local' : ['email','number','date','time'].includes(type) ? type : 'text'; control = `<input type="${htmlType}" name="${name}" placeholder="${placeholder}"${required}>`; }
+    return `<div class="bt-form-field bt-form-field--${width}">${type === 'checkbox' ? '' : `<label>${label}${required ? ' *' : ''}</label>`}${control}</div>`;
+  }
+
   private buildHtml(design: EditorDesign): string {
     const pageBg = design.body.values.backgroundColor || '#F5F7FA';
     const width = design.body.values.contentWidth || '760px';
     const sections = design.body.rows.map(block => this.renderBlock(block)).join('');
-    return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>BRAIN TECHNO</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400,0,0" rel="stylesheet"><style>html,body{margin:0;padding:0;background:${this.attr(pageBg)};font-family:Inter,'Noto Sans Bengali',Arial,sans-serif;color:#0F172A}*{box-sizing:border-box}.bt-page{width:100%;padding:24px 12px}.bt-container{max-width:${this.attr(width)};margin:0 auto}.bt-img{max-width:100%;display:block}.bt-btn{display:inline-block;text-decoration:none}.bt-grid{display:grid}.bt-card{border:1px solid #E2E8F0;overflow:hidden}.bt-muted{color:#64748B}.bt-form input,.bt-form textarea,.bt-form select{width:100%;padding:12px;border:1px solid #E2E8F0;border-radius:10px;margin:5px 0 10px;font:inherit}.bt-form button{border:0;cursor:pointer}.material-symbols-rounded{font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24}.bt-social{display:flex;gap:10px;flex-wrap:wrap}.bt-social a{display:inline-flex;align-items:center;justify-content:center;text-decoration:none}.bt-slider{position:relative;overflow:hidden}.bt-slider img{width:100%;height:100%;object-fit:cover;display:none}.bt-slider img.is-active{display:block}.bt-timer-units{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}.bt-timer-unit{min-width:72px;padding:12px;border:1px solid #E2E8F0;border-radius:12px}.bt-chart-bars{display:flex;align-items:flex-end;gap:10px;height:180px}.bt-chart-bar{flex:1;min-width:0;text-align:center}.bt-chart-bar i{display:block;width:100%;background:#FF4D6D;border-radius:8px 8px 3px 3px}.bt-media-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px}.bt-tabs>button{border:0;background:transparent;padding:10px 14px;font:inherit;font-weight:700;cursor:pointer;border-bottom:2px solid transparent}.bt-tabs>button.is-active{color:#FF4D6D;border-bottom-color:#FF4D6D}@media(max-width:600px){.bt-page{padding:12px 8px}.bt-responsive-grid{grid-template-columns:1fr!important}}</style></head><body><main class="bt-page"><div class="bt-container">${sections}</div></main>${this.exportRuntimeScript()}</body></html>`;
+    return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>BRAIN TECHNO</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400,0,0" rel="stylesheet"><style>html,body{margin:0;padding:0;background:${this.attr(pageBg)};font-family:Inter,'Noto Sans Bengali',Arial,sans-serif;color:#0F172A}*{box-sizing:border-box}.bt-page{width:100%;padding:24px 12px}.bt-container{max-width:${this.attr(width)};margin:0 auto}.bt-img{max-width:100%;display:block}.bt-btn{display:inline-block;text-decoration:none}.bt-grid{display:grid}.bt-card{border:1px solid #E2E8F0;overflow:hidden}.bt-muted{color:#64748B}.bt-form input,.bt-form textarea,.bt-form select{width:100%;padding:12px;border:1px solid #E2E8F0;border-radius:10px;margin:5px 0 10px;font:inherit}.bt-form-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:0 12px}.bt-form-field--full{grid-column:span 6}.bt-form-field--half{grid-column:span 3}.bt-form-field--third{grid-column:span 2}.bt-choice-list{display:grid;gap:8px;margin:7px 0 12px}.bt-choice-list label,.bt-choice{display:flex;gap:8px;align-items:center}.bt-choice-list input,.bt-choice input{width:auto;margin:0}.bt-rating-stars{display:flex;justify-content:center;gap:4px;margin:8px 0 16px;flex-direction:row-reverse}.bt-rating-stars input{position:absolute;opacity:0;pointer-events:none}.bt-rating-stars span{font-size:38px;color:#CBD5E1;cursor:pointer}.bt-rating-stars label:hover span,.bt-rating-stars label:hover~label span,.bt-rating-stars input:checked~span,.bt-rating-stars label:has(input:checked)~label span{color:#F59E0B}.bt-powered{max-width:760px;margin:0 auto;padding:18px 12px 28px;text-align:center;font-size:12px;font-weight:700;letter-spacing:.04em;color:#64748B}.bt-form button{border:0;cursor:pointer}.material-symbols-rounded{font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24}.bt-social{display:flex;gap:10px;flex-wrap:wrap}.bt-social a{display:inline-flex;align-items:center;justify-content:center;text-decoration:none}.bt-slider{position:relative;overflow:hidden}.bt-slider img{width:100%;height:100%;object-fit:cover;display:none}.bt-slider img.is-active{display:block}.bt-timer-units{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}.bt-timer-unit{min-width:72px;padding:12px;border:1px solid #E2E8F0;border-radius:12px}.bt-chart-bars{display:flex;align-items:flex-end;gap:10px;height:180px}.bt-chart-bar{flex:1;min-width:0;text-align:center}.bt-chart-bar i{display:block;width:100%;background:#FF4D6D;border-radius:8px 8px 3px 3px}.bt-media-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px}.bt-tabs>button{border:0;background:transparent;padding:10px 14px;font:inherit;font-weight:700;cursor:pointer;border-bottom:2px solid transparent}.bt-tabs>button.is-active{color:#FF4D6D;border-bottom-color:#FF4D6D}@media(max-width:600px){.bt-page{padding:12px 8px}.bt-responsive-grid{grid-template-columns:1fr!important}.bt-form-field--half,.bt-form-field--third{grid-column:span 6}}</style></head><body><main class="bt-page"><div class="bt-container">${sections}</div></main><footer class="bt-powered">Proudly Powered by BRAIN TECHNO</footer>${this.exportRuntimeScript()}</body></html>`;
   }
 
   private renderBlock(block: EditorBlock): string {
     const c = block.content || {};
     const s = block.style || {};
-    const common = `${this.exportBackgroundStyle(s)}padding:${this.cssPx(s.padding, 24)};margin-top:${this.cssPx(s.marginTop, 0)};margin-bottom:${this.cssPx(s.marginBottom, 0)};text-align:${this.css(s.align, 'left')};border-radius:${this.cssPx(s.radius, 0)};color:${this.css(s.color, '#0F172A')};border:${Number(s.borderWidth)||0}px ${this.css(s.borderStyle,'solid')} ${this.css(s.borderColor,'#E2E8F0')};box-shadow:${this.shadowCss(s.shadow)};`;
+    const common = `${this.exportBackgroundStyle(s)}padding:${this.cssPx(s.padding, 24)};margin-top:${this.cssPx(s.marginTop, 0)};margin-bottom:${this.cssPx(s.marginBottom, 0)};text-align:${this.css(s.align, 'left')};border-radius:${this.cssPx(s.radius, 0)};color:${this.css(s.color, '#0F172A')};border:${Number(s.borderWidth)||0}px ${this.css(s.borderStyle,'solid')} ${this.css(s.borderColor,'#E2E8F0')};box-shadow:${this.shadowCss(s.shadow)};font-family:${this.css(s.fontFamily, 'Inter,Arial,sans-serif')};font-style:${this.css(s.fontStyle,'normal')};letter-spacing:${Number(s.letterSpacing)||0}px;text-decoration:${s.underline?'underline ':''}${s.strike?'line-through':''};`;
 
     switch (block.type) {
       case 'section': {
@@ -1900,38 +2177,33 @@ export class BraintechnoEditorComponent implements OnChanges, OnDestroy {
       case 'button': {
         const fullWidth = !!s.fullWidth;
         const shadow = s.shadow ? 'box-shadow:0 8px 18px rgba(15,23,42,.14);' : '';
-        return `<section style="${common}"><a class="bt-btn" href="${this.attr(c.url || '#')}" target="${this.attr(c.target || '_self')}" style="display:${fullWidth ? 'block' : 'inline-flex'};align-items:center;justify-content:center;gap:8px;width:${fullWidth ? '100%' : 'auto'};text-align:center;background:${this.css(s.buttonBg, '#FF4D6D')};color:${this.css(s.buttonText, '#FFFFFF')};border:${Number(s.borderWidth) || 0}px solid ${this.css(s.borderColor, '#FF4D6D')};padding:13px 22px;border-radius:${this.cssPx(s.radius, 10)};font-weight:700;font-size:${this.cssPx(s.fontSize, 15)};${shadow}">${s.icon ? `<span class="material-symbols-rounded">${this.escape(s.icon)}</span>` : ''}${this.escape(c.label)}</a></section>`;
+        const items = Array.isArray(c.items) && c.items.length ? c.items : [{ label: c.label, url: c.url, target: c.target, icon: s.icon || '' }];
+        return `<section style="${common}"><div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:${s.align === 'center' ? 'center' : s.align === 'right' ? 'flex-end' : 'flex-start'}">${items.map((item:any)=>`<a class="bt-btn" href="${this.attr(item.url || '#')}" target="${this.attr(item.target || '_self')}" style="display:${fullWidth ? 'flex' : 'inline-flex'};align-items:center;justify-content:center;gap:8px;${fullWidth ? 'flex:1 1 100%;' : ''}text-align:center;background:${this.css(s.buttonBg, '#FF4D6D')};color:${this.css(s.buttonText, '#FFFFFF')};border:${Number(s.borderWidth) || 0}px solid ${this.css(s.borderColor, '#FF4D6D')};padding:13px 22px;border-radius:${this.cssPx(s.radius, 10)};font-weight:700;font-size:${this.cssPx(s.fontSize, 15)};${shadow}">${item.icon ? `<span class="material-symbols-rounded">${this.escape(item.icon)}</span>` : ''}${this.escape(item.label || 'Button')}</a>`).join('')}</div></section>`;
       }
       case 'icon': {
-        return `<section style="${common}"><div style="display:inline-flex;flex-direction:column;align-items:center;gap:8px"><span class="material-symbols-rounded" style="display:inline-flex;align-items:center;justify-content:center;width:${this.cssPx(Number(s.iconSize) + 24, 60)};height:${this.cssPx(Number(s.iconSize) + 24, 60)};font-size:${this.cssPx(s.iconSize, 36)};color:${this.css(s.iconColor, '#FF4D6D')};background:${this.css(s.iconBg, 'transparent')};border-radius:${this.cssPx(s.radius, 999)}">${this.escape(c.materialIcon || 'star')}</span>${c.label ? `<strong>${this.escape(c.label)}</strong>` : ''}</div></section>`;
+        const items = Array.isArray(c.items) && c.items.length ? c.items : [{ materialIcon: c.materialIcon, label: c.label, url: c.url || '#' }];
+        return `<section style="${common}"><div style="display:flex;gap:14px;flex-wrap:wrap;justify-content:${s.align === 'center' ? 'center' : s.align === 'right' ? 'flex-end' : 'flex-start'}">${items.map((item:any)=>`<a href="${this.attr(item.url || '#')}" style="display:inline-flex;flex-direction:column;align-items:center;gap:8px;text-decoration:none;color:inherit"><span class="material-symbols-rounded" style="display:inline-flex;align-items:center;justify-content:center;width:${this.cssPx(Number(s.iconSize) + 24, 60)};height:${this.cssPx(Number(s.iconSize) + 24, 60)};font-size:${this.cssPx(s.iconSize, 36)};color:${this.css(s.iconColor, '#FF4D6D')};background:${this.css(s.iconBg, 'transparent')};border-radius:${this.cssPx(s.radius, 999)}">${this.escape(item.materialIcon || 'star')}</span>${item.label ? `<strong>${this.escape(item.label)}</strong>` : ''}</a>`).join('')}</div></section>`;
       }
       case 'social': {
         const items = this.socialItems(c);
         return `<section style="${common}"><div class="bt-social" style="justify-content:${s.align === 'center' ? 'center' : s.align === 'right' ? 'flex-end' : 'flex-start'}">${items.map(item => `<a href="${this.attr(item.url)}" target="_blank" rel="noopener" aria-label="${this.attr(item.label)}" style="min-width:42px;height:42px;padding:0 12px;border:1px solid #E2E8F0;border-radius:${c.variant === 'circles' || c.variant === 'minimal' ? '999px' : '10px'};color:${this.css(s.color, '#0F172A')};background:${c.variant === 'dark' ? '#1E293B' : '#FFFFFF'}"><span class="material-symbols-rounded" style="margin-right:${c.variant === 'pills' ? '6px' : '0'}">${item.icon}</span>${c.variant === 'pills' ? this.escape(item.label) : ''}</a>`).join('')}</div></section>`;
       }
       case 'product': {
-        const variant = String(c.variant || 'classic');
-        const dark = variant === 'dark';
-        const horizontal = variant === 'horizontal' || variant === 'catalog';
-        const centered = variant === 'centered';
-        const minimal = variant === 'minimal' || variant === 'quick-buy';
-        const sale = variant === 'sale';
-        const cardBg = dark ? '#0F172A' : '#FFFFFF';
-        const textColor = dark ? '#FFFFFF' : '#0F172A';
-        const muted = dark ? '#CBD5E1' : '#64748B';
-        const layout = horizontal ? 'display:grid;grid-template-columns:42% 58%;' : 'display:block;';
-        const imageStyle = horizontal ? 'width:100%;height:100%;min-height:210px;object-fit:cover;' : `width:100%;height:${minimal ? '180px' : variant === 'featured' ? '380px' : '260px'};object-fit:cover;`;
-        const badge = sale && c.badge ? `<span style="display:inline-block;margin-bottom:8px;padding:5px 9px;border-radius:999px;background:#FFF0F3;color:#E11D48;font-size:11px;font-weight:800">${this.escape(c.badge)}</span>` : '';
-        const oldPrice = c.oldPrice ? `<span style="margin-left:8px;color:${muted};text-decoration:line-through;font-size:14px">${this.escape(c.oldPrice)}</span>` : '';
-        return `<section style="${common}"><div class="bt-card" style="${layout}background:${cardBg};color:${textColor};border-radius:${this.cssPx(s.radius, 16)};overflow:hidden;${centered ? 'text-align:center;' : ''}">${c.image ? `<img class="bt-img" src="${this.attr(c.image)}" alt="${this.attr(c.name)}" style="${imageStyle}">` : `<div style="${imageStyle}display:grid;place-items:center;background:#D1D5DB;color:#6B7280;font-weight:700">Image</div>`}<div style="padding:${minimal ? '14px' : '20px'}">${badge}<h3 style="margin:0 0 7px;font-size:${minimal ? '18px' : '22px'}">${this.escape(c.name)}</h3><div style="margin-bottom:8px"><strong style="font-size:20px">${this.escape(c.price)}</strong>${oldPrice}</div><p style="margin:0 0 16px;line-height:1.6;color:${muted}">${this.nl2br(this.escape(c.description))}</p><a class="bt-btn" href="${this.attr(c.url || '#')}" style="background:#FF4D6D;color:#FFFFFF;padding:11px 18px;border-radius:10px;font-weight:700">${this.escape(c.cta || 'Buy Now')}</a></div></div></section>`;
+        const items = Array.isArray(c.items) && c.items.length ? c.items : [c];
+        const wrap = c.slider ? 'display:flex;overflow-x:auto;scroll-snap-type:x mandatory;' : `display:grid;grid-template-columns:repeat(${Math.min(items.length,3)},minmax(0,1fr));`;
+        return `<section style="${common}"><div style="${wrap}gap:14px">${items.map((x:any)=>`<article style="${c.slider?'min-width:min(320px,82vw);scroll-snap-align:start;':''}padding:18px;border:1px solid #E2E8F0;border-radius:16px">${x.image?`<img src="${this.attr(x.image)}" alt="" style="width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:12px">`:`<div style="aspect-ratio:1/1;background:#E5E7EB;border-radius:12px;display:grid;place-items:center;color:#64748B">Product image</div>`}<h3>${this.escape(x.name)}</h3><strong style="font-size:22px">${this.escape(x.price)}</strong>${x.oldPrice?` <del style="opacity:.55">${this.escape(x.oldPrice)}</del>`:''}<p style="opacity:.72">${this.escape(x.description||'')}</p><a class="bt-btn" href="${this.attr(x.url||'#')}" style="background:#FF4D6D;color:#fff;padding:10px 14px;border-radius:10px;font-weight:800">${this.escape(x.cta||'Buy Now')}</a></article>`).join('')}</div></section>`;
       }
       case 'offer': {
-        return `<section style="${common}"><div style="border:1px solid #FFD1D9;border-radius:${this.cssPx(s.radius, 18)};padding:24px;background:${this.css(s.background, '#FFF7F8')}"><small style="font-weight:800;color:${this.css(s.accent, '#FF4D6D')}">${this.escape(c.badge)}</small><h2 style="margin:8px 0;font-size:30px">${this.escape(c.title)}</h2><div style="font-size:36px;font-weight:900;color:${this.css(s.accent, '#FF4D6D')}">${this.escape(c.discount)}</div><p style="color:${this.css(s.color, '#475569')}">${this.escape(c.description)}</p><a class="bt-btn" href="${this.attr(c.url || '#')}" style="background:${this.css(s.accent, '#FF4D6D')};color:#FFFFFF;padding:12px 20px;border-radius:10px;font-weight:800">${this.escape(c.cta || 'Unlock Offer')}</a></div></section>`;
+        const items = Array.isArray(c.items) && c.items.length ? c.items : [c];
+        return `<section style="${common}"><div class="bt-grid bt-responsive-grid" style="grid-template-columns:repeat(${Math.min(items.length,3)},minmax(0,1fr));gap:14px">${items.map((x:any)=>`<article style="padding:22px;border:1px solid #FFD1D9;border-radius:18px"><small style="font-weight:900;color:#FF4D6D">${this.escape(x.badge||'')}</small><h3>${this.escape(x.title)}</h3><strong style="display:block;font-size:32px;color:#FF4D6D">${this.escape(x.discount)}</strong><p>${this.escape(x.description)}</p><a class="bt-btn" href="${this.attr(x.url||'#')}" style="background:#FF4D6D;color:#fff;padding:10px 14px;border-radius:10px;font-weight:800">${this.escape(x.cta||'View offer')}</a></article>`).join('')}</div></section>`;
       }
       case 'html':
         return `<section style="${common}">${String(c.html || '')}</section>`;
-      case 'form':
-        return `<section style="${common}"><form class="bt-form" action="${this.attr(c.submitUrl || '/api/leads')}" method="post"><h3 style="margin:0 0 6px">${this.escape(c.title || 'Get in touch')}</h3><p class="bt-muted" style="margin-top:0">${this.escape(c.subtitle || '')}</p><label>Name</label><input name="name" placeholder="Your name" required><label>Mobile / WhatsApp</label><input name="phone" placeholder="Your mobile number" required><label>Email</label><input name="email" type="email" placeholder="Your email"><label>Message</label><textarea name="message" rows="4" placeholder="Your message"></textarea><button type="submit" style="background:#FF4D6D;color:#FFFFFF;padding:12px 20px;border-radius:10px;font-weight:800">${this.escape(c.submitLabel || 'Send Enquiry')}</button></form></section>`;
+      case 'form': {
+        const fields = Array.isArray(c.fields) ? c.fields : [];
+        const fieldHtml = fields.map((field:any) => this.renderFormField(field)).join('');
+        return `<section style="${common}"><form class="bt-form bt-campaign-form" data-bt-campaign-form action="${this.attr(c.submitUrl || '/campaignForm/accountId')}" method="post" data-success="${this.attr(c.successMessage || 'Thank You For your Response')}" data-error="${this.attr(c.errorMessage || 'Something went wrong. Please try again.')}"><h3 style="margin:0 0 6px">${this.escape(c.title || 'Get in touch')}</h3><p class="bt-muted" style="margin-top:0">${this.escape(c.subtitle || '')}</p><div class="bt-form-grid">${fieldHtml}</div><button type="submit" style="background:#FF4D6D;color:#FFFFFF;padding:12px 20px;border-radius:10px;font-weight:800">${this.escape(c.submitLabel || 'Send Enquiry')}</button><p data-form-message style="display:none;margin:12px 0 0;font-weight:700"></p></form></section>`;
+      }
       case 'contact':
         return `<section style="${common}"><div><h3 style="margin:0 0 12px">Contact</h3><p style="margin:6px 0"><span class="material-symbols-rounded" style="font-size:18px;vertical-align:middle">call</span> <a href="tel:${this.attr(String(c.phone || '').replace(/\s+/g, ''))}" style="color:inherit;text-decoration:none">${this.escape(c.phone)}</a></p><p style="margin:6px 0"><span class="material-symbols-rounded" style="font-size:18px;vertical-align:middle">mail</span> <a href="mailto:${this.attr(c.email)}" style="color:inherit;text-decoration:none">${this.escape(c.email)}</a></p><p style="margin:6px 0"><span class="material-symbols-rounded" style="font-size:18px;vertical-align:middle">location_on</span> ${this.escape(c.address)}</p><p style="margin:6px 0"><span class="material-symbols-rounded" style="font-size:18px;vertical-align:middle">schedule</span> ${this.escape(c.hours)}</p></div></section>`;
       case 'whatsapp': {
@@ -1943,15 +2215,19 @@ export class BraintechnoEditorComponent implements OnChanges, OnDestroy {
         return `<section style="${common}">${c.title && c.variant === 'office' ? `<h3 style="margin:0 0 12px">${this.escape(c.title)}</h3>` : ''}<iframe title="Business location" src="${this.attr(c.url)}" style="width:100%;height:${this.cssPx(c.height, 300)};border:0;border-radius:${this.cssPx(s.radius, 10)}" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></section>`;
       case 'scanner': {
         const id = `scan-${this.safeDomId(block.id)}`;
-        return `<section style="${common}" id="${id}" data-bt-scanner data-formats="${this.attr(c.formats || 'qr_code')}"><span class="material-symbols-rounded" style="font-size:52px;color:#FF4D6D">qr_code_scanner</span><h3>${this.escape(c.title || 'Scan code')}</h3><button type="button" data-scan-start style="border:0;background:#0F172A;color:#fff;padding:12px 18px;border-radius:10px;font-weight:700;cursor:pointer">${this.escape(c.buttonLabel || 'Start scanner')}</button><video data-scan-video playsinline muted style="display:none;width:100%;max-width:420px;margin:14px auto;border-radius:12px"></video><p data-scan-result style="margin:12px 0 0"></p></section>`;
+        return `<section style="${common}" id="${id}" data-bt-scanner data-formats="${this.attr(c.formats || 'qr_code')}"><span class="material-symbols-rounded" style="font-size:52px;color:#FF4D6D">qr_code_scanner</span><h3>${this.escape(c.title || 'Scan code')}</h3><video data-scan-video playsinline muted style="width:100%;max-width:420px;margin:14px auto;border-radius:12px;background:#0F172A"></video><p data-scan-result style="margin:12px 0 0">Point the camera at a QR or barcode.</p></section>`;
       }
       case 'timer': {
         const id = `timer-${this.safeDomId(block.id)}`;
         return `<section id="${id}" data-bt-timer data-target="${this.attr(c.target)}" data-expired="${this.attr(c.expiredText || 'Ended')}" style="${common}"><h3 style="margin:0 0 14px">${this.escape(c.title || 'Countdown')}</h3><div class="bt-timer-units"><div class="bt-timer-unit"><strong data-days>00</strong><small style="display:block">Days</small></div><div class="bt-timer-unit"><strong data-hours>00</strong><small style="display:block">Hours</small></div><div class="bt-timer-unit"><strong data-minutes>00</strong><small style="display:block">Minutes</small></div><div class="bt-timer-unit"><strong data-seconds>00</strong><small style="display:block">Seconds</small></div></div><p data-expired-label style="display:none;margin:12px 0 0"></p></section>`;
       }
       case 'counter': {
-        const id = `counter-${this.safeDomId(block.id)}`;
-        return `<section id="${id}" data-bt-counter data-start="${Number(c.start) || 0}" data-end="${Number(c.end) || 0}" data-duration="${Number(c.duration) || 1600}" data-prefix="${this.attr(c.prefix || '')}" data-suffix="${this.attr(c.suffix || '')}" style="${common}"><div data-counter-value style="font-size:44px;font-weight:900;color:${this.css(s.accent, '#FF4D6D')}">${this.escape(c.prefix || '')}${this.escape(c.end)}${this.escape(c.suffix || '')}</div><p style="margin:6px 0 0">${this.escape(c.label || '')}</p></section>`;
+        const items = Array.isArray(c.items) && c.items.length ? c.items : [{ start:c.start,end:c.end,prefix:c.prefix,suffix:c.suffix,label:c.label,duration:c.duration }];
+        return `<section style="${common}"><div class="bt-grid bt-responsive-grid" style="grid-template-columns:repeat(${Math.min(4, Math.max(1, items.length))},1fr);gap:12px">${items.map((item:any,index:number)=>`<div id="counter-${this.safeDomId(block.id)}-${index}" data-bt-counter data-start="${Number(item.start) || 0}" data-end="${Number(item.end) || 0}" data-duration="${Number(item.duration) || 1600}" data-prefix="${this.attr(item.prefix || '')}" data-suffix="${this.attr(item.suffix || '')}" style="padding:14px;text-align:center"><div data-counter-value style="font-size:44px;font-weight:900;color:${this.css(s.accent, '#FF4D6D')}">${this.escape(item.prefix || '')}${this.escape(item.end)}${this.escape(item.suffix || '')}</div><p style="margin:6px 0 0">${this.escape(item.label || '')}</p></div>`).join('')}</div></section>`;
+      }
+      case 'rating': {
+        const max = Math.max(1, Math.min(10, Number(c.max) || 5));
+        return `<section style="${common}"><form class="bt-rating" data-bt-rating action="${this.attr(c.submitUrl || '/rating/accountId')}" method="post" data-success="${this.attr(c.successMessage || 'Thank You For your Rating')}"><h3 style="margin:0 0 6px">${this.escape(c.title || 'Rate your experience')}</h3><p style="margin:0 0 16px;opacity:.72">${this.escape(c.text || '')}</p><div class="bt-rating-stars">${Array.from({length:max},(_,i)=>`<label><input type="radio" name="rating" value="${i+1}" ${i===max-1?'required':''}><span>★</span></label>`).join('')}</div>${c.allowComment !== false ? `<textarea name="comment" rows="3" placeholder="${this.attr(c.commentPlaceholder || 'Write a comment (optional)')}"></textarea>` : ''}<button type="submit" style="border:0;background:#0F172A;color:#fff;padding:11px 18px;border-radius:10px;font-weight:800">${this.escape(c.submitLabel || 'Submit Rating')}</button><p data-rating-message style="display:none;margin:12px 0 0;font-weight:700"></p></form></section>`;
       }
       case 'chart': {
         const data = this.chartData(block);
@@ -1972,8 +2248,9 @@ export class BraintechnoEditorComponent implements OnChanges, OnDestroy {
       }
 
       case 'navbar': {
-        const links = String(c.links || '').split(',').map((x:string)=>x.trim()).filter(Boolean);
-        return `<nav style="${common}display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap"><strong style="font-size:20px">${this.escape(c.brand)}</strong><div style="display:flex;gap:16px;flex-wrap:wrap">${links.map((x:string)=>`<a href="#" style="color:inherit;text-decoration:none">${this.escape(x)}</a>`).join('')}</div><a class="bt-btn" href="${this.attr(c.ctaUrl||'#')}" style="background:#FF4D6D;color:#fff;padding:10px 16px;border-radius:10px;font-weight:700">${this.escape(c.cta||'Get Started')}</a></nav>`;
+        const menuItems = Array.isArray(c.menuItems) && c.menuItems.length ? c.menuItems : String(c.links || '').split(',').map((x:string)=>({label:x.trim(),url:'#',icon:'',target:'_self'})).filter((x:any)=>x.label);
+        const brand = c.logo ? `<span style="display:flex;align-items:center;gap:10px"><img src="${this.attr(c.logo)}" alt="" style="width:38px;height:38px;object-fit:contain;border-radius:9px"><strong style="font-size:20px">${this.escape(c.brand)}</strong></span>` : `<strong style="font-size:20px">${this.escape(c.brand)}</strong>`;
+        return `<nav style="${common}display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap">${brand}<div style="display:flex;gap:16px;flex-wrap:wrap">${menuItems.map((x:any)=>`<a href="${this.attr(x.url||'#')}" target="${this.attr(x.target||'_self')}" style="color:inherit;text-decoration:none;display:inline-flex;gap:6px;align-items:center">${c.showIcons&&x.icon?`<span class="material-symbols-rounded" style="font-size:18px">${this.escape(x.icon)}</span>`:''}${this.escape(x.label)}</a>`).join('')}</div><a class="bt-btn" href="${this.attr(c.ctaUrl||'#')}" style="background:#FF4D6D;color:#fff;padding:10px 16px;border-radius:10px;font-weight:700">${this.escape(c.cta||'Get Started')}</a></nav>`;
       }
       case 'hero': {
         const img = String(c.image||'').trim();
@@ -2021,7 +2298,8 @@ export class BraintechnoEditorComponent implements OnChanges, OnDestroy {
         return `<section style="${common}"><div style="max-width:520px;margin:auto;border:1px solid #E2E8F0;border-radius:18px;padding:26px;background:inherit"><small style="font-weight:800;color:#FF4D6D">POPUP PREVIEW</small><h2>${this.escape(c.title)}</h2><p style="line-height:1.7;opacity:.78">${this.escape(c.text)}</p><a class="bt-btn" href="${this.attr(c.url||'#')}" style="background:#FF4D6D;color:#fff;padding:11px 18px;border-radius:10px;font-weight:700">${this.escape(c.cta)}</a></div></section>`;
       }
       case 'floating': {
-        return `<section style="${common}"><a class="bt-btn" href="${this.attr(c.url||'#')}" style="display:inline-flex;align-items:center;gap:8px;background:#FF4D6D;color:#fff;padding:12px 18px;border-radius:999px;font-weight:800"><span class="material-symbols-rounded">${this.escape(c.icon||'chat')}</span>${this.escape(c.label)}</a></section>`;
+        const items = Array.isArray(c.items) && c.items.length ? c.items : [c];
+        return `<section style="${common}"><div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end">${items.map((x:any)=>`<a class="bt-btn" href="${this.attr(x.url||'#')}" style="display:inline-flex;align-items:center;gap:7px;background:#FF4D6D;color:#fff;padding:9px 13px;border-radius:999px;font-weight:800;font-size:13px"><span class="material-symbols-rounded" style="font-size:19px">${this.escape(x.icon||'chat')}</span>${this.escape(x.label||'Action')}</a>`).join('')}</div></section>`;
       }
       case 'divider': {
         const width = s.short ? '72px' : '100%';
@@ -2040,11 +2318,21 @@ export class BraintechnoEditorComponent implements OnChanges, OnDestroy {
       document.querySelectorAll('[data-bt-timer]').forEach(function(root){var target=new Date(root.getAttribute('data-target')||'').getTime();function tick(){var diff=target-Date.now();if(!isFinite(target)||diff<=0){['days','hours','minutes','seconds'].forEach(function(k){var n=root.querySelector('[data-'+k+']');if(n)n.textContent='00';});var e=root.querySelector('[data-expired-label]');if(e){e.style.display='block';e.textContent=root.getAttribute('data-expired')||'Ended';}return;}var d=Math.floor(diff/86400000),h=Math.floor(diff/3600000)%24,m=Math.floor(diff/60000)%60,s=Math.floor(diff/1000)%60;[['days',d],['hours',h],['minutes',m],['seconds',s]].forEach(function(p){var n=root.querySelector('[data-'+p[0]+']');if(n)n.textContent=String(p[1]).padStart(2,'0');});}tick();setInterval(tick,1000);});
       document.querySelectorAll('[data-bt-counter]').forEach(function(root){var el=root.querySelector('[data-counter-value]');if(!el)return;var start=Number(root.getAttribute('data-start'))||0,end=Number(root.getAttribute('data-end'))||0,dur=Number(root.getAttribute('data-duration'))||1600,prefix=root.getAttribute('data-prefix')||'',suffix=root.getAttribute('data-suffix')||'';var begun=false;function run(){if(begun)return;begun=true;var t0=performance.now();function step(t){var p=Math.min(1,(t-t0)/dur);var v=Math.round(start+(end-start)*(1-Math.pow(1-p,3)));el.textContent=prefix+v+suffix;if(p<1)requestAnimationFrame(step);}requestAnimationFrame(step);}if('IntersectionObserver'in window){new IntersectionObserver(function(entries,obs){if(entries.some(function(e){return e.isIntersecting;})){run();obs.disconnect();}}).observe(root);}else run();});
       document.querySelectorAll('[data-bt-tabs]').forEach(function(root){var buttons=[].slice.call(root.querySelectorAll('[data-tab-btn]'));var panels=[].slice.call(root.querySelectorAll('[data-tab-panel]'));buttons.forEach(function(btn){btn.addEventListener('click',function(){var i=btn.getAttribute('data-tab-btn');buttons.forEach(function(b){b.classList.toggle('is-active',b===btn);});panels.forEach(function(p){p.style.display=p.getAttribute('data-tab-panel')===i?'block':'none';});});});});
-      document.querySelectorAll('[data-bt-scanner]').forEach(function(root){var btn=root.querySelector('[data-scan-start]'),video=root.querySelector('[data-scan-video]'),result=root.querySelector('[data-scan-result]');if(!btn||!video||!result)return;btn.addEventListener('click',async function(){if(!('BarcodeDetector'in window)||!navigator.mediaDevices){result.textContent='Scanner is not supported in this browser.';return;}try{var formats=(root.getAttribute('data-formats')||'qr_code').split(',');var detector=new BarcodeDetector({formats:formats});var stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});video.srcObject=stream;video.style.display='block';await video.play();var stopped=false;async function scan(){if(stopped)return;try{var codes=await detector.detect(video);if(codes&&codes[0]){result.textContent=codes[0].rawValue||'';stopped=true;stream.getTracks().forEach(function(t){t.stop();});video.style.display='none';return;}}catch(e){}requestAnimationFrame(scan);}scan();}catch(e){result.textContent='Camera permission or scanner unavailable.';}});});
+      document.querySelectorAll('[data-bt-scanner]').forEach(function(root){var video=root.querySelector('[data-scan-video]'),result=root.querySelector('[data-scan-result]');if(!video||!result)return;var started=false;async function start(){if(started)return;started=true;if(!('BarcodeDetector'in window)||!navigator.mediaDevices){result.textContent='Scanner is not supported in this browser.';return;}try{var formats=(root.getAttribute('data-formats')||'qr_code').split(',');var detector=new BarcodeDetector({formats:formats});var stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});video.srcObject=stream;await video.play();var stopped=false;async function scan(){if(stopped)return;try{var codes=await detector.detect(video);if(codes&&codes[0]){result.textContent=codes[0].rawValue||'';stopped=true;stream.getTracks().forEach(function(t){t.stop();});return;}}catch(e){}requestAnimationFrame(scan);}scan();}catch(e){started=false;result.textContent='Camera permission or scanner unavailable. Tap this scanner area to retry.';}}root.addEventListener('click',start);if('IntersectionObserver'in window){new IntersectionObserver(function(entries,obs){if(entries.some(function(e){return e.isIntersecting;})){start();obs.disconnect();}}).observe(root);}});
     })();</script>`;
   }
 
   private socialItems(content: Record<string, any>): Array<{ label: string; url: string; icon: string }> {
+    const iconMap: Record<string, string> = {
+      facebook: 'public', instagram: 'photo_camera', youtube: 'smart_display', linkedin: 'work',
+      telegram: 'send', x: 'alternate_email', whatsapp: 'chat', website: 'language', github: 'code', tiktok: 'music_note'
+    };
+    const dynamic = Array.isArray(content['items']) ? content['items'] : [];
+    if (dynamic.length) {
+      return dynamic
+        .filter((item: any) => String(item?.url || '').trim())
+        .map((item: any) => ({ label: String(item?.label || item?.platform || 'Link'), url: String(item.url), icon: iconMap[String(item?.platform || '').toLowerCase()] || 'link' }));
+    }
     const all = [
       { key: 'facebook', label: 'Facebook', icon: 'public' },
       { key: 'instagram', label: 'Instagram', icon: 'photo_camera' },
@@ -2053,7 +2341,7 @@ export class BraintechnoEditorComponent implements OnChanges, OnDestroy {
       { key: 'x', label: 'X', icon: 'alternate_email' },
       { key: 'whatsapp', label: 'WhatsApp', icon: 'chat' }
     ];
-    return all.filter(item => String(content[item.key] || '').trim()).map(item => ({ ...item, url: String(content[item.key]) }));
+    return all.filter(item => String(content[item.key] || '').trim()).map(item => ({ label: item.label, url: String(content[item.key]), icon: item.icon }));
   }
 
   private nestedContext(): { parent: EditorBlock; slot: EditorBlock[]; index: number } | null {

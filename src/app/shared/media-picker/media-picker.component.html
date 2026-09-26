@@ -1,0 +1,176 @@
+@if (open) {
+  <div
+    class="bt-media-picker-backdrop"
+    role="presentation"
+    (click)="onBackdropClick($event)"
+  >
+    <section
+      class="bt-media-picker"
+      role="dialog"
+      aria-modal="true"
+      [attr.aria-label]="title"
+    >
+      <header class="bt-media-picker__header">
+        <div>
+          <p class="bt-media-picker__eyebrow">Media library</p>
+          <h2>{{ title }}</h2>
+          <p class="bt-media-picker__account">
+            Your account images
+            @if (accountId()) {
+              <span>· {{ accountId() }}</span>
+            }
+          </p>
+        </div>
+
+        <button
+          type="button"
+          mat-icon-button
+          aria-label="Close media picker"
+          [disabled]="uploading()"
+          (click)="close()"
+        >
+          <mat-icon>close</mat-icon>
+        </button>
+      </header>
+
+      <div class="bt-media-picker__toolbar">
+        <label class="bt-media-picker__search">
+          <mat-icon>search</mat-icon>
+          <input
+            type="search"
+            placeholder="Search your images"
+            [ngModel]="search()"
+            (ngModelChange)="onSearch($event)"
+          />
+        </label>
+
+        <input
+          #fileInput
+          class="bt-media-picker__file-input"
+          type="file"
+          accept="image/*"
+          (change)="onFileInput($event)"
+        />
+
+        <button
+          type="button"
+          class="bt-media-picker__upload-button"
+          [disabled]="uploading()"
+          (click)="openFileDialog(fileInput)"
+        >
+          @if (uploading()) {
+            <mat-spinner diameter="18"></mat-spinner>
+            Uploading...
+          } @else {
+            <mat-icon>add_photo_alternate</mat-icon>
+            Upload new
+          }
+        </button>
+      </div>
+
+      <div
+        class="bt-media-picker__dropzone"
+        [class.is-drag-active]="dragActive()"
+        (dragover)="onDragOver($event)"
+        (dragleave)="onDragLeave($event)"
+        (drop)="onDrop($event)"
+      >
+        <mat-icon>cloud_upload</mat-icon>
+        <div>
+          <strong>Drop a new image here</strong>
+          <span>or use Upload new · JPG, PNG, WEBP up to 10 MB</span>
+        </div>
+      </div>
+
+      <div class="bt-media-picker__content">
+        @if (loading()) {
+          <div class="bt-media-picker__state">
+            <mat-spinner diameter="34"></mat-spinner>
+            <p>Loading your gallery...</p>
+          </div>
+        } @else if (filteredItems().length === 0) {
+          <div class="bt-media-picker__state bt-media-picker__state--empty">
+            <mat-icon>photo_library</mat-icon>
+            <h3>No images found</h3>
+            <p>
+              Upload your first image. Once uploaded, it stays in your account gallery for reuse.
+            </p>
+            <button
+              type="button"
+              class="bt-media-picker__empty-upload"
+              (click)="openFileDialog(fileInput)"
+            >
+              <mat-icon>add</mat-icon>
+              Add image
+            </button>
+          </div>
+        } @else {
+          <div class="bt-media-picker__grid">
+            @for (item of filteredItems(); track item.id) {
+              <button
+                type="button"
+                class="bt-media-card"
+                [class.is-selected]="isSelected(item)"
+                (click)="toggle(item)"
+              >
+                <span class="bt-media-card__image-wrap">
+                  <img
+                    [src]="item.url"
+                    [alt]="item.altText || item.originalName || 'Gallery image'"
+                    loading="lazy"
+                  />
+
+                  @if (isSelected(item)) {
+                    <span class="bt-media-card__check">
+                      <mat-icon>check</mat-icon>
+                    </span>
+                  }
+                </span>
+
+                <span class="bt-media-card__meta">
+                  <strong [title]="item.originalName">
+                    {{ item.originalName || item.fileName }}
+                  </strong>
+                  <small>
+                    {{ item.width || '—' }} × {{ item.height || '—' }}
+                  </small>
+                </span>
+              </button>
+            }
+          </div>
+        }
+      </div>
+
+      @if (multiple) {
+        <footer class="bt-media-picker__footer">
+          <span>
+            {{ selectedCount() }} selected
+            @if (maxSelection > 0) {
+              · max {{ maxSelection }}
+            }
+          </span>
+
+          <div class="bt-media-picker__footer-actions">
+            <button
+              type="button"
+              class="bt-media-picker__cancel"
+              [disabled]="uploading()"
+              (click)="close()"
+            >
+              Cancel
+            </button>
+
+            <button
+              type="button"
+              class="bt-media-picker__choose"
+              [disabled]="selectedCount() === 0 || uploading()"
+              (click)="confirmSelection()"
+            >
+              Use selected images
+            </button>
+          </div>
+        </footer>
+      }
+    </section>
+  </div>
+}

@@ -5,7 +5,8 @@ import {
   OnChanges,
   OnDestroy,
   Output,
-  SimpleChanges
+  SimpleChanges,
+  inject
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -14,6 +15,7 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { MATERIAL_ICON_CATEGORIES, MATERIAL_ICON_LIST } from '../material-icon-list';
 import { MediaPickerComponent } from '../../../shared/media-picker/media-picker.component';
 import { MediaLibraryItem } from '../../../core/media-library.service';
+import { ElementCatalogService } from '../../../core/element-catalog.service';
 
 interface EditorBlock {
   id: string;
@@ -45,14 +47,6 @@ interface MediaItem {
   dataUrl: string;
 }
 
-interface MediaPickerTarget {
-  kind: 'block-content' | 'repeat-item' | 'gallery' | 'background';
-  block: EditorBlock;
-  contentKey?: string;
-  mediaIdKey?: string;
-  item?: Record<string, any>;
-}
-
 @Component({
   selector: 'bt-braintechno-editor',
   standalone: true,
@@ -67,49 +61,51 @@ export class BraintechnoEditorComponent implements OnChanges, OnDestroy {
 
   constructor(private readonly sanitizer: DomSanitizer) {}
 
+  private readonly catalog = inject(ElementCatalogService);
+
   readonly materialIconCategories = MATERIAL_ICON_CATEGORIES;
   readonly materialIconList = MATERIAL_ICON_LIST;
 
   readonly elements = [
-    { type: 'section', label: 'Section', icon: 'view_agenda' },
+    { type: 'section', label: 'Section', icon: 'view_quilt' },
     { type: 'block', label: 'Block', icon: 'dashboard_customize' },
     { type: 'navbar', label: 'Navbar', icon: 'web_asset' },
-    { type: 'hero', label: 'Hero', icon: 'featured_play_list' },
-    { type: 'services', label: 'Services', icon: 'apps' },
-    { type: 'testimonial', label: 'Testimonial', icon: 'format_quote' },
-    { type: 'pricing', label: 'Pricing', icon: 'payments' },
+    { type: 'hero', label: 'Hero', icon: 'view_day' },
+    { type: 'services', label: 'Services', icon: 'grid_view' },
+    { type: 'testimonial', label: 'Testimonial', icon: 'reviews' },
+    { type: 'pricing', label: 'Pricing', icon: 'price_change' },
     { type: 'faq', label: 'FAQ', icon: 'quiz' },
     { type: 'stats', label: 'Stats', icon: 'monitoring' },
     { type: 'tabs', label: 'Tabs', icon: 'tab' },
     { type: 'timeline', label: 'Timeline', icon: 'timeline' },
     { type: 'team', label: 'Team', icon: 'groups' },
-    { type: 'footer', label: 'Footer', icon: 'vertical_align_bottom' },
-    { type: 'popup', label: 'Popup', icon: 'web_asset_off' },
-    { type: 'floating', label: 'Floating Action', icon: 'ads_click' },
+    { type: 'footer', label: 'Footer', icon: 'bottom_navigation' },
+    { type: 'popup', label: 'Popup', icon: 'open_in_new' },
+    { type: 'floating', label: 'Floating Action', icon: 'touch_app' },
     { type: 'heading', label: 'Heading', icon: 'title' },
-    { type: 'text', label: 'Text', icon: 'subject' },
+    { type: 'text', label: 'Text', icon: 'notes' },
     { type: 'link', label: 'Link URL', icon: 'link' },
     { type: 'image', label: 'Image', icon: 'image' },
     { type: 'video', label: 'Video', icon: 'smart_display' },
     { type: 'slider', label: 'Image Slider', icon: 'view_carousel' },
     { type: 'gallery', label: 'Gallery', icon: 'photo_library' },
     { type: 'button', label: 'Button', icon: 'smart_button' },
-    { type: 'icon', label: 'Icon', icon: 'stars' },
+    { type: 'icon', label: 'Icon', icon: 'interests' },
     { type: 'social', label: 'Social Links', icon: 'share' },
     { type: 'product', label: 'Product', icon: 'inventory_2' },
-    { type: 'offer', label: 'Offer', icon: 'local_offer' },
-    { type: 'ecommerce', label: 'E-commerce', icon: 'shopping_bag' },
+    { type: 'offer', label: 'Offer', icon: 'sell' },
+    { type: 'ecommerce', label: 'E-commerce', icon: 'storefront' },
     { type: 'template', label: 'Templates', icon: 'dashboard' },
     { type: 'html', label: 'HTML', icon: 'code' },
     { type: 'form', label: 'Contact Form', icon: 'dynamic_form' },
-    { type: 'contact', label: 'Contact', icon: 'contact_mail' },
+    { type: 'contact', label: 'Contact', icon: 'contact_phone' },
     { type: 'whatsapp', label: 'WhatsApp', icon: 'chat' },
     { type: 'map', label: 'Map', icon: 'map' },
     { type: 'scanner', label: 'Scanner', icon: 'qr_code_scanner' },
     { type: 'timer', label: 'Timer', icon: 'timer' },
-    { type: 'counter', label: 'Counter', icon: 'pin' },
-    { type: 'rating', label: 'Customer Rating', icon: 'star' },
-    { type: 'chart', label: 'Chart', icon: 'bar_chart' },
+    { type: 'counter', label: 'Counter', icon: '123' },
+    { type: 'rating', label: 'Customer Rating', icon: 'star_rate' },
+    { type: 'chart', label: 'Chart', icon: 'insert_chart' },
     { type: 'media', label: 'Your Media', icon: 'perm_media' },
     { type: 'divider', label: 'Divider', icon: 'horizontal_rule' },
     { type: 'spacer', label: 'Spacer', icon: 'height' }
@@ -404,42 +400,44 @@ export class BraintechnoEditorComponent implements OnChanges, OnDestroy {
     ],
 
     navbar: [
-      { key: 'simple', label: 'Classic', description: 'Logo, menu and CTA', preview: 'Nav' },
-      { key: 'centered', label: 'Centered', description: 'Brand above/centered navigation feel', preview: 'Center' },
-      { key: 'minimal', label: 'Minimal', description: 'Clean lightweight navigation', preview: 'Min' },
-      { key: 'dark', label: 'Dark', description: 'High-contrast dark navigation', preview: 'Dark' },
-      { key: 'sticky', label: 'Sticky', description: 'Sticky published navigation', preview: 'Stick' },
-      { key: 'cta', label: 'CTA Focused', description: 'Strong action-led header', preview: 'CTA' },
-      { key: 'shop', label: 'Store', description: 'Commerce-oriented header', preview: 'Shop' },
-      { key: 'compact', label: 'Compact', description: 'Space-saving app-like header', preview: 'Small' },
-      { key: 'glass', label: 'Glass', description: 'Soft translucent navigation', preview: 'Glass' },
-      { key: 'pill', label: 'Pill Menu', description: 'Rounded floating menu treatment', preview: 'Pill' }
+      { key: 'simple', label: 'Simple Navbar', description: 'Logo, links and CTA', preview: 'Nav' },
+      { key: 'centered', label: 'Centered Menu', description: 'Centered navigation links', preview: 'Center' },
+      { key: 'minimal', label: 'Minimal', description: 'Clean logo and menu', preview: 'Min' },
+      { key: 'dark', label: 'Dark Navbar', description: 'Dark navigation bar', preview: 'Dark' },
+      { key: 'sticky', label: 'Sticky Navbar', description: 'Sticky page navigation', preview: 'Stick' },
+      { key: 'cta', label: 'CTA Navbar', description: 'Strong action button', preview: 'CTA' },
+      { key: 'shop', label: 'Shop Navbar', description: 'Store oriented menu', preview: 'Shop' },
+      { key: 'compact', label: 'Compact Navbar', description: 'Space-saving header', preview: 'Small' },
+      { key: 'mega', label: 'Mega Navbar', description: 'Large navigation with grouped content', preview: 'Mega' }
     ],
     hero: [
-      { key: 'centered', label: 'Centered Hero', description: 'Centered message and actions', preview: 'Hero' },
-      { key: 'split', label: 'Split Visual', description: 'Copy and image side by side', preview: 'Split' },
-      { key: 'image', label: 'Image Focus', description: 'Large visual beside content', preview: 'Image' },
-      { key: 'gradient', label: 'Gradient', description: 'Soft marketing gradient', preview: 'Grad' },
-      { key: 'dark', label: 'Dark', description: 'Bold dark hero section', preview: 'Dark' },
-      { key: 'offer', label: 'Offer', description: 'Promotion-focused hero', preview: 'Sale' },
-      { key: 'minimal', label: 'Minimal', description: 'Editorial whitespace-first hero', preview: 'Min' },
-      { key: 'app', label: 'App / SaaS', description: 'Product launch style hero', preview: 'App' },
-      { key: 'service', label: 'Service Business', description: 'Trust-led service hero', preview: 'Svc' },
-      { key: 'ecommerce', label: 'E-commerce', description: 'Product and offer hero', preview: 'Shop' },
-      { key: 'portfolio', label: 'Portfolio', description: 'Creative personal/agency hero', preview: 'Work' },
-      { key: 'event', label: 'Event', description: 'Event date and registration hero', preview: 'Event' }
+      { key: 'centered', label: 'Centered Hero', description: 'Centered title, text and CTA', preview: 'Hero' },
+      { key: 'split', label: 'Split Hero', description: 'Text and visual side by side', preview: 'Split' },
+      { key: 'image', label: 'Image Hero', description: 'Large gray image placeholder', preview: 'Image' },
+      { key: 'gradient', label: 'Gradient Hero', description: 'Gradient marketing hero', preview: 'Grad' },
+      { key: 'dark', label: 'Dark Hero', description: 'Dark high-contrast hero', preview: 'Dark' },
+      { key: 'offer', label: 'Offer Hero', description: 'Promotion and CTA hero', preview: 'Sale' },
+      { key: 'minimal', label: 'Minimal Hero', description: 'Simple clean hero', preview: 'Min' },
+      { key: 'app', label: 'App Hero', description: 'Product/app launch hero', preview: 'App' },
+      { key: 'saas', label: 'SaaS Split', description: 'Product copy with app visual and dual CTA', preview: 'SaaS' },
+      { key: 'event', label: 'Event Hero', description: 'Event title, date and registration CTA', preview: 'Event' },
+      { key: 'agency', label: 'Agency Hero', description: 'Editorial agency hero with proof points', preview: 'Agency' },
+      { key: 'portfolio', label: 'Portfolio Hero', description: 'Creative profile and featured work layout', preview: 'Work' },
+      { key: 'video', label: 'Video Hero', description: 'Hero with background/feature video', preview: 'Video' }
     ],
     services: [
-      { key: 'three', label: '3 Cards', description: 'Three equal service cards', preview: '3' },
-      { key: 'four', label: '4 Compact', description: 'Four compact services', preview: '4' },
-      { key: 'icons', label: 'Icon Cards', description: 'Icon-led service cards', preview: 'Icon' },
-      { key: 'minimal', label: 'Minimal List', description: 'Clean low-chrome service list', preview: 'List' },
-      { key: 'dark', label: 'Dark Grid', description: 'Premium dark service cards', preview: 'Dark' },
-      { key: 'numbers', label: 'Numbered', description: 'Process-style numbered services', preview: '01' },
-      { key: 'two', label: '2 Wide Cards', description: 'Two wide service cards', preview: '2' },
-      { key: 'soft', label: 'Soft Cards', description: 'Pastel service cards', preview: 'Soft' },
-      { key: 'carousel', label: 'Horizontal Slider', description: 'Scrollable service cards with arrows', preview: 'Slide' },
-      { key: 'feature', label: 'Feature Rows', description: 'Alternating feature-like services', preview: 'Rows' }
+      { key: 'three', label: '3 Services', description: 'Three equal service cards', preview: '3' },
+      { key: 'four', label: '4 Services', description: 'Four compact services', preview: '4' },
+      { key: 'icons', label: 'Icon Services', description: 'Icon-led service cards', preview: 'Icon' },
+      { key: 'minimal', label: 'Minimal List', description: 'Clean service list', preview: 'List' },
+      { key: 'dark', label: 'Dark Services', description: 'Dark service grid', preview: 'Dark' },
+      { key: 'numbers', label: 'Numbered Services', description: 'Numbered process-like services', preview: '01' },
+      { key: 'two', label: '2 Services', description: 'Two wider service cards', preview: '2' },
+      { key: 'soft', label: 'Soft Cards', description: 'Soft background service cards', preview: 'Soft' },
+      { key: 'carousel', label: 'Service Carousel', description: 'Horizontal cards with previous/next navigation', preview: 'Slide' },
+      { key: 'media', label: 'Media Services', description: 'Image-led service cards with CTA', preview: 'Media' },
+      { key: 'showcase', label: 'Service Showcase', description: 'Large featured service plus compact list', preview: 'Show' },
+      { key: 'booking', label: 'Bookable Services', description: 'Service cards with booking actions', preview: 'Book' }
     ],
     testimonial: [
       { key: 'single', label: 'Single Review', description: 'Focused testimonial card', preview: '1' },
@@ -581,8 +579,13 @@ export class BraintechnoEditorComponent implements OnChanges, OnDestroy {
   mediaPickerTitle = 'Choose image';
   mediaPickerSelectedIds: Array<string | number> = [];
   mediaPickerMaxSelection = 0;
+  private mediaTarget?: {
+    record: Record<string, any>;
+    valueField: string;
+    idField: string;
+    multiple: boolean;
+  };
 
-  private mediaPickerTarget: MediaPickerTarget | null = null;
 
   private designTimer?: ReturnType<typeof setTimeout>;
   private history: EditorBlock[][] = [];
@@ -692,13 +695,16 @@ export class BraintechnoEditorComponent implements OnChanges, OnDestroy {
     const preset = this.defaultPreset(type);
     if (type === 'template') {
       this.insertTemplatePreset(preset);
+      this.closePresetPicker();
       return;
     }
     if (type === 'ecommerce') {
       this.insertEcommercePreset(preset);
+      this.closePresetPicker();
       return;
     }
     this.addElement(type, undefined, preset);
+    this.closePresetPicker();
   }
 
   clearElementSearch(): void {
@@ -735,7 +741,19 @@ export class BraintechnoEditorComponent implements OnChanges, OnDestroy {
   }
 
   presetOptions(type: string): ElementPreset[] {
-    return this.presets[type] || [];
+    return (this.presets[type] || []).filter(preset => !this.catalog.isHiddenPreset(preset.key));
+  }
+
+  presetBadge(type: string, key: string): string {
+    return this.catalog.label(type, key);
+  }
+
+  presetTier(type: string, key: string): string {
+    return this.catalog.meta(type, key).tier;
+  }
+
+  canUsePreset(type: string, key: string): boolean {
+    return this.catalog.canUse(type, key);
   }
 
   visiblePresetOptions(type: string): ElementPreset[] {
@@ -765,6 +783,7 @@ export class BraintechnoEditorComponent implements OnChanges, OnDestroy {
   }
 
   addPreset(type: string, preset: string): void {
+    if (!this.canUsePreset(type, preset)) return;
     if (type === 'template') {
       this.insertTemplatePreset(preset);
       return;
@@ -774,6 +793,71 @@ export class BraintechnoEditorComponent implements OnChanges, OnDestroy {
       return;
     }
     this.addElement(type, undefined, preset);
+  }
+
+  openMediaPicker(
+    record: Record<string, any>,
+    valueField: string,
+    idField: string,
+    title = 'Choose image'
+  ): void {
+    this.mediaTarget = { record, valueField, idField, multiple: false };
+    const id = record[idField];
+    this.mediaPickerSelectedIds = id !== undefined && id !== null && id !== '' ? [id] : [];
+    this.mediaPickerMultiple = false;
+    this.mediaPickerMaxSelection = 1;
+    this.mediaPickerTitle = title;
+    this.mediaPickerOpen = true;
+  }
+
+  openMultipleMediaPicker(
+    record: Record<string, any>,
+    valueField: string,
+    idField: string,
+    title = 'Choose images',
+    maxSelection = 0
+  ): void {
+    this.mediaTarget = { record, valueField, idField, multiple: true };
+    this.mediaPickerSelectedIds = Array.isArray(record[idField]) ? [...record[idField]] : [];
+    this.mediaPickerMultiple = true;
+    this.mediaPickerMaxSelection = maxSelection;
+    this.mediaPickerTitle = title;
+    this.mediaPickerOpen = true;
+  }
+
+  closeMediaPicker(): void {
+    this.mediaPickerOpen = false;
+    this.mediaTarget = undefined;
+    this.mediaPickerSelectedIds = [];
+    this.mediaPickerMaxSelection = 0;
+  }
+
+  onMediaPickerSelected(items: MediaLibraryItem[]): void {
+    const target = this.mediaTarget;
+    if (!target || !items.length) return;
+
+    this.pushHistory();
+    if (target.multiple) {
+      target.record[target.valueField] = items.map(item => item.url);
+      target.record[target.idField] = items.map(item => item.id);
+      if ('imagesText' in target.record) {
+        target.record['imagesText'] = items.map(item => item.url).join('\n');
+      }
+    } else {
+      const item = items[0];
+      target.record[target.valueField] = item.url;
+      target.record[target.idField] = item.id;
+    }
+    this.commitChange();
+    this.closeMediaPicker();
+  }
+
+  clearMedia(record: Record<string, any>, valueField: string, idField: string): void {
+    this.pushHistory();
+    record[valueField] = Array.isArray(record[valueField]) ? [] : '';
+    record[idField] = Array.isArray(record[idField]) ? [] : null;
+    if ('imagesText' in record && Array.isArray(record[valueField])) record['imagesText'] = '';
+    this.commitChange();
   }
 
   addElement(type: string, index?: number, preset?: string): void {
@@ -966,19 +1050,19 @@ export class BraintechnoEditorComponent implements OnChanges, OnDestroy {
   private repeatItemTemplate(type: string, key: string, index: number): Record<string, any> {
     switch (type) {
       case 'services': return { icon: 'design_services', title: `Service ${index + 1}`, text: 'Add a short description of this service.', image: '', mediaId: null, badge: '', cta: 'Learn more', url: '#' };
-      case 'testimonial': return { name: `Customer ${index + 1}`, role: 'Verified customer', rating: 5, quote: 'Add your customer review here.', image: '' };
+      case 'testimonial': return { name: `Customer ${index + 1}`, role: 'Verified customer', rating: 5, quote: 'Add your customer review here.', image: '', mediaId: null };
       case 'pricing': return { name: `Plan ${index + 1}`, price: '₹999', oldPrice: '', period: '/month', features: 'Feature one\nFeature two\nFeature three', badge: '', cta: 'Choose Plan', url: '#' };
       case 'faq': return { q: `Question ${index + 1}`, a: 'Add your answer here.' };
       case 'stats': return { icon: 'monitoring', value: '100+', prefix: '', suffix: '', label: `Metric ${index + 1}`, text: '' };
-      case 'tabs': return { title: `Tab ${index + 1}`, text: 'Add tab content here.', image: '' };
+      case 'tabs': return { title: `Tab ${index + 1}`, text: 'Add tab content here.', image: '', mediaId: null };
       case 'timeline': return { title: `Step ${index + 1}`, text: 'Describe this step.', icon: 'radio_button_checked' };
-      case 'team': return { name: `Team Member ${index + 1}`, role: 'Team', bio: '', image: '', facebook: '', instagram: '', linkedin: '', x: '' };
+      case 'team': return { name: `Team Member ${index + 1}`, role: 'Team', bio: '', image: '', mediaId: null, facebook: '', instagram: '', linkedin: '', x: '' };
       case 'button': return { label: `Button ${index + 1}`, url: '#', target: '_self', icon: '' };
       case 'icon': return { materialIcon: 'star', label: `Icon ${index + 1}`, url: '#' };
       case 'social': return { platform: 'facebook', url: '#', label: 'Facebook' };
       case 'navbar': return { label: `Menu ${index + 1}`, url: '#', icon: '', target: '_self' };
-      case 'product': return { name: `Product ${index + 1}`, price: '₹499', oldPrice: '', badge: '', description: 'Short product description.', image: '', cta: 'Buy Now', url: '#', rating: 5 };
-      case 'offer': return { badge: 'LIMITED OFFER', title: `Offer ${index + 1}`, discount: '20% OFF', description: 'Offer valid for a limited time.', cta: 'Unlock Offer', url: '#', image: '' };
+      case 'product': return { name: `Product ${index + 1}`, price: '₹499', oldPrice: '', badge: '', description: 'Short product description.', image: '', mediaId: null, cta: 'Buy Now', url: '#', rating: 5 };
+      case 'offer': return { badge: 'LIMITED OFFER', title: `Offer ${index + 1}`, discount: '20% OFF', description: 'Offer valid for a limited time.', cta: 'Unlock Offer', url: '#', image: '', mediaId: null };
       case 'contact': return { platform: 'whatsapp', label: 'WhatsApp', url: '#' };
       case 'floating': return { icon: 'chat', label: `Action ${index + 1}`, url: '#' };
       case 'counter': return { start: 0, end: 100, prefix: '', suffix: '+', label: `Counter ${index + 1}`, duration: 1600 };
@@ -1091,147 +1175,6 @@ export class BraintechnoEditorComponent implements OnChanges, OnDestroy {
     this.commitChange();
   }
 
-  openBlockImagePicker(
-    block: EditorBlock,
-    contentKey: string,
-    title = 'Choose image',
-    mediaIdKey = `${contentKey}MediaId`
-  ): void {
-    this.mediaPickerTarget = {
-      kind: 'block-content',
-      block,
-      contentKey,
-      mediaIdKey
-    };
-    this.mediaPickerMultiple = false;
-    this.mediaPickerTitle = title;
-    const currentId = block.content[mediaIdKey];
-    this.mediaPickerSelectedIds = currentId === undefined || currentId === null || currentId === '' ? [] : [currentId];
-    this.mediaPickerMaxSelection = 1;
-    this.mediaPickerOpen = true;
-  }
-
-  openRepeatImagePicker(
-    block: EditorBlock,
-    item: Record<string, any>,
-    title = 'Choose image'
-  ): void {
-    this.mediaPickerTarget = {
-      kind: 'repeat-item',
-      block,
-      item
-    };
-    this.mediaPickerMultiple = false;
-    this.mediaPickerTitle = title;
-    const currentId = item['mediaId'];
-    this.mediaPickerSelectedIds = currentId === undefined || currentId === null || currentId === '' ? [] : [currentId];
-    this.mediaPickerMaxSelection = 1;
-    this.mediaPickerOpen = true;
-  }
-
-  openGalleryPicker(
-    block: EditorBlock,
-    title = 'Choose images',
-    maxSelection = 16
-  ): void {
-    this.mediaPickerTarget = {
-      kind: 'gallery',
-      block
-    };
-    this.mediaPickerMultiple = true;
-    this.mediaPickerTitle = title;
-    this.mediaPickerSelectedIds = Array.isArray(block.content['mediaIds'])
-      ? [...block.content['mediaIds']]
-      : [];
-    this.mediaPickerMaxSelection = maxSelection;
-    this.mediaPickerOpen = true;
-  }
-
-  openBackgroundImagePicker(block: EditorBlock): void {
-    this.mediaPickerTarget = {
-      kind: 'background',
-      block
-    };
-    this.mediaPickerMultiple = false;
-    this.mediaPickerTitle = 'Choose background image';
-    const currentId = block.style['backgroundMediaId'];
-    this.mediaPickerSelectedIds = currentId === undefined || currentId === null || currentId === '' ? [] : [currentId];
-    this.mediaPickerMaxSelection = 1;
-    this.mediaPickerOpen = true;
-  }
-
-  closeMediaPicker(): void {
-    this.mediaPickerOpen = false;
-    this.mediaPickerTarget = null;
-    this.mediaPickerSelectedIds = [];
-    this.mediaPickerMultiple = false;
-    this.mediaPickerMaxSelection = 0;
-  }
-
-  onMediaPickerSelected(items: MediaLibraryItem[]): void {
-    const target = this.mediaPickerTarget;
-    if (!target || !items.length) {
-      this.closeMediaPicker();
-      return;
-    }
-
-    this.pushHistory();
-
-    if (target.kind === 'block-content') {
-      const item = items[0];
-      const contentKey = target.contentKey || 'url';
-      const mediaIdKey = target.mediaIdKey || `${contentKey}MediaId`;
-      target.block.content[contentKey] = item.url;
-      target.block.content[mediaIdKey] = item.id;
-      if (target.block.type === 'image' && !target.block.content['alt']) {
-        target.block.content['alt'] = item.altText || item.originalName || '';
-      }
-    }
-
-    if (target.kind === 'repeat-item' && target.item) {
-      const item = items[0];
-      target.item['image'] = item.url;
-      target.item['mediaId'] = item.id;
-    }
-
-    if (target.kind === 'gallery') {
-      target.block.content['images'] = items.map(item => item.url);
-      target.block.content['mediaIds'] = items.map(item => item.id);
-      target.block.content['imagesText'] = target.block.content['images'].join('\n');
-    }
-
-    if (target.kind === 'background') {
-      const item = items[0];
-      target.block.style['backgroundImage'] = item.url;
-      target.block.style['backgroundMediaId'] = item.id;
-      if (target.block.style['backgroundType'] === 'color') {
-        target.block.style['backgroundType'] = 'image';
-      }
-      if (target.block.style['backgroundType'] === 'gradient') {
-        target.block.style['backgroundType'] = 'gradient-image';
-      }
-    }
-
-    this.commitChange();
-    this.closeMediaPicker();
-  }
-
-  removeBlockImage(block: EditorBlock, contentKey: string, mediaIdKey = `${contentKey}MediaId`): void {
-    if (!block.content[contentKey]) return;
-    this.pushHistory();
-    block.content[contentKey] = '';
-    block.content[mediaIdKey] = null;
-    this.commitChange();
-  }
-
-  removeRepeatImage(block: EditorBlock, item: Record<string, any>): void {
-    if (!item['image']) return;
-    this.pushHistory();
-    item['image'] = '';
-    item['mediaId'] = null;
-    this.commitChange();
-  }
-
   updateGalleryImages(block: EditorBlock): void {
     const text = String(block.content['imagesText'] || '');
     block.content['images'] = text.split('\n').map(value => value.trim()).filter(Boolean);
@@ -1286,7 +1229,6 @@ export class BraintechnoEditorComponent implements OnChanges, OnDestroy {
   clearBackgroundImage(block: EditorBlock): void {
     this.pushHistory();
     block.style['backgroundImage'] = '';
-    block.style['backgroundMediaId'] = null;
     if (block.style['backgroundType'] === 'image') block.style['backgroundType'] = 'color';
     if (block.style['backgroundType'] === 'gradient-image') block.style['backgroundType'] = 'gradient';
     this.commitChange();
@@ -1315,10 +1257,7 @@ export class BraintechnoEditorComponent implements OnChanges, OnDestroy {
     if (index < 0 || index >= images.length) return;
     this.pushHistory();
     images.splice(index, 1);
-    const mediaIds = Array.isArray(block.content['mediaIds']) ? [...block.content['mediaIds']] : [];
-    if (index < mediaIds.length) mediaIds.splice(index, 1);
     block.content['images'] = images;
-    block.content['mediaIds'] = mediaIds;
     block.content['imagesText'] = images.join('\n');
     this.commitChange();
   }
@@ -1754,18 +1693,23 @@ export class BraintechnoEditorComponent implements OnChanges, OnDestroy {
       }
 
       case 'navbar': {
-        const dark = variant === 'dark';
-        const glass = variant === 'glass';
-        return { ...base, content: { variant, brand: 'BRAIN TECHNO', logo: '', tagline: '', links: 'Home, Services, About, Contact', menuItems: [{ label: 'Home', url: '#', icon: 'home', target: '_self' }, { label: 'Services', url: '#services', icon: 'design_services', target: '_self' }, { label: 'About', url: '#about', icon: 'info', target: '_self' }, { label: 'Contact', url: '#contact', icon: 'contact_mail', target: '_self' }], cta: 'Get Started', ctaUrl: '#', ctaIcon: 'arrow_forward', showIcons: false, mobileMenu: true, showCta: true, showTagline: false, sticky: variant === 'sticky', mobileLabel: 'Menu', menuAlign: variant === 'centered' ? 'center' : 'right' }, style: { ...base.style, background: dark ? '#0F172A' : glass ? 'rgba(255,255,255,.78)' : '#FFFFFF', color: dark ? '#FFFFFF' : '#0F172A', padding: variant === 'compact' ? 10 : 16, radius: variant === 'pill' ? 22 : variant === 'glass' ? 18 : 0, border: variant === 'minimal' ? 'transparent' : '#E2E8F0', shadow: variant === 'glass' || variant === 'pill' ? '0 16px 40px rgba(15,23,42,.10)' : 'none' } };
+        return { ...base, content: { variant, brand: 'BRAIN TECHNO', logo: '', logoMediaId: null, links: 'Home, Services, About, Contact', menuItems: [{ label: 'Home', url: '#', icon: 'home', target: '_self' }, { label: 'Services', url: '#services', icon: 'design_services', target: '_self' }, { label: 'About', url: '#about', icon: 'info', target: '_self' }, { label: 'Contact', url: '#contact', icon: 'contact_mail', target: '_self' }], cta: 'Get Started', ctaUrl: '#', showIcons: false, mobileMenu: true }, style: { ...base.style, background: '#FFFFFF', color: '#0F172A', padding: variant === 'compact' ? 12 : 18, radius: 0 } };
       }
       case 'hero': {
-        const dark = variant === 'dark';
-        const offer = variant === 'offer' || variant === 'ecommerce';
-        return { ...base, content: { variant, eyebrow: offer ? 'LIMITED TIME' : variant === 'event' ? 'OCTOBER 2026' : 'WELCOME', title: offer ? 'A better offer deserves a better first impression' : variant === 'service' ? 'Professional service, built around your needs' : variant === 'portfolio' ? 'Designing digital experiences that stand out' : 'Build a stronger online presence', text: 'Use this section to explain your value clearly and guide visitors to the next action.', primary: offer ? 'Shop Now' : variant === 'event' ? 'Register Now' : 'Get Started', primaryUrl: '#', primaryIcon: 'arrow_forward', secondary: 'Learn More', secondaryUrl: '#', secondaryIcon: '', image: '', badge: offer ? 'Save up to 30%' : '', trustText: variant === 'service' ? 'Trusted by customers • Fast response • Reliable support' : '', showSecondary: true, showImage: ['split','image','app','service','ecommerce','portfolio','event'].includes(variant), imagePosition: variant === 'portfolio' ? 'left' : 'right', imageFit: 'cover', overlay: 0 }, style: { ...base.style, background: dark ? '#0F172A' : offer ? '#FFF7ED' : '#FFFFFF', color: dark ? '#FFFFFF' : '#0F172A', padding: variant === 'minimal' ? 42 : 56, radius: 20, align: variant === 'centered' || variant === 'minimal' ? 'center' : 'left', gradientFrom: '#FFF1F4', gradientTo: '#EEF2FF', backgroundType: variant === 'gradient' ? 'gradient' : 'color' } };
+        const heroCopy: Record<string, any> = {
+          saas: { eyebrow: 'PRODUCT', title: 'Launch your product with clarity', text: 'Explain the problem, show the product value and guide visitors to one focused action.', primary: 'Start Free', secondary: 'Watch Demo' },
+          event: { eyebrow: 'SAVE THE DATE', title: 'A memorable event starts here', text: 'Share the date, venue, highlights and a clear registration action.', primary: 'Register Now', secondary: 'View Schedule' },
+          agency: { eyebrow: 'CREATIVE PARTNER', title: 'Strategy, design and growth in one team', text: 'Present your strongest proposition with proof, services and a confident next step.', primary: 'Start a Project', secondary: 'See Work' },
+          portfolio: { eyebrow: 'SELECTED WORK', title: 'Designing useful, memorable experiences', text: 'Introduce your work with a strong personal statement and a featured visual.', primary: 'View Projects', secondary: 'About Me' },
+          video: { eyebrow: 'FEATURED', title: 'Tell your story with motion', text: 'Pair a concise message with a video-led visual experience.', primary: 'Explore', secondary: 'Contact' }
+        };
+        const copy = heroCopy[variant] || { eyebrow: 'WELCOME', title: 'Build a stronger online presence', text: 'Use this section to explain your value clearly and guide visitors to the next action.', primary: 'Get Started', secondary: 'Learn More' };
+        return { ...base, content: { variant, ...copy, primaryUrl: '#', secondaryUrl: '#', image: '', mediaId: null, videoUrl: '' }, style: { ...base.style, background: '#FFFFFF', color: '#0F172A', padding: 48, radius: 18, align: variant === 'centered' ? 'center' : 'left', gradientFrom: '#FFF1F4', gradientTo: '#EEF2FF', backgroundType: variant === 'gradient' ? 'gradient' : 'color' } };
       }
       case 'services': {
         const count = variant === 'four' ? 4 : variant === 'two' ? 2 : 3;
-        return { ...base, content: { variant, eyebrow: 'WHAT WE DO', title: 'Our Services', text: 'Choose the services that best fit your needs.', items: Array.from({ length: count }, (_, i) => ({ icon: ['design_services','campaign','support_agent','bolt'][i % 4], title: `Service ${i+1}`, text: 'Add a short description of this service.', image: '', url: '#', cta: 'Learn more', badge: i === 0 && variant === 'feature' ? 'Popular' : '' })), showArrows: variant === 'carousel', cardMinWidth: 260 }, style: { ...base.style, background: variant === 'dark' ? '#0F172A' : variant === 'soft' ? '#F8FAFC' : '#FFFFFF', color: variant === 'dark' ? '#FFFFFF' : '#0F172A', columns: count, gap: 16, radius: 18, accent: '#FF4D6D' } };
+        const items = Array.from({ length: count }, (_, i) => ({ icon: ['design_services','campaign','support_agent','bolt'][i % 4], title: `Service ${i+1}`, text: 'Add a short description of this service.', image: '', mediaId: null, badge: '', cta: 'Learn more', url: '#' }));
+        return { ...base, content: { variant, title: 'Our Services', subtitle: 'Choose the service that fits your needs.', items, carousel: variant === 'carousel', showArrows: variant === 'carousel' }, style: { ...base.style, background: '#FFFFFF', color: '#0F172A', columns: count, gap: 12, radius: 16 } };
       }
       case 'testimonial': {
         const count = variant === 'three' ? 3 : 1;
@@ -2125,7 +2069,7 @@ export class BraintechnoEditorComponent implements OnChanges, OnDestroy {
     const pageBg = design.body.values.backgroundColor || '#F5F7FA';
     const width = design.body.values.contentWidth || '760px';
     const sections = design.body.rows.map(block => this.renderBlock(block)).join('');
-    return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>BRAIN TECHNO</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400,0,0" rel="stylesheet"><style>html,body{margin:0;padding:0;background:${this.attr(pageBg)};font-family:Inter,'Noto Sans Bengali',Arial,sans-serif;color:#0F172A}*{box-sizing:border-box}.bt-page{width:100%;padding:24px 12px}.bt-container{max-width:${this.attr(width)};margin:0 auto}.bt-img{max-width:100%;display:block}.bt-btn{display:inline-block;text-decoration:none}.bt-grid{display:grid}.bt-card{border:1px solid #E2E8F0;overflow:hidden}.bt-muted{color:#64748B}.bt-form input,.bt-form textarea,.bt-form select{width:100%;padding:12px;border:1px solid #E2E8F0;border-radius:10px;margin:5px 0 10px;font:inherit}.bt-form-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:0 12px}.bt-form-field--full{grid-column:span 6}.bt-form-field--half{grid-column:span 3}.bt-form-field--third{grid-column:span 2}.bt-choice-list{display:grid;gap:8px;margin:7px 0 12px}.bt-choice-list label,.bt-choice{display:flex;gap:8px;align-items:center}.bt-choice-list input,.bt-choice input{width:auto;margin:0}.bt-rating-stars{display:flex;justify-content:center;gap:4px;margin:8px 0 16px;flex-direction:row-reverse}.bt-rating-stars input{position:absolute;opacity:0;pointer-events:none}.bt-rating-stars span{font-size:38px;color:#CBD5E1;cursor:pointer}.bt-rating-stars label:hover span,.bt-rating-stars label:hover~label span,.bt-rating-stars input:checked~span,.bt-rating-stars label:has(input:checked)~label span{color:#F59E0B}.bt-powered{max-width:760px;margin:0 auto;padding:18px 12px 28px;text-align:center;font-size:12px;font-weight:700;letter-spacing:.04em;color:#64748B}.bt-form button{border:0;cursor:pointer}.material-symbols-rounded{font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24}.bt-social{display:flex;gap:10px;flex-wrap:wrap}.bt-social a{display:inline-flex;align-items:center;justify-content:center;text-decoration:none}.bt-slider{position:relative;overflow:hidden}.bt-slider img{width:100%;height:100%;object-fit:cover;display:none}.bt-slider img.is-active{display:block}.bt-timer-units{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}.bt-timer-unit{min-width:72px;padding:12px;border:1px solid #E2E8F0;border-radius:12px}.bt-chart-bars{display:flex;align-items:flex-end;gap:10px;height:180px}.bt-chart-bar{flex:1;min-width:0;text-align:center}.bt-chart-bar i{display:block;width:100%;background:#FF4D6D;border-radius:8px 8px 3px 3px}.bt-media-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px}.bt-tabs>button{border:0;background:transparent;padding:10px 14px;font:inherit;font-weight:700;cursor:pointer;border-bottom:2px solid transparent}.bt-tabs>button.is-active{color:#FF4D6D;border-bottom-color:#FF4D6D}.bt-service-carousel::-webkit-scrollbar{display:none}@media(max-width:700px){.bt-page{padding:12px 8px}.bt-responsive-grid{grid-template-columns:1fr!important}.bt-form-field--half,.bt-form-field--third{grid-column:span 6}[data-bt-navbar][data-bt-mobile="true"]{position:relative!important;flex-wrap:wrap!important}[data-bt-navbar][data-bt-mobile="true"] [data-bt-nav-toggle]{display:inline-grid!important;place-items:center}[data-bt-navbar][data-bt-mobile="true"] [data-bt-nav-menu]{display:none!important;flex-basis:100%;width:100%;align-items:stretch!important;flex-direction:column!important;padding-top:12px}[data-bt-navbar][data-bt-mobile="true"] [data-bt-nav-menu].is-open{display:flex!important}[data-bt-navbar][data-bt-mobile="true"] [data-bt-nav-menu] a{justify-content:flex-start!important;width:100%}}</style></head><body><main class="bt-page"><div class="bt-container">${sections}</div></main><footer class="bt-powered">Proudly Powered by BRAIN TECHNO</footer>${this.exportRuntimeScript()}</body></html>`;
+    return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>BRAIN TECHNO</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400,0,0" rel="stylesheet"><style>html,body{margin:0;padding:0;background:${this.attr(pageBg)};font-family:Inter,'Noto Sans Bengali',Arial,sans-serif;color:#0F172A}*{box-sizing:border-box}.bt-page{width:100%;padding:24px 12px}.bt-container{max-width:${this.attr(width)};margin:0 auto}.bt-img{max-width:100%;display:block}.bt-btn{display:inline-block;text-decoration:none}.bt-grid{display:grid}.bt-card{border:1px solid #E2E8F0;overflow:hidden}.bt-muted{color:#64748B}.bt-form input,.bt-form textarea,.bt-form select{width:100%;padding:12px;border:1px solid #E2E8F0;border-radius:10px;margin:5px 0 10px;font:inherit}.bt-form-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:0 12px}.bt-form-field--full{grid-column:span 6}.bt-form-field--half{grid-column:span 3}.bt-form-field--third{grid-column:span 2}.bt-choice-list{display:grid;gap:8px;margin:7px 0 12px}.bt-choice-list label,.bt-choice{display:flex;gap:8px;align-items:center}.bt-choice-list input,.bt-choice input{width:auto;margin:0}.bt-rating-stars{display:flex;justify-content:center;gap:4px;margin:8px 0 16px;flex-direction:row-reverse}.bt-rating-stars input{position:absolute;opacity:0;pointer-events:none}.bt-rating-stars span{font-size:38px;color:#CBD5E1;cursor:pointer}.bt-rating-stars label:hover span,.bt-rating-stars label:hover~label span,.bt-rating-stars input:checked~span,.bt-rating-stars label:has(input:checked)~label span{color:#F59E0B}.bt-powered{max-width:760px;margin:0 auto;padding:18px 12px 28px;text-align:center;font-size:12px;font-weight:700;letter-spacing:.04em;color:#64748B}.bt-form button{border:0;cursor:pointer}.material-symbols-rounded{font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24}.bt-social{display:flex;gap:10px;flex-wrap:wrap}.bt-social a{display:inline-flex;align-items:center;justify-content:center;text-decoration:none}.bt-slider{position:relative;overflow:hidden}.bt-slider img{width:100%;height:100%;object-fit:cover;display:none}.bt-slider img.is-active{display:block}.bt-timer-units{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}.bt-timer-unit{min-width:72px;padding:12px;border:1px solid #E2E8F0;border-radius:12px}.bt-chart-bars{display:flex;align-items:flex-end;gap:10px;height:180px}.bt-chart-bar{flex:1;min-width:0;text-align:center}.bt-chart-bar i{display:block;width:100%;background:#FF4D6D;border-radius:8px 8px 3px 3px}.bt-media-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px}.bt-tabs>button{border:0;background:transparent;padding:10px 14px;font:inherit;font-weight:700;cursor:pointer;border-bottom:2px solid transparent}.bt-tabs>button.is-active{color:#FF4D6D;border-bottom-color:#FF4D6D}@media(max-width:600px){.bt-page{padding:12px 8px}.bt-responsive-grid{grid-template-columns:1fr!important}.bt-form-field--half,.bt-form-field--third{grid-column:span 6}}</style></head><body><main class="bt-page"><div class="bt-container">${sections}</div></main><footer class="bt-powered">Proudly Powered by BRAIN TECHNO</footer>${this.exportRuntimeScript()}</body></html>`;
   }
 
   private renderBlock(block: EditorBlock): string {
@@ -2261,24 +2205,18 @@ export class BraintechnoEditorComponent implements OnChanges, OnDestroy {
 
       case 'navbar': {
         const menuItems = Array.isArray(c.menuItems) && c.menuItems.length ? c.menuItems : String(c.links || '').split(',').map((x:string)=>({label:x.trim(),url:'#',icon:'',target:'_self'})).filter((x:any)=>x.label);
-        const brand = `<span style="display:flex;align-items:center;gap:10px;min-width:0">${c.logo?`<img src="${this.attr(c.logo)}" alt="" style="width:40px;height:40px;object-fit:contain;border-radius:10px">`:''}<span style="min-width:0"><strong style="display:block;font-size:20px;white-space:nowrap">${this.escape(c.brand)}</strong>${c.showTagline&&c.tagline?`<small style="display:block;opacity:.62;font-size:11px">${this.escape(c.tagline)}</small>`:''}</span></span>`;
-        const pill = c.variant === 'pill';
-        const navStyle = `${common}${c.sticky?'position:sticky;top:0;z-index:50;':''}${c.variant==='glass'?'backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);':''}`;
-        return `<nav data-bt-navbar data-bt-mobile="${c.mobileMenu!==false}" style="${navStyle}display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:nowrap">${brand}<button type="button" data-bt-nav-toggle aria-label="${this.attr(c.mobileLabel||'Menu')}" style="display:none;border:1px solid #CBD5E1;background:transparent;color:inherit;border-radius:10px;padding:8px"><span class="material-symbols-rounded">menu</span></button><div data-bt-nav-menu style="display:flex;align-items:center;justify-content:${c.menuAlign==='center'?'center':'flex-end'};gap:${pill?'6px':'16px'};flex:1;flex-wrap:wrap">${menuItems.map((x:any)=>`<a href="${this.attr(x.url||'#')}" target="${this.attr(x.target||'_self')}" style="color:inherit;text-decoration:none;display:inline-flex;gap:6px;align-items:center;padding:${pill?'8px 12px':'4px 0'};border-radius:999px;${pill?'background:rgba(148,163,184,.12);':''}">${c.showIcons&&x.icon?`<span class="material-symbols-rounded" style="font-size:18px">${this.escape(x.icon)}</span>`:''}${this.escape(x.label)}</a>`).join('')}${c.showCta!==false?`<a class="bt-btn" href="${this.attr(c.ctaUrl||'#')}" style="background:#FF4D6D;color:#fff;padding:10px 16px;border-radius:10px;font-weight:800;text-decoration:none;display:inline-flex;align-items:center;gap:7px">${this.escape(c.cta||'Get Started')}${c.ctaIcon?`<span class="material-symbols-rounded" style="font-size:18px">${this.escape(c.ctaIcon)}</span>`:''}</a>`:''}</div></nav>`;
+        const brand = c.logo ? `<span style="display:flex;align-items:center;gap:10px"><img src="${this.attr(c.logo)}" alt="" style="width:38px;height:38px;object-fit:contain;border-radius:9px"><strong style="font-size:20px">${this.escape(c.brand)}</strong></span>` : `<strong style="font-size:20px">${this.escape(c.brand)}</strong>`;
+        return `<nav style="${common}display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap">${brand}<div style="display:flex;gap:16px;flex-wrap:wrap">${menuItems.map((x:any)=>`<a href="${this.attr(x.url||'#')}" target="${this.attr(x.target||'_self')}" style="color:inherit;text-decoration:none;display:inline-flex;gap:6px;align-items:center">${c.showIcons&&x.icon?`<span class="material-symbols-rounded" style="font-size:18px">${this.escape(x.icon)}</span>`:''}${this.escape(x.label)}</a>`).join('')}</div><a class="bt-btn" href="${this.attr(c.ctaUrl||'#')}" style="background:#FF4D6D;color:#fff;padding:10px 16px;border-radius:10px;font-weight:700">${this.escape(c.cta||'Get Started')}</a></nav>`;
       }
       case 'hero': {
         const img = String(c.image||'').trim();
-        const visual = img ? `<div style="position:relative"><img src="${this.attr(img)}" alt="" style="width:100%;aspect-ratio:4/3;object-fit:${this.attr(c.imageFit||'cover')};border-radius:20px;display:block">${c.badge?`<span style="position:absolute;left:16px;bottom:16px;background:#fff;color:#0F172A;padding:9px 12px;border-radius:999px;font-weight:900;box-shadow:0 10px 30px rgba(15,23,42,.18)">${this.escape(c.badge)}</span>`:''}</div>` : `<div style="width:100%;aspect-ratio:4/3;background:linear-gradient(135deg,#E2E8F0,#CBD5E1);border-radius:20px;display:grid;place-items:center;color:#64748B"><span class="material-symbols-rounded" style="font-size:52px">image</span></div>`;
-        const copy = `<div style="text-align:${this.attr(s.align||'left')}">${c.badge&&c.variant!=='ecommerce'?`<span style="display:inline-flex;padding:7px 10px;border-radius:999px;background:rgba(255,77,109,.10);color:#FF4D6D;font-weight:900;font-size:12px;margin-bottom:10px">${this.escape(c.badge)}</span>`:''}<small style="display:block;font-weight:900;letter-spacing:.14em;color:#FF4D6D">${this.escape(c.eyebrow||'')}</small><h1 style="font-size:clamp(38px,6vw,64px);line-height:1.02;margin:10px 0 16px;letter-spacing:-.03em">${this.escape(c.title)}</h1><p style="font-size:18px;line-height:1.75;color:inherit;opacity:.78;max-width:720px;${s.align==='center'?'margin-left:auto;margin-right:auto;':''}">${this.escape(c.text)}</p>${c.trustText?`<p style="font-size:13px;font-weight:700;opacity:.62">${this.escape(c.trustText)}</p>`:''}<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:22px;${s.align==='center'?'justify-content:center;':''}"><a class="bt-btn" href="${this.attr(c.primaryUrl||'#')}" style="background:#FF4D6D;color:#fff;padding:12px 20px;border-radius:11px;font-weight:900;text-decoration:none;display:inline-flex;align-items:center;gap:7px">${this.escape(c.primary)}${c.primaryIcon?`<span class="material-symbols-rounded" style="font-size:18px">${this.escape(c.primaryIcon)}</span>`:''}</a>${c.showSecondary!==false?`<a class="bt-btn" href="${this.attr(c.secondaryUrl||'#')}" style="border:1px solid #CBD5E1;color:inherit;padding:12px 20px;border-radius:11px;font-weight:800;text-decoration:none">${this.escape(c.secondary)}</a>`:''}</div></div>`;
-        const showVisual = c.showImage !== false && (img || ['split','image','app','service','ecommerce','portfolio','event'].includes(c.variant));
-        const cols = showVisual ? 'minmax(0,1.05fr) minmax(280px,.95fr)' : '1fr';
-        const body = showVisual && c.imagePosition==='left' ? `${visual}${copy}` : `${copy}${showVisual?visual:''}`;
-        return `<section style="${common}"><div class="bt-grid bt-responsive-grid" style="grid-template-columns:${cols};gap:36px;align-items:center">${body}</div></section>`;
+        const visual = img ? `<img src="${this.attr(img)}" alt="" style="width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:16px">` : `<div style="width:100%;aspect-ratio:4/3;background:#D1D5DB;border-radius:16px;display:grid;place-items:center;color:#6B7280">Image</div>`;
+        const copy = `<div><small style="font-weight:800;letter-spacing:.12em;color:#FF4D6D">${this.escape(c.eyebrow||'')}</small><h1 style="font-size:48px;line-height:1.05;margin:10px 0 14px">${this.escape(c.title)}</h1><p style="font-size:18px;line-height:1.7;color:inherit;opacity:.78">${this.escape(c.text)}</p><div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:20px"><a class="bt-btn" href="${this.attr(c.primaryUrl||'#')}" style="background:#FF4D6D;color:#fff;padding:12px 20px;border-radius:10px;font-weight:800">${this.escape(c.primary)}</a><a class="bt-btn" href="${this.attr(c.secondaryUrl||'#')}" style="border:1px solid #CBD5E1;color:inherit;padding:12px 20px;border-radius:10px;font-weight:700">${this.escape(c.secondary)}</a></div></div>`;
+        return `<section style="${common}"><div class="bt-grid bt-responsive-grid" style="grid-template-columns:${c.variant==='split'||c.variant==='image'?'1fr 1fr':'1fr'};gap:28px;align-items:center">${copy}${c.variant==='split'||c.variant==='image'?visual:''}</div></section>`;
       }
       case 'services': {
-        const items = Array.isArray(c.items)?c.items:[]; const cols=Math.max(1,Number(s.columns)||3); const carousel=c.variant==='carousel';
-        const cards = items.map((x:any,i:number)=>{const image=x.image?`<img src="${this.attr(x.image)}" alt="" style="width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:14px;margin-bottom:14px">`:''; const number=c.variant==='numbers'?`<span style="font-size:13px;font-weight:900;color:${this.css(s.accent,'#FF4D6D')}">0${i+1}</span>`:''; return `<article style="padding:${c.variant==='minimal'?'14px 0':'20px'};border:${c.variant==='minimal'?'0':'1px solid rgba(148,163,184,.30)'};border-radius:16px;background:${c.variant==='dark'?'rgba(255,255,255,.05)':c.variant==='soft'?'#FFFFFF':'transparent'};${carousel?`min-width:${Math.max(220,Number(c.cardMinWidth)||260)}px;scroll-snap-align:start;`:''}">${image}<div style="display:flex;align-items:center;justify-content:space-between;gap:12px"><span class="material-symbols-rounded" style="font-size:30px;color:${this.css(s.accent,'#FF4D6D')}">${this.escape(x.icon||'star')}</span>${number}</div>${x.badge?`<span style="display:inline-block;margin-top:10px;padding:5px 8px;border-radius:999px;background:rgba(255,77,109,.10);color:#FF4D6D;font-size:11px;font-weight:900">${this.escape(x.badge)}</span>`:''}<h3 style="margin:12px 0 8px">${this.escape(x.title)}</h3><p style="opacity:.72;line-height:1.65">${this.escape(x.text)}</p>${x.cta?`<a href="${this.attr(x.url||'#')}" style="color:${this.css(s.accent,'#FF4D6D')};text-decoration:none;font-weight:800;display:inline-flex;align-items:center;gap:4px">${this.escape(x.cta)} <span class="material-symbols-rounded" style="font-size:17px">arrow_forward</span></a>`:''}</article>`}).join('');
-        return `<section style="${common}"><div style="display:flex;align-items:end;justify-content:space-between;gap:16px;margin-bottom:22px"><div><small style="font-weight:900;letter-spacing:.12em;color:${this.css(s.accent,'#FF4D6D')}">${this.escape(c.eyebrow||'')}</small><h2 style="margin:6px 0 8px;font-size:34px">${this.escape(c.title)}</h2><p style="margin:0;opacity:.68">${this.escape(c.text||'')}</p></div>${carousel&&c.showArrows!==false?`<div style="display:flex;gap:8px"><button type="button" data-bt-service-prev style="width:40px;height:40px;border-radius:50%;border:1px solid #CBD5E1;background:transparent;color:inherit"><span class="material-symbols-rounded">arrow_back</span></button><button type="button" data-bt-service-next style="width:40px;height:40px;border-radius:50%;border:1px solid #CBD5E1;background:transparent;color:inherit"><span class="material-symbols-rounded">arrow_forward</span></button></div>`:''}</div><div ${carousel?'data-bt-service-track':''} class="${carousel?'bt-service-carousel':'bt-grid bt-responsive-grid'}" style="${carousel?'display:flex;overflow:auto;scroll-snap-type:x mandatory;scrollbar-width:none;':'display:grid;grid-template-columns:repeat('+cols+',1fr);'}gap:${this.cssPx(s.gap,16)}">${cards}</div></section>`;
+        const items = Array.isArray(c.items)?c.items:[]; const cols=Math.max(1,Number(s.columns)||3);
+        return `<section style="${common}"><h2 style="margin-top:0">${this.escape(c.title)}</h2><div class="bt-grid bt-responsive-grid" style="grid-template-columns:repeat(${cols},1fr);gap:${this.cssPx(s.gap,12)}">${items.map((x:any,i:number)=>`<article style="padding:18px;border:1px solid #E2E8F0;border-radius:14px"><span class="material-symbols-rounded" style="font-size:28px;color:#FF4D6D">${this.escape(x.icon||'star')}</span><h3>${this.escape(x.title)}</h3><p style="opacity:.75">${this.escape(x.text)}</p></article>`).join('')}</div></section>`;
       }
       case 'testimonial': {
         const items=Array.isArray(c.items)?c.items:[]; const cols=Math.max(1,Number(s.columns)||1);
@@ -2333,8 +2271,6 @@ export class BraintechnoEditorComponent implements OnChanges, OnDestroy {
   private exportRuntimeScript(): string {
     return `<script>(function(){
       document.querySelectorAll('[data-bt-slider]').forEach(function(root){var imgs=[].slice.call(root.querySelectorAll('img'));if(imgs.length<2)return;var i=0;var autoplay=root.getAttribute('data-autoplay')!=='false';var interval=Number(root.getAttribute('data-interval'))||3500;if(!autoplay)return;setInterval(function(){imgs[i].classList.remove('is-active');i=(i+1)%imgs.length;imgs[i].classList.add('is-active');},interval);});
-      document.querySelectorAll('[data-bt-navbar]').forEach(function(root){var toggle=root.querySelector('[data-bt-nav-toggle]');var menu=root.querySelector('[data-bt-nav-menu]');if(!toggle||!menu)return;toggle.addEventListener('click',function(){menu.classList.toggle('is-open');});});
-      document.querySelectorAll('[data-bt-service-track]').forEach(function(track){var section=track.closest('section');if(!section)return;var prev=section.querySelector('[data-bt-service-prev]');var next=section.querySelector('[data-bt-service-next]');var amount=function(){return Math.max(260,Math.round(track.clientWidth*.75));};if(prev)prev.addEventListener('click',function(){track.scrollBy({left:-amount(),behavior:'smooth'});});if(next)next.addEventListener('click',function(){track.scrollBy({left:amount(),behavior:'smooth'});});});
       document.querySelectorAll('[data-bt-timer]').forEach(function(root){var target=new Date(root.getAttribute('data-target')||'').getTime();function tick(){var diff=target-Date.now();if(!isFinite(target)||diff<=0){['days','hours','minutes','seconds'].forEach(function(k){var n=root.querySelector('[data-'+k+']');if(n)n.textContent='00';});var e=root.querySelector('[data-expired-label]');if(e){e.style.display='block';e.textContent=root.getAttribute('data-expired')||'Ended';}return;}var d=Math.floor(diff/86400000),h=Math.floor(diff/3600000)%24,m=Math.floor(diff/60000)%60,s=Math.floor(diff/1000)%60;[['days',d],['hours',h],['minutes',m],['seconds',s]].forEach(function(p){var n=root.querySelector('[data-'+p[0]+']');if(n)n.textContent=String(p[1]).padStart(2,'0');});}tick();setInterval(tick,1000);});
       document.querySelectorAll('[data-bt-counter]').forEach(function(root){var el=root.querySelector('[data-counter-value]');if(!el)return;var start=Number(root.getAttribute('data-start'))||0,end=Number(root.getAttribute('data-end'))||0,dur=Number(root.getAttribute('data-duration'))||1600,prefix=root.getAttribute('data-prefix')||'',suffix=root.getAttribute('data-suffix')||'';var begun=false;function run(){if(begun)return;begun=true;var t0=performance.now();function step(t){var p=Math.min(1,(t-t0)/dur);var v=Math.round(start+(end-start)*(1-Math.pow(1-p,3)));el.textContent=prefix+v+suffix;if(p<1)requestAnimationFrame(step);}requestAnimationFrame(step);}if('IntersectionObserver'in window){new IntersectionObserver(function(entries,obs){if(entries.some(function(e){return e.isIntersecting;})){run();obs.disconnect();}}).observe(root);}else run();});
       document.querySelectorAll('[data-bt-tabs]').forEach(function(root){var buttons=[].slice.call(root.querySelectorAll('[data-tab-btn]'));var panels=[].slice.call(root.querySelectorAll('[data-tab-panel]'));buttons.forEach(function(btn){btn.addEventListener('click',function(){var i=btn.getAttribute('data-tab-btn');buttons.forEach(function(b){b.classList.toggle('is-active',b===btn);});panels.forEach(function(p){p.style.display=p.getAttribute('data-tab-panel')===i?'block':'none';});});});});

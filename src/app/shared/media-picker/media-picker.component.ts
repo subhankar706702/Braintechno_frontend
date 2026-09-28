@@ -82,14 +82,10 @@ export class MediaPickerComponent implements OnChanges {
       new Map(),
     );
 
-  private readonly media =
-    inject(MediaLibraryService);
+  private readonly media = inject(MediaLibraryService);
+  private readonly snackbar = inject(SnackbarService);
 
-  private readonly snackbar =
-    inject(SnackbarService);
-
-  readonly accountId =
-    this.media.accountId;
+  readonly accountId = this.media.accountId;
 
   readonly selectedCount = computed(
     () => this.selection().size,
@@ -97,31 +93,17 @@ export class MediaPickerComponent implements OnChanges {
 
   readonly filteredItems = computed(
     () => {
-      const query = this.search()
-        .trim()
-        .toLowerCase();
-
-      if (!query) {
-        return this.items();
-      }
-
-      return this.items().filter(
-        (item) => {
-          const text = [
-            item.originalName,
-            item.fileName,
-            item.altText,
-          ]
-            .filter(Boolean)
-            .join(' ')
-            .toLowerCase();
-
-          return text.includes(query);
-        },
-      );
+      const query = this.search().trim().toLowerCase();
+      if (!query) return this.items();
+      return this.items().filter((item) => {
+        const text = [item.originalName, item.fileName, item.altText]
+          .filter(Boolean)
+          .join(' ')
+          .toLowerCase();
+        return text.includes(query);
+      });
     },
   );
-
 
   ngOnChanges(
     changes: SimpleChanges,

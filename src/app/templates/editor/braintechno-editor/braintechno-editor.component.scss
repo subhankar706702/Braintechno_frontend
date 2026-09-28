@@ -1307,346 +1307,159 @@ mat-icon { width: 20px; height: 20px; font-size: 20px; line-height: 20px; }
 .bt-typography-panel { border:1px solid color-mix(in srgb,var(--primary) 20%,var(--border)); background:color-mix(in srgb,var(--primary) 4%,var(--surface)); border-radius:12px; padding:12px; }
 .bt-product-list { scrollbar-width:thin; }
 
+/* ===== BRAIN TECHNO media-library + catalog upgrade ===== */
+.bt-preset-copy__title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
 
-/* Account media gallery integration */
+.bt-catalog-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 20px;
+  padding: 2px 7px;
+  border: 1px solid var(--bt-border, #e2e8f0);
+  border-radius: 999px;
+  background: var(--bt-surface-soft, #f8fafc);
+  color: var(--bt-text-muted, #64748b);
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 800;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.bt-catalog-badge[data-tier='new'] {
+  border-color: #bfdbfe;
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.bt-catalog-badge[data-tier='standard'] {
+  border-color: #cbd5e1;
+  background: #f8fafc;
+  color: #334155;
+}
+
+.bt-catalog-badge[data-tier='pro'] {
+  border-color: #ddd6fe;
+  background: #f5f3ff;
+  color: #6d28d9;
+}
+
+.bt-catalog-badge[data-tier='custom'] {
+  border-color: #bae6fd;
+  background: #f0f9ff;
+  color: #0369a1;
+}
+
+.bt-catalog-badge[data-tier='upcoming'] {
+  border-color: #e2e8f0;
+  background: #f8fafc;
+  color: #94a3b8;
+}
+
+.bt-preset-card.is-locked {
+  cursor: not-allowed;
+  opacity: .58;
+}
+
+.bt-preset-card.is-locked:hover {
+  transform: none;
+  box-shadow: none;
+}
+
 .bt-media-field {
   display: grid;
-  gap: 8px;
-}
-
-.bt-media-field__preview {
-  overflow: hidden;
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  border: 1px solid #e2e8f0;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--bt-border, #e2e8f0);
   border-radius: 12px;
-  background: #f8fafc;
+  background: var(--bt-surface-soft, #f8fafc);
 }
 
-.bt-media-field__preview img {
-  width: 100%;
-  height: 100%;
+.bt-media-field--compact {
+  margin-top: 8px;
+  padding: 10px;
+}
+
+.bt-media-preview {
   display: block;
+  width: 100%;
+  max-height: 190px;
+  border-radius: 10px;
   object-fit: cover;
+  background: #fff;
 }
 
-.bt-media-field__actions {
+.bt-media-preview--small {
+  width: 84px;
+  height: 64px;
+}
+
+.bt-avatar-preview {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+}
+
+.bt-media-empty {
+  display: grid;
+  min-height: 92px;
+  place-items: center;
+  align-content: center;
+  gap: 5px;
+  border: 1px dashed #cbd5e1;
+  border-radius: 10px;
+  color: #64748b;
+  background: #fff;
+}
+
+.bt-media-actions {
   display: flex;
-  gap: 8px;
   flex-wrap: wrap;
+  gap: 8px;
 }
 
 .bt-media-choose,
 .bt-media-remove {
-  min-height: 40px;
   display: inline-flex;
+  min-height: 38px;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 0 12px;
-  border-radius: 10px;
+  gap: 7px;
+  padding: 8px 11px;
+  border-radius: 9px;
   font: inherit;
-  font-weight: 700;
+  font-size: 12px;
+  font-weight: 800;
   cursor: pointer;
 }
 
 .bt-media-choose {
-  border: 1px solid #ff4d6d;
-  background: rgba(255, 77, 109, .08);
-  color: #e11d48;
+  border: 1px solid #cbd5e1;
+  background: #fff;
+  color: #0f172a;
 }
 
 .bt-media-choose:hover {
-  background: rgba(255, 77, 109, .14);
+  border-color: #94a3b8;
+  background: #f8fafc;
 }
 
-.bt-media-choose--full {
-  width: 100%;
+.bt-media-choose mat-icon {
+  width: 18px;
+  height: 18px;
+  font-size: 18px;
 }
 
 .bt-media-remove {
-  border: 1px solid #fecdd3;
+  border: 1px solid #fecaca;
   background: #fff;
-  color: #be123c;
-}
-
-.bt-media-choose mat-icon,
-.bt-media-remove mat-icon {
-  width: 18px;
-  height: 18px;
-  font-size: 18px;
-}
-
-/* =========================================================
-   Elements panel icon polish
-   ========================================================= */
-.bt-element-card-wrap {
-  --bt-tool-accent: var(--primary);
-}
-
-.bt-element-card {
-  min-height: 102px;
-  padding: 14px 9px 12px;
-  gap: 10px;
-  border-radius: 14px;
-  border: 1px solid var(--border);
-  background: color-mix(in srgb, var(--surface) 96%, transparent);
-  box-shadow: 0 1px 2px rgba(15, 23, 42, .03);
-  overflow: hidden;
-  transition:
-    transform .16s ease,
-    border-color .16s ease,
-    background .16s ease,
-    box-shadow .16s ease;
-}
-
-.bt-element-card::after {
-  content: '';
-  position: absolute;
-  left: 18px;
-  right: 18px;
-  bottom: 0;
-  height: 2px;
-  border-radius: 999px 999px 0 0;
-  background: var(--bt-tool-accent);
-  opacity: 0;
-  transform: scaleX(.45);
-  transition: opacity .16s ease, transform .16s ease;
-}
-
-.bt-element-card:hover,
-.bt-element-card:focus-visible,
-.bt-element-card.is-active {
-  transform: translateY(-2px);
-  border-color: color-mix(in srgb, var(--bt-tool-accent) 42%, var(--border));
-  background: color-mix(in srgb, var(--bt-tool-accent) 5%, var(--surface));
-  box-shadow: 0 10px 24px rgba(15, 23, 42, .08);
-  outline: none;
-}
-
-.bt-element-card:hover::after,
-.bt-element-card:focus-visible::after,
-.bt-element-card.is-active::after {
-  opacity: 1;
-  transform: scaleX(1);
-}
-
-.bt-element-icon {
-  position: relative;
-  width: 42px;
-  height: 42px;
-  border-radius: 14px;
-  display: grid;
-  place-items: center;
-  color: var(--bt-tool-accent);
-  background: color-mix(in srgb, var(--bt-tool-accent) 10%, var(--surface));
-  border: 1px solid color-mix(in srgb, var(--bt-tool-accent) 18%, var(--border));
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, .18),
-    0 4px 12px rgba(15, 23, 42, .05);
-  transition: transform .16s ease, background .16s ease, box-shadow .16s ease;
-}
-
-.bt-element-icon::before {
-  content: '';
-  position: absolute;
-  inset: 4px;
-  border-radius: 10px;
-  background: color-mix(in srgb, var(--bt-tool-accent) 7%, transparent);
-  pointer-events: none;
-}
-
-.bt-element-card:hover .bt-element-icon,
-.bt-element-card:focus-visible .bt-element-icon {
-  transform: translateY(-1px) scale(1.04);
-  background: color-mix(in srgb, var(--bt-tool-accent) 15%, var(--surface));
-  box-shadow: 0 7px 18px rgba(15, 23, 42, .10);
-}
-
-.bt-element-icon mat-icon {
-  position: relative;
-  z-index: 1;
-  width: 22px;
-  height: 22px;
-  font-size: 22px;
-  line-height: 22px;
-  font-variation-settings: 'FILL' 0, 'wght' 450, 'GRAD' 0, 'opsz' 24;
-}
-
-.bt-element-name {
-  font-size: 11px;
-  font-weight: 750;
-  letter-spacing: -.01em;
-  color: var(--text);
-}
-
-.bt-element-menu-trigger {
-  top: 6px;
-  right: 6px;
-  width: 24px;
-  height: 24px;
-  border-radius: 999px;
-  opacity: .72;
-  transition: opacity .16s ease, background .16s ease, color .16s ease;
-}
-
-.bt-element-card-wrap:hover .bt-element-menu-trigger,
-.bt-element-menu-trigger:focus-visible {
-  opacity: 1;
-}
-
-.bt-element-menu-trigger:hover,
-.bt-element-menu-trigger:focus-visible {
-  background: color-mix(in srgb, var(--bt-tool-accent) 10%, var(--surface-2));
-  color: var(--bt-tool-accent);
-}
-
-.bt-element-pinned-mark {
-  top: 7px;
-  left: 7px;
-  width: 19px;
-  height: 19px;
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--bt-tool-accent) 11%, var(--surface));
-  color: var(--bt-tool-accent);
-  border: 1px solid color-mix(in srgb, var(--bt-tool-accent) 18%, var(--border));
-}
-
-/* A small amount of category identity without making the panel noisy. */
-.bt-element-card-wrap[data-element-type='navbar'],
-.bt-element-card-wrap[data-element-type='hero'],
-.bt-element-card-wrap[data-element-type='footer'],
-.bt-element-card-wrap[data-element-type='popup'] {
-  --bt-tool-accent: color-mix(in srgb, var(--primary) 78%, var(--text));
-}
-
-.bt-element-card-wrap[data-element-type='image'],
-.bt-element-card-wrap[data-element-type='video'],
-.bt-element-card-wrap[data-element-type='slider'],
-.bt-element-card-wrap[data-element-type='gallery'],
-.bt-element-card-wrap[data-element-type='media'] {
-  --bt-tool-accent: color-mix(in srgb, var(--primary) 64%, #5b7cfa);
-}
-
-.bt-element-card-wrap[data-element-type='product'],
-.bt-element-card-wrap[data-element-type='offer'],
-.bt-element-card-wrap[data-element-type='ecommerce'],
-.bt-element-card-wrap[data-element-type='pricing'] {
-  --bt-tool-accent: color-mix(in srgb, var(--primary) 68%, #a855f7);
-}
-
-.bt-element-card-wrap[data-element-type='form'],
-.bt-element-card-wrap[data-element-type='contact'],
-.bt-element-card-wrap[data-element-type='whatsapp'],
-.bt-element-card-wrap[data-element-type='rating'] {
-  --bt-tool-accent: color-mix(in srgb, var(--primary) 66%, #10b981);
-}
-
-@media (max-width: 720px) {
-  .bt-element-card {
-    min-height: 92px;
-    padding: 12px 8px 10px;
-  }
-
-  .bt-element-icon {
-    width: 38px;
-    height: 38px;
-    border-radius: 12px;
-  }
-
-  .bt-element-icon mat-icon {
-    width: 20px;
-    height: 20px;
-    font-size: 20px;
-    line-height: 20px;
-  }
-}
-
-
-/* Navbar / Hero / Services property groups */
-.bt-property-section {
-  display: grid;
-  gap: 12px;
-  padding: 14px;
-  margin-bottom: 14px;
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  background: color-mix(in srgb, var(--surface-2) 72%, transparent);
-}
-
-.bt-property-section__title {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid var(--border);
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: .02em;
-  color: var(--text);
-}
-
-.bt-property-section__title mat-icon {
-  width: 18px;
-  height: 18px;
-  font-size: 18px;
-  line-height: 18px;
-  color: var(--primary);
-}
-
-.repeat-card--nav,
-.repeat-card--service {
-  border-radius: 14px;
-  background: var(--surface);
-}
-
-.bt-media-field__preview--compact {
-  width: 76px;
-  min-height: 54px;
-}
-
-.bt-service-item-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 10px;
-  align-items: start;
-}
-
-.bt-media-field--mini {
-  min-width: 0;
-}
-
-.bt-media-field--mini .bt-media-field__preview {
-  min-height: 76px;
-  max-height: 110px;
-}
-
-.bt-media-field--mini .bt-media-field__actions {
-  gap: 6px;
-}
-
-.bt-media-field--mini .bt-media-choose,
-.bt-media-field--mini .bt-media-remove {
-  min-height: 36px;
-  padding: 7px 9px;
-}
-
-.bt-add-repeat {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-}
-
-.bt-add-repeat mat-icon {
-  width: 18px;
-  height: 18px;
-  font-size: 18px;
-  line-height: 18px;
-}
-
-@media (max-width: 560px) {
-  .bt-service-item-grid {
-    grid-template-columns: 1fr;
-  }
+  color: #b91c1c;
 }

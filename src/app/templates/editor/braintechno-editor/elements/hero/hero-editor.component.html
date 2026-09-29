@@ -1,0 +1,8 @@
+<label>Eyebrow<input [(ngModel)]="block.content['eyebrow']" (ngModelChange)="context.updateSelected()"></label>
+            <label>Title<textarea [(ngModel)]="block.content['title']" rows="3" (ngModelChange)="context.updateSelected()"></textarea></label>
+            <label>Text<textarea [(ngModel)]="block.content['text']" rows="4" (ngModelChange)="context.updateSelected()"></textarea></label>
+            <label>Primary button<input [(ngModel)]="block.content['primary']" (ngModelChange)="context.updateSelected()"></label>
+            <label>Primary URL<input [(ngModel)]="block.content['primaryUrl']" (ngModelChange)="context.updateSelected()"></label>
+            <label>Secondary button<input [(ngModel)]="block.content['secondary']" (ngModelChange)="context.updateSelected()"></label>
+            <label>Secondary URL<input [(ngModel)]="block.content['secondaryUrl']" (ngModelChange)="context.updateSelected()"></label>
+            <div class="bt-media-field"><span class="bt-field-label">Hero image</span>@if (block.content['image']) { <img class="bt-media-preview" [src]="block.content['image']" alt="Hero"> }<div class="bt-media-actions"><button type="button" class="bt-media-choose" (click)="context.openMediaPicker(block.content, 'image', 'mediaId', 'Choose hero image')"><mat-icon fontSet="material-symbols-rounded">photo_library</mat-icon>{{ block.content['image'] ? 'Change image' : 'Choose from gallery' }}</button>@if (block.content['image']) { <button type="button" class="bt-media-remove" (click)="context.clearMedia(block.content, 'image', 'mediaId')">Remove</button> }</div></div>

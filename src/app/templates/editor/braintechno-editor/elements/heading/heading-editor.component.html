@@ -1,0 +1,5 @@
+<label>Heading<input [(ngModel)]="block.content['text']" (ngModelChange)="context.updateSelected()"></label>
+            @if (block.content['variant'] === 'eyebrow') { <label>Eyebrow<input [(ngModel)]="block.content['eyebrow']" (ngModelChange)="context.updateSelected()"></label> }
+            <label>Level<select [(ngModel)]="block.content['level']" (ngModelChange)="context.updateSelected()"><option value="h1">H1</option><option value="h2">H2</option><option value="h3">H3</option><option value="h4">H4</option></select></label>
+            <label>Font size<input type="number" [(ngModel)]="block.style['fontSize']" (ngModelChange)="context.updateSelected()"></label>
+            <label>Weight<select [(ngModel)]="block.style['fontWeight']" (ngModelChange)="context.updateSelected()"><option [ngValue]="400">Regular</option><option [ngValue]="500">Medium</option><option [ngValue]="600">Semibold</option><option [ngValue]="700">Bold</option><option [ngValue]="800">Extra Bold</option><option [ngValue]="900">Black</option></select></label>

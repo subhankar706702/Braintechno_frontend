@@ -1,0 +1,72 @@
+<label>Title<input [(ngModel)]="block.content['title']" (ngModelChange)="context.updateSelected()"></label>
+            <label>Subtitle<textarea [(ngModel)]="block.content['subtitle']" rows="2" (ngModelChange)="context.updateSelected()"></textarea></label>
+            <div class="bt-inline-fields">
+              <label>Desktop columns<input type="number" min="1" max="6" [(ngModel)]="block.style['columns']" (ngModelChange)="context.updateSelected()"></label>
+              <label>Gap (px)<input type="number" min="0" [(ngModel)]="block.style['gap']" (ngModelChange)="context.updateSelected()"></label>
+            </div>
+            <div class="bt-inline-fields">
+              <label>Mobile layout<select [(ngModel)]="block.content['mobileLayout']" (ngModelChange)="context.updateSelected()"><option value="stack">Stack</option><option value="scroll">Left / Right Scroll</option><option value="dropdown">Dropdown / Accordion</option></select></label>
+              <label>Default action<select [(ngModel)]="block.content['actionMode']" (ngModelChange)="context.updateSelected()"><option value="button">Button</option><option value="link">Link</option><option value="command">Command</option><option value="none">None</option></select></label>
+            </div>
+            <div class="bt-inline-fields">
+              <label>Default media<select [(ngModel)]="block.content['mediaMode']" (ngModelChange)="context.updateSelected()"><option value="auto">Auto</option><option value="image">Image</option><option value="icon">Icon</option><option value="none">None</option></select></label>
+              <label>Image radius<input type="number" min="0" max="50" [(ngModel)]="block.style['imageRadius']" (ngModelChange)="context.updateSelected()"></label>
+            </div>
+            <div class="bt-inline-fields">
+              <label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['showBadge']" (ngModelChange)="context.updateSelected()"><span>Show badge</span></label>
+              <label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['showSubtitle']" (ngModelChange)="context.updateSelected()"><span>Show subtitle</span></label>
+              <label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['showSecondaryAction']" (ngModelChange)="context.updateSelected()"><span>Second action</span></label>
+            </div>
+            <div class="bt-property-section">
+              <strong>Service design</strong>
+              <div class="bt-inline-fields">
+                <label>Card radius<input type="number" min="0" max="50" [(ngModel)]="block.style['cardRadius']" (ngModelChange)="context.updateSelected()"></label>
+                <label>Icon radius<input type="number" min="0" max="50" [(ngModel)]="block.style['iconRadius']" (ngModelChange)="context.updateSelected()"></label>
+              </div>
+              <div class="bt-inline-fields">
+                <label>Button color<input type="color" [(ngModel)]="block.style['buttonBg']" (ngModelChange)="context.updateSelected()"></label>
+                <label>Button text<input type="color" [(ngModel)]="block.style['buttonColor']" (ngModelChange)="context.updateSelected()"></label>
+              </div>
+            </div>
+            <div class="repeat-editor">
+              @for (item of block.content['items']; track $index) {
+                <div class="repeat-card">
+                  <div class="repeat-card__head"><strong>Service {{ $index + 1 }}</strong><span><button type="button" (click)="context.moveRepeatItem(block, 'items', $index, -1)">↑</button><button type="button" (click)="context.moveRepeatItem(block, 'items', $index, 1)">↓</button><button type="button" (click)="context.removeRepeatItem(block, 'items', $index)">×</button></span></div>
+                  <div class="bt-inline-fields">
+                    <label>Media<select [(ngModel)]="item.mediaMode" (ngModelChange)="context.updateSelected()"><option value="auto">Auto</option><option value="image">Image</option><option value="icon">Icon</option><option value="none">None</option></select></label>
+                    <label>Action<select [(ngModel)]="item.actionType" (ngModelChange)="context.updateSelected()"><option value="button">Button</option><option value="link">Link</option><option value="command">Command</option><option value="none">None</option></select></label>
+                  </div>
+                  @if (item.mediaMode === 'icon' || item.mediaMode === 'auto') {
+                    <div class="bt-icon-field">
+                      <span class="bt-field-label">Icon</span>
+                      <details class="bt-icon-picker">
+                        <summary><span class="bt-icon-selected"><mat-icon fontSet="material-symbols-rounded">{{ item.icon || 'star' }}</mat-icon></span><span>Choose icon</span><mat-icon class="bt-icon-picker-chevron" fontSet="material-symbols-rounded">expand_more</mat-icon></summary>
+                        <div class="bt-icon-picker-panel">
+                          @for (category of context.materialIconCategories; track category.label) {
+                            <div class="bt-icon-category"><div class="bt-icon-category-title">{{ category.label }}</div><div class="bt-icon-grid">
+                              @for (iconName of category.icons; track iconName) {
+                                <button type="button" class="bt-icon-option" [class.active]="item.icon === iconName" (click)="item.icon = iconName; context.updateSelected()" aria-label="Select icon"><mat-icon fontSet="material-symbols-rounded">{{ iconName }}</mat-icon></button>
+                              }
+                            </div></div>
+                          }
+                        </div>
+                      </details>
+                    </div>
+                  }
+                  @if (item.mediaMode === 'image' || item.mediaMode === 'auto') {
+                    <div class="bt-media-field bt-media-field--compact"><span class="bt-field-label">Service image</span>@if (item.image) { <img class="bt-media-preview bt-media-preview--small" [src]="item.image" alt=""> }<button type="button" class="bt-media-choose" (click)="context.openMediaPicker(item, 'image', 'mediaId', 'Choose service image')"><mat-icon fontSet="material-symbols-rounded">photo_library</mat-icon>{{ item.image ? 'Change image' : 'Choose from gallery' }}</button></div>
+                  }
+                  <label>Badge<input [(ngModel)]="item.badge" (ngModelChange)="context.updateSelected()"></label>
+                  <label>Title<input [(ngModel)]="item.title" (ngModelChange)="context.updateSelected()"></label>
+                  <label>Text<textarea [(ngModel)]="item.text" rows="3" (ngModelChange)="context.updateSelected()"></textarea></label>
+                  <div class="bt-inline-fields"><label>Action label<input [(ngModel)]="item.cta" (ngModelChange)="context.updateSelected()"></label><label>URL<input [(ngModel)]="item.url" (ngModelChange)="context.updateSelected()"></label></div>
+                  @if (item.actionType === 'command') {
+                    <label>Command / action<input [(ngModel)]="item.command" placeholder="tel:+91..., mailto:..., https://wa.me/..." (ngModelChange)="context.updateSelected()"></label>
+                  }
+                  @if (block.content['showSecondaryAction']) {
+                    <div class="bt-inline-fields"><label>Second label<input [(ngModel)]="item.secondaryCta" (ngModelChange)="context.updateSelected()"></label><label>Second URL<input [(ngModel)]="item.secondaryUrl" (ngModelChange)="context.updateSelected()"></label></div>
+                  }
+                </div>
+              }
+            </div>
+            <button type="button" class="bt-add-repeat" (click)="context.addRepeatItem(block, 'items')">+ Add service</button>

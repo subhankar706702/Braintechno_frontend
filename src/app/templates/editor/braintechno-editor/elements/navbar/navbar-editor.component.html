@@ -1,0 +1,67 @@
+<div class="bt-navbar-editor-fields">
+            <label>Brand<input [(ngModel)]="block.content['brand']" (ngModelChange)="notify()"></label>
+
+            <div class="bt-media-field">
+              <span class="bt-field-label">Logo</span>
+              @if (block.content['logo']) {
+                <img class="bt-media-preview bt-media-preview--small" [src]="block.content['logo']" alt="Navbar logo">
+              } @else {
+                <div class="bt-media-preview bt-media-preview--small" style="display:grid;place-items:center;background:#F1F5F9;color:#94A3B8;font-weight:800">LOGO</div>
+              }
+              <div class="bt-media-actions">
+                <button type="button" class="bt-media-choose" (click)="requestOpenLogo()"><mat-icon fontSet="material-symbols-rounded">photo_library</mat-icon>{{ block.content['logo'] ? 'Change logo' : 'Choose from gallery' }}</button>
+                @if (block.content['logo']) { <button type="button" class="bt-media-remove" (click)="requestClearLogo()">Remove</button> }
+              </div>
+            </div>
+
+            <div class="bt-form-grid bt-form-grid--2">
+              <label>Logo position
+                <select [(ngModel)]="block.content['logoPosition']" (ngModelChange)="notify()">
+                  <option value="left">Left</option><option value="center">Center</option><option value="right">Right</option>
+                </select>
+              </label>
+              <label>Logo size<input type="number" min="24" max="120" [(ngModel)]="block.content['logoSize']" (ngModelChange)="notify()"></label>
+              <label>Logo shape
+                <select [(ngModel)]="block.content['logoShape']" (ngModelChange)="notify()">
+                  <option value="square">Square</option><option value="rounded">Rounded</option><option value="circle">Circle</option>
+                </select>
+              </label>
+              <label>Logo radius (%)<input type="number" min="0" max="50" [(ngModel)]="block.content['logoRadius']" (ngModelChange)="notify()"></label>
+            </div>
+
+            <label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['showBrand']" (ngModelChange)="notify()"><span>Show brand name</span></label>
+            <label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['mobileMenu']" (ngModelChange)="notify()"><span>Responsive mobile menu</span></label>
+
+            <label>Mobile menu icon
+              <select [(ngModel)]="block.content['mobileTrigger']" (ngModelChange)="notify()">
+                <option value="menu">☰ Hamburger</option><option value="dots">⋮ Three dots</option><option value="plus">＋ Plus</option><option value="arrow">⌄ Arrow</option>
+              </select>
+            </label>
+
+            <div class="bt-info-box"><mat-icon fontSet="material-symbols-rounded">devices</mat-icon><span>Desktop menu automatically changes to a mobile menu at 720px. Every menu item can be removed.</span></div>
+
+            <div class="repeat-editor">
+              @for (item of block.content['menuItems']; track $index) {
+                <div class="repeat-card">
+                  <div class="repeat-card__head"><strong>Menu {{ $index + 1 }}</strong><span><button type="button" (click)="moveItem.emit({ key: 'menuItems', index: $index, delta: -1 })">↑</button><button type="button" (click)="moveItem.emit({ key: 'menuItems', index: $index, delta: 1 })">↓</button><button type="button" (click)="removeItem.emit({ key: 'menuItems', index: $index, minimum: 0 })">×</button></span></div>
+                  <label>Label<input [(ngModel)]="item.label" (ngModelChange)="notify()"></label>
+                  <label>URL / route<input [(ngModel)]="item.url" (ngModelChange)="notify()"></label>
+                  <label>Icon<input [(ngModel)]="item.icon" (ngModelChange)="notify()" placeholder="home, call, store..."></label>
+                  <label>Open<select [(ngModel)]="item.target" (ngModelChange)="notify()"><option value="_self">Same tab</option><option value="_blank">New tab</option></select></label>
+                  <label>Sub-menu items (JSON)
+                    <textarea [(ngModel)]="item['childrenJson']" rows="3" placeholder='[{"label":"Offers","url":"#offers"}]' (ngModelChange)="notify()"></textarea>
+                  </label>
+                </div>
+              }
+            </div>
+            <button type="button" class="bt-add-repeat" (click)="addItem.emit({ key: 'menuItems' })">+ Add menu</button>
+
+            <div class="bt-form-grid bt-form-grid--2">
+              <label>CTA text<input [(ngModel)]="block.content['cta']" (ngModelChange)="notify()"></label>
+              <label>CTA URL<input [(ngModel)]="block.content['ctaUrl']" (ngModelChange)="notify()"></label>
+            </div>
+            <label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['showCta']" (ngModelChange)="notify()"><span>Show CTA button</span></label>
+            <label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['showIcons']" (ngModelChange)="notify()"><span>Show menu icons</span></label>
+            <label>Menu gap (px)<input type="number" min="0" max="60" [(ngModel)]="block.content['menuGap']" (ngModelChange)="notify()"></label>
+
+</div>

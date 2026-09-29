@@ -1,0 +1,2 @@
+<label>Gap (px)<input type="number" [(ngModel)]="block.style['gap']" (ngModelChange)="context.updateSelected()"></label>
+            <div class="bt-cell-editor">@for (cell of block.content['cells']; track $index) { <div class="bt-cell-editor__item"><strong>Div {{ $index + 1 }}</strong><label>Title<input [(ngModel)]="cell.title" (ngModelChange)="context.updateSelected()"></label><label>Text<textarea [(ngModel)]="cell.text" rows="3" (ngModelChange)="context.updateSelected()"></textarea></label></div> }</div>

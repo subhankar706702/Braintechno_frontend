@@ -1,2 +1,158 @@
-<label>Title<input [(ngModel)]="block.content['title']" (ngModelChange)="context.updateSelected()"></label>
-            <div class="repeat-editor">@for (item of block.content['items']; track $index) { <div class="repeat-card"><div class="repeat-card__head"><strong>Step {{ $index + 1 }}</strong><span><button type="button" (click)="context.moveRepeatItem(block, 'items', $index, -1)">↑</button><button type="button" (click)="context.moveRepeatItem(block, 'items', $index, 1)">↓</button><button type="button" (click)="context.removeRepeatItem(block, 'items', $index)">×</button></span></div><label>Title<input [(ngModel)]="item.title" (ngModelChange)="context.updateSelected()"></label><label>Text<textarea [(ngModel)]="item.text" rows="3" (ngModelChange)="context.updateSelected()"></textarea></label></div> }</div><button type="button" class="bt-add-repeat" (click)="context.addRepeatItem(block, 'items')">+ Add timeline item</button>
+<div class="bt-element-editor bt-timeline-editor">
+  <label>
+    Title
+    <input [(ngModel)]="block.content['title']" (ngModelChange)="context.updateSelected()">
+  </label>
+
+  <label>
+    Subtitle
+    <textarea rows="2" [(ngModel)]="block.content['subtitle']" (ngModelChange)="context.updateSelected()"></textarea>
+  </label>
+
+  <div class="bt-editor-toggle-grid">
+    <label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['showTitle']" (ngModelChange)="context.updateSelected()"> Show title</label>
+    <label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['showSubtitle']" (ngModelChange)="context.updateSelected()"> Show subtitle</label>
+    <label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['showDates']" (ngModelChange)="context.updateSelected()"> Show dates</label>
+    <label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['showIcons']" (ngModelChange)="context.updateSelected()"> Show icons</label>
+    <label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['showImages']" (ngModelChange)="context.updateSelected()"> Show images</label>
+    <label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['showBadges']" (ngModelChange)="context.updateSelected()"> Show badges</label>
+    <label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['showButtons']" (ngModelChange)="context.updateSelected()"> Show buttons</label>
+    <label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['showStatus']" (ngModelChange)="context.updateSelected()"> Show status</label>
+  </div>
+
+  <div class="bt-editor-subhead">Timeline Items</div>
+  <div class="repeat-editor">
+    @for (item of items; track $index) {
+      <div class="repeat-card">
+        <div class="repeat-card__head">
+          <strong>Item {{ $index + 1 }}</strong>
+          <span>
+            <button type="button" (click)="context.moveRepeatItem(block, 'items', $index, -1)">↑</button>
+            <button type="button" (click)="context.moveRepeatItem(block, 'items', $index, 1)">↓</button>
+            <button type="button" (click)="context.removeRepeatItem(block, 'items', $index, 1)">×</button>
+          </span>
+        </div>
+
+        <label>
+          Date / Time
+          <input [(ngModel)]="item.date" (ngModelChange)="context.updateSelected()" placeholder="12 Jan 2026">
+        </label>
+
+        <label>
+          Title
+          <input [(ngModel)]="item.title" (ngModelChange)="context.updateSelected()">
+        </label>
+
+        <label>
+          Description
+          <textarea rows="3" [(ngModel)]="item.text" (ngModelChange)="context.updateSelected()"></textarea>
+        </label>
+
+        <label>
+          Icon
+          <input [(ngModel)]="item.icon" (ngModelChange)="context.updateSelected()" placeholder="event">
+        </label>
+
+        <label>
+          Badge
+          <input [(ngModel)]="item.badge" (ngModelChange)="context.updateSelected()" placeholder="Milestone">
+        </label>
+
+        <label>
+          Status
+          <select [(ngModel)]="item.status" (ngModelChange)="context.updateSelected()">
+            <option value="completed">Completed</option>
+            <option value="current">Current</option>
+            <option value="upcoming">Upcoming</option>
+          </select>
+        </label>
+
+        <div class="bt-media-row">
+          <button type="button" class="bt-secondary-btn" (click)="chooseItemImage(item)">
+            <mat-icon>image</mat-icon>
+            Choose Image
+          </button>
+          @if (item.image) {
+            <button type="button" class="bt-secondary-btn" (click)="removeItemImage(item)">
+              <mat-icon>delete</mat-icon>
+              Remove Image
+            </button>
+          }
+        </div>
+
+        @if (item.image) {
+          <img class="bt-editor-media-preview" [src]="item.image" [alt]="item.title || 'Timeline image'">
+        }
+
+        <label>
+          Button Label
+          <input [(ngModel)]="item.buttonLabel" (ngModelChange)="context.updateSelected()" placeholder="Learn More">
+        </label>
+
+        <label>
+          Button URL
+          <input [(ngModel)]="item.buttonUrl" (ngModelChange)="context.updateSelected()" placeholder="https://">
+        </label>
+      </div>
+    }
+  </div>
+
+  <button type="button" class="bt-add-repeat" (click)="context.addRepeatItem(block, 'items')">+ Add timeline item</button>
+
+  <div class="bt-editor-subhead">Appearance</div>
+  <div class="bt-two-col">
+    <label>
+      Accent
+      <input type="color" [(ngModel)]="block.style['accent']" (ngModelChange)="context.updateSelected()">
+    </label>
+    <label>
+      Line Color
+      <input type="color" [(ngModel)]="block.style['lineColor']" (ngModelChange)="context.updateSelected()">
+    </label>
+    <label>
+      Background
+      <input type="color" [(ngModel)]="block.style['background']" (ngModelChange)="setColorBackground()">
+    </label>
+    <label>
+      Text Color
+      <input type="color" [(ngModel)]="block.style['color']" (ngModelChange)="context.updateSelected()">
+    </label>
+    <label>
+      Radius
+      <input type="number" min="0" [(ngModel)]="block.style['radius']" (ngModelChange)="context.updateSelected()">
+    </label>
+    <label>
+      Item Radius
+      <input type="number" min="0" [(ngModel)]="block.style['itemRadius']" (ngModelChange)="context.updateSelected()">
+    </label>
+    <label>
+      Gap
+      <input type="number" min="8" [(ngModel)]="block.style['gap']" (ngModelChange)="context.updateSelected()">
+    </label>
+    <label>
+      Margin Top
+      <input type="number" min="0" [(ngModel)]="block.style['marginTop']" (ngModelChange)="context.updateSelected()">
+    </label>
+    <label>
+      Margin Bottom
+      <input type="number" min="0" [(ngModel)]="block.style['marginBottom']" (ngModelChange)="context.updateSelected()">
+    </label>
+  </div>
+
+  <div class="bt-media-row">
+    <button type="button" class="bt-secondary-btn" (click)="chooseBackgroundImage()">
+      <mat-icon>wallpaper</mat-icon>
+      Background Image
+    </button>
+    @if (block.style['backgroundImage']) {
+      <button type="button" class="bt-secondary-btn" (click)="removeBackgroundImage()">
+        <mat-icon>delete</mat-icon>
+        Remove Background
+      </button>
+    }
+  </div>
+
+  @if (block.style['backgroundImage']) {
+    <img class="bt-editor-media-preview" [src]="block.style['backgroundImage']" alt="Timeline background">
+  }
+</div>

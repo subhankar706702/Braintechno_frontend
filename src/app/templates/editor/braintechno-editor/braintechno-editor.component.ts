@@ -20,125 +20,126 @@ import { ElementCatalogService } from '../../../core/element-catalog.service';
 import { EditorBlock, ElementPreset, MediaItem } from './models/editor-block.model';
 import { createNavbarBlock, createNavbarMenuItem } from './elements/navbar/navbar-factory';
 import { NavbarEditorComponent } from './elements/navbar/navbar-editor.component';
-import { renderNavbarBlock } from './renderers/navbar.renderer';
+import { renderNavbarBlock } from './elements/navbar/navbar.renderer';
 import { ELEMENT_PRESETS } from './registry/element-presets';
 import { ElementEditorContext } from './models/element-editor-context.model';
 import { createSectionBlock } from './elements/section/section.factory';
-import { renderSectionBlock } from './renderers/section.renderer';
+import { renderSectionBlock } from './elements/section/section.renderer';
 import { SectionEditorComponent } from './elements/section/section-editor.component';
 import { createBlockBlock } from './elements/block/block.factory';
-import { renderBlockBlock } from './renderers/block.renderer';
+import { renderBlockBlock } from './elements/block/block.renderer';
 import { BlockEditorComponent } from './elements/block/block-editor.component';
 import { createHeadingBlock } from './elements/heading/heading.factory';
-import { renderHeadingBlock } from './renderers/heading.renderer';
+import { renderHeadingBlock } from './elements/heading/heading.renderer';
 import { HeadingEditorComponent } from './elements/heading/heading-editor.component';
 import { createTextBlock } from './elements/text/text.factory';
-import { renderTextBlock } from './renderers/text.renderer';
+import { renderTextBlock } from './elements/text/text.renderer';
 import { TextEditorComponent } from './elements/text/text-editor.component';
 import { createLinkBlock } from './elements/link/link.factory';
-import { renderLinkBlock } from './renderers/link.renderer';
+import { renderLinkBlock } from './elements/link/link.renderer';
 import { LinkEditorComponent } from './elements/link/link-editor.component';
 import { createImageBlock } from './elements/image/image.factory';
-import { renderImageBlock } from './renderers/image.renderer';
+import { renderImageBlock } from './elements/image/image.renderer';
 import { ImageEditorComponent } from './elements/image/image-editor.component';
 import { createVideoBlock } from './elements/video/video.factory';
-import { renderVideoBlock } from './renderers/video.renderer';
+import { renderVideoBlock } from './elements/video/video.renderer';
 import { VideoEditorComponent } from './elements/video/video-editor.component';
 import { createSliderBlock } from './elements/slider/slider.factory';
-import { renderSliderBlock } from './renderers/slider.renderer';
+import { renderSliderBlock } from './elements/slider/slider.renderer';
 import { SliderEditorComponent } from './elements/slider/slider-editor.component';
 import { createGalleryBlock } from './elements/gallery/gallery.factory';
-import { renderGalleryBlock } from './renderers/gallery.renderer';
+import { renderGalleryBlock } from './elements/gallery/gallery.renderer';
 import { GalleryEditorComponent } from './elements/gallery/gallery-editor.component';
 import { createButtonBlock } from './elements/button/button.factory';
-import { renderButtonBlock } from './renderers/button.renderer';
+import { renderButtonBlock } from './elements/button/button.renderer';
 import { ButtonEditorComponent } from './elements/button/button-editor.component';
 import { createIconBlock } from './elements/icon/icon.factory';
-import { renderIconBlock } from './renderers/icon.renderer';
+import { renderIconBlock } from './elements/icon/icon.renderer';
 import { IconEditorComponent } from './elements/icon/icon-editor.component';
 import { createSocialBlock } from './elements/social/social.factory';
-import { renderSocialBlock } from './renderers/social.renderer';
+import { renderSocialBlock } from './elements/social/social.renderer';
 import { SocialEditorComponent } from './elements/social/social-editor.component';
 import { createProductBlock } from './elements/product/product.factory';
-import { renderProductBlock } from './renderers/product.renderer';
+import { renderProductBlock } from './elements/product/product.renderer';
 import { ProductEditorComponent } from './elements/product/product-editor.component';
 import { createOfferBlock } from './elements/offer/offer.factory';
-import { renderOfferBlock } from './renderers/offer.renderer';
+import { renderOfferBlock } from './elements/offer/offer.renderer';
 import { OfferEditorComponent } from './elements/offer/offer-editor.component';
 import { createHtmlBlock } from './elements/html/html.factory';
-import { renderHtmlBlock } from './renderers/html.renderer';
+import { renderHtmlBlock } from './elements/html/html.renderer';
 import { HtmlEditorComponent } from './elements/html/html-editor.component';
 import { createFormBlock } from './elements/form/form.factory';
-import { renderFormBlock } from './renderers/form.renderer';
+import { renderFormBlock } from './elements/form/form.renderer';
 import { FormEditorComponent } from './elements/form/form-editor.component';
 import { createContactBlock } from './elements/contact/contact.factory';
-import { renderContactBlock } from './renderers/contact.renderer';
+import { renderContactBlock } from './elements/contact/contact.renderer';
 import { ContactEditorComponent } from './elements/contact/contact-editor.component';
 import { createWhatsappBlock } from './elements/whatsapp/whatsapp.factory';
-import { renderWhatsappBlock } from './renderers/whatsapp.renderer';
+import { renderWhatsappBlock } from './elements/whatsapp/whatsapp.renderer';
 import { WhatsappEditorComponent } from './elements/whatsapp/whatsapp-editor.component';
 import { createMapBlock } from './elements/map/map.factory';
-import { renderMapBlock } from './renderers/map.renderer';
+import { renderMapBlock } from './elements/map/map.renderer';
 import { MapEditorComponent } from './elements/map/map-editor.component';
 import { createScannerBlock } from './elements/scanner/scanner.factory';
-import { renderScannerBlock } from './renderers/scanner.renderer';
+import { renderScannerBlock } from './elements/scanner/scanner.renderer';
 import { ScannerEditorComponent } from './elements/scanner/scanner-editor.component';
 import { createTimerBlock } from './elements/timer/timer.factory';
-import { renderTimerBlock } from './renderers/timer.renderer';
+import { renderTimerBlock } from './elements/timer/timer.renderer';
 import { TimerEditorComponent } from './elements/timer/timer-editor.component';
 import { createCounterBlock } from './elements/counter/counter.factory';
-import { renderCounterBlock } from './renderers/counter.renderer';
+import { renderCounterBlock } from './elements/counter/counter.renderer';
 import { CounterEditorComponent } from './elements/counter/counter-editor.component';
 import { createRatingBlock } from './elements/rating/rating.factory';
-import { renderRatingBlock } from './renderers/rating.renderer';
+import { renderRatingBlock } from './elements/rating/rating.renderer';
 import { RatingEditorComponent } from './elements/rating/rating-editor.component';
 import { createChartBlock } from './elements/chart/chart.factory';
-import { renderChartBlock } from './renderers/chart.renderer';
+import { renderChartBlock } from './elements/chart/chart.renderer';
 import { ChartEditorComponent } from './elements/chart/chart-editor.component';
 import { createMediaBlock } from './elements/media/media.factory';
-import { renderMediaBlock } from './renderers/media.renderer';
+import { renderMediaBlock } from './elements/media/media.renderer';
 import { MediaEditorComponent } from './elements/media/media-editor.component';
 import { createHeroBlock } from './elements/hero/hero.factory';
-import { renderHeroBlock } from './renderers/hero.renderer';
+import { renderHeroBlock } from './elements/hero/hero.renderer';
 import { HeroEditorComponent } from './elements/hero/hero-editor.component';
 import { createServicesBlock } from './elements/services/services.factory';
-import { renderServicesBlock } from './renderers/services.renderer';
+import { renderServicesBlock } from './elements/services/services.renderer';
 import { ServicesEditorComponent } from './elements/services/services-editor.component';
 import { createTestimonialBlock } from './elements/testimonial/testimonial.factory';
-import { renderTestimonialBlock } from './renderers/testimonial.renderer';
+import { renderTestimonialBlock } from './elements/testimonial/testimonial.renderer';
 import { TestimonialEditorComponent } from './elements/testimonial/testimonial-editor.component';
 import { createPricingBlock } from './elements/pricing/pricing.factory';
-import { renderPricingBlock } from './renderers/pricing.renderer';
+import { renderPricingBlock } from './elements/pricing/pricing.renderer';
 import { PricingEditorComponent } from './elements/pricing/pricing-editor.component';
 import { createFaqBlock } from './elements/faq/faq.factory';
-import { renderFaqBlock } from './renderers/faq.renderer';
+import { renderFaqBlock } from './elements/faq/faq.renderer';
 import { FaqEditorComponent } from './elements/faq/faq-editor.component';
 import { createStatsBlock } from './elements/stats/stats.factory';
-import { renderStatsBlock } from './renderers/stats.renderer';
+import { renderStatsBlock } from './elements/stats/stats.renderer';
 import { StatsEditorComponent } from './elements/stats/stats-editor.component';
 import { createTabsBlock } from './elements/tabs/tabs.factory';
-import { renderTabsBlock } from './renderers/tabs.renderer';
+import { renderTabsBlock } from './elements/tabs/tabs.renderer';
 import { TabsEditorComponent } from './elements/tabs/tabs-editor.component';
+import { repeatTabsItemTemplate } from './elements/tabs/tabs.repeat';
 import { createTimelineBlock } from './elements/timeline/timeline.factory';
-import { renderTimelineBlock } from './renderers/timeline.renderer';
+import { renderTimelineBlock } from './elements/timeline/timeline.renderer';
 import { TimelineEditorComponent } from './elements/timeline/timeline-editor.component';
 import { createTeamBlock } from './elements/team/team.factory';
-import { renderTeamBlock } from './renderers/team.renderer';
+import { renderTeamBlock } from './elements/team/team.renderer';
 import { TeamEditorComponent } from './elements/team/team-editor.component';
 import { createFooterBlock } from './elements/footer/footer.factory';
-import { renderFooterBlock } from './renderers/footer.renderer';
+import { renderFooterBlock } from './elements/footer/footer.renderer';
 import { FooterEditorComponent } from './elements/footer/footer-editor.component';
 import { createPopupBlock } from './elements/popup/popup.factory';
-import { renderPopupBlock } from './renderers/popup.renderer';
+import { renderPopupBlock } from './elements/popup/popup.renderer';
 import { PopupEditorComponent } from './elements/popup/popup-editor.component';
 import { createFloatingBlock } from './elements/floating/floating.factory';
-import { renderFloatingBlock } from './renderers/floating.renderer';
+import { renderFloatingBlock } from './elements/floating/floating.renderer';
 import { FloatingEditorComponent } from './elements/floating/floating-editor.component';
 import { createDividerBlock } from './elements/divider/divider.factory';
-import { renderDividerBlock } from './renderers/divider.renderer';
+import { renderDividerBlock } from './elements/divider/divider.renderer';
 import { DividerEditorComponent } from './elements/divider/divider-editor.component';
 import { createSpacerBlock } from './elements/spacer/spacer.factory';
-import { renderSpacerBlock } from './renderers/spacer.renderer';
+import { renderSpacerBlock } from './elements/spacer/spacer.renderer';
 import { SpacerEditorComponent } from './elements/spacer/spacer-editor.component';
 import { repeatButtonItemTemplate } from './elements/button/button.repeat';
 import { repeatChartItemTemplate } from './elements/chart/chart.repeat';
@@ -153,11 +154,10 @@ import { repeatProductItemTemplate } from './elements/product/product.repeat';
 import { repeatRatingItemTemplate } from './elements/rating/rating.repeat';
 import { repeatServicesItemTemplate } from './elements/services/services.repeat';
 import { repeatSocialItemTemplate } from './elements/social/social.repeat';
-import { repeatTabsItemTemplate } from './elements/tabs/tabs.repeat';
+import { repeatStatsItemTemplate } from './elements/stats/stats.repeat';
 import { repeatTeamItemTemplate } from './elements/team/team.repeat';
 import { repeatTestimonialItemTemplate } from './elements/testimonial/testimonial.repeat';
 import { repeatTimelineItemTemplate } from './elements/timeline/timeline.repeat';
-import { repeatStatsItemTemplate } from './elements/stats/stats.repeat';
 
 
 interface EditorDesign {
@@ -422,7 +422,15 @@ export class BraintechnoEditorComponent implements OnChanges, OnDestroy {
   }
 
   presetOptions(type: string): ElementPreset[] {
-    return (this.presets[type] || []).filter(preset => !this.catalog.isHiddenPreset(preset.key));
+    const options = this.presets[type] || [];
+
+    // Tabs has its own complete 15-style catalog.
+    // Do not let global preset visibility rules hide styles with shared keys.
+    if (type === 'tabs' || type === 'navbar') {
+      return options;
+    }
+
+    return options.filter(preset => !this.catalog.isHiddenPreset(preset.key));
   }
 
   presetBadge(type: string, key: string): string {
@@ -672,6 +680,23 @@ export class BraintechnoEditorComponent implements OnChanges, OnDestroy {
     this.commitChange();
   }
 
+  onPreviewClick(event: MouseEvent, block: EditorBlock): void {
+    const target = event.target as HTMLElement | null;
+    const tab = target?.closest<HTMLElement>('[data-tab-btn]');
+    if (!tab || block.type !== 'tabs') return;
+
+    const root = tab.closest<HTMLElement>('[data-bt-tabs], .bt-tabs');
+    if (!root) return;
+
+    const rawIndex = tab.getAttribute('data-tab-btn');
+    const index = Number(rawIndex);
+    if (!Number.isInteger(index)) return;
+
+    this.pushHistory();
+    block.content['active'] = index;
+    this.commitChange();
+  }
+
   changeSocialPlatform(block: EditorBlock, item: Record<string, any>, platform: string): void {
     const key = String(platform || '').toLowerCase();
     const iconMap: Record<string, string> = {
@@ -811,28 +836,21 @@ export class BraintechnoEditorComponent implements OnChanges, OnDestroy {
       this.changeBlockVariant(block, variant);
       return;
     }
-    if (block.type === 'stats') {
-      // Keep the user's metric values/items, but apply the selected preset's
-      // layout/display defaults as well. Without this, changing the Style
-      // dropdown only changed the variant name while stale layout settings
-      // remained from the previous preset.
-      const layoutKeys = [
-        'desktopLayout', 'mobileLayout', 'showTitle', 'showSubtitle',
-        'showDescription', 'showIcons', 'showProgress', 'featuredIndex'
-      ];
-      for (const key of layoutKeys) {
-        if (key in fresh.content) block.content[key] = this.clone(fresh.content[key]);
-      }
-      block.content['variant'] = variant;
-      block.style = { ...block.style, ...fresh.style };
-      this.commitChange();
-      return;
-    }
     if (block.type === 'gallery') block.style['columns'] = fresh.style['columns'];
     if (block.type === 'spacer') block.style['height'] = fresh.style['height'];
     if (block.type === 'map') block.content['height'] = fresh.content['height'];
     if (block.type === 'timer') block.content['variant'] = variant;
     if (block.type === 'chart') block.content['variant'] = variant;
+    if (block.type === 'timeline') {
+      block.content['variant'] = variant;
+      const timelineKeys = [
+        'showTitle', 'showSubtitle', 'showDates', 'showIcons',
+        'showImages', 'showBadges', 'showButtons', 'showStatus'
+      ];
+      for (const key of timelineKeys) {
+        if (key in fresh.content) block.content[key] = this.clone(fresh.content[key]);
+      }
+    }
     this.commitChange();
   }
 

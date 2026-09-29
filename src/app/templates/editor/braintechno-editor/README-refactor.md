@@ -1,21 +1,26 @@
-# BRAIN TECHNO Editor — Element-wise Refactor
+# BRAIN TECHNO Editor – Element-local Architecture
 
-This package keeps the existing editor JSON/schema and UI classes intact while moving each real editor element into its own folder.
+The editor engine remains in:
+- `braintechno-editor.component.ts`
+- `braintechno-editor.component.html`
+- `braintechno-editor.component.scss`
 
-## Preserved behavior
-- Existing EditorBlock JSON shape
-- Existing preset keys and labels
-- Existing createBlock defaults
-- Existing renderBlock output branches
-- Existing property-panel markup (moved verbatim into per-element editor components)
-- Existing shared SCSS classes
-- Existing selection, drag/drop, nested block, undo/redo, save/change flow
+Each element is self-contained under `elements/<element>/`.
 
-## Architecture
-Each element owns its factory, renderer and property editor component. The main editor remains the orchestrator.
-The parent editor object is passed to element editor components through `elementContext` so existing helper methods retain the same `this` binding.
+Typical element folder:
+- `<element>-editor.component.ts`
+- `<element>-editor.component.html`
+- `<element>-editor.component.scss`
+- `<element>.factory.ts`
+- `<element>.repeat.ts` (when the element has repeat items)
+- `<element>.renderer.ts`
+- `<element>.presets.ts`
+- any other element-specific helper files
 
-The main editor stylesheet is switched to `ViewEncapsulation.None` so the existing SCSS remains the single UI source of truth for child editor templates; no visual rules were rewritten.
+Examples:
+- `elements/tabs/` contains all Tabs files.
+- `elements/timeline/` contains all Timeline files.
+- `elements/navbar/` contains all Navbar files, including its presets.
 
-## Note
-Angular CLI build/runtime was not available in this isolated workspace, so the package was validated with structural checks and TypeScript/HTML extraction checks. Run `ng build` in the actual Angular project before replacing production files.
+`registry/element-presets.ts` remains only as the central preset aggregator used by the editor engine.
+`models/` remains shared model/context code.

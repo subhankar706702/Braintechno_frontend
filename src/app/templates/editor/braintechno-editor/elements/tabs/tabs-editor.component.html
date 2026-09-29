@@ -1,1 +1,87 @@
-<div class="repeat-editor">@for (item of block.content['items']; track $index) { <div class="repeat-card"><div class="repeat-card__head"><strong>Tab {{ $index + 1 }}</strong><span><button type="button" (click)="context.moveRepeatItem(block, 'items', $index, -1)">↑</button><button type="button" (click)="context.moveRepeatItem(block, 'items', $index, 1)">↓</button><button type="button" (click)="context.removeRepeatItem(block, 'items', $index)">×</button></span></div><label>Title<input [(ngModel)]="item.title" (ngModelChange)="context.updateSelected()"></label><label>Content<textarea [(ngModel)]="item.text" rows="4" (ngModelChange)="context.updateSelected()"></textarea></label><div class="bt-media-field bt-media-field--compact"><span class="bt-field-label">Image</span>@if (item.image) { <img class="bt-media-preview bt-media-preview--small" [src]="item.image" alt=""> }<button type="button" class="bt-media-choose" (click)="context.openMediaPicker(item, 'image', 'mediaId', 'Choose image')"><mat-icon fontSet="material-symbols-rounded">photo_library</mat-icon>{{ item.image ? 'Change image' : 'Choose from gallery' }}</button></div></div> }</div><button type="button" class="bt-add-repeat" (click)="context.addRepeatItem(block, 'items')">+ Add tab</button>
+<label>Title<input [(ngModel)]="block.content['title']" (ngModelChange)="update()"></label>
+<label>Subtitle<textarea [(ngModel)]="block.content['subtitle']" rows="2" (ngModelChange)="update()"></textarea></label>
+
+<div class="bt-form-grid bt-form-grid--2">
+  <label>Desktop layout
+    <select [(ngModel)]="block.content['desktopLayout']" (ngModelChange)="update()">
+      <option value="top">Top tabs</option>
+      <option value="vertical-left">Vertical left</option>
+      <option value="vertical-right">Vertical right</option>
+    </select>
+  </label>
+  <label>Mobile layout
+    <select [(ngModel)]="block.content['mobileLayout']" (ngModelChange)="update()">
+      <option value="stack">Stack content</option>
+      <option value="scroll">Horizontal scroll</option>
+      <option value="accordion">Accordion</option>
+    </select>
+  </label>
+  <label>Tab gap (px)<input type="number" min="0" [(ngModel)]="block.style['tabGap']" (ngModelChange)="update()"></label>
+  <label>Panel gap (px)<input type="number" min="0" [(ngModel)]="block.style['gap']" (ngModelChange)="update()"></label>
+  <label>Tab radius (px)<input type="number" min="0" [(ngModel)]="block.style['tabRadius']" (ngModelChange)="update()"></label>
+  <label>Panel radius (px)<input type="number" min="0" [(ngModel)]="block.style['panelRadius']" (ngModelChange)="update()"></label>
+  <label>Text color<input type="color" [(ngModel)]="block.style['tabTextColor']" (ngModelChange)="update()"></label>
+  <label>Accent color<input type="color" [(ngModel)]="block.style['accent']" (ngModelChange)="update()"></label>
+  <label>Background color<input type="color" [(ngModel)]="block.style['background']" (ngModelChange)="update()"></label>
+  <label>Active tab background<input type="color" [(ngModel)]="block.style['tabActiveBg']" (ngModelChange)="update()"></label>
+</div>
+
+<div class="bt-media-field bt-media-field--compact">
+  <span class="bt-field-label">Background image</span>
+  @if (block.style['backgroundImage']) {
+    <img class="bt-media-preview bt-media-preview--small" [src]="block.style['backgroundImage']" alt="">
+  }
+  <div class="bt-media-actions">
+    <button type="button" class="bt-media-choose" (click)="chooseBackgroundImage()">
+      <mat-icon fontSet="material-symbols-rounded">photo_library</mat-icon>
+      {{ block.style['backgroundImage'] ? 'Change image' : 'Choose image' }}
+    </button>
+    @if (block.style['backgroundImage']) {
+      <button type="button" class="bt-media-remove" (click)="removeBackgroundImage()">Remove</button>
+    }
+  </div>
+</div>
+
+<div class="bt-inline-fields">
+  <label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['showTitle']" (ngModelChange)="update()"><span>Show title</span></label>
+  <label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['showSubtitle']" (ngModelChange)="update()"><span>Show subtitle</span></label>
+  <label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['showIcons']" (ngModelChange)="update()"><span>Show icons</span></label>
+  <label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['showImages']" (ngModelChange)="update()"><span>Show images</span></label>
+  <label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['showBadges']" (ngModelChange)="update()"><span>Show badges</span></label>
+  <label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['showButtons']" (ngModelChange)="update()"><span>Show buttons</span></label>
+</div>
+
+<div class="repeat-editor">
+  @for (item of block.content['items']; track $index) {
+    <div class="repeat-card">
+      <div class="repeat-card__head">
+        <strong>Tab {{ $index + 1 }}</strong>
+        <span>
+          <button type="button" (click)="context.moveRepeatItem(block, 'items', $index, -1)">↑</button>
+          <button type="button" (click)="context.moveRepeatItem(block, 'items', $index, 1)">↓</button>
+          <button type="button" (click)="context.removeRepeatItem(block, 'items', $index)">×</button>
+        </span>
+      </div>
+      <label>Title<input [(ngModel)]="item.title" (ngModelChange)="update()"></label>
+      <div class="bt-inline-fields">
+        <label>Icon<input [(ngModel)]="item.icon" (ngModelChange)="update()" placeholder="dashboard, star..."></label>
+        <label>Badge<input [(ngModel)]="item.badge" (ngModelChange)="update()"></label>
+      </div>
+      <label>Content<textarea [(ngModel)]="item.text" rows="4" (ngModelChange)="update()"></textarea></label>
+      <div class="bt-media-field bt-media-field--compact">
+        <span class="bt-field-label">Tab image</span>
+        @if (item.image) { <img class="bt-media-preview bt-media-preview--small" [src]="item.image" alt=""> }
+        <button type="button" class="bt-media-choose" (click)="context.openMediaPicker(item, 'image', 'mediaId', 'Choose tab image')">
+          <mat-icon fontSet="material-symbols-rounded">photo_library</mat-icon>
+          {{ item.image ? 'Change image' : 'Choose image' }}
+        </button>
+      </div>
+      <div class="bt-inline-fields">
+        <label>Button label<input [(ngModel)]="item.buttonLabel" (ngModelChange)="update()"></label>
+        <label>Button URL<input [(ngModel)]="item.buttonUrl" (ngModelChange)="update()"></label>
+      </div>
+    </div>
+  }
+</div>
+
+<button type="button" class="bt-add-repeat" (click)="context.addRepeatItem(block, 'items')">+ Add tab</button>

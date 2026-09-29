@@ -1,1 +1,8 @@
-/* timeline editor uses the existing global braintechno-editor.component.scss rules unchanged. */
+.bt-timeline-editor .bt-editor-toggle-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0 14px;}
+.bt-timeline-editor .bt-check{display:flex;align-items:center;gap:7px;}
+.bt-timeline-editor .bt-editor-subhead{font-weight:800;margin:16px 0 9px;}
+.bt-timeline-editor .bt-two-col{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.bt-timeline-editor .bt-media-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;}
+.bt-timeline-editor .bt-secondary-btn{display:inline-flex;align-items:center;gap:6px;}
+.bt-timeline-editor .bt-editor-media-preview{display:block;width:100%;max-height:180px;object-fit:cover;border-radius:10px;margin-top:8px;border:1px solid rgba(148,163,184,.3);}
+@media(max-width:560px){.bt-timeline-editor .bt-editor-toggle-grid,.bt-timeline-editor .bt-two-col{grid-template-columns:1fr;}}

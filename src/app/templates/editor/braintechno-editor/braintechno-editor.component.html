@@ -106,6 +106,11 @@
                       <span class="button-mini">Button</span>
                     } @else if (activePresetType === 'product' || activePresetType === 'ecommerce') {
                       <span class="product-mini"><i></i><b></b><em></em></span>
+                    } @else if (activePresetType === 'tabs') {
+                      <span class="tabs-mini" [attr.data-preset]="preset.key">
+                        <i class="tabs-mini__nav"></i>
+                        <b class="tabs-mini__panel"></b>
+                      </span>
                     } @else {
                       <span class="preset-generic-icon"><mat-icon fontSet="material-symbols-rounded">{{ presetIcon(activePresetType) }}</mat-icon></span>
                     }
@@ -212,7 +217,7 @@
                         @for (child of slot; track child.id) {
                           <div class="nested-block" [class.is-selected]="selectedNestedId === child.id" (click)="selectNested(block, slotIndex, child, $event)">
                             <div class="nested-label"><mat-icon fontSet="material-symbols-rounded">{{ presetIcon(child.type) }}</mat-icon><span>{{ child.type }}</span></div>
-                            <div class="bt-export-preview bt-export-preview--nested" [innerHTML]="previewBlockHtml(child)"></div>
+                            <div class="bt-export-preview bt-export-preview--nested" (click)="onPreviewClick($event, child)" [innerHTML]="previewBlockHtml(child)"></div>
                           </div>
                         }
                       </div>
@@ -220,7 +225,7 @@
                   </div>
                 </div>
               } @else {
-                <div class="bt-block-preview bt-export-preview" [innerHTML]="previewBlockHtml(block)"></div>
+                <div class="bt-block-preview bt-export-preview" (click)="onPreviewClick($event, block)" [innerHTML]="previewBlockHtml(block)"></div>
               }
             </div>
           }

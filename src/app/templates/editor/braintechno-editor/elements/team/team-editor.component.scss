@@ -1,1 +1,14 @@
-/* team editor uses the existing global braintechno-editor.component.scss rules unchanged. */
+.bt-team-editor .bt-team-image-preview {
+  display: block;
+  width: 100%;
+  max-height: 180px;
+  object-fit: cover;
+  border-radius: 12px;
+  margin-top: 8px;
+}
+
+.bt-team-editor .bt-editor-subhead--small {
+  margin-top: 14px;
+  margin-bottom: 8px;
+  font-size: 12px;
+}

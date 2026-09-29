@@ -1,2 +1,172 @@
-<label>Title<input [(ngModel)]="block.content['title']" (ngModelChange)="context.updateSelected()"></label>
-            <div class="repeat-editor">@for (item of block.content['items']; track $index) { <div class="repeat-card"><div class="repeat-card__head"><strong>Member {{ $index + 1 }}</strong><span><button type="button" (click)="context.moveRepeatItem(block, 'items', $index, -1)">↑</button><button type="button" (click)="context.moveRepeatItem(block, 'items', $index, 1)">↓</button><button type="button" (click)="context.removeRepeatItem(block, 'items', $index)">×</button></span></div><label>Name<input [(ngModel)]="item.name" (ngModelChange)="context.updateSelected()"></label><label>Role<input [(ngModel)]="item.role" (ngModelChange)="context.updateSelected()"></label><div class="bt-media-field bt-media-field--compact"><span class="bt-field-label">Profile image</span>@if (item.image) { <img class="bt-avatar-preview" [src]="item.image" alt=""> }<button type="button" class="bt-media-choose" (click)="context.openMediaPicker(item, 'image', 'mediaId', 'Choose team image')"><mat-icon fontSet="material-symbols-rounded">photo_library</mat-icon>{{ item.image ? 'Change image' : 'Choose from gallery' }}</button></div><label>Bio<textarea [(ngModel)]="item.bio" rows="2" (ngModelChange)="context.updateSelected()"></textarea></label><label>Facebook<input [(ngModel)]="item.facebook" (ngModelChange)="context.updateSelected()"></label><label>Instagram<input [(ngModel)]="item.instagram" (ngModelChange)="context.updateSelected()"></label><label>LinkedIn<input [(ngModel)]="item.linkedin" (ngModelChange)="context.updateSelected()"></label></div> }</div><button type="button" class="bt-add-repeat" (click)="context.addRepeatItem(block, 'items')">+ Add team member</button>
+<div class="bt-element-editor bt-team-editor">
+  <label>
+    Title
+    <input [(ngModel)]="block.content['title']" (ngModelChange)="context.updateSelected()">
+  </label>
+
+  <label>
+    Subtitle
+    <textarea rows="2" [(ngModel)]="block.content['subtitle']" (ngModelChange)="context.updateSelected()"></textarea>
+  </label>
+
+  <div class="bt-editor-toggle-grid">
+    <label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['showTitle']" (ngModelChange)="context.updateSelected()"> Show title</label>
+    <label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['showSubtitle']" (ngModelChange)="context.updateSelected()"> Show subtitle</label>
+    <label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['showRole']" (ngModelChange)="context.updateSelected()"> Show role</label>
+    <label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['showBio']" (ngModelChange)="context.updateSelected()"> Show bio</label>
+    <label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['showDepartment']" (ngModelChange)="context.updateSelected()"> Show department</label>
+    <label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['showExperience']" (ngModelChange)="context.updateSelected()"> Show experience</label>
+    <label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['showSkills']" (ngModelChange)="context.updateSelected()"> Show skills</label>
+    <label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['showSocial']" (ngModelChange)="context.updateSelected()"> Show social</label>
+    <label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['showContact']" (ngModelChange)="context.updateSelected()"> Show contact</label>
+    <label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['showButton']" (ngModelChange)="context.updateSelected()"> Show button</label>
+  </div>
+
+  <div class="bt-editor-subhead">Team Members</div>
+
+  <div class="repeat-editor">
+    @for (item of items; track $index) {
+      <div class="repeat-card bt-team-repeat-card">
+        <div class="repeat-card__head">
+          <strong>Member {{ $index + 1 }}</strong>
+          <span>
+            <button type="button" (click)="context.moveRepeatItem(block, 'items', $index, -1)">↑</button>
+            <button type="button" (click)="context.moveRepeatItem(block, 'items', $index, 1)">↓</button>
+            <button type="button" (click)="context.removeRepeatItem(block, 'items', $index, 1)">×</button>
+          </span>
+        </div>
+
+        <label>
+          Name
+          <input [(ngModel)]="item.name" (ngModelChange)="context.updateSelected()">
+        </label>
+
+        <label>
+          Designation / Role
+          <input [(ngModel)]="item.role" (ngModelChange)="context.updateSelected()" placeholder="Founder / Designer">
+        </label>
+
+        <label>
+          Department
+          <input [(ngModel)]="item.department" (ngModelChange)="context.updateSelected()" placeholder="Marketing">
+        </label>
+
+        <label>
+          Experience
+          <input [(ngModel)]="item.experience" (ngModelChange)="context.updateSelected()" placeholder="8+ years">
+        </label>
+
+        <label>
+          Bio
+          <textarea rows="3" [(ngModel)]="item.bio" (ngModelChange)="context.updateSelected()"></textarea>
+        </label>
+
+        <label>
+          Skills / Expertise
+          <input [(ngModel)]="item.skills" (ngModelChange)="context.updateSelected()" placeholder="Strategy, Branding, Design">
+        </label>
+
+        <div class="bt-media-row">
+          <button type="button" class="bt-secondary-btn" (click)="chooseImage(item)">
+            <mat-icon>image</mat-icon>
+            {{ item.image ? 'Change Image' : 'Choose Image' }}
+          </button>
+          @if (item.image) {
+            <button type="button" class="bt-secondary-btn" (click)="removeImage(item)">
+              <mat-icon>delete</mat-icon>
+              Remove
+            </button>
+          }
+        </div>
+
+        @if (item.image) {
+          <img class="bt-editor-media-preview bt-team-image-preview" [src]="item.image" [alt]="item.name || 'Team member'">
+        }
+
+        <div class="bt-editor-subhead bt-editor-subhead--small">Contact & Social</div>
+
+        <label>Email<input [(ngModel)]="item.email" (ngModelChange)="context.updateSelected()" placeholder="name@example.com"></label>
+        <label>Phone<input [(ngModel)]="item.phone" (ngModelChange)="context.updateSelected()" placeholder="+91"></label>
+        <label>Website<input [(ngModel)]="item.website" (ngModelChange)="context.updateSelected()" placeholder="https://"></label>
+        <label>Facebook<input [(ngModel)]="item.facebook" (ngModelChange)="context.updateSelected()" placeholder="https://facebook.com/"></label>
+        <label>Instagram<input [(ngModel)]="item.instagram" (ngModelChange)="context.updateSelected()" placeholder="https://instagram.com/"></label>
+        <label>LinkedIn<input [(ngModel)]="item.linkedin" (ngModelChange)="context.updateSelected()" placeholder="https://linkedin.com/in/"></label>
+        <label>X / Twitter<input [(ngModel)]="item.x" (ngModelChange)="context.updateSelected()" placeholder="https://x.com/"></label>
+
+        <label>Button Label<input [(ngModel)]="item.buttonLabel" (ngModelChange)="context.updateSelected()" placeholder="View Profile"></label>
+        <label>Button URL<input [(ngModel)]="item.buttonUrl" (ngModelChange)="context.updateSelected()" placeholder="https://"></label>
+      </div>
+    }
+  </div>
+
+  <button type="button" class="bt-add-repeat" (click)="context.addRepeatItem(block, 'items')">+ Add team member</button>
+
+  <div class="bt-editor-subhead">Appearance</div>
+  <div class="bt-two-col">
+    <label>
+      Accent
+      <input type="color" [(ngModel)]="block.style['accent']" (ngModelChange)="context.updateSelected()">
+    </label>
+    <label>
+      Background
+      <input type="color" [(ngModel)]="block.style['background']" (ngModelChange)="setColorBackground()">
+    </label>
+    <label>
+      Text Color
+      <input type="color" [(ngModel)]="block.style['color']" (ngModelChange)="context.updateSelected()">
+    </label>
+    <label>
+      Muted Color
+      <input type="color" [(ngModel)]="block.style['mutedColor']" (ngModelChange)="context.updateSelected()">
+    </label>
+    <label>
+      Card Background
+      <input type="color" [(ngModel)]="block.style['cardBg']" (ngModelChange)="context.updateSelected()">
+    </label>
+    <label>
+      Card Border
+      <input type="color" [(ngModel)]="block.style['cardBorder']" (ngModelChange)="context.updateSelected()">
+    </label>
+    <label>
+      Button Background
+      <input type="color" [(ngModel)]="block.style['buttonBg']" (ngModelChange)="context.updateSelected()">
+    </label>
+    <label>
+      Image Background
+      <input type="color" [(ngModel)]="block.style['imageBg']" (ngModelChange)="context.updateSelected()">
+    </label>
+    <label>
+      Columns
+      <input type="number" min="1" max="6" [(ngModel)]="block.style['columns']" (ngModelChange)="context.updateSelected()">
+    </label>
+    <label>
+      Gap
+      <input type="number" min="8" [(ngModel)]="block.style['gap']" (ngModelChange)="context.updateSelected()">
+    </label>
+    <label>
+      Card Radius
+      <input type="number" min="0" [(ngModel)]="block.style['cardRadius']" (ngModelChange)="context.updateSelected()">
+    </label>
+    <label>
+      Section Radius
+      <input type="number" min="0" [(ngModel)]="block.style['radius']" (ngModelChange)="context.updateSelected()">
+    </label>
+  </div>
+
+  <div class="bt-media-row">
+    <button type="button" class="bt-secondary-btn" (click)="chooseBackgroundImage()">
+      <mat-icon>wallpaper</mat-icon>
+      Background Image
+    </button>
+    @if (block.style['backgroundImage']) {
+      <button type="button" class="bt-secondary-btn" (click)="removeBackgroundImage()">
+        <mat-icon>delete</mat-icon>
+        Remove Background
+      </button>
+    }
+  </div>
+
+  @if (block.style['backgroundImage']) {
+    <img class="bt-editor-media-preview" [src]="block.style['backgroundImage']" alt="Team background">
+  }
+</div>

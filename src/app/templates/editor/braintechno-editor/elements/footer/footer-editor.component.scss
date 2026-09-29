@@ -1,1 +1,20 @@
-/* footer editor uses the existing global braintechno-editor.component.scss rules unchanged. */
+.bt-footer-editor { display: grid; gap: 16px; }
+.bt-footer-editor__intro { padding: 14px 16px; border: 1px solid #E2E8F0; border-radius: 12px; background: #F8FAFC; display: grid; gap: 4px; }
+.bt-footer-editor__intro strong { font-size: 14px; color: #0F172A; }
+.bt-footer-editor__intro span { font-size: 12px; color: #64748B; line-height: 1.5; }
+.bt-footer-editor__section { display: grid; gap: 12px; }
+.bt-footer-editor__section-title { font-size: 12px; font-weight: 900; color: #334155; text-transform: uppercase; letter-spacing: .06em; }
+.bt-footer-link-row { display: grid; grid-template-columns: minmax(100px, 1fr) minmax(120px, 1.4fr) 104px 34px 34px 34px; gap: 7px; align-items: center; margin-top: 8px; }
+.bt-footer-link-row button, .bt-repeat-actions button, .bt-footer-social-row button { min-width: 0; }
+.bt-social-edit-card { display: grid; gap: 10px; }
+.bt-social-preview { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border: 1px solid #E2E8F0; border-radius: 10px; background: #F8FAFC; }
+.bt-social-preview img { width: 32px; height: 32px; object-fit: contain; flex: 0 0 32px; }
+.bt-social-preview mat-icon { width: 32px; height: 32px; font-size: 32px; }
+.bt-social-preview div { display: grid; gap: 2px; }
+.bt-social-preview small { color: #64748B; font-size: 11px; }
+.bt-repeat-actions { display: inline-flex; gap: 4px; }
+.bt-repeat-actions button { width: 28px; height: 28px; padding: 0; border: 1px solid #E2E8F0; border-radius: 7px; background: #fff; cursor: pointer; }
+@media (max-width: 700px) {
+  .bt-footer-link-row { grid-template-columns: 1fr 1fr; }
+  .bt-footer-link-row select { grid-column: span 2; }
+}

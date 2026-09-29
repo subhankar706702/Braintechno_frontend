@@ -1,1 +1,224 @@
-<label>Brand<input [(ngModel)]="block.content['brand']" (ngModelChange)="context.updateSelected()"></label><label>Text<textarea [(ngModel)]="block.content['text']" rows="3" (ngModelChange)="context.updateSelected()"></textarea></label><label>Links (comma separated)<input [(ngModel)]="block.content['links']" (ngModelChange)="context.updateSelected()"></label><label>Phone<input [(ngModel)]="block.content['phone']" (ngModelChange)="context.updateSelected()"></label><label>Email<input [(ngModel)]="block.content['email']" (ngModelChange)="context.updateSelected()"></label><label>Copyright<input [(ngModel)]="block.content['copyright']" (ngModelChange)="context.updateSelected()"></label>
+<div class="bt-footer-editor">
+  <div class="bt-footer-editor__intro">
+    <strong>Footer Properties</strong>
+    <span>Control the layout, brand, links, social logos, contact actions, CTA, app links and visual styling.</span>
+  </div>
+
+  <div class="bt-footer-editor__section">
+    <div class="bt-footer-editor__section-title">Brand & Layout</div>
+    <div class="bt-form-grid bt-form-grid--2">
+      <label>Brand<input [(ngModel)]="block.content['brand']" (ngModelChange)="update()"></label>
+      <label>Tagline<input [(ngModel)]="block.content['tagline']" (ngModelChange)="update()"></label>
+      <label class="bt-span-2">About / Intro<textarea [(ngModel)]="block.content['text']" rows="3" (ngModelChange)="update()"></textarea></label>
+      <label>Logo width (px)<input type="number" min="60" max="320" [(ngModel)]="block.content['logoWidth']" (ngModelChange)="update()"></label>
+      <label>Content max width (px)<input type="number" min="760" max="1600" [(ngModel)]="block.style['contentMaxWidth']" (ngModelChange)="update()"></label>
+    </div>
+
+    <div class="bt-media-field bt-media-field--compact">
+      <span class="bt-field-label">Footer logo</span>
+      @if (block.content['logo']) { <img class="bt-media-preview bt-media-preview--small" [src]="block.content['logo']" alt="Footer logo"> }
+      <div class="bt-media-actions">
+        <button type="button" class="bt-media-choose" (click)="chooseLogo()"><mat-icon fontSet="material-symbols-rounded">photo_library</mat-icon>{{ block.content['logo'] ? 'Change logo' : 'Choose logo' }}</button>
+        @if (block.content['logo']) { <button type="button" class="bt-media-remove" (click)="removeLogo()">Remove</button> }
+      </div>
+    </div>
+
+    <div class="bt-inline-fields">
+      <label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['showBrand']" (ngModelChange)="update()"><span>Brand</span></label>
+      <label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['showSocials']" (ngModelChange)="update()"><span>Social links</span></label>
+      <label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['showLegal']" (ngModelChange)="update()"><span>Legal bar</span></label>
+      <label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['showBackToTop']" (ngModelChange)="update()"><span>Back to top</span></label>
+    </div>
+  </div>
+
+  <div class="bt-footer-editor__section">
+    <div class="bt-footer-editor__section-title">Contact</div>
+    <div class="bt-inline-fields">
+      <label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['showPhone']" (ngModelChange)="update()"><span>Phone</span></label>
+      <label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['showWhatsapp']" (ngModelChange)="update()"><span>WhatsApp</span></label>
+      <label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['showEmail']" (ngModelChange)="update()"><span>Email</span></label>
+      <label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['showAddress']" (ngModelChange)="update()"><span>Address</span></label>
+      <label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['showHours']" (ngModelChange)="update()"><span>Business hours</span></label>
+    </div>
+    <div class="bt-form-grid bt-form-grid--2">
+      <label>Phone<input [(ngModel)]="block.content['phone']" (ngModelChange)="update()"></label>
+      <label>WhatsApp number<input [(ngModel)]="block.content['whatsapp']" (ngModelChange)="update()"></label>
+      <label>Email<input type="email" [(ngModel)]="block.content['email']" (ngModelChange)="update()"></label>
+      <label>Business hours<input [(ngModel)]="block.content['hours']" (ngModelChange)="update()"></label>
+      <label class="bt-span-2">Address<textarea [(ngModel)]="block.content['address']" rows="2" (ngModelChange)="update()"></textarea></label>
+      <label class="bt-span-2">Map URL<input [(ngModel)]="block.content['mapUrl']" (ngModelChange)="update()"></label>
+    </div>
+  </div>
+
+  <div class="bt-footer-editor__section">
+    <div class="bt-footer-editor__section-title">Link Groups</div>
+    <div class="repeat-editor">
+      @for (group of columns; track $index) {
+        <div class="repeat-card">
+          <div class="repeat-card__head">
+            <strong>{{ group.title || ('Group ' + ($index + 1)) }}</strong>
+            <span class="bt-repeat-actions">
+              <button type="button" (click)="moveColumn($index, -1)">↑</button>
+              <button type="button" (click)="moveColumn($index, 1)">↓</button>
+              <button type="button" (click)="removeColumn($index)">×</button>
+            </span>
+          </div>
+          <label>Group title<input [(ngModel)]="group.title" (ngModelChange)="update()"></label>
+          @for (link of group.links; track $index) {
+            <div class="bt-footer-link-row">
+              <input [(ngModel)]="link.label" placeholder="Link label" (ngModelChange)="update()">
+              <input [(ngModel)]="link.url" placeholder="https://... or #" (ngModelChange)="update()">
+              <select [(ngModel)]="link.target" (ngModelChange)="update()"><option value="_self">Same tab</option><option value="_blank">New tab</option></select>
+              <button type="button" title="Move up" (click)="moveLink(group, $index, -1)">↑</button>
+              <button type="button" title="Move down" (click)="moveLink(group, $index, 1)">↓</button>
+              <button type="button" title="Remove link" (click)="removeLink(group, $index)">×</button>
+            </div>
+          }
+          <button type="button" class="bt-add-repeat bt-add-repeat--small" (click)="addLink(group)">+ Add link</button>
+        </div>
+      }
+    </div>
+    <button type="button" class="bt-add-repeat" (click)="addColumn()">+ Add link group</button>
+  </div>
+
+  <div class="bt-footer-editor__section">
+    <div class="bt-footer-editor__section-title">Social Links</div>
+    <div class="bt-form-grid bt-form-grid--2">
+      <label>Social title<input [(ngModel)]="block.content['socialTitle']" (ngModelChange)="update()"></label>
+      <label>Icon size (px)<input type="number" min="20" max="64" [(ngModel)]="block.content['socialSize']" (ngModelChange)="update()"></label>
+      <label>Icon gap (px)<input type="number" min="0" max="40" [(ngModel)]="block.content['socialGap']" (ngModelChange)="update()"></label>
+      <label>Icon shape
+        <select [(ngModel)]="block.content['socialShape']" (ngModelChange)="update()">
+          <option value="none">None</option><option value="round">Round</option><option value="square">Square</option><option value="pill">Pill</option>
+        </select>
+      </label>
+      <label>Social style
+        <select [(ngModel)]="block.content['socialStyle']" (ngModelChange)="update()">
+          <option value="logo">Logo only</option><option value="logo-name">Logo + name</option><option value="cards">Cards</option><option value="soft">Soft cards</option>
+        </select>
+      </label>
+      <label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['socialShowName']" (ngModelChange)="update()"><span>Show platform name</span></label>
+      <label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['socialOpenNewTab']" (ngModelChange)="update()"><span>Open in new tab</span></label>
+    </div>
+
+    <div class="repeat-editor">
+      @for (social of socials; track $index) {
+        <div class="repeat-card bt-social-edit-card">
+          <div class="repeat-card__head">
+            <strong>{{ social.name || ('Social ' + ($index + 1)) }}</strong>
+            <span class="bt-repeat-actions">
+              <button type="button" (click)="moveSocial($index, -1)">↑</button>
+              <button type="button" (click)="moveSocial($index, 1)">↓</button>
+              <button type="button" (click)="removeSocial($index)">×</button>
+            </span>
+          </div>
+          <label>Platform
+            <select [(ngModel)]="social.platform" (ngModelChange)="changeSocialPlatform(social, $event)">
+              @for (platform of socialPlatforms; track platform.key) { <option [value]="platform.key">{{ platform.name }}</option> }
+            </select>
+          </label>
+          <div class="bt-social-preview">
+            @if (isImageIcon(social)) {
+              <img [src]="socialMeta(social).icon" [alt]="socialMeta(social).name + ' logo'">
+            } @else {
+              <mat-icon fontSet="material-symbols-rounded">{{ socialMeta(social).icon }}</mat-icon>
+            }
+            <div><strong>{{ socialMeta(social).name }}</strong><small>Same logo source as Social element</small></div>
+          </div>
+          <label>URL<input [(ngModel)]="social.url" placeholder="https://..." (ngModelChange)="update()"></label>
+          <label>Display name<input [(ngModel)]="social.name" (ngModelChange)="update()"></label>
+        </div>
+      }
+    </div>
+    <button type="button" class="bt-add-repeat" (click)="addSocial()">+ Add social link</button>
+  </div>
+
+  <div class="bt-footer-editor__section">
+    <div class="bt-footer-editor__section-title">Newsletter</div>
+    <label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['showNewsletter']" (ngModelChange)="update()"><span>Show newsletter</span></label>
+    <div class="bt-form-grid bt-form-grid--2">
+      <label>Title<input [(ngModel)]="block.content['newsletterTitle']" (ngModelChange)="update()"></label>
+      <label>Button text<input [(ngModel)]="block.content['newsletterButton']" (ngModelChange)="update()"></label>
+      <label class="bt-span-2">Description<input [(ngModel)]="block.content['newsletterText']" (ngModelChange)="update()"></label>
+      <label class="bt-span-2">Placeholder<input [(ngModel)]="block.content['newsletterPlaceholder']" (ngModelChange)="update()"></label>
+    </div>
+  </div>
+
+  <div class="bt-footer-editor__section">
+    <div class="bt-footer-editor__section-title">CTA</div>
+    <label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['showCta']" (ngModelChange)="update()"><span>Show CTA</span></label>
+    <div class="bt-form-grid bt-form-grid--2">
+      <label>CTA title<input [(ngModel)]="block.content['ctaTitle']" (ngModelChange)="update()"></label>
+      <label>Button text<input [(ngModel)]="block.content['ctaLabel']" (ngModelChange)="update()"></label>
+      <label class="bt-span-2">CTA text<input [(ngModel)]="block.content['ctaText']" (ngModelChange)="update()"></label>
+      <label class="bt-span-2">CTA URL<input [(ngModel)]="block.content['ctaUrl']" (ngModelChange)="update()"></label>
+    </div>
+  </div>
+
+  <div class="bt-footer-editor__section">
+    <div class="bt-footer-editor__section-title">App & QR</div>
+    <div class="bt-inline-fields">
+      <label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['showAppButtons']" (ngModelChange)="update()"><span>App buttons</span></label>
+      <label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['showQr']" (ngModelChange)="update()"><span>QR code</span></label>
+    </div>
+    <div class="bt-form-grid bt-form-grid--2">
+      <label>App title<input [(ngModel)]="block.content['appTitle']" (ngModelChange)="update()"></label>
+      <label>Android URL<input [(ngModel)]="block.content['androidUrl']" (ngModelChange)="update()"></label>
+      <label>iOS URL<input [(ngModel)]="block.content['iosUrl']" (ngModelChange)="update()"></label>
+    </div>
+    <div class="bt-media-field bt-media-field--compact">
+      <span class="bt-field-label">QR code image</span>
+      @if (block.content['qrImage']) { <img class="bt-media-preview bt-media-preview--small" [src]="block.content['qrImage']" alt="QR code"> }
+      <div class="bt-media-actions">
+        <button type="button" class="bt-media-choose" (click)="chooseQr()"><mat-icon fontSet="material-symbols-rounded">qr_code_2</mat-icon>{{ block.content['qrImage'] ? 'Change QR' : 'Choose QR' }}</button>
+        @if (block.content['qrImage']) { <button type="button" class="bt-media-remove" (click)="removeQr()">Remove</button> }
+      </div>
+    </div>
+  </div>
+
+  <div class="bt-footer-editor__section">
+    <div class="bt-footer-editor__section-title">Floating Actions</div>
+    <label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['showFloatingActions']" (ngModelChange)="update()"><span>Show floating actions</span></label>
+    <div class="bt-inline-fields">
+      <label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['actionCall']" (ngModelChange)="update()"><span>Call</span></label>
+      <label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['actionWhatsapp']" (ngModelChange)="update()"><span>WhatsApp</span></label>
+      <label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['actionMessage']" (ngModelChange)="update()"><span>Message</span></label>
+    </div>
+  </div>
+
+  <div class="bt-footer-editor__section">
+    <div class="bt-footer-editor__section-title">Legal</div>
+    <div class="bt-form-grid bt-form-grid--2">
+      <label class="bt-span-2">Copyright<input [(ngModel)]="block.content['copyright']" (ngModelChange)="update()"></label>
+      <label>Privacy URL<input [(ngModel)]="block.content['privacyUrl']" (ngModelChange)="update()"></label>
+      <label>Terms URL<input [(ngModel)]="block.content['termsUrl']" (ngModelChange)="update()"></label>
+    </div>
+  </div>
+
+  <div class="bt-footer-editor__section">
+    <div class="bt-footer-editor__section-title">Visual Properties</div>
+    <div class="bt-form-grid bt-form-grid--2">
+      <label>Background color<input type="color" [(ngModel)]="block.style['background']" (ngModelChange)="update()"></label>
+      <label>Text color<input type="color" [(ngModel)]="block.style['color']" (ngModelChange)="update()"></label>
+      <label>Muted color<input type="color" [(ngModel)]="block.style['mutedColor']" (ngModelChange)="update()"></label>
+      <label>Accent color<input type="color" [(ngModel)]="block.style['accent']" (ngModelChange)="update()"></label>
+      <label>Link color<input type="color" [(ngModel)]="block.style['linkColor']" (ngModelChange)="update()"></label>
+      <label>Card background<input type="color" [(ngModel)]="block.style['cardBackground']" (ngModelChange)="update()"></label>
+      <label>Border color<input type="color" [(ngModel)]="block.style['borderColor']" (ngModelChange)="update()"></label>
+      <label>Button background<input type="color" [(ngModel)]="block.style['buttonBackground']" (ngModelChange)="update()"></label>
+      <label>Top padding<input type="number" min="0" max="120" [(ngModel)]="block.style['paddingTop']" (ngModelChange)="update()"></label>
+      <label>Bottom padding<input type="number" min="0" max="120" [(ngModel)]="block.style['paddingBottom']" (ngModelChange)="update()"></label>
+      <label>Column gap<input type="number" min="10" max="60" [(ngModel)]="block.style['columnGap']" (ngModelChange)="update()"></label>
+      <label>Corner radius<input type="number" min="0" max="40" [(ngModel)]="block.style['radius']" (ngModelChange)="update()"></label>
+    </div>
+
+    <div class="bt-media-field bt-media-field--compact">
+      <span class="bt-field-label">Background image</span>
+      @if (block.style['backgroundImage']) { <img class="bt-media-preview bt-media-preview--small" [src]="block.style['backgroundImage']" alt="Background preview"> }
+      <div class="bt-media-actions">
+        <button type="button" class="bt-media-choose" (click)="chooseBackgroundImage()"><mat-icon fontSet="material-symbols-rounded">photo_library</mat-icon>{{ block.style['backgroundImage'] ? 'Change image' : 'Choose image' }}</button>
+        @if (block.style['backgroundImage']) { <button type="button" class="bt-media-remove" (click)="removeBackgroundImage()">Remove</button> }
+      </div>
+    </div>
+  </div>
+</div>

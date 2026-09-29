@@ -106,11 +106,6 @@
                       <span class="button-mini">Button</span>
                     } @else if (activePresetType === 'product' || activePresetType === 'ecommerce') {
                       <span class="product-mini"><i></i><b></b><em></em></span>
-                    } @else if (activePresetType === 'tabs') {
-                      <span class="tabs-mini" [attr.data-preset]="preset.key">
-                        <i class="tabs-mini__nav"></i>
-                        <b class="tabs-mini__panel"></b>
-                      </span>
                     } @else {
                       <span class="preset-generic-icon"><mat-icon fontSet="material-symbols-rounded">{{ presetIcon(activePresetType) }}</mat-icon></span>
                     }
@@ -217,7 +212,7 @@
                         @for (child of slot; track child.id) {
                           <div class="nested-block" [class.is-selected]="selectedNestedId === child.id" (click)="selectNested(block, slotIndex, child, $event)">
                             <div class="nested-label"><mat-icon fontSet="material-symbols-rounded">{{ presetIcon(child.type) }}</mat-icon><span>{{ child.type }}</span></div>
-                            <div class="bt-export-preview bt-export-preview--nested" (click)="onPreviewClick($event, child)" [innerHTML]="previewBlockHtml(child)"></div>
+                            <div class="bt-export-preview bt-export-preview--nested" [class.bt-floating-editor-preview]="child.type === 'floating'" (click)="onPreviewClick($event, child)" [innerHTML]="previewBlockHtml(child)"></div>
                           </div>
                         }
                       </div>
@@ -225,7 +220,7 @@
                   </div>
                 </div>
               } @else {
-                <div class="bt-block-preview bt-export-preview" (click)="onPreviewClick($event, block)" [innerHTML]="previewBlockHtml(block)"></div>
+                <div class="bt-block-preview bt-export-preview" [class.bt-floating-editor-preview]="block.type === 'floating'" (click)="onPreviewClick($event, block)" [innerHTML]="previewBlockHtml(block)"></div>
               }
             </div>
           }
@@ -250,133 +245,219 @@
 
         @switch (block.type) {
           @case ('section') {
-            <bt-section-editor [block]="block" [context]="elementContext"></bt-section-editor>
+            <label>Gap (px)<input type="number" [(ngModel)]="block.style['gap']" (ngModelChange)="updateSelected()"></label>
+            <div class="bt-cell-editor">@for (cell of block.content['cells']; track $index) { <div class="bt-cell-editor__item"><strong>Div {{ $index + 1 }}</strong><label>Title<input [(ngModel)]="cell.title" (ngModelChange)="updateSelected()"></label><label>Text<textarea [(ngModel)]="cell.text" rows="3" (ngModelChange)="updateSelected()"></textarea></label></div> }</div>
           }
           @case ('block') {
-            <bt-block-editor [block]="block" [context]="elementContext"></bt-block-editor>
+            <div class="bt-info-box"><mat-icon fontSet="material-symbols-rounded">drag_indicator</mat-icon><span>Drag any element from the left panel into a blank slot. Click an inside element to edit its own properties.</span></div>
+            <label>Gap (px)<input type="number" [(ngModel)]="block.style['gap']" (ngModelChange)="updateSelected()"></label>
           }
           @case ('navbar') {
-            <bt-navbar-editor
-              [block]="block"
-              (changed)="updateSelected()"
-              (addItem)="addRepeatItem(block, $event.key)"
-              (removeItem)="removeRepeatItem(block, $event.key, $event.index ?? 0, $event.minimum ?? 1)"
-              (moveItem)="moveRepeatItem(block, $event.key, $event.index ?? 0, $event.delta ?? 0)"
-              (openMedia)="openMediaPicker($event.record, $event.valueField, $event.idField, $event.title)"
-              (clearMedia)="clearMedia($event.record, $event.valueField, $event.idField)"
-            />
+            <label>Brand<input [(ngModel)]="block.content['brand']" (ngModelChange)="updateSelected()"></label>
+            <div class="bt-media-field"><span class="bt-field-label">Logo</span>@if (block.content['logo']) { <img class="bt-media-preview bt-media-preview--small" [src]="block.content['logo']" alt="Navbar logo"> }<div class="bt-media-actions"><button type="button" class="bt-media-choose" (click)="openMediaPicker(block.content, 'logo', 'logoMediaId', 'Choose navbar logo')"><mat-icon fontSet="material-symbols-rounded">photo_library</mat-icon>{{ block.content['logo'] ? 'Change logo' : 'Choose from gallery' }}</button>@if (block.content['logo']) { <button type="button" class="bt-media-remove" (click)="clearMedia(block.content, 'logo', 'logoMediaId')">Remove</button> }</div></div>
+            <div class="bt-info-box"><mat-icon fontSet="material-symbols-rounded">devices</mat-icon><span>Responsive navbar: desktop menus + mobile hamburger in published output.</span></div>
+            <div class="repeat-editor">
+              @for (item of block.content['menuItems']; track $index) {
+                <div class="repeat-card">
+                  <div class="repeat-card__head"><strong>Menu {{ $index + 1 }}</strong><span><button type="button" (click)="moveRepeatItem(block, 'menuItems', $index, -1)">↑</button><button type="button" (click)="moveRepeatItem(block, 'menuItems', $index, 1)">↓</button><button type="button" (click)="removeRepeatItem(block, 'menuItems', $index, 1)">×</button></span></div>
+                  <label>Label<input [(ngModel)]="item.label" (ngModelChange)="updateSelected()"></label>
+                  <label>URL / route<input [(ngModel)]="item.url" (ngModelChange)="updateSelected()"></label>
+                  <label>Icon<input [(ngModel)]="item.icon" (ngModelChange)="updateSelected()" placeholder="home, call, store..."></label>
+                  <label>Open<select [(ngModel)]="item.target" (ngModelChange)="updateSelected()"><option value="_self">Same tab</option><option value="_blank">New tab</option></select></label>
+                </div>
+              }
+            </div>
+            <button type="button" class="bt-add-repeat" (click)="addRepeatItem(block, 'menuItems')">+ Add menu</button>
+            <label>CTA text<input [(ngModel)]="block.content['cta']" (ngModelChange)="updateSelected()"></label>
+            <label>CTA URL<input [(ngModel)]="block.content['ctaUrl']" (ngModelChange)="updateSelected()"></label>
+            <label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['showIcons']" (ngModelChange)="updateSelected()"><span>Show menu icons</span></label>
+            <label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['mobileMenu']" (ngModelChange)="updateSelected()"><span>Mobile hamburger menu</span></label>
           }
           @case ('hero') {
-            <bt-hero-editor [block]="block" [context]="elementContext"></bt-hero-editor>
+            <label>Eyebrow<input [(ngModel)]="block.content['eyebrow']" (ngModelChange)="updateSelected()"></label>
+            <label>Title<textarea [(ngModel)]="block.content['title']" rows="3" (ngModelChange)="updateSelected()"></textarea></label>
+            <label>Text<textarea [(ngModel)]="block.content['text']" rows="4" (ngModelChange)="updateSelected()"></textarea></label>
+            <label>Primary button<input [(ngModel)]="block.content['primary']" (ngModelChange)="updateSelected()"></label>
+            <label>Primary URL<input [(ngModel)]="block.content['primaryUrl']" (ngModelChange)="updateSelected()"></label>
+            <label>Secondary button<input [(ngModel)]="block.content['secondary']" (ngModelChange)="updateSelected()"></label>
+            <label>Secondary URL<input [(ngModel)]="block.content['secondaryUrl']" (ngModelChange)="updateSelected()"></label>
+            <div class="bt-media-field"><span class="bt-field-label">Hero image</span>@if (block.content['image']) { <img class="bt-media-preview" [src]="block.content['image']" alt="Hero"> }<div class="bt-media-actions"><button type="button" class="bt-media-choose" (click)="openMediaPicker(block.content, 'image', 'mediaId', 'Choose hero image')"><mat-icon fontSet="material-symbols-rounded">photo_library</mat-icon>{{ block.content['image'] ? 'Change image' : 'Choose from gallery' }}</button>@if (block.content['image']) { <button type="button" class="bt-media-remove" (click)="clearMedia(block.content, 'image', 'mediaId')">Remove</button> }</div></div>
           }
           @case ('services') {
-            <bt-services-editor [block]="block" [context]="elementContext"></bt-services-editor>
+            <label>Title<input [(ngModel)]="block.content['title']" (ngModelChange)="updateSelected()"></label>
+            <div class="repeat-editor">
+              @for (item of block.content['items']; track $index) {
+                <div class="repeat-card">
+                  <div class="repeat-card__head"><strong>Service {{ $index + 1 }}</strong><span><button type="button" (click)="moveRepeatItem(block, 'items', $index, -1)">↑</button><button type="button" (click)="moveRepeatItem(block, 'items', $index, 1)">↓</button><button type="button" (click)="removeRepeatItem(block, 'items', $index)">×</button></span></div>
+                  <div class="bt-icon-field">
+                    <span class="bt-field-label">Icon</span>
+                    <details class="bt-icon-picker">
+                      <summary>
+                        <span class="bt-icon-selected"><mat-icon fontSet="material-symbols-rounded">{{ item.icon || 'star' }}</mat-icon></span>
+                        <span>Choose icon</span>
+                        <mat-icon class="bt-icon-picker-chevron" fontSet="material-symbols-rounded">expand_more</mat-icon>
+                      </summary>
+                      <div class="bt-icon-picker-panel">
+                        @for (category of materialIconCategories; track category.label) {
+                          <div class="bt-icon-category">
+                            <div class="bt-icon-category-title">{{ category.label }}</div>
+                            <div class="bt-icon-grid">
+                              @for (iconName of category.icons; track iconName) {
+                                <button
+                                  type="button"
+                                  class="bt-icon-option"
+                                  [class.active]="item.icon === iconName"
+                                  (click)="item.icon = iconName; updateSelected()"
+                                  aria-label="Select icon"
+                                >
+                                  <mat-icon fontSet="material-symbols-rounded">{{ iconName }}</mat-icon>
+                                </button>
+                              }
+                            </div>
+                          </div>
+                        }
+                      </div>
+                    </details>
+                  </div>
+                  <label>Title<input [(ngModel)]="item.title" (ngModelChange)="updateSelected()"></label>
+                  <label>Text<textarea [(ngModel)]="item.text" rows="2" (ngModelChange)="updateSelected()"></textarea></label>
+                  <div class="bt-media-field bt-media-field--compact"><span class="bt-field-label">Service image</span>@if (item.image) { <img class="bt-media-preview bt-media-preview--small" [src]="item.image" alt=""> }<button type="button" class="bt-media-choose" (click)="openMediaPicker(item, 'image', 'mediaId', 'Choose service image')"><mat-icon fontSet="material-symbols-rounded">photo_library</mat-icon>{{ item.image ? 'Change image' : 'Choose from gallery' }}</button></div>
+                  <div class="bt-inline-fields"><label>CTA<input [(ngModel)]="item.cta" (ngModelChange)="updateSelected()"></label><label>URL / route<input [(ngModel)]="item.url" (ngModelChange)="updateSelected()"></label></div>
+                </div>
+              }
+            </div>
+            <button type="button" class="bt-add-repeat" (click)="addRepeatItem(block, 'items')">+ Add service</button>
           }
           @case ('testimonial') {
-            <bt-testimonial-editor [block]="block" [context]="elementContext"></bt-testimonial-editor>
+            <label>Title<input [(ngModel)]="block.content['title']" (ngModelChange)="updateSelected()"></label>
+            <div class="repeat-editor">@for (item of block.content['items']; track $index) { <div class="repeat-card"><div class="repeat-card__head"><strong>Review {{ $index + 1 }}</strong><span><button type="button" (click)="moveRepeatItem(block, 'items', $index, -1)">↑</button><button type="button" (click)="moveRepeatItem(block, 'items', $index, 1)">↓</button><button type="button" (click)="removeRepeatItem(block, 'items', $index)">×</button></span></div><label>Name<input [(ngModel)]="item.name" (ngModelChange)="updateSelected()"></label><label>Role<input [(ngModel)]="item.role" (ngModelChange)="updateSelected()"></label><div class="bt-media-field bt-media-field--compact"><span class="bt-field-label">Profile image</span>@if (item.image) { <img class="bt-avatar-preview" [src]="item.image" alt=""> }<button type="button" class="bt-media-choose" (click)="openMediaPicker(item, 'image', 'mediaId', 'Choose customer profile image')"><mat-icon fontSet="material-symbols-rounded">photo_library</mat-icon>{{ item.image ? 'Change image' : 'Choose from gallery' }}</button></div><label>Rating<input type="number" min="1" max="5" [(ngModel)]="item.rating" (ngModelChange)="updateSelected()"></label><label>Review<textarea [(ngModel)]="item.quote" rows="3" (ngModelChange)="updateSelected()"></textarea></label></div> }</div><button type="button" class="bt-add-repeat" (click)="addRepeatItem(block, 'items')">+ Add testimonial</button>
           }
           @case ('pricing') {
-            <bt-pricing-editor [block]="block" [context]="elementContext"></bt-pricing-editor>
+            <label>Title<input [(ngModel)]="block.content['title']" (ngModelChange)="updateSelected()"></label>
+            <div class="repeat-editor">@for (plan of block.content['plans']; track $index) { <div class="repeat-card"><div class="repeat-card__head"><strong>Plan {{ $index + 1 }}</strong><span><button type="button" (click)="moveRepeatItem(block, 'plans', $index, -1)">↑</button><button type="button" (click)="moveRepeatItem(block, 'plans', $index, 1)">↓</button><button type="button" (click)="removeRepeatItem(block, 'plans', $index)">×</button></span></div><label>Name<input [(ngModel)]="plan.name" (ngModelChange)="updateSelected()"></label><label>Price<input [(ngModel)]="plan.price" (ngModelChange)="updateSelected()"></label><label>Period<input [(ngModel)]="plan.period" (ngModelChange)="updateSelected()"></label><label>Features<textarea [(ngModel)]="plan.features" rows="4" (ngModelChange)="updateSelected()"></textarea></label><label>CTA<input [(ngModel)]="plan.cta" (ngModelChange)="updateSelected()"></label></div> }</div><button type="button" class="bt-add-repeat" (click)="addRepeatItem(block, 'plans')">+ Add plan</button>
           }
           @case ('faq') {
-            <bt-faq-editor [block]="block" [context]="elementContext"></bt-faq-editor>
+            <label>Title<input [(ngModel)]="block.content['title']" (ngModelChange)="updateSelected()"></label>
+            <div class="repeat-editor">@for (item of block.content['items']; track $index) { <div class="repeat-card"><div class="repeat-card__head"><strong>FAQ {{ $index + 1 }}</strong><span><button type="button" (click)="moveRepeatItem(block, 'items', $index, -1)">↑</button><button type="button" (click)="moveRepeatItem(block, 'items', $index, 1)">↓</button><button type="button" (click)="removeRepeatItem(block, 'items', $index)">×</button></span></div><label>Question<input [(ngModel)]="item.q" (ngModelChange)="updateSelected()"></label><label>Answer<textarea [(ngModel)]="item.a" rows="3" (ngModelChange)="updateSelected()"></textarea></label></div> }</div><button type="button" class="bt-add-repeat" (click)="addRepeatItem(block, 'items')">+ Add FAQ</button>
           }
           @case ('stats') {
-            <bt-stats-editor [block]="block" [context]="elementContext"></bt-stats-editor>
+            <label>Title<input [(ngModel)]="block.content['title']" (ngModelChange)="updateSelected()"></label>
+            <div class="repeat-editor">@for (item of block.content['items']; track $index) { <div class="repeat-card"><div class="repeat-card__head"><strong>Stat {{ $index + 1 }}</strong><span><button type="button" (click)="moveRepeatItem(block, 'items', $index, -1)">↑</button><button type="button" (click)="moveRepeatItem(block, 'items', $index, 1)">↓</button><button type="button" (click)="removeRepeatItem(block, 'items', $index)">×</button></span></div><label>Value<input [(ngModel)]="item.value" (ngModelChange)="updateSelected()"></label><label>Label<input [(ngModel)]="item.label" (ngModelChange)="updateSelected()"></label></div> }</div><button type="button" class="bt-add-repeat" (click)="addRepeatItem(block, 'items')">+ Add stat</button>
           }
           @case ('tabs') {
-            <bt-tabs-editor [block]="block" [context]="elementContext"></bt-tabs-editor>
+            <div class="repeat-editor">@for (item of block.content['items']; track $index) { <div class="repeat-card"><div class="repeat-card__head"><strong>Tab {{ $index + 1 }}</strong><span><button type="button" (click)="moveRepeatItem(block, 'items', $index, -1)">↑</button><button type="button" (click)="moveRepeatItem(block, 'items', $index, 1)">↓</button><button type="button" (click)="removeRepeatItem(block, 'items', $index)">×</button></span></div><label>Title<input [(ngModel)]="item.title" (ngModelChange)="updateSelected()"></label><label>Content<textarea [(ngModel)]="item.text" rows="4" (ngModelChange)="updateSelected()"></textarea></label><div class="bt-media-field bt-media-field--compact"><span class="bt-field-label">Image</span>@if (item.image) { <img class="bt-media-preview bt-media-preview--small" [src]="item.image" alt=""> }<button type="button" class="bt-media-choose" (click)="openMediaPicker(item, 'image', 'mediaId', 'Choose image')"><mat-icon fontSet="material-symbols-rounded">photo_library</mat-icon>{{ item.image ? 'Change image' : 'Choose from gallery' }}</button></div></div> }</div><button type="button" class="bt-add-repeat" (click)="addRepeatItem(block, 'items')">+ Add tab</button>
           }
           @case ('timeline') {
-            <bt-timeline-editor [block]="block" [context]="elementContext"></bt-timeline-editor>
+            <label>Title<input [(ngModel)]="block.content['title']" (ngModelChange)="updateSelected()"></label>
+            <div class="repeat-editor">@for (item of block.content['items']; track $index) { <div class="repeat-card"><div class="repeat-card__head"><strong>Step {{ $index + 1 }}</strong><span><button type="button" (click)="moveRepeatItem(block, 'items', $index, -1)">↑</button><button type="button" (click)="moveRepeatItem(block, 'items', $index, 1)">↓</button><button type="button" (click)="removeRepeatItem(block, 'items', $index)">×</button></span></div><label>Title<input [(ngModel)]="item.title" (ngModelChange)="updateSelected()"></label><label>Text<textarea [(ngModel)]="item.text" rows="3" (ngModelChange)="updateSelected()"></textarea></label></div> }</div><button type="button" class="bt-add-repeat" (click)="addRepeatItem(block, 'items')">+ Add timeline item</button>
           }
           @case ('team') {
-            <bt-team-editor [block]="block" [context]="elementContext"></bt-team-editor>
+            <label>Title<input [(ngModel)]="block.content['title']" (ngModelChange)="updateSelected()"></label>
+            <div class="repeat-editor">@for (item of block.content['items']; track $index) { <div class="repeat-card"><div class="repeat-card__head"><strong>Member {{ $index + 1 }}</strong><span><button type="button" (click)="moveRepeatItem(block, 'items', $index, -1)">↑</button><button type="button" (click)="moveRepeatItem(block, 'items', $index, 1)">↓</button><button type="button" (click)="removeRepeatItem(block, 'items', $index)">×</button></span></div><label>Name<input [(ngModel)]="item.name" (ngModelChange)="updateSelected()"></label><label>Role<input [(ngModel)]="item.role" (ngModelChange)="updateSelected()"></label><div class="bt-media-field bt-media-field--compact"><span class="bt-field-label">Profile image</span>@if (item.image) { <img class="bt-avatar-preview" [src]="item.image" alt=""> }<button type="button" class="bt-media-choose" (click)="openMediaPicker(item, 'image', 'mediaId', 'Choose team image')"><mat-icon fontSet="material-symbols-rounded">photo_library</mat-icon>{{ item.image ? 'Change image' : 'Choose from gallery' }}</button></div><label>Bio<textarea [(ngModel)]="item.bio" rows="2" (ngModelChange)="updateSelected()"></textarea></label><label>Facebook<input [(ngModel)]="item.facebook" (ngModelChange)="updateSelected()"></label><label>Instagram<input [(ngModel)]="item.instagram" (ngModelChange)="updateSelected()"></label><label>LinkedIn<input [(ngModel)]="item.linkedin" (ngModelChange)="updateSelected()"></label></div> }</div><button type="button" class="bt-add-repeat" (click)="addRepeatItem(block, 'items')">+ Add team member</button>
           }
           @case ('footer') {
-            <bt-footer-editor [block]="block" [context]="elementContext"></bt-footer-editor>
+            <label>Brand<input [(ngModel)]="block.content['brand']" (ngModelChange)="updateSelected()"></label><label>Text<textarea [(ngModel)]="block.content['text']" rows="3" (ngModelChange)="updateSelected()"></textarea></label><label>Links (comma separated)<input [(ngModel)]="block.content['links']" (ngModelChange)="updateSelected()"></label><label>Phone<input [(ngModel)]="block.content['phone']" (ngModelChange)="updateSelected()"></label><label>Email<input [(ngModel)]="block.content['email']" (ngModelChange)="updateSelected()"></label><label>Copyright<input [(ngModel)]="block.content['copyright']" (ngModelChange)="updateSelected()"></label>
           }
           @case ('popup') {
-            <bt-popup-editor [block]="block" [context]="elementContext"></bt-popup-editor>
+            <label>Title<input [(ngModel)]="block.content['title']" (ngModelChange)="updateSelected()"></label><label>Text<textarea [(ngModel)]="block.content['text']" rows="4" (ngModelChange)="updateSelected()"></textarea></label><label>CTA<input [(ngModel)]="block.content['cta']" (ngModelChange)="updateSelected()"></label><label>URL<input [(ngModel)]="block.content['url']" (ngModelChange)="updateSelected()"></label>
           }
           @case ('floating') {
-            <bt-floating-editor [block]="block" [context]="elementContext"></bt-floating-editor>
+            <div class="bt-info-box"><mat-icon fontSet="material-symbols-rounded">touch_app</mat-icon><span>Compact floating actions. Default 1; add more only when needed.</span></div><div class="repeat-editor">@for (item of block.content['items']; track $index) { <div class="repeat-card"><div class="repeat-card__head"><strong>Action {{ $index + 1 }}</strong><button type="button" (click)="removeRepeatItem(block, 'items', $index, 1)">×</button></div><label>Icon<input [(ngModel)]="item.icon" (ngModelChange)="updateSelected()"></label><label>Label<input [(ngModel)]="item.label" (ngModelChange)="updateSelected()"></label><label>URL / action<input [(ngModel)]="item.url" (ngModelChange)="updateSelected()"></label></div> }</div><button type="button" class="bt-add-repeat" (click)="addRepeatItem(block, 'items')">+ Add action</button>
           }
           @case ('heading') {
-            <bt-heading-editor [block]="block" [context]="elementContext"></bt-heading-editor>
+            <label>Heading<input [(ngModel)]="block.content['text']" (ngModelChange)="updateSelected()"></label>
+            @if (block.content['variant'] === 'eyebrow') { <label>Eyebrow<input [(ngModel)]="block.content['eyebrow']" (ngModelChange)="updateSelected()"></label> }
+            <label>Level<select [(ngModel)]="block.content['level']" (ngModelChange)="updateSelected()"><option value="h1">H1</option><option value="h2">H2</option><option value="h3">H3</option><option value="h4">H4</option></select></label>
+            <label>Font size<input type="number" [(ngModel)]="block.style['fontSize']" (ngModelChange)="updateSelected()"></label>
+            <label>Weight<select [(ngModel)]="block.style['fontWeight']" (ngModelChange)="updateSelected()"><option [ngValue]="400">Regular</option><option [ngValue]="500">Medium</option><option [ngValue]="600">Semibold</option><option [ngValue]="700">Bold</option><option [ngValue]="800">Extra Bold</option><option [ngValue]="900">Black</option></select></label>
           }
-          @case ('text') {
-            <bt-text-editor [block]="block" [context]="elementContext"></bt-text-editor>
-          }
-          @case ('link') {
-            <bt-link-editor [block]="block" [context]="elementContext"></bt-link-editor>
-          }
+          @case ('text') { <label>Text<textarea [(ngModel)]="block.content['text']" rows="8" (ngModelChange)="updateSelected()"></textarea></label><label>Font size<input type="number" [(ngModel)]="block.style['fontSize']" (ngModelChange)="updateSelected()"></label> }
+          @case ('link') { <label>Link text<input [(ngModel)]="block.content['label']" (ngModelChange)="updateSelected()"></label><label>Link URL<input [(ngModel)]="block.content['url']" (ngModelChange)="updateSelected()"></label><label>Target<select [(ngModel)]="block.content['target']" (ngModelChange)="updateSelected()"><option value="_self">Same tab</option><option value="_blank">New tab</option></select></label> }
           @case ('image') {
-            <bt-image-editor [block]="block" [context]="elementContext"></bt-image-editor>
+            <div class="bt-media-field"><span class="bt-field-label">Image</span>@if (block.content['url']) { <img class="bt-media-preview" [src]="block.content['url']" [alt]="block.content['alt'] || ''"> } @else { <div class="bt-media-empty"><mat-icon fontSet="material-symbols-rounded">image</mat-icon><span>No image selected</span></div> }<div class="bt-media-actions"><button type="button" class="bt-media-choose" (click)="openMediaPicker(block.content, 'url', 'mediaId', 'Choose image')"><mat-icon fontSet="material-symbols-rounded">photo_library</mat-icon>{{ block.content['url'] ? 'Change image' : 'Choose from gallery' }}</button>@if (block.content['url']) { <button type="button" class="bt-media-remove" (click)="clearMedia(block.content, 'url', 'mediaId')">Remove</button> }</div></div>
+            <label>Alt text<input [(ngModel)]="block.content['alt']" (ngModelChange)="updateSelected()"></label>
+            <div class="bt-inline-fields"><label>Width (%)<input type="number" min="1" max="100" [(ngModel)]="block.style['imageWidth']" (ngModelChange)="updateSelected()"></label><label>Height (% of width)<input type="number" min="1" max="200" [(ngModel)]="block.style['imageHeight']" (ngModelChange)="updateSelected()"></label></div>
           }
-          @case ('video') {
-            <bt-video-editor [block]="block" [context]="elementContext"></bt-video-editor>
-          }
-          @case ('slider') {
-            <bt-slider-editor [block]="block" [context]="elementContext"></bt-slider-editor>
-          }
-          @case ('gallery') {
-            <bt-gallery-editor [block]="block" [context]="elementContext"></bt-gallery-editor>
-          }
+          @case ('video') { <label>Video URL<input [(ngModel)]="block.content['url']" (ngModelChange)="updateSelected()" placeholder="YouTube or MP4 URL"></label><label>Title<input [(ngModel)]="block.content['title']" (ngModelChange)="updateSelected()"></label><label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['controls']" (ngModelChange)="updateSelected()"><span>Show controls</span></label><label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['autoplay']" (ngModelChange)="updateSelected()"><span>Autoplay</span></label><label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['muted']" (ngModelChange)="updateSelected()"><span>Muted</span></label> }
+          @case ('slider') { <div class="bt-media-field"><span class="bt-field-label">Slider images</span><div class="gallery-manager">@for (image of block.content['images']; track $index) { @if (image) { <div class="gallery-item"><img [src]="image" alt=""></div> } }</div><button type="button" class="bt-media-choose" (click)="openMultipleMediaPicker(block.content, 'images', 'mediaIds', 'Choose slider images')"><mat-icon fontSet="material-symbols-rounded">collections</mat-icon>Choose images from gallery</button></div><label>Slide time (seconds)<input type="number" min="1" step="1" [ngModel]="(block.content['interval'] || 3500) / 1000" (ngModelChange)="block.content['interval'] = (+$event || 1) * 1000; updateSelected()"></label><label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['autoplay']" (ngModelChange)="updateSelected()"><span>Autoplay</span></label> }
+          @case ('gallery') { <div class="bt-media-field"><span class="bt-field-label">Gallery images</span><div class="gallery-manager">@for (image of block.content['images']; track $index) { @if (image) { <div class="gallery-item"><img [src]="image" alt=""><button type="button" (click)="removeGalleryImage(block, $index)"><mat-icon fontSet="material-symbols-rounded">close</mat-icon></button></div> } }</div><button type="button" class="bt-media-choose" (click)="openMultipleMediaPicker(block.content, 'images', 'mediaIds', 'Choose gallery images')"><mat-icon fontSet="material-symbols-rounded">photo_library</mat-icon>Choose images from gallery</button></div> }
           @case ('button') {
-            <bt-button-editor [block]="block" [context]="elementContext"></bt-button-editor>
+            <div class="repeat-editor">@for (item of block.content['items']; track $index) { <div class="repeat-card"><div class="repeat-card__head"><strong>Button {{ $index + 1 }}</strong><span><button type="button" (click)="moveRepeatItem(block, 'items', $index, -1)">↑</button><button type="button" (click)="moveRepeatItem(block, 'items', $index, 1)">↓</button><button type="button" (click)="removeRepeatItem(block, 'items', $index)">×</button></span></div><label>Text<input [(ngModel)]="item.label" (ngModelChange)="updateSelected()"></label><label>URL / route<input [(ngModel)]="item.url" (ngModelChange)="updateSelected()"></label><label>Target<select [(ngModel)]="item.target" (ngModelChange)="updateSelected()"><option value="_self">Same tab</option><option value="_blank">New tab</option></select></label><label>Icon<input [(ngModel)]="item.icon" (ngModelChange)="updateSelected()"></label></div> }</div>
+            <button type="button" class="bt-add-repeat" (click)="addRepeatItem(block, 'items')">+ Add button</button>
+            <label>Button color<input type="color" [(ngModel)]="block.style['buttonBg']" (ngModelChange)="updateSelected()"></label><label>Text color<input type="color" [(ngModel)]="block.style['buttonText']" (ngModelChange)="updateSelected()"></label>
           }
           @case ('icon') {
-            <bt-icon-editor [block]="block" [context]="elementContext"></bt-icon-editor>
+            <div class="bt-icon-field">
+              <span class="bt-field-label">Material icon</span>
+              <details class="bt-icon-picker bt-icon-picker--large">
+                <summary>
+                  <span class="bt-icon-selected"><mat-icon fontSet="material-symbols-rounded">{{ block.content['materialIcon'] || 'star' }}</mat-icon></span>
+                  <span>Choose icon</span>
+                  <mat-icon class="bt-icon-picker-chevron" fontSet="material-symbols-rounded">expand_more</mat-icon>
+                </summary>
+                <div class="bt-icon-picker-panel">
+                  @for (category of materialIconCategories; track category.label) {
+                    <div class="bt-icon-category">
+                      <div class="bt-icon-category-title">{{ category.label }}</div>
+                      <div class="bt-icon-grid">
+                        @for (iconName of category.icons; track iconName) {
+                          <button type="button" class="bt-icon-option" [class.active]="block.content['materialIcon'] === iconName" (click)="block.content['materialIcon'] = iconName; updateSelected()" aria-label="Select icon">
+                            <mat-icon fontSet="material-symbols-rounded">{{ iconName }}</mat-icon>
+                          </button>
+                        }
+                      </div>
+                    </div>
+                  }
+                </div>
+              </details>
+            </div>
+            <div class="bt-icon-current-preview bt-icon-current-preview--visual"><mat-icon fontSet="material-symbols-rounded">{{ block.content['materialIcon'] || 'star' }}</mat-icon></div>
+            <label>Label<input [(ngModel)]="block.content['label']" (ngModelChange)="updateSelected()"></label>
+            <label>Icon size<input type="number" [(ngModel)]="block.style['iconSize']" (ngModelChange)="updateSelected()"></label>
+            <label>Icon color<input type="color" [(ngModel)]="block.style['iconColor']" (ngModelChange)="updateSelected()"></label>
+            <label>Icon background<input type="color" [(ngModel)]="block.style['iconBg']" (ngModelChange)="updateSelected()"></label>
           }
           @case ('social') {
-            <bt-social-editor [block]="block" [context]="elementContext"></bt-social-editor>
+            <div class="repeat-editor">@for (item of block.content['items']; track $index) { <div class="repeat-card"><div class="repeat-card__head"><strong>Social {{ $index + 1 }}</strong><button type="button" (click)="removeRepeatItem(block, 'items', $index)">×</button></div><label>Platform<select [(ngModel)]="item.platform" (ngModelChange)="changeSocialPlatform(block, item, $event)"><option value="facebook">Facebook</option><option value="instagram">Instagram</option><option value="youtube">YouTube</option><option value="linkedin">LinkedIn</option><option value="telegram">Telegram</option><option value="x">X / Twitter</option><option value="whatsapp">WhatsApp</option><option value="website">Website</option><option value="github">GitHub</option><option value="tiktok">TikTok</option></select></label><label>URL<input [(ngModel)]="item.url" (ngModelChange)="updateSelected()"></label><label>Label<input [(ngModel)]="item.label" (ngModelChange)="updateSelected()"></label></div> }</div><button type="button" class="bt-add-repeat" (click)="addRepeatItem(block, 'items')">+ Add social link</button>
           }
           @case ('product') {
-            <bt-product-editor [block]="block" [context]="elementContext"></bt-product-editor>
+            <div class="bt-info-box"><mat-icon fontSet="material-symbols-rounded">inventory_2</mat-icon><span>Use one product or build a product list. Turn on side scroller for horizontal browsing.</span></div>
+            <label>Layout<select [(ngModel)]="block.content['layout']" (ngModelChange)="updateSelected()"><option value="grid">Grid</option><option value="list">List</option></select></label>
+            <label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['slider']" (ngModelChange)="updateSelected()"><span>Side scroller / product slider</span></label>
+            <div class="repeat-editor">@for (item of block.content['items']; track $index) {
+              <div class="repeat-card"><div class="repeat-card__head"><strong>Product {{ $index + 1 }}</strong><span><button type="button" (click)="moveRepeatItem(block, 'items', $index, -1)">↑</button><button type="button" (click)="moveRepeatItem(block, 'items', $index, 1)">↓</button><button type="button" (click)="removeRepeatItem(block, 'items', $index, 1)">×</button></span></div>
+              <label>Name<input [(ngModel)]="item.name" (ngModelChange)="updateSelected()"></label><div class="bt-inline-fields"><label>Price<input [(ngModel)]="item.price" (ngModelChange)="updateSelected()"></label><label>Old price<input [(ngModel)]="item.oldPrice" (ngModelChange)="updateSelected()"></label></div><label>Badge<input [(ngModel)]="item.badge" (ngModelChange)="updateSelected()"></label><div class="bt-media-field bt-media-field--compact"><span class="bt-field-label">Product image</span>@if (item.image) { <img class="bt-media-preview bt-media-preview--small" [src]="item.image" alt=""> }<button type="button" class="bt-media-choose" (click)="openMediaPicker(item, 'image', 'mediaId', 'Choose product image')"><mat-icon fontSet="material-symbols-rounded">photo_library</mat-icon>{{ item.image ? 'Change image' : 'Choose from gallery' }}</button></div><label>Description<textarea [(ngModel)]="item.description" rows="3" (ngModelChange)="updateSelected()"></textarea></label><div class="bt-inline-fields"><label>CTA<input [(ngModel)]="item.cta" (ngModelChange)="updateSelected()"></label><label>URL<input [(ngModel)]="item.url" (ngModelChange)="updateSelected()"></label></div><label>Rating<input type="number" min="0" max="5" step="0.5" [(ngModel)]="item.rating" (ngModelChange)="updateSelected()"></label>
+              </div> }
+            </div><button type="button" class="bt-add-repeat" (click)="addRepeatItem(block, 'items')">+ Add product</button>
           }
           @case ('offer') {
-            <bt-offer-editor [block]="block" [context]="elementContext"></bt-offer-editor>
+            <div class="repeat-editor">@for (item of block.content['items']; track $index) {
+              <div class="repeat-card"><div class="repeat-card__head"><strong>Offer {{ $index + 1 }}</strong><span><button type="button" (click)="moveRepeatItem(block, 'items', $index, -1)">↑</button><button type="button" (click)="moveRepeatItem(block, 'items', $index, 1)">↓</button><button type="button" (click)="removeRepeatItem(block, 'items', $index, 1)">×</button></span></div><label>Badge<input [(ngModel)]="item.badge" (ngModelChange)="updateSelected()"></label><label>Title<input [(ngModel)]="item.title" (ngModelChange)="updateSelected()"></label><label>Discount<input [(ngModel)]="item.discount" (ngModelChange)="updateSelected()"></label><div class="bt-media-field bt-media-field--compact"><span class="bt-field-label">Product image</span>@if (item.image) { <img class="bt-media-preview bt-media-preview--small" [src]="item.image" alt=""> }<button type="button" class="bt-media-choose" (click)="openMediaPicker(item, 'image', 'mediaId', 'Choose product image')"><mat-icon fontSet="material-symbols-rounded">photo_library</mat-icon>{{ item.image ? 'Change image' : 'Choose from gallery' }}</button></div><label>Description<textarea [(ngModel)]="item.description" rows="3" (ngModelChange)="updateSelected()"></textarea></label><div class="bt-inline-fields"><label>CTA<input [(ngModel)]="item.cta" (ngModelChange)="updateSelected()"></label><label>URL<input [(ngModel)]="item.url" (ngModelChange)="updateSelected()"></label></div></div> }
+            </div><button type="button" class="bt-add-repeat" (click)="addRepeatItem(block, 'items')">+ Add offer</button>
           }
-          @case ('html') {
-            <bt-html-editor [block]="block" [context]="elementContext"></bt-html-editor>
-          }
+          @case ('html') { <div class="bt-warning-box"><mat-icon fontSet="material-symbols-rounded">code</mat-icon><span>Custom HTML is exported as entered. Use trusted markup only.</span></div><label>HTML<textarea class="code-input" [(ngModel)]="block.content['html']" rows="14" (ngModelChange)="updateSelected()"></textarea></label> }
           @case ('form') {
-            <bt-form-editor [block]="block" [context]="elementContext"></bt-form-editor>
+            <label>Title<input [(ngModel)]="block.content['title']" (ngModelChange)="updateSelected()"></label><label>Subtitle<textarea [(ngModel)]="block.content['subtitle']" rows="3" (ngModelChange)="updateSelected()"></textarea></label>
+            <div class="bt-form-field-toolbar"><strong>Form fields</strong><select #newFieldType><option value="text">Text</option><option value="email">Email</option><option value="phone">Phone</option><option value="number">Number</option><option value="textarea">Textarea</option><option value="select">Dropdown</option><option value="radio">Radio</option><option value="checkbox">Checkbox</option><option value="date">Date</option><option value="time">Time</option><option value="datetime">Date & time</option></select><button type="button" (click)="addFormField(block, newFieldType.value)">+ Add</button></div>
+            <div class="repeat-editor">@for (field of block.content['fields']; track field.id; let fieldIndex = $index) { <div class="repeat-card"><div class="repeat-card__head"><strong>{{ field.label || 'Field' }}</strong><span><button type="button" (click)="moveRepeatItem(block, 'fields', fieldIndex, -1)">↑</button><button type="button" (click)="moveRepeatItem(block, 'fields', fieldIndex, 1)">↓</button><button type="button" (click)="removeRepeatItem(block, 'fields', fieldIndex, 1)">×</button></span></div><label>Type<select [(ngModel)]="field.type" (ngModelChange)="changeFormFieldType(block, field, $event)"><option value="text">Text</option><option value="email">Email</option><option value="phone">Phone</option><option value="number">Number</option><option value="textarea">Textarea</option><option value="select">Dropdown</option><option value="radio">Radio</option><option value="checkbox">Checkbox</option><option value="date">Date</option><option value="time">Time</option><option value="datetime">Date & time</option></select></label><label>Label<input [(ngModel)]="field.label" (ngModelChange)="updateSelected()"></label><label>Field name<input [(ngModel)]="field.name" (ngModelChange)="updateSelected()"></label><label>Placeholder<input [(ngModel)]="field.placeholder" (ngModelChange)="updateSelected()"></label>@if (field.type === 'select' || field.type === 'radio') { <label>Options (one per line)<textarea [(ngModel)]="field.options" rows="4" (ngModelChange)="updateSelected()"></textarea></label> }<label>Width<select [(ngModel)]="field.width" (ngModelChange)="updateSelected()"><option value="full">Full</option><option value="half">Half</option><option value="third">Third</option></select></label><label class="bt-check"><input type="checkbox" [(ngModel)]="field.required" (ngModelChange)="updateSelected()"><span>Required</span></label></div> }</div>
+            <label>Button text<input [(ngModel)]="block.content['submitLabel']" (ngModelChange)="updateSelected()"></label><label>Submit API<input [(ngModel)]="block.content['submitUrl']" (ngModelChange)="updateSelected()"></label><label>Success message<textarea [(ngModel)]="block.content['successMessage']" rows="2" (ngModelChange)="updateSelected()"></textarea></label><label>Error message<textarea [(ngModel)]="block.content['errorMessage']" rows="2" (ngModelChange)="updateSelected()"></textarea></label>
           }
           @case ('contact') {
-            <bt-contact-editor [block]="block" [context]="elementContext"></bt-contact-editor>
+            <label>Phone<input [(ngModel)]="block.content['phone']" (ngModelChange)="updateSelected()"></label><label>Email<input [(ngModel)]="block.content['email']" (ngModelChange)="updateSelected()"></label><label>Address<textarea [(ngModel)]="block.content['address']" rows="3" (ngModelChange)="updateSelected()"></textarea></label><label>Business hours<input [(ngModel)]="block.content['hours']" (ngModelChange)="updateSelected()"></label>
+            <div class="repeat-editor">@for (action of block.content['actions']; track $index) { <div class="repeat-card"><div class="repeat-card__head"><strong>Contact action {{ $index + 1 }}</strong><button type="button" (click)="removeRepeatItem(block, 'actions', $index, 0)">×</button></div><label>Type<select [(ngModel)]="action.platform" (ngModelChange)="updateSelected()"><option value="whatsapp">WhatsApp</option><option value="facebook">Facebook</option><option value="instagram">Instagram</option><option value="linkedin">LinkedIn</option><option value="youtube">YouTube</option><option value="telegram">Telegram</option><option value="website">Website</option><option value="x">X / Twitter</option></select></label><label>Label<input [(ngModel)]="action.label" (ngModelChange)="updateSelected()"></label><label>URL<input [(ngModel)]="action.url" (ngModelChange)="updateSelected()"></label></div> }</div><button type="button" class="bt-add-repeat" (click)="addRepeatItem(block, 'actions')">+ Add contact action</button>
           }
-          @case ('whatsapp') {
-            <bt-whatsapp-editor [block]="block" [context]="elementContext"></bt-whatsapp-editor>
-          }
-          @case ('map') {
-            <bt-map-editor [block]="block" [context]="elementContext"></bt-map-editor>
-          }
-          @case ('scanner') {
-            <bt-scanner-editor [block]="block" [context]="elementContext"></bt-scanner-editor>
-          }
-          @case ('timer') {
-            <bt-timer-editor [block]="block" [context]="elementContext"></bt-timer-editor>
-          }
-          @case ('counter') {
-            <bt-counter-editor [block]="block" [context]="elementContext"></bt-counter-editor>
-          }
-          @case ('rating') {
-            <bt-rating-editor [block]="block" [context]="elementContext"></bt-rating-editor>
-          }
+          @case ('whatsapp') { <label>WhatsApp number<input [(ngModel)]="block.content['phone']" (ngModelChange)="updateSelected()"></label><label>Message<input [(ngModel)]="block.content['message']" (ngModelChange)="updateSelected()"></label><label>Button text<input [(ngModel)]="block.content['label']" (ngModelChange)="updateSelected()"></label> }
+          @case ('map') { <label>Title<input [(ngModel)]="block.content['title']" (ngModelChange)="updateSelected()"></label><label>Embed URL<input [(ngModel)]="block.content['url']" (ngModelChange)="updateSelected()"></label><label>Height (px)<input type="number" [(ngModel)]="block.content['height']" (ngModelChange)="updateSelected()"></label> }
+          @case ('scanner') { <label>Title<input [(ngModel)]="block.content['title']" (ngModelChange)="updateSelected()"></label><label>BarcodeDetector formats<input [(ngModel)]="block.content['formats']" (ngModelChange)="updateSelected()"></label><div class="bt-info-box"><mat-icon fontSet="material-symbols-rounded">info</mat-icon><span>Exported page uses the browser camera + BarcodeDetector API where supported.</span></div> }
+          @case ('timer') { <label>Title<input [(ngModel)]="block.content['title']" (ngModelChange)="updateSelected()"></label><label>Target date/time<input type="datetime-local" [(ngModel)]="block.content['target']" (ngModelChange)="updateSelected()"></label><label>Expired text<input [(ngModel)]="block.content['expiredText']" (ngModelChange)="updateSelected()"></label> }
+          @case ('counter') { <div class="repeat-editor">@for (item of block.content['items']; track $index) { <div class="repeat-card"><div class="repeat-card__head"><strong>Counter {{ $index + 1 }}</strong><button type="button" (click)="removeRepeatItem(block, 'items', $index)">×</button></div><label>Start<input type="number" [(ngModel)]="item.start" (ngModelChange)="updateSelected()"></label><label>End<input type="number" [(ngModel)]="item.end" (ngModelChange)="updateSelected()"></label><label>Prefix<input [(ngModel)]="item.prefix" (ngModelChange)="updateSelected()"></label><label>Suffix<input [(ngModel)]="item.suffix" (ngModelChange)="updateSelected()"></label><label>Label<input [(ngModel)]="item.label" (ngModelChange)="updateSelected()"></label><label>Animation duration ms<input type="number" [(ngModel)]="item.duration" (ngModelChange)="updateSelected()"></label></div> }</div><button type="button" class="bt-add-repeat" (click)="addRepeatItem(block, 'items')">+ Add counter</button> }
+          @case ('rating') { <label>Title<input [(ngModel)]="block.content['title']" (ngModelChange)="updateSelected()"></label><label>Text<textarea [(ngModel)]="block.content['text']" rows="2" (ngModelChange)="updateSelected()"></textarea></label><label>Max rating<input type="number" min="1" max="10" [(ngModel)]="block.content['max']" (ngModelChange)="updateSelected()"></label><label>Submit API<input [(ngModel)]="block.content['submitUrl']" (ngModelChange)="updateSelected()"></label><label>Button text<input [(ngModel)]="block.content['submitLabel']" (ngModelChange)="updateSelected()"></label><label>Success message<input [(ngModel)]="block.content['successMessage']" (ngModelChange)="updateSelected()"></label><label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['allowComment']" (ngModelChange)="updateSelected()"><span>Allow comment</span></label> }
           @case ('chart') {
-            <bt-chart-editor [block]="block" [context]="elementContext"></bt-chart-editor>
+            <label>Title<input [(ngModel)]="block.content['title']" (ngModelChange)="updateSelected()"></label><label>Chart type<select [(ngModel)]="block.content['chartType']" (ngModelChange)="updateSelected()"><option value="bar">Bar</option><option value="line">Line</option><option value="pie">Pie</option><option value="doughnut">Doughnut</option></select></label><div class="repeat-editor">@for (item of block.content['items']; track $index) { <div class="repeat-card"><div class="repeat-card__head"><strong>Data {{ $index + 1 }}</strong><button type="button" (click)="removeRepeatItem(block, 'items', $index, 1)">×</button></div><label>Label<input [(ngModel)]="item.label" (ngModelChange)="updateSelected()"></label><label>Value<input type="number" [(ngModel)]="item.value" (ngModelChange)="updateSelected()"></label></div> }</div><button type="button" class="bt-add-repeat" (click)="addRepeatItem(block, 'items')">+ Add data</button><div class="bt-inline-fields"><label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['showLegend']" (ngModelChange)="updateSelected()"><span>Legend</span></label><label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['showValues']" (ngModelChange)="updateSelected()"><span>Values</span></label></div><label>Accent color<input type="color" [(ngModel)]="block.style['accent']" (ngModelChange)="updateSelected()"></label>
           }
-          @case ('media') {
-            <bt-media-editor [block]="block" [context]="elementContext"></bt-media-editor>
-          }
-          @case ('divider') {
-            <bt-divider-editor [block]="block" [context]="elementContext"></bt-divider-editor>
-          }
-          @case ('spacer') {
-            <bt-spacer-editor [block]="block" [context]="elementContext"></bt-spacer-editor>
-          }
+          @case ('media') { <label>Title<input [(ngModel)]="block.content['title']" (ngModelChange)="updateSelected()"></label><label>Upload media/documents<input type="file" multiple accept="image/*,.pdf,.doc,.docx,.txt,.csv" (change)="onMediaFiles($event, block)"></label><div class="bt-info-box"><mat-icon fontSet="material-symbols-rounded">cloud_off</mat-icon><span>These uploads are saved inside this template design. True account-wide media needs a backend media API/storage.</span></div><div class="media-manager">@for (file of block.content['files']; track $index) { <div class="media-row"><mat-icon fontSet="material-symbols-rounded">{{ file.type?.startsWith('image/') ? 'image' : 'description' }}</mat-icon><span>{{ file.name }}</span><button type="button" (click)="removeMediaFile(block, $index)"><mat-icon fontSet="material-symbols-rounded">close</mat-icon></button></div> }</div> }
+          @case ('divider') { <label>Line color<input type="color" [(ngModel)]="block.style['borderColor']" (ngModelChange)="updateSelected()"></label><label>Thickness<input type="number" [(ngModel)]="block.style['borderWidth']" (ngModelChange)="updateSelected()"></label> }
+          @case ('spacer') { <label>Height (px)<input type="number" [(ngModel)]="block.style['height']" (ngModelChange)="updateSelected()"></label> }
         }
 
         @if (block.type === 'heading' || block.type === 'text' || block.type === 'hero' || block.type === 'link' || block.type === 'button') {

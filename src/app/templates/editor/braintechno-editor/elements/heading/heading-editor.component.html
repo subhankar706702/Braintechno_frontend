@@ -1,5 +1,89 @@
-<label>Heading<input [(ngModel)]="block.content['text']" (ngModelChange)="context.updateSelected()"></label>
-            @if (block.content['variant'] === 'eyebrow') { <label>Eyebrow<input [(ngModel)]="block.content['eyebrow']" (ngModelChange)="context.updateSelected()"></label> }
-            <label>Level<select [(ngModel)]="block.content['level']" (ngModelChange)="context.updateSelected()"><option value="h1">H1</option><option value="h2">H2</option><option value="h3">H3</option><option value="h4">H4</option></select></label>
-            <label>Font size<input type="number" [(ngModel)]="block.style['fontSize']" (ngModelChange)="context.updateSelected()"></label>
-            <label>Weight<select [(ngModel)]="block.style['fontWeight']" (ngModelChange)="context.updateSelected()"><option [ngValue]="400">Regular</option><option [ngValue]="500">Medium</option><option [ngValue]="600">Semibold</option><option [ngValue]="700">Bold</option><option [ngValue]="800">Extra Bold</option><option [ngValue]="900">Black</option></select></label>
+<div class="bt-heading-editor">
+  <div class="bt-heading-editor__section">
+    <strong>Content</strong>
+    <label>Heading<input [(ngModel)]="block.content['text']" (ngModelChange)="update()"></label>
+    <label>HTML tag
+      <select [(ngModel)]="block.content['level']" (ngModelChange)="update()">
+        <option value="h1">H1</option><option value="h2">H2</option><option value="h3">H3</option>
+        <option value="h4">H4</option><option value="h5">H5</option><option value="h6">H6</option>
+      </select>
+    </label>
+    <label>Eyebrow / Label<input [(ngModel)]="block.content['eyebrow']" (ngModelChange)="update()"></label>
+    <label>Subtitle<textarea rows="2" [(ngModel)]="block.content['subtitle']" (ngModelChange)="update()"></textarea></label>
+    <label>Description<textarea rows="3" [(ngModel)]="block.content['description']" (ngModelChange)="update()"></textarea></label>
+  </div>
+
+  <div class="bt-heading-editor__section">
+    <strong>Advanced</strong>
+    <label>Number<input [(ngModel)]="block.content['number']" (ngModelChange)="update()"></label>
+    <label>Icon<input [(ngModel)]="block.content['icon']" (ngModelChange)="update()" placeholder="auto_awesome"></label>
+    <label>Highlight word<input [(ngModel)]="block.content['highlight']" (ngModelChange)="update()"></label>
+    <div class="bt-heading-check-grid">
+      <label class="bt-check"><input type="checkbox" [(ngModel)]="block.style['showNumber']" (ngModelChange)="update()"><span>Show number</span></label>
+      <label class="bt-check"><input type="checkbox" [(ngModel)]="block.style['showIcon']" (ngModelChange)="update()"><span>Show icon</span></label>
+      <label class="bt-check"><input type="checkbox" [(ngModel)]="block.style['highlightWord']" (ngModelChange)="update()"><span>Highlight word</span></label>
+      <label class="bt-check"><input type="checkbox" [(ngModel)]="block.style['textGradient']" (ngModelChange)="update()"><span>Gradient text</span></label>
+    </div>
+  </div>
+
+  <div class="bt-heading-editor__section">
+    <strong>Typography</strong>
+    <div class="bt-heading-grid">
+      <label>Font size<input type="number" [(ngModel)]="block.style['fontSize']" (ngModelChange)="update()"></label>
+      <label>Weight<input type="number" min="100" max="950" step="50" [(ngModel)]="block.style['fontWeight']" (ngModelChange)="update()"></label>
+      <label>Mobile size<input type="number" [(ngModel)]="block.style['mobileFontSize']" (ngModelChange)="update()"></label>
+      <label>Tablet size<input type="number" [(ngModel)]="block.style['tabletFontSize']" (ngModelChange)="update()"></label>
+      <label>Letter spacing<input type="number" step="0.01" [(ngModel)]="block.style['letterSpacing']" (ngModelChange)="update()"></label>
+      <label>Line height<input type="number" step="0.05" [(ngModel)]="block.style['lineHeight']" (ngModelChange)="update()"></label>
+    </div>
+    <label>Font family
+      <select [(ngModel)]="block.style['fontFamily']" (ngModelChange)="update()">
+        <option value="Inter, Arial, sans-serif">Inter / Sans</option>
+        <option value="Georgia, serif">Georgia / Serif</option>
+        <option value="'Trebuchet MS', sans-serif">Trebuchet</option>
+        <option value="'Courier New', monospace">Monospace</option>
+      </select>
+    </label>
+    <label>Alignment
+      <select [(ngModel)]="block.style['align']" (ngModelChange)="update()">
+        <option value="left">Left</option><option value="center">Center</option><option value="right">Right</option>
+      </select>
+    </label>
+  </div>
+
+  <div class="bt-heading-editor__section">
+    <strong>Colors</strong>
+    <div class="bt-heading-grid">
+      <label>Text color<input type="color" [(ngModel)]="block.style['color']" (ngModelChange)="update()"></label>
+      <label>Accent<input type="color" [(ngModel)]="block.style['accent']" (ngModelChange)="update()"></label>
+      <label>Highlight<input type="color" [(ngModel)]="block.style['highlightColor']" (ngModelChange)="update()"></label>
+      <label>Subtitle<input type="color" [(ngModel)]="block.style['subtitleColor']" (ngModelChange)="update()"></label>
+    </div>
+    <label>Decoration
+      <select [(ngModel)]="block.style['headingDecoration']" (ngModelChange)="update()">
+        <option value="">None</option><option value="underline">Underline</option>
+      </select>
+    </label>
+  </div>
+
+  <div class="bt-heading-editor__section">
+    <strong>Background</strong>
+    <label>Type
+      <select [(ngModel)]="block.style['backgroundType']" (ngModelChange)="update()">
+        <option value="color">Color</option><option value="image">Image</option><option value="gradient">Gradient</option>
+      </select>
+    </label>
+    <label>Background color<input type="color" [(ngModel)]="block.style['background']" (ngModelChange)="update()"></label>
+    @if (block.style['backgroundType'] === 'image') {
+      <button type="button" class="bt-heading-media" (click)="chooseBackgroundImage()"><mat-icon fontSet="material-symbols-rounded">wallpaper</mat-icon>{{ block.style['backgroundImage'] ? 'Change image' : 'Choose image' }}</button>
+      @if (block.style['backgroundImage']) { <button type="button" class="bt-heading-remove" (click)="removeBackgroundImage()">Remove image</button> }
+      <label>Overlay<input [(ngModel)]="block.style['overlay']" (ngModelChange)="update()"></label>
+    }
+  </div>
+
+  <div class="bt-heading-editor__section">
+    <strong>Link</strong>
+    <label>Button text<input [(ngModel)]="block.content['linkLabel']" (ngModelChange)="update()"></label>
+    <label>URL<input [(ngModel)]="block.content['linkUrl']" (ngModelChange)="update()"></label>
+  </div>
+</div>

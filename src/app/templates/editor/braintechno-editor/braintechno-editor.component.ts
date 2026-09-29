@@ -682,19 +682,44 @@ export class BraintechnoEditorComponent implements OnChanges, OnDestroy {
 
   onPreviewClick(event: MouseEvent, block: EditorBlock): void {
     const target = event.target as HTMLElement | null;
-    const tab = target?.closest<HTMLElement>('[data-tab-btn]');
-    if (!tab || block.type !== 'tabs') return;
+    if (!target) return;
 
-    const root = tab.closest<HTMLElement>('[data-bt-tabs], .bt-tabs');
-    if (!root) return;
+    if (block.type === 'tabs') {
+      const tab = target.closest<HTMLElement>('[data-tab-btn]');
+      if (tab) {
+        event.preventDefault();
+        event.stopPropagation();
+        const root = tab.closest<HTMLElement>('[data-bt-tabs], .bt-tabs');
+        if (!root) return;
+        const index = Number(tab.getAttribute('data-tab-btn'));
+        if (!Number.isInteger(index)) return;
+        this.pushHistory();
+        block.content['active'] = index;
+        this.commitChange();
+        return;
+      }
+    }
 
-    const rawIndex = tab.getAttribute('data-tab-btn');
-    const index = Number(rawIndex);
-    if (!Number.isInteger(index)) return;
+    if (block.type === 'floating') {
+      const toggle = target.closest<HTMLElement>('[data-floating-toggle]');
+      if (toggle) {
+        event.preventDefault();
+        event.stopPropagation();
+        const current = block.content['openState'] === true;
+        this.pushHistory();
+        block.content['openState'] = !current;
+        this.commitChange();
+        return;
+      }
 
-    this.pushHistory();
-    block.content['active'] = index;
-    this.commitChange();
+      const action = target.closest<HTMLElement>('[data-floating-action]');
+      if (action) {
+        // Floating actions must not navigate or execute customer actions while editing.
+        event.preventDefault();
+        event.stopPropagation();
+        return;
+      }
+    }
   }
 
   changeSocialPlatform(block: EditorBlock, item: Record<string, any>, platform: string): void {

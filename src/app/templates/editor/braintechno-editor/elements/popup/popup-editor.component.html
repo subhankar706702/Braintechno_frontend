@@ -1,1 +1,236 @@
-<label>Title<input [(ngModel)]="block.content['title']" (ngModelChange)="context.updateSelected()"></label><label>Text<textarea [(ngModel)]="block.content['text']" rows="4" (ngModelChange)="context.updateSelected()"></textarea></label><label>CTA<input [(ngModel)]="block.content['cta']" (ngModelChange)="context.updateSelected()"></label><label>URL<input [(ngModel)]="block.content['url']" (ngModelChange)="context.updateSelected()"></label>
+<div class="bt-popup-editor">
+  <div class="bt-footer-editor__intro">
+    <strong>Popup Properties</strong>
+    <span>Configure popup type, trigger, content, form, CTA and responsive behaviour.</span>
+  </div>
+
+  <div class="bt-popup-section-title">Popup</div>
+  <div class="bt-form-grid bt-form-grid--2">
+    <label>Variant
+      <select [(ngModel)]="c['variant']" (ngModelChange)="update()">
+        <option value="offer">Offer</option>
+        <option value="newsletter">Newsletter</option>
+        <option value="contact">Contact</option>
+        <option value="whatsapp">WhatsApp</option>
+        <option value="lead">Lead Capture</option>
+        <option value="coupon">Coupon Unlock</option>
+        <option value="event">Event</option>
+        <option value="announcement">Announcement</option>
+        <option value="welcome">Welcome</option>
+        <option value="exit-intent">Exit Intent</option>
+        <option value="image">Image Banner</option>
+        <option value="video">Video</option>
+        <option value="booking">Booking</option>
+        <option value="qr">QR Code</option>
+        <option value="custom">Custom</option>
+      </select>
+    </label>
+    <label class="bt-check bt-check--box">
+      <input type="checkbox" [(ngModel)]="c['enabled']" (ngModelChange)="update()">
+      <span>Enable popup</span>
+    </label>
+  </div>
+
+  <div class="bt-popup-section-title">Trigger</div>
+  <div class="bt-form-grid bt-form-grid--2">
+    <label>Trigger
+      <select [(ngModel)]="c['trigger']" (ngModelChange)="update()">
+        <option value="load">On Page Load</option>
+        <option value="delay">After Delay</option>
+        <option value="scroll">After Scroll</option>
+        <option value="exit">Exit Intent</option>
+        <option value="click">Button Click</option>
+      </select>
+    </label>
+    <label>Frequency
+      <select [(ngModel)]="c['frequency']" (ngModelChange)="update()">
+        <option value="always">Every Visit</option>
+        <option value="session">Once Per Session</option>
+        <option value="once">Once Per Browser</option>
+      </select>
+    </label>
+    <label>Delay (ms)
+      <input type="number" min="0" [(ngModel)]="c['delay']" (ngModelChange)="update()">
+    </label>
+    <label>Scroll %
+      <input type="number" min="0" max="100" [(ngModel)]="c['scrollPercent']" (ngModelChange)="update()">
+    </label>
+    <label class="bt-span-2">Trigger Button Label
+      <input [(ngModel)]="c['triggerLabel']" (ngModelChange)="update()">
+    </label>
+  </div>
+
+  <div class="bt-popup-section-title">Content</div>
+  <div class="bt-form-grid bt-form-grid--2">
+    <label>Title
+      <input [(ngModel)]="c['title']" (ngModelChange)="update()">
+    </label>
+    <label>Theme
+      <select [(ngModel)]="c['theme']" (ngModelChange)="update()">
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </label>
+    <label class="bt-span-2">Description
+      <textarea rows="3" [(ngModel)]="c['text']" (ngModelChange)="update()"></textarea>
+    </label>
+    <label>CTA Label
+      <input [(ngModel)]="c['ctaLabel']" (ngModelChange)="update()">
+    </label>
+    <label>CTA URL
+      <input [(ngModel)]="c['ctaUrl']" (ngModelChange)="update()">
+    </label>
+    <label>Secondary Label
+      <input [(ngModel)]="c['secondaryLabel']" (ngModelChange)="update()">
+    </label>
+    <label>Secondary URL
+      <input [(ngModel)]="c['secondaryUrl']" (ngModelChange)="update()">
+    </label>
+  </div>
+
+  <div class="bt-inline-fields">
+    <label class="bt-check"><input type="checkbox" [(ngModel)]="c['showClose']" (ngModelChange)="update()"><span>Close button</span></label>
+    <label class="bt-check"><input type="checkbox" [(ngModel)]="c['showOverlay']" (ngModelChange)="update()"><span>Overlay</span></label>
+    <label class="bt-check"><input type="checkbox" [(ngModel)]="c['showImage']" (ngModelChange)="update()"><span>Image</span></label>
+    <label class="bt-check"><input type="checkbox" [(ngModel)]="c['showVideo']" (ngModelChange)="update()"><span>Video</span></label>
+    <label class="bt-check"><input type="checkbox" [(ngModel)]="c['showForm']" (ngModelChange)="update()"><span>Form</span></label>
+    <label class="bt-check"><input type="checkbox" [(ngModel)]="c['showSecondary']" (ngModelChange)="update()"><span>Secondary CTA</span></label>
+  </div>
+
+  <div class="bt-popup-section-title">Image</div>
+  <div class="bt-media-field bt-media-field--compact">
+    <span class="bt-field-label">Popup image</span>
+    @if (c['image']) { <img class="bt-media-preview bt-media-preview--small" [src]="c['image']" alt=""> }
+    <div class="bt-media-actions">
+      <button type="button" class="bt-media-choose" (click)="chooseImage()">
+        <mat-icon fontSet="material-symbols-rounded">photo_library</mat-icon>
+        {{ c['image'] ? 'Change image' : 'Choose image' }}
+      </button>
+      @if (c['image']) { <button type="button" class="bt-media-remove" (click)="removeImage()">Remove</button> }
+    </div>
+  </div>
+
+  <div class="bt-popup-section-title">Video</div>
+  <label>Video URL
+    <input [(ngModel)]="c['videoUrl']" (ngModelChange)="update()" placeholder="https://www.youtube.com/watch?v=...">
+  </label>
+
+  <div class="bt-popup-section-title">Event</div>
+  <div class="bt-form-grid bt-form-grid--2">
+    <label>Date<input [(ngModel)]="c['eventDate']" (ngModelChange)="update()"></label>
+    <label>Time<input [(ngModel)]="c['eventTime']" (ngModelChange)="update()"></label>
+    <label class="bt-span-2">Location<input [(ngModel)]="c['eventLocation']" (ngModelChange)="update()"></label>
+  </div>
+
+  <div class="bt-popup-section-title">Coupon</div>
+  <div class="bt-form-grid bt-form-grid--2">
+    <label>Coupon Code<input [(ngModel)]="c['couponCode']" (ngModelChange)="update()"></label>
+    <label>Success Message<input [(ngModel)]="c['successMessage']" (ngModelChange)="update()"></label>
+  </div>
+
+  <div class="bt-popup-section-title">Form</div>
+  <div class="bt-form-grid bt-form-grid--2">
+    <label>Form Heading<input [(ngModel)]="c['formHeading']" (ngModelChange)="update()"></label>
+    <label>Submit Button<input [(ngModel)]="c['submitLabel']" (ngModelChange)="update()"></label>
+  </div>
+
+  <div class="repeat-editor">
+    @for (field of fields; track $index) {
+      <div class="repeat-card">
+        <div class="repeat-card__head">
+          <strong>{{ field.label || ('Field ' + ($index + 1)) }}</strong>
+          <button type="button" (click)="removeField($index)">×</button>
+        </div>
+        <div class="bt-form-grid bt-form-grid--2">
+          <label>Label<input [(ngModel)]="field.label" (ngModelChange)="update()"></label>
+          <label>Name<input [(ngModel)]="field.name" (ngModelChange)="update()"></label>
+          <label>Type
+            <select [(ngModel)]="field.type" (ngModelChange)="update()">
+              <option value="text">Text</option>
+              <option value="tel">Phone</option>
+              <option value="email">Email</option>
+              <option value="textarea">Textarea</option>
+              <option value="select">Select</option>
+            </select>
+          </label>
+          <label>Placeholder<input [(ngModel)]="field.placeholder" (ngModelChange)="update()"></label>
+        </div>
+        <label class="bt-check"><input type="checkbox" [(ngModel)]="field.required" (ngModelChange)="update()"><span>Required</span></label>
+        @if (field.type === 'select') {
+          <div class="bt-popup-options">
+            <strong>Options</strong>
+            @for (option of field.options || []; track $index) {
+              <div class="bt-popup-option-row">
+                <input [(ngModel)]="field.options[$index]" (ngModelChange)="update()">
+                <button type="button" (click)="removeOption(field, $index)">×</button>
+              </div>
+            }
+            <button type="button" class="bt-add-repeat bt-add-repeat--small" (click)="addOption(field)">+ Add option</button>
+          </div>
+        }
+      </div>
+    }
+  </div>
+  <button type="button" class="bt-add-repeat" (click)="addField()">+ Add form field</button>
+
+  <div class="bt-popup-section-title">QR Code</div>
+  <div class="bt-media-field bt-media-field--compact">
+    <span class="bt-field-label">QR image</span>
+    @if (c['qrImage']) { <img class="bt-media-preview bt-media-preview--small" [src]="c['qrImage']" alt=""> }
+    <div class="bt-media-actions">
+      <button type="button" class="bt-media-choose" (click)="chooseQr()">
+        <mat-icon fontSet="material-symbols-rounded">qr_code_2</mat-icon>
+        {{ c['qrImage'] ? 'Change QR' : 'Choose QR' }}
+      </button>
+      @if (c['qrImage']) { <button type="button" class="bt-media-remove" (click)="removeQr()">Remove</button> }
+    </div>
+  </div>
+  <label>QR helper text<input [(ngModel)]="c['qrText']" (ngModelChange)="update()"></label>
+
+  <div class="bt-popup-section-title">Layout</div>
+  <div class="bt-form-grid bt-form-grid--2">
+    <label>Position
+      <select [(ngModel)]="c['position']" (ngModelChange)="update()">
+        <option value="top">Top</option>
+        <option value="center">Center</option>
+        <option value="bottom">Bottom</option>
+      </select>
+    </label>
+    <label>Animation
+      <select [(ngModel)]="c['animation']" (ngModelChange)="update()">
+        <option value="fade">Fade</option>
+        <option value="scale">Scale</option>
+        <option value="slide-up">Slide Up</option>
+        <option value="slide-down">Slide Down</option>
+      </select>
+    </label>
+    <label>Width (px)<input type="number" min="280" max="980" [(ngModel)]="c['width']" (ngModelChange)="update()"></label>
+    <label>Padding (px)<input type="number" min="12" max="80" [(ngModel)]="c['padding']" (ngModelChange)="update()"></label>
+    <label>Radius (px)<input type="number" min="0" max="48" [(ngModel)]="c['radius']" (ngModelChange)="update()"></label>
+    <label>Auto Close (sec)<input type="number" min="0" [(ngModel)]="c['autoCloseSeconds']" (ngModelChange)="update()"></label>
+  </div>
+  <label class="bt-check"><input type="checkbox" [(ngModel)]="c['mobileFullScreen']" (ngModelChange)="update()"><span>Full screen on mobile</span></label>
+
+  <div class="bt-popup-section-title">Colors</div>
+  <div class="bt-form-grid bt-form-grid--2">
+    <label>Background<input type="color" [(ngModel)]="block.style['background']" (ngModelChange)="update()"></label>
+    <label>Text<input type="color" [(ngModel)]="block.style['color']" (ngModelChange)="update()"></label>
+    <label>Accent<input type="color" [(ngModel)]="block.style['accent']" (ngModelChange)="update()"></label>
+    <label>Muted<input type="color" [(ngModel)]="block.style['mutedColor']" (ngModelChange)="update()"></label>
+  </div>
+  <label>Overlay
+    <input [(ngModel)]="block.style['overlay']" (ngModelChange)="update()" placeholder="rgba(15,23,42,.62)">
+  </label>
+
+  <div class="bt-media-field bt-media-field--compact">
+    <span class="bt-field-label">Background image</span>
+    @if (block.style['backgroundImage']) { <img class="bt-media-preview bt-media-preview--small" [src]="block.style['backgroundImage']" alt=""> }
+    <div class="bt-media-actions">
+      <button type="button" class="bt-media-choose" (click)="chooseBackgroundImage()">
+        <mat-icon fontSet="material-symbols-rounded">photo_library</mat-icon>
+        {{ block.style['backgroundImage'] ? 'Change image' : 'Choose image' }}
+      </button>
+      @if (block.style['backgroundImage']) { <button type="button" class="bt-media-remove" (click)="removeBackgroundImage()">Remove</button> }
+    </div>
+  </div>
+</div>

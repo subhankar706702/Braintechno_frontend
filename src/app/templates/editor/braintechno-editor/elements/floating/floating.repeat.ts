@@ -1,3 +1,10 @@
-export function repeatFloatingItemTemplate(parent: any, index: number, key: string): Record<string, any> {
-return { icon: 'chat', label: `Action ${index + 1}`, url: '#' };
+import { getFloatingActionDefaults } from './floating.factory';
+
+export function repeatFloatingItemTemplate(_parent: any, index: number, _key: string): Record<string, any> {
+  return {
+    ...getFloatingActionDefaults('custom'),
+    label: `Action ${index + 1}`,
+    icon: 'touch_app',
+    image: ''
+  };
 }

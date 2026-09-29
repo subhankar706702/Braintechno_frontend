@@ -1,1 +1,135 @@
-<div class="bt-info-box"><mat-icon fontSet="material-symbols-rounded">touch_app</mat-icon><span>Compact floating actions. Default 1; add more only when needed.</span></div><div class="repeat-editor">@for (item of block.content['items']; track $index) { <div class="repeat-card"><div class="repeat-card__head"><strong>Action {{ $index + 1 }}</strong><button type="button" (click)="context.removeRepeatItem(block, 'items', $index, 1)">×</button></div><label>Icon<input [(ngModel)]="item.icon" (ngModelChange)="context.updateSelected()"></label><label>Label<input [(ngModel)]="item.label" (ngModelChange)="context.updateSelected()"></label><label>URL / action<input [(ngModel)]="item.url" (ngModelChange)="context.updateSelected()"></label></div> }</div><button type="button" class="bt-add-repeat" (click)="context.addRepeatItem(block, 'items')">+ Add action</button>
+<div class="bt-floating-properties">
+  <div class="bt-info-box">
+    <mat-icon fontSet="material-symbols-rounded">touch_app</mat-icon>
+    <span>Floating actions stay fixed on the published page. In the editor preview they stay inside the selected block.</span>
+  </div>
+
+  <div class="bt-property-section">
+    <strong>Layout</strong>
+    <div class="bt-prop-grid">
+      <label>Layout
+        <select [(ngModel)]="block.content['layout']" (ngModelChange)="context.updateSelected()">
+          <option value="single">Single Action</option>
+          <option value="vertical">Vertical Stack</option>
+          <option value="horizontal">Horizontal Stack</option>
+          <option value="expand">Expand Menu</option>
+        </select>
+      </label>
+      <label>Open Mode
+        <select [(ngModel)]="block.content['openMode']" (ngModelChange)="context.updateSelected()">
+          <option value="always">Always Visible</option>
+          <option value="click">Click to Expand</option>
+        </select>
+      </label>
+      <label>Position
+        <select [(ngModel)]="block.style['position']" (ngModelChange)="context.updateSelected()">
+          <option value="bottom-right">Bottom Right</option>
+          <option value="bottom-left">Bottom Left</option>
+          <option value="center-right">Center Right</option>
+          <option value="center-left">Center Left</option>
+        </select>
+      </label>
+      <label>Animation
+        <select [(ngModel)]="block.style['animation']" (ngModelChange)="context.updateSelected()">
+          <option value="none">None</option>
+          <option value="pulse">Pulse</option>
+          <option value="bounce">Bounce</option>
+          <option value="shake">Shake</option>
+        </select>
+      </label>
+    </div>
+  </div>
+
+  <div class="bt-property-section">
+    <strong>Main Button</strong>
+    <div class="bt-prop-grid">
+      <label>Label<input [(ngModel)]="block.content['mainLabel']" (ngModelChange)="context.updateSelected()"></label>
+      <label>Icon<input [(ngModel)]="block.content['mainIcon']" (ngModelChange)="context.updateSelected()" placeholder="add"></label>
+      <label>Button Color<input type="color" [(ngModel)]="block.style['background']" (ngModelChange)="context.updateSelected()"></label>
+      <label>Text Color<input type="color" [(ngModel)]="block.style['color']" (ngModelChange)="context.updateSelected()"></label>
+    </div>
+    <div class="bt-check-row">
+      <label><input type="checkbox" [(ngModel)]="block.content['showLabels']" (ngModelChange)="context.updateSelected()"> Show labels</label>
+      <label><input type="checkbox" [(ngModel)]="block.content['mobileOnly']" (ngModelChange)="context.updateSelected()"> Mobile only</label>
+      <label><input type="checkbox" [(ngModel)]="block.content['desktopOnly']" (ngModelChange)="context.updateSelected()"> Desktop only</label>
+    </div>
+  </div>
+
+  <div class="bt-property-section">
+    <strong>Position & Size</strong>
+    <div class="bt-prop-grid">
+      <label>Offset X<input type="number" min="0" [(ngModel)]="block.style['offsetX']" (ngModelChange)="context.updateSelected()"></label>
+      <label>Offset Y<input type="number" min="0" [(ngModel)]="block.style['offsetY']" (ngModelChange)="context.updateSelected()"></label>
+      <label>Main size<input type="number" min="34" [(ngModel)]="block.style['size']" (ngModelChange)="context.updateSelected()"></label>
+      <label>Action size<input type="number" min="32" [(ngModel)]="block.style['actionSize']" (ngModelChange)="context.updateSelected()"></label>
+      <label>Gap<input type="number" min="4" [(ngModel)]="block.style['gap']" (ngModelChange)="context.updateSelected()"></label>
+      <label>Radius<input type="number" min="0" [(ngModel)]="block.style['radius']" (ngModelChange)="context.updateSelected()"></label>
+    </div>
+  </div>
+
+  <div class="bt-property-section">
+    <strong>Actions</strong>
+    <div class="repeat-editor">
+      @for (item of actions; track $index) {
+        <div class="repeat-card bt-floating-action-card">
+          <div class="repeat-card__head">
+            <strong>Action {{ $index + 1 }}</strong>
+            <div class="bt-inline-actions">
+              <button type="button" (click)="moveAction($index, -1)" [disabled]="$index === 0">↑</button>
+              <button type="button" (click)="moveAction($index, 1)" [disabled]="$index === actions.length - 1">↓</button>
+              <button type="button" class="danger" (click)="removeAction($index)" [disabled]="actions.length <= 1">×</button>
+            </div>
+          </div>
+
+          <label>Action Type
+            <select [(ngModel)]="item.type" (ngModelChange)="onTypeChange(item)">
+              @for (type of actionTypes; track type.key) {
+                <option [value]="type.key">{{ type.label }}</option>
+              }
+            </select>
+          </label>
+
+          @if (item.type === 'social') {
+            <label>Social Platform
+              <select [(ngModel)]="item.socialPlatform" (ngModelChange)="setSocial(item, $event)">
+                @for (platform of socialPlatforms; track platform.key) {
+                  <option [value]="platform.key">{{ platform.label }}</option>
+                }
+              </select>
+            </label>
+            @if (item.image) {
+              <div class="bt-floating-image-preview"><img [src]="item.image" alt="Social icon"></div>
+            }
+            <label>URL<input [(ngModel)]="item.url" (ngModelChange)="context.updateSelected()"></label>
+          } @else {
+            <div class="bt-prop-grid">
+              <label>Label<input [(ngModel)]="item.label" (ngModelChange)="context.updateSelected()"></label>
+              <label>Icon<input [(ngModel)]="item.icon" (ngModelChange)="context.updateSelected()"></label>
+              <label>URL / Action<input [(ngModel)]="item.url" (ngModelChange)="context.updateSelected()"></label>
+              <label>Color<input type="color" [(ngModel)]="item.color" (ngModelChange)="context.updateSelected()"></label>
+              <label>Target
+                <select [(ngModel)]="item.target" (ngModelChange)="context.updateSelected()">
+                  <option value="_self">Same Tab</option>
+                  <option value="_blank">New Tab</option>
+                </select>
+              </label>
+            </div>
+          }
+
+          @if (item.type === 'custom') {
+            <div class="bt-media-row">
+              <button type="button" class="bt-secondary-btn" (click)="chooseImage(item)">Choose Image</button>
+              <button type="button" class="bt-secondary-btn" [disabled]="!item.image" (click)="clearImage(item)">Remove Image</button>
+            </div>
+          }
+
+          <div class="bt-check-row">
+            <label><input type="checkbox" [(ngModel)]="item.enabled" (ngModelChange)="context.updateSelected()"> Enabled</label>
+            <label><input type="checkbox" [(ngModel)]="item.tooltip" (ngModelChange)="context.updateSelected()"> Tooltip</label>
+          </div>
+        </div>
+      }
+    </div>
+    <button type="button" class="bt-add-repeat" (click)="addAction()">+ Add Floating Action</button>
+  </div>
+</div>

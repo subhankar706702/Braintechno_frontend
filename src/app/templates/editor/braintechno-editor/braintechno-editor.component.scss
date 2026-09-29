@@ -3206,3 +3206,49 @@ mat-icon {
   background: #fff;
   color: #b91c1c;
 }
+/* Stats preset mini previews */
+.stats-mini{display:block;width:100%;height:54px;position:relative;overflow:hidden}
+.stats-mini>i{display:block}
+.stats-mini .s4,.stats-mini .s3{position:absolute;bottom:10px;height:28px;background:#cbd5e1;border-radius:5px 5px 2px 2px}
+.stats-mini .s4:nth-child(1){left:6%;width:18%}.stats-mini .s4:nth-child(2){left:28%;width:18%}.stats-mini .s4:nth-child(3){left:50%;width:18%}.stats-mini .s4:nth-child(4){left:72%;width:18%}
+.stats-mini .s3:nth-child(1){left:8%;width:24%;height:34px}.stats-mini .s3:nth-child(2){left:38%;width:24%;height:42px}.stats-mini .s3:nth-child(3){left:68%;width:24%;height:30px}
+.stats-mini .card{position:absolute;bottom:7px;width:25px;height:38px;border:1px solid #cbd5e1;border-radius:6px;background:#fff;box-shadow:0 4px 8px rgba(15,23,42,.08)}
+.stats-mini .card:nth-child(1){left:7%}.stats-mini .card:nth-child(2){left:37%}.stats-mini .card:nth-child(3){left:67%}
+.stats-mini .dark-strip,.stats-mini .minimal-line,.stats-mini .accent-bars,.stats-mini .percent-bars,.stats-mini .business-kpi,.stats-mini .side-row,.stats-mini .dropdown-lines,.stats-mini .icon-stat,.stats-mini .progress-stat,.stats-mini .split-stat,.stats-mini .featured-stat,.stats-mini .photo-stat{display:flex;align-items:center;gap:5px;width:100%;height:100%;padding:7px}
+.stats-mini .dark-strip{background:#0f172a;border-radius:7px}.stats-mini .dark-strip i{flex:1;height:28px;background:#475569;border-radius:4px}
+.stats-mini .minimal-line b{flex:1;height:32px;border-right:2px solid #cbd5e1}.stats-mini .minimal-line b:last-child{border-right:0}
+.stats-mini .accent-bars{align-items:flex-end}.stats-mini .accent-bars b{flex:1;height:40px;border-left:4px solid #ff4d6d;background:#f8fafc;border-radius:3px}
+.stats-mini .percent-bars{align-items:flex-end}.stats-mini .percent-bars b{flex:1;background:#fce7f3;border-radius:4px;position:relative}.stats-mini .percent-bars b:nth-child(1){height:24px}.stats-mini .percent-bars b:nth-child(2){height:40px}.stats-mini .percent-bars b:nth-child(3){height:32px}
+.stats-mini .business-kpi b{flex:1;height:42px;border:1px solid #cbd5e1;border-radius:6px;background:linear-gradient(#fff,#f8fafc)}
+.stats-mini .side-row b{flex:1;height:34px;border:1px solid #cbd5e1;border-radius:4px;background:#fff}
+.stats-mini .dropdown-lines{flex-direction:column;align-items:stretch}.stats-mini .dropdown-lines b{height:11px;border:1px solid #cbd5e1;border-radius:4px;background:#fff}
+.stats-mini .icon-stat{display:grid;grid-template-columns:18px 1fr 18px 1fr;gap:4px}.stats-mini .icon-stat i{width:18px;height:18px;border-radius:50%;background:#ffe4ea}.stats-mini .icon-stat b{height:7px;background:#cbd5e1;border-radius:4px}
+.stats-mini .progress-stat{flex-direction:column;align-items:stretch}.stats-mini .progress-stat b{height:7px;border-radius:999px;background:linear-gradient(90deg,#ff4d6d 70%,#e2e8f0 70%)}
+.stats-mini .split-stat{display:grid;grid-template-columns:1.2fr .8fr;gap:5px}.stats-mini .split-stat i{height:40px;border:2px solid #ff4d6d;border-radius:5px}.stats-mini .split-stat div{display:grid;gap:4px}.stats-mini .split-stat b{border:1px solid #cbd5e1;border-radius:4px}
+.stats-mini .featured-stat{display:grid;grid-template-columns:1.2fr .8fr;gap:5px}.stats-mini .featured-stat i{height:42px;border:2px solid #ff4d6d;border-radius:5px;background:#fff}.stats-mini .featured-stat div{display:grid;gap:3px}.stats-mini .featured-stat b{border:1px solid #cbd5e1;border-radius:4px}
+.stats-mini .photo-stat{background:linear-gradient(135deg,#94a3b8,#e2e8f0);border-radius:6px}.stats-mini .photo-stat i{flex:1;height:38px;border-radius:4px;background:rgba(255,255,255,.85)}
+
+/* Stats responsive preview: desktop side-by-side, mobile stacked.
+   Kept outside the renderer so Angular editor preview also respects the layout. */
+:host ::ng-deep .bt-export-preview .bt-stats-side {
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: var(--bt-stats-gap, 14px);
+  width: 100%;
+  min-width: 0;
+}
+
+:host ::ng-deep .bt-export-preview .bt-stats-side-item {
+  min-width: 0 !important;
+  width: auto !important;
+}
+
+@media (max-width: 700px) {
+  :host ::ng-deep .bt-export-preview .bt-stats-side {
+    grid-template-columns: 1fr !important;
+  }
+
+  :host ::ng-deep .bt-export-preview .bt-stats-side-item {
+    width: 100% !important;
+  }
+}

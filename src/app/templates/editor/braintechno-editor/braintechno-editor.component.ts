@@ -18,7 +18,6 @@ import { MediaPickerComponent } from '../../../shared/media-picker/media-picker.
 import { MediaLibraryItem } from '../../../core/media-library.service';
 import { ElementCatalogService } from '../../../core/element-catalog.service';
 import { EditorBlock, ElementPreset, MediaItem } from './models/editor-block.model';
-import { NAVBAR_PRESETS } from './registry/navbar-presets';
 import { createNavbarBlock, createNavbarMenuItem } from './elements/navbar/navbar-factory';
 import { NavbarEditorComponent } from './elements/navbar/navbar-editor.component';
 import { renderNavbarBlock } from './renderers/navbar.renderer';
@@ -154,11 +153,11 @@ import { repeatProductItemTemplate } from './elements/product/product.repeat';
 import { repeatRatingItemTemplate } from './elements/rating/rating.repeat';
 import { repeatServicesItemTemplate } from './elements/services/services.repeat';
 import { repeatSocialItemTemplate } from './elements/social/social.repeat';
-import { repeatStatsItemTemplate } from './elements/stats/stats.repeat';
 import { repeatTabsItemTemplate } from './elements/tabs/tabs.repeat';
 import { repeatTeamItemTemplate } from './elements/team/team.repeat';
 import { repeatTestimonialItemTemplate } from './elements/testimonial/testimonial.repeat';
 import { repeatTimelineItemTemplate } from './elements/timeline/timeline.repeat';
+import { repeatStatsItemTemplate } from './elements/stats/stats.repeat';
 
 
 interface EditorDesign {
@@ -810,6 +809,23 @@ export class BraintechnoEditorComponent implements OnChanges, OnDestroy {
     }
     if (block.type === 'block') {
       this.changeBlockVariant(block, variant);
+      return;
+    }
+    if (block.type === 'stats') {
+      // Keep the user's metric values/items, but apply the selected preset's
+      // layout/display defaults as well. Without this, changing the Style
+      // dropdown only changed the variant name while stale layout settings
+      // remained from the previous preset.
+      const layoutKeys = [
+        'desktopLayout', 'mobileLayout', 'showTitle', 'showSubtitle',
+        'showDescription', 'showIcons', 'showProgress', 'featuredIndex'
+      ];
+      for (const key of layoutKeys) {
+        if (key in fresh.content) block.content[key] = this.clone(fresh.content[key]);
+      }
+      block.content['variant'] = variant;
+      block.style = { ...block.style, ...fresh.style };
+      this.commitChange();
       return;
     }
     if (block.type === 'gallery') block.style['columns'] = fresh.style['columns'];

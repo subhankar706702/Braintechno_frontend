@@ -1,1 +1,8 @@
-/* stats editor uses the existing global braintechno-editor.component.scss rules unchanged. */
+/* Stats uses the shared BRAIN TECHNO editor controls.
+   Keep element-specific rules minimal so the main editor UI stays unchanged. */
+.bt-stats-bg-image-preview {
+  width: 84px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: 8px;
+}

@@ -10,10 +10,36 @@ import { ElementEditorContext } from '../../models/element-editor-context.model'
   standalone: true,
   imports: [CommonModule, FormsModule, MatIconModule],
   templateUrl: './stats-editor.component.html',
-  // Keep existing editor SCSS as the single source of truth.
+  styleUrls: ['./stats-editor.component.scss'],
   encapsulation: ViewEncapsulation.None
 })
 export class StatsEditorComponent {
   @Input() block!: EditorBlock;
   @Input() context!: ElementEditorContext;
+
+  updateDarkSafe(): void {
+    this.context.updateSelected();
+  }
+
+  setColorBackground(): void {
+    this.block.style['backgroundType'] = 'color';
+    this.context.updateSelected();
+  }
+
+  chooseBackgroundImage(): void {
+    this.context.openMediaPicker(
+      this.block.style,
+      'backgroundImage',
+      'backgroundMediaId',
+      'Choose stats background image'
+    );
+    this.block.style['backgroundType'] = 'image';
+    this.context.updateSelected();
+  }
+
+  removeBackgroundImage(): void {
+    this.context.clearMedia(this.block.style, 'backgroundImage', 'backgroundMediaId');
+    this.block.style['backgroundType'] = 'color';
+    this.context.updateSelected();
+  }
 }

@@ -235,14 +235,21 @@ export class BraintechnoEditorComponent implements OnChanges, OnDestroy {
       { key: 'icon-label', label: 'Icon + Label', description: 'Icon paired with short label', preview: 'I+T' }
     ],
     social: [
-      { key: 'row', label: 'Icon Row', description: 'Simple horizontal social links', preview: 'Row' },
-      { key: 'circles', label: 'Circle Icons', description: 'Round social buttons', preview: '○○○' },
-      { key: 'pills', label: 'Social Pills', description: 'Named social pills', preview: 'Pills' },
-      { key: 'dark', label: 'Dark Social', description: 'Dark social bar', preview: 'Dark' },
-      { key: 'soft', label: 'Soft Social', description: 'Soft social card', preview: 'Soft' },
-      { key: 'center', label: 'Centered', description: 'Centered social links', preview: 'Center' },
-      { key: 'footer', label: 'Footer Social', description: 'Footer-ready social strip', preview: 'Foot' },
-      { key: 'minimal', label: 'Minimal', description: 'Minimal icon-only set', preview: 'Min' }
+      { key: 'logo-only', label: 'Logo Only', description: 'Social logo without text', preview: 'Logo' },
+      { key: 'logo-name', label: 'Logo + Name', description: 'Logo with social name', preview: 'L+N' },
+      { key: 'logo-round', label: 'Logo Round', description: 'Round social logo style', preview: '◯' },
+      { key: 'logo-square', label: 'Logo Square', description: 'Square social logo style', preview: '□' },
+      { key: 'logo-hover', label: 'Logo Hover', description: 'Logo with hover interaction', preview: 'Hover' },
+      { key: 'logo-url-left', label: 'Left + URL', description: 'Logo, name and URL aligned left', preview: 'L+URL' },
+      { key: 'logo-url-center', label: 'Center + URL', description: 'Logo, name and URL centered', preview: 'C+URL' },
+      { key: 'logo-url-right', label: 'Right + URL', description: 'Logo, name and URL aligned right', preview: 'R+URL' },
+      { key: 'logo-circle-name', label: 'Circle + Name', description: 'Circle logo with social name', preview: '◯+N' },
+      { key: 'logo-square-name', label: 'Square + Name', description: 'Square logo with social name', preview: '□+N' },
+      { key: 'logo-card', label: 'Logo Cards', description: 'Social links as cards', preview: 'Cards' },
+      { key: 'logo-outline', label: 'Logo Outline', description: 'Outlined social links', preview: 'Outline' },
+      { key: 'logo-soft', label: 'Logo Soft', description: 'Soft background social links', preview: 'Soft' },
+      { key: 'logo-dark', label: 'Logo Dark', description: 'Dark premium social links', preview: 'Dark' },
+      { key: 'logo-footer', label: 'Logo Footer', description: 'Compact footer social layout', preview: 'Footer' }
     ],
     product: [
       { key: 'classic', label: 'Classic Card', description: 'Image top with product details', preview: 'Classic' },
@@ -991,6 +998,52 @@ export class BraintechnoEditorComponent implements OnChanges, OnDestroy {
     this.commitChange();
   }
 
+  changeSocialPlatform(block: EditorBlock, item: Record<string, any>, platform: string): void {
+    const key = String(platform || '').toLowerCase();
+    const iconMap: Record<string, string> = {
+      facebook: 'https://cdn.simpleicons.org/facebook/1877F2',
+      instagram: 'https://cdn.simpleicons.org/instagram/E4405F',
+      youtube: 'https://cdn.simpleicons.org/youtube/FF0000',
+      linkedin: 'https://cdn.tools.unlayer.com/social/icons/circle/linkedin.png',
+      telegram: 'https://cdn.simpleicons.org/telegram/229ED9',
+      x: 'https://cdn.simpleicons.org/x/111111',
+      whatsapp: 'https://cdn.simpleicons.org/whatsapp/25D366',
+      website: 'https://cdn.simpleicons.org/internetarchive/000000',
+      github: 'https://cdn.simpleicons.org/github/181717',
+      tiktok: 'https://cdn.simpleicons.org/tiktok/111111'
+    };
+    const nameMap: Record<string, string> = {
+      facebook: 'Facebook', instagram: 'Instagram', youtube: 'YouTube',
+      linkedin: 'LinkedIn', telegram: 'Telegram', x: 'X', whatsapp: 'WhatsApp',
+      website: 'Website', github: 'GitHub', tiktok: 'TikTok'
+    };
+    const urlMap: Record<string, string> = {
+      facebook: 'https://www.facebook.com/',
+      instagram: 'https://www.instagram.com/',
+      youtube: 'https://www.youtube.com/',
+      linkedin: 'https://www.linkedin.com/',
+      telegram: 'https://t.me/',
+      x: 'https://x.com/',
+      whatsapp: 'https://wa.me/',
+      website: 'https://example.com/',
+      github: 'https://github.com/',
+      tiktok: 'https://www.tiktok.com/'
+    };
+
+    this.pushHistory();
+    item['platform'] = key;
+    item['name'] = nameMap[key] || item['name'] || item['label'] || 'Link';
+    item['label'] = item['name'];
+    if (iconMap[key]) item['icon'] = iconMap[key];
+    if (!String(item['url'] || '').trim() || String(item['url']).trim() === '#') {
+      item['url'] = urlMap[key] || '#';
+    }
+
+    const items = Array.isArray(block.content['items']) ? block.content['items'] : [];
+    block.content['items'] = items;
+    this.commitChange();
+  }
+
   addRepeatItem(block: EditorBlock, key: string): void {
     const list = Array.isArray(block.content[key]) ? block.content[key] : [];
     this.pushHistory();
@@ -1059,7 +1112,7 @@ export class BraintechnoEditorComponent implements OnChanges, OnDestroy {
       case 'team': return { name: `Team Member ${index + 1}`, role: 'Team', bio: '', image: '', mediaId: null, facebook: '', instagram: '', linkedin: '', x: '' };
       case 'button': return { label: `Button ${index + 1}`, url: '#', target: '_self', icon: '' };
       case 'icon': return { materialIcon: 'star', label: `Icon ${index + 1}`, url: '#' };
-      case 'social': return { platform: 'facebook', url: '#', label: 'Facebook' };
+      case 'social': return { name: 'Facebook', url: '#', icon: 'https://cdn.simpleicons.org/facebook/1877F2', platform: 'facebook', label: 'Facebook' };
       case 'navbar': return { label: `Menu ${index + 1}`, url: '#', icon: '', target: '_self' };
       case 'product': return { name: `Product ${index + 1}`, price: '₹499', oldPrice: '', badge: '', description: 'Short product description.', image: '', mediaId: null, cta: 'Buy Now', url: '#', rating: 5 };
       case 'offer': return { badge: 'LIMITED OFFER', title: `Offer ${index + 1}`, discount: '20% OFF', description: 'Offer valid for a limited time.', cta: 'Unlock Offer', url: '#', image: '', mediaId: null };
@@ -1598,10 +1651,49 @@ export class BraintechnoEditorComponent implements OnChanges, OnDestroy {
         };
       }
       case 'social': {
+        const socialItems = [
+          { name: 'Facebook', url: '#', icon: 'https://cdn.simpleicons.org/facebook/1877F2', platform: 'facebook', label: 'Facebook' },
+          { name: 'Instagram', url: '#', icon: 'https://cdn.simpleicons.org/instagram/E4405F', platform: 'instagram', label: 'Instagram' },
+          { name: 'YouTube', url: '#', icon: 'https://cdn.simpleicons.org/youtube/FF0000', platform: 'youtube', label: 'YouTube' },
+          { name: 'LinkedIn', url: '#', icon: 'https://cdn.tools.unlayer.com/social/icons/circle/linkedin.png', platform: 'linkedin', label: 'LinkedIn' },
+          { name: 'X', url: '#', icon: 'https://cdn.simpleicons.org/x/111111', platform: 'x', label: 'X' },
+          { name: 'WhatsApp', url: '#', icon: 'https://cdn.simpleicons.org/whatsapp/25D366', platform: 'whatsapp', label: 'WhatsApp' }
+        ];
+
+        const align = ['logo-url-center', 'logo-circle-name', 'logo-square-name'].includes(variant)
+          ? 'center'
+          : variant === 'logo-url-right'
+            ? 'right'
+            : 'left';
+
         return {
           ...base,
-          content: { variant, facebook: '#', instagram: '#', youtube: '#', linkedin: '#', x: '', whatsapp: '', items: [{ platform: 'facebook', url: '#', label: 'Facebook' }] },
-          style: { ...base.style, align: variant === 'center' ? 'center' : 'left', background: variant === 'dark' ? '#0F172A' : '#FFFFFF', color: variant === 'dark' ? '#FFFFFF' : '#0F172A', radius: 14 }
+          content: {
+            variant,
+            items: socialItems,
+            // Legacy keys are kept so older editor data remains readable.
+            facebook: '#',
+            instagram: '#',
+            youtube: '#',
+            linkedin: '#',
+            x: '',
+            whatsapp: ''
+          },
+          style: {
+            ...base.style,
+            align,
+            background: variant === 'logo-dark' ? '#0F172A' : variant === 'logo-soft' ? '#F8FAFC' : '#FFFFFF',
+            color: variant === 'logo-dark' ? '#FFFFFF' : '#0F172A',
+            gap: 12,
+            iconSize: 36,
+            socialIconShape: variant === 'logo-round' || variant === 'logo-circle-name' ? 'round' : variant === 'logo-square' || variant === 'logo-square-name' ? 'square' : 'none',
+            showName: !['logo-only', 'logo-round', 'logo-square', 'logo-hover'].includes(variant),
+            showUrl: ['logo-url-left', 'logo-url-center', 'logo-url-right'].includes(variant),
+            hover: variant === 'logo-hover',
+            borderWidth: ['logo-outline', 'logo-card'].includes(variant) ? 1 : 0,
+            borderColor: '#E2E8F0',
+            radius: 0
+          }
         };
       }
       case 'product': {
@@ -2142,7 +2234,43 @@ export class BraintechnoEditorComponent implements OnChanges, OnDestroy {
       }
       case 'social': {
         const items = this.socialItems(c);
-        return `<section style="${common}"><div class="bt-social" style="justify-content:${s.align === 'center' ? 'center' : s.align === 'right' ? 'flex-end' : 'flex-start'}">${items.map(item => `<a href="${this.attr(item.url)}" target="_blank" rel="noopener" aria-label="${this.attr(item.label)}" style="min-width:42px;height:42px;padding:0 12px;border:1px solid #E2E8F0;border-radius:${c.variant === 'circles' || c.variant === 'minimal' ? '999px' : '10px'};color:${this.css(s.color, '#0F172A')};background:${c.variant === 'dark' ? '#1E293B' : '#FFFFFF'}"><span class="material-symbols-rounded" style="margin-right:${c.variant === 'pills' ? '6px' : '0'}">${item.icon}</span>${c.variant === 'pills' ? this.escape(item.label) : ''}</a>`).join('')}</div></section>`;
+        const variant = String(c.variant || 'logo-only');
+        const justify = s.align === 'center' ? 'center' : s.align === 'right' ? 'flex-end' : 'flex-start';
+        const showName = typeof s.showName === 'boolean' ? s.showName : !['logo-only', 'logo-round', 'logo-square', 'logo-hover'].includes(variant);
+        const showUrl = typeof s.showUrl === 'boolean' ? s.showUrl : ['logo-url-left', 'logo-url-center', 'logo-url-right'].includes(variant);
+        const hover = Boolean(s.hover || variant === 'logo-hover');
+        const dark = variant === 'logo-dark';
+        const card = ['logo-card', 'logo-outline', 'logo-soft', 'logo-dark', 'logo-footer'].includes(variant);
+        const shape = String(s.socialIconShape || (variant === 'logo-round' || variant === 'logo-circle-name' ? 'round' : variant === 'logo-square' || variant === 'logo-square-name' ? 'square' : 'none'));
+        const logoSize = Math.max(20, Math.min(96, Number(s.iconSize) || 36));
+        const gap = Math.max(4, Math.min(48, Number(s.gap) || 12));
+        const href = (url: string) => /^https?:\/\//i.test(url) || /^mailto:/i.test(url) || /^tel:/i.test(url) || /^\//.test(url) || url === '#' ? url : `https://${url}`;
+        const socialClass = `bt-social bt-social--${this.safeDomId(variant)}${hover ? ' bt-social--hover' : ''}`;
+        const logoStyle = `width:${logoSize}px;height:${logoSize}px;object-fit:contain;flex:0 0 ${logoSize}px;border-radius:${shape === 'round' ? '999px' : shape === 'square' ? '10px' : '0'};`;
+        const shellBg = dark ? '#172033' : variant === 'logo-soft' ? '#F8FAFC' : '#FFFFFF';
+        const shellBorder = Number(s.borderWidth) > 0 ? `border:${Number(s.borderWidth)}px solid ${this.css(s.borderColor, '#E2E8F0')};` : (card ? 'border:1px solid #E2E8F0;' : 'border:0;');
+        const nameColor = dark ? '#FFFFFF' : this.css(s.color, '#0F172A');
+        const urlColor = dark ? '#CBD5E1' : '#64748B';
+        const layoutDirection = ['logo-url-center', 'logo-url-right'].includes(variant) ? 'column' : 'row';
+        const itemAlign = variant === 'logo-url-center' ? 'center' : 'flex-start';
+        const list = items.map(item => {
+          const safeUrl = href(item.url);
+          const isImage = /^https?:\/\//i.test(item.icon || '') || /^data:image\//i.test(item.icon || '') || /\.(svg|png|jpe?g|webp)(\?|$)/i.test(item.icon || '');
+          const iconHtml = isImage
+            ? `<img src="${this.attr(item.icon)}" alt="${this.attr(item.name)} logo" style="${logoStyle}" loading="lazy">`
+            : `<span class="material-symbols-rounded" style="font-size:${logoSize}px;line-height:1">${this.escape(item.icon || 'link')}</span>`;
+          const nameHtml = showName ? `<strong style="font-size:14px;font-weight:800;color:${nameColor};line-height:1.2">${this.escape(item.name)}</strong>` : '';
+          const urlHtml = showUrl ? `<span style="font-size:12px;color:${urlColor};line-height:1.35;word-break:break-all">${this.escape(item.url)}</span>` : '';
+          const textHtml = (showName || showUrl) ? `<span style="display:flex;flex-direction:column;gap:3px;min-width:0;align-items:${itemAlign}">${nameHtml}${urlHtml}</span>` : '';
+          const content = layoutDirection === 'column'
+            ? `${iconHtml}${textHtml}`
+            : `${iconHtml}${textHtml}`;
+          return `<a class="bt-social__item" href="${this.attr(safeUrl)}" target="_blank" rel="noopener noreferrer" aria-label="${this.attr(item.name)}" style="display:inline-flex;align-items:center;justify-content:${variant === 'logo-url-center' ? 'center' : 'flex-start'};flex-direction:${layoutDirection};gap:${layoutDirection === 'column' ? '8px' : '10px'};min-width:${layoutDirection === 'column' ? Math.max(logoSize, 56) : showUrl ? '220px' : Math.max(logoSize, 56)};padding:${card ? '12px 14px' : '4px'};text-decoration:none;background:${shellBg};${shellBorder}border-radius:${variant === 'logo-card' ? '14px' : variant === 'logo-outline' ? '10px' : shape === 'round' ? '999px' : '8px'};transition:transform .18s ease,box-shadow .18s ease,background .18s ease,border-color .18s ease;">${content}</a>`;
+        }).join('');
+        const hoverCss = hover
+          ? `<style>.${socialClass.replace(/ /g, '.')} .bt-social__item:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(15,23,42,.12);border-color:#CBD5E1;}</style>`
+          : '';
+        return `<section style="${common}">${hoverCss}<div class="${socialClass}" style="display:flex;gap:${gap}px;flex-wrap:wrap;align-items:center;justify-content:${justify};width:100%;">${list}</div></section>`;
       }
       case 'product': {
         const items = Array.isArray(c.items) && c.items.length ? c.items : [c];
@@ -2278,26 +2406,48 @@ export class BraintechnoEditorComponent implements OnChanges, OnDestroy {
     })();</script>`;
   }
 
-  private socialItems(content: Record<string, any>): Array<{ label: string; url: string; icon: string }> {
+  private socialItems(content: Record<string, any>): Array<{ name: string; url: string; icon: string }> {
     const iconMap: Record<string, string> = {
-      facebook: 'public', instagram: 'photo_camera', youtube: 'smart_display', linkedin: 'work',
-      telegram: 'send', x: 'alternate_email', whatsapp: 'chat', website: 'language', github: 'code', tiktok: 'music_note'
+      facebook: 'https://cdn.simpleicons.org/facebook/1877F2',
+      instagram: 'https://cdn.simpleicons.org/instagram/E4405F',
+      youtube: 'https://cdn.simpleicons.org/youtube/FF0000',
+      linkedin: 'https://cdn.tools.unlayer.com/social/icons/circle/linkedin.png',
+      telegram: 'https://cdn.simpleicons.org/telegram/229ED9',
+      x: 'https://cdn.simpleicons.org/x/111111',
+      whatsapp: 'https://cdn.simpleicons.org/whatsapp/25D366',
+      website: 'public',
+      github: 'https://cdn.simpleicons.org/github/181717',
+      tiktok: 'https://cdn.simpleicons.org/tiktok/111111'
     };
+
     const dynamic = Array.isArray(content['items']) ? content['items'] : [];
     if (dynamic.length) {
       return dynamic
         .filter((item: any) => String(item?.url || '').trim())
-        .map((item: any) => ({ label: String(item?.label || item?.platform || 'Link'), url: String(item.url), icon: iconMap[String(item?.platform || '').toLowerCase()] || 'link' }));
+        .map((item: any) => {
+          const platform = String(item?.platform || '').toLowerCase();
+          return {
+            name: String(item?.name || item?.label || item?.platform || 'Link'),
+            url: String(item.url),
+            // The selected platform is the source of truth for the default logo.
+            // This fixes stale icons when an existing item is switched from one platform to another.
+            icon: String(iconMap[platform] || item?.icon || 'link')
+          };
+        });
     }
+
     const all = [
-      { key: 'facebook', label: 'Facebook', icon: 'public' },
-      { key: 'instagram', label: 'Instagram', icon: 'photo_camera' },
-      { key: 'youtube', label: 'YouTube', icon: 'smart_display' },
-      { key: 'linkedin', label: 'LinkedIn', icon: 'work' },
-      { key: 'x', label: 'X', icon: 'alternate_email' },
-      { key: 'whatsapp', label: 'WhatsApp', icon: 'chat' }
+      { key: 'facebook', name: 'Facebook' },
+      { key: 'instagram', name: 'Instagram' },
+      { key: 'youtube', name: 'YouTube' },
+      { key: 'linkedin', name: 'LinkedIn' },
+      { key: 'x', name: 'X' },
+      { key: 'whatsapp', name: 'WhatsApp' }
     ];
-    return all.filter(item => String(content[item.key] || '').trim()).map(item => ({ label: item.label, url: String(content[item.key]), icon: item.icon }));
+
+    return all
+      .filter(item => String(content[item.key] || '').trim())
+      .map(item => ({ name: item.name, url: String(content[item.key]), icon: iconMap[item.key] || 'link' }));
   }
 
   private nestedContext(): { parent: EditorBlock; slot: EditorBlock[]; index: number } | null {

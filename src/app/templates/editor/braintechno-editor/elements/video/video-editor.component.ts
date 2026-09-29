@@ -10,10 +10,46 @@ import { ElementEditorContext } from '../../models/element-editor-context.model'
   standalone: true,
   imports: [CommonModule, FormsModule, MatIconModule],
   templateUrl: './video-editor.component.html',
-  // Keep existing editor SCSS as the single source of truth.
+  styleUrls: ['./video-editor.component.scss'],
   encapsulation: ViewEncapsulation.None
 })
 export class VideoEditorComponent {
   @Input() block!: EditorBlock;
   @Input() context!: ElementEditorContext;
+
+  update(): void {
+    this.context.updateSelected();
+  }
+
+  choosePoster(): void {
+    this.context.openMediaPicker(this.block.content, 'poster', 'posterMediaId', 'Choose video poster');
+    this.update();
+  }
+
+  removePoster(): void {
+    this.context.clearMedia(this.block.content, 'poster', 'posterMediaId');
+    this.update();
+  }
+
+  chooseBackgroundImage(): void {
+    this.context.openMediaPicker(this.block.style, 'backgroundImage', 'backgroundMediaId', 'Choose video background');
+    this.block.style['backgroundType'] = 'image';
+    this.update();
+  }
+
+  removeBackgroundImage(): void {
+    this.context.clearMedia(this.block.style, 'backgroundImage', 'backgroundMediaId');
+    this.block.style['backgroundType'] = 'color';
+    this.update();
+  }
+
+  get isAutoplay(): boolean {
+    return !!this.block.content['autoplay'];
+  }
+
+  onAutoplayChange(value: boolean): void {
+    this.block.content['autoplay'] = value;
+    if (value) this.block.content['muted'] = true;
+    this.update();
+  }
 }

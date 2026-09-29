@@ -1,1 +1,126 @@
-<label>Video URL<input [(ngModel)]="block.content['url']" (ngModelChange)="context.updateSelected()" placeholder="YouTube or MP4 URL"></label><label>Title<input [(ngModel)]="block.content['title']" (ngModelChange)="context.updateSelected()"></label><label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['controls']" (ngModelChange)="context.updateSelected()"><span>Show controls</span></label><label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['autoplay']" (ngModelChange)="context.updateSelected()"><span>Autoplay</span></label><label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['muted']" (ngModelChange)="context.updateSelected()"><span>Muted</span></label>
+<div class="bt-video-editor">
+  <label>Video URL
+    <input [(ngModel)]="block.content['url']" (ngModelChange)="update()" placeholder="YouTube, Vimeo or MP4 URL">
+  </label>
+
+  <div class="bt-inline-fields">
+    <label>Provider
+      <select [(ngModel)]="block.content['provider']" (ngModelChange)="update()">
+        <option value="auto">Auto detect</option>
+        <option value="youtube">YouTube</option>
+        <option value="vimeo">Vimeo</option>
+        <option value="direct">Direct video</option>
+      </select>
+    </label>
+    <label>Title
+      <input [(ngModel)]="block.content['title']" (ngModelChange)="update()" placeholder="Featured video">
+    </label>
+  </div>
+
+  <div class="bt-media-field">
+    <span class="bt-field-label">Poster image</span>
+    @if (block.content['poster']) {
+      <img class="bt-video-poster-preview" [src]="block.content['poster']" alt="Video poster">
+    } @else {
+      <div class="bt-video-editor-empty">
+        <mat-icon fontSet="material-symbols-rounded">movie</mat-icon>
+        <span>Browser video thumbnail will be used</span>
+      </div>
+    }
+    <div class="bt-media-actions">
+      <button type="button" class="bt-media-choose" (click)="choosePoster()">
+        <mat-icon fontSet="material-symbols-rounded">photo_library</mat-icon>
+        {{ block.content['poster'] ? 'Change poster' : 'Choose poster' }}
+      </button>
+      @if (block.content['poster']) {
+        <button type="button" class="bt-media-remove" (click)="removePoster()">Remove</button>
+      }
+    </div>
+  </div>
+
+  <label>Caption
+    <input [(ngModel)]="block.content['caption']" (ngModelChange)="update()" placeholder="Optional video caption">
+  </label>
+
+  <div class="bt-video-editor-section">
+    <strong>Playback</strong>
+    <div class="bt-check-grid">
+      <label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['controls']" (ngModelChange)="update()"><span>Show controls</span></label>
+      <label class="bt-check"><input type="checkbox" [ngModel]="isAutoplay" (ngModelChange)="onAutoplayChange($event)"><span>Autoplay</span></label>
+      <label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['muted']" (ngModelChange)="update()"><span>Muted</span></label>
+      <label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['loop']" (ngModelChange)="update()"><span>Loop</span></label>
+      <label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['playsinline']" (ngModelChange)="update()"><span>Inline mobile playback</span></label>
+      <label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['lazy']" (ngModelChange)="update()"><span>Lazy load</span></label>
+    </div>
+  </div>
+
+  <div class="bt-inline-fields">
+    <label>Start (sec)<input type="number" min="0" step="1" [(ngModel)]="block.content['start']" (ngModelChange)="update()"></label>
+    <label>End (sec)<input type="number" min="0" step="1" [(ngModel)]="block.content['end']" (ngModelChange)="update()"></label>
+  </div>
+
+  <div class="bt-video-editor-section">
+    <strong>Frame</strong>
+    <div class="bt-inline-fields">
+      <label>Aspect ratio
+        <select [(ngModel)]="block.style['aspect']" (ngModelChange)="update()">
+          <option value="16/9">16:9</option>
+          <option value="21/9">21:9</option>
+          <option value="2.35/1">2.35:1</option>
+          <option value="9/16">9:16</option>
+          <option value="1/1">1:1</option>
+        </select>
+      </label>
+      <label>Max width
+        <input [(ngModel)]="block.style['maxWidth']" (ngModelChange)="update()" placeholder="100% or 720px">
+      </label>
+    </div>
+    <div class="bt-inline-fields">
+      <label>Radius (px)<input type="number" min="0" max="999" [(ngModel)]="block.style['radius']" (ngModelChange)="update()"></label>
+      <label>Shadow
+        <select [(ngModel)]="block.style['shadow']" (ngModelChange)="update()">
+          <option value="none">None</option><option value="soft">Soft</option><option value="medium">Medium</option><option value="strong">Strong</option>
+        </select>
+      </label>
+    </div>
+    <div class="bt-inline-fields">
+      <label>Border width<input type="number" min="0" max="20" [(ngModel)]="block.style['borderWidth']" (ngModelChange)="update()"></label>
+      <label>Border color<input type="color" [(ngModel)]="block.style['borderColor']" (ngModelChange)="update()"></label>
+    </div>
+    <div class="bt-inline-fields">
+      <label>Align
+        <select [(ngModel)]="block.style['align']" (ngModelChange)="update()">
+          <option value="left">Left</option><option value="center">Center</option><option value="right">Right</option>
+        </select>
+      </label>
+      <label>Object fit
+        <select [(ngModel)]="block.style['objectFit']" (ngModelChange)="update()">
+          <option value="cover">Cover</option><option value="contain">Contain</option><option value="fill">Fill</option>
+        </select>
+      </label>
+    </div>
+  </div>
+
+  <div class="bt-video-editor-section">
+    <strong>Background</strong>
+    <div class="bt-inline-fields">
+      <label>Type
+        <select [(ngModel)]="block.style['backgroundType']" (ngModelChange)="update()">
+          <option value="color">Color</option><option value="image">Image</option>
+        </select>
+      </label>
+      <label>Color<input type="color" [(ngModel)]="block.style['background']" (ngModelChange)="update()"></label>
+    </div>
+    @if (block.style['backgroundType'] === 'image') {
+      <div class="bt-media-actions">
+        <button type="button" class="bt-media-choose" (click)="chooseBackgroundImage()"><mat-icon fontSet="material-symbols-rounded">wallpaper</mat-icon>{{ block.style['backgroundImage'] ? 'Change background' : 'Choose background' }}</button>
+        @if (block.style['backgroundImage']) { <button type="button" class="bt-media-remove" (click)="removeBackgroundImage()">Remove</button> }
+      </div>
+    }
+  </div>
+
+  <div class="bt-info-box">
+    <mat-icon fontSet="material-symbols-rounded">ondemand_video</mat-icon>
+    <span>Supports YouTube, Vimeo and direct MP4/WebM video URLs. Autoplay automatically enables muted playback.</span>
+  </div>
+</div>

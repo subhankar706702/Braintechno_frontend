@@ -1,1 +1,92 @@
-/* video editor uses the existing global braintechno-editor.component.scss rules unchanged. */
+.bt-video-editor {
+  display: grid;
+  gap: 12px;
+}
+
+.bt-video-editor label {
+  display: grid;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #334155;
+}
+
+.bt-video-editor input,
+.bt-video-editor select {
+  width: 100%;
+  min-height: 38px;
+  box-sizing: border-box;
+  border: 1px solid #CBD5E1;
+  border-radius: 10px;
+  background: #FFFFFF;
+  color: #0F172A;
+  padding: 9px 11px;
+  font: inherit;
+}
+
+.bt-video-editor input[type='color'] {
+  padding: 4px;
+}
+
+.bt-inline-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.bt-media-field,
+.bt-video-editor-section {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  background: #F8FAFC;
+}
+
+.bt-field-label {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: #64748B;
+}
+
+.bt-video-poster-preview {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 10px;
+  background: #E2E8F0;
+}
+
+.bt-video-editor-empty {
+  display: grid;
+  place-items: center;
+  gap: 6px;
+  min-height: 100px;
+  border: 1px dashed #CBD5E1;
+  border-radius: 10px;
+  color: #94A3B8;
+  font-size: 12px;
+}
+
+.bt-check-grid {
+  display: grid;
+  gap: 8px;
+}
+
+.bt-check {
+  display: flex !important;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600 !important;
+}
+
+.bt-check input {
+  width: 16px;
+  min-height: 16px;
+  margin: 0;
+}

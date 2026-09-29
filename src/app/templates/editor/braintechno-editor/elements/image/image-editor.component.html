@@ -1,3 +1,76 @@
-<div class="bt-media-field"><span class="bt-field-label">Image</span>@if (block.content['url']) { <img class="bt-media-preview" [src]="block.content['url']" [alt]="block.content['alt'] || ''"> } @else { <div class="bt-media-empty"><mat-icon fontSet="material-symbols-rounded">image</mat-icon><span>No image selected</span></div> }<div class="bt-media-actions"><button type="button" class="bt-media-choose" (click)="context.openMediaPicker(block.content, 'url', 'mediaId', 'Choose image')"><mat-icon fontSet="material-symbols-rounded">photo_library</mat-icon>{{ block.content['url'] ? 'Change image' : 'Choose from gallery' }}</button>@if (block.content['url']) { <button type="button" class="bt-media-remove" (click)="context.clearMedia(block.content, 'url', 'mediaId')">Remove</button> }</div></div>
-            <label>Alt text<input [(ngModel)]="block.content['alt']" (ngModelChange)="context.updateSelected()"></label>
-            <div class="bt-inline-fields"><label>Width (%)<input type="number" min="1" max="100" [(ngModel)]="block.style['imageWidth']" (ngModelChange)="context.updateSelected()"></label><label>Height (% of width)<input type="number" min="1" max="200" [(ngModel)]="block.style['imageHeight']" (ngModelChange)="context.updateSelected()"></label></div>
+<div class="bt-image-editor">
+  <div class="bt-media-field">
+    <span class="bt-field-label">Image</span>
+    @if (block.content['url']) {
+      <img class="bt-image-editor-preview" [src]="block.content['url']" [alt]="block.content['alt'] || ''">
+    } @else {
+      <div class="bt-image-editor-empty"><mat-icon fontSet="material-symbols-rounded">image</mat-icon><span>No image selected</span></div>
+    }
+    <div class="bt-media-actions">
+      <button type="button" class="bt-media-choose" (click)="chooseImage()"><mat-icon fontSet="material-symbols-rounded">photo_library</mat-icon>{{ block.content['url'] ? 'Change image' : 'Choose from gallery' }}</button>
+      @if (block.content['url']) { <button type="button" class="bt-media-remove" (click)="removeImage()">Remove</button> }
+    </div>
+  </div>
+
+  @if (isBeforeAfter) {
+    <div class="bt-media-field">
+      <span class="bt-field-label">After image</span>
+      @if (block.content['afterUrl']) { <img class="bt-image-editor-preview" [src]="block.content['afterUrl']" alt="After image"> }
+      @else { <div class="bt-image-editor-empty"><mat-icon fontSet="material-symbols-rounded">compare</mat-icon><span>No after image selected</span></div> }
+      <div class="bt-media-actions">
+        <button type="button" class="bt-media-choose" (click)="chooseAfterImage()"><mat-icon fontSet="material-symbols-rounded">photo_library</mat-icon>{{ block.content['afterUrl'] ? 'Change after image' : 'Choose after image' }}</button>
+        @if (block.content['afterUrl']) { <button type="button" class="bt-media-remove" (click)="removeAfterImage()">Remove</button> }
+      </div>
+    </div>
+    <div class="bt-inline-fields">
+      <label>Before label<input [(ngModel)]="block.content['beforeLabel']" (ngModelChange)="update()"></label>
+      <label>After label<input [(ngModel)]="block.content['afterLabel']" (ngModelChange)="update()"></label>
+    </div>
+  }
+
+  <label>Alt text<input [(ngModel)]="block.content['alt']" (ngModelChange)="update()" placeholder="Describe the image"></label>
+  <label>Caption<input [(ngModel)]="block.content['caption']" (ngModelChange)="update()" placeholder="Optional image caption"></label>
+
+  <div class="bt-inline-fields">
+    <label>Link URL<input [(ngModel)]="block.content['linkUrl']" (ngModelChange)="update()" placeholder="https://..."></label>
+    <label>Target<select [(ngModel)]="block.content['linkTarget']" (ngModelChange)="update()"><option value="_self">Same tab</option><option value="_blank">New tab</option></select></label>
+  </div>
+
+  <div class="bt-inline-fields">
+    <label>Object fit<select [(ngModel)]="block.style['objectFit']" (ngModelChange)="update()"><option value="cover">Cover</option><option value="contain">Contain</option><option value="fill">Fill</option><option value="none">Natural</option></select></label>
+    <label>Position<select [(ngModel)]="block.style['objectPosition']" (ngModelChange)="update()"><option value="center">Center</option><option value="top">Top</option><option value="bottom">Bottom</option><option value="left">Left</option><option value="right">Right</option></select></label>
+  </div>
+
+  <div class="bt-inline-fields">
+    <label>Width (%)<input type="number" min="1" max="100" [(ngModel)]="block.style['imageWidth']" (ngModelChange)="update()"></label>
+    <label>Height (%)<input type="number" min="1" max="200" [(ngModel)]="block.style['imageHeight']" (ngModelChange)="update()"></label>
+  </div>
+
+  <div class="bt-inline-fields">
+    <label>Radius (px)<input type="number" min="0" max="999" [(ngModel)]="block.style['radius']" (ngModelChange)="update()"></label>
+    <label>Shadow<select [(ngModel)]="block.style['shadow']" (ngModelChange)="update()"><option value="none">None</option><option value="soft">Soft</option><option value="medium">Medium</option><option value="strong">Strong</option></select></label>
+  </div>
+
+  <div class="bt-inline-fields">
+    <label>Border width<input type="number" min="0" max="20" [(ngModel)]="block.style['borderWidth']" (ngModelChange)="update()"></label>
+    <label>Border color<input type="color" [(ngModel)]="block.style['borderColor']" (ngModelChange)="update()"></label>
+  </div>
+
+  <label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['lazy']" (ngModelChange)="update()"><span>Lazy load image</span></label>
+
+  <div class="bt-image-editor-section">
+    <strong>Background</strong>
+    <div class="bt-inline-fields">
+      <label>Type<select [(ngModel)]="block.style['backgroundType']" (ngModelChange)="update()"><option value="color">Color</option><option value="image">Image</option></select></label>
+      <label>Background color<input type="color" [(ngModel)]="block.style['background']" (ngModelChange)="update()"></label>
+    </div>
+    @if (block.style['backgroundType'] === 'image') {
+      <div class="bt-media-actions">
+        <button type="button" class="bt-media-choose" (click)="chooseBackgroundImage()"><mat-icon fontSet="material-symbols-rounded">wallpaper</mat-icon>{{ block.style['backgroundImage'] ? 'Change background' : 'Choose background' }}</button>
+        @if (block.style['backgroundImage']) { <button type="button" class="bt-media-remove" (click)="removeBackgroundImage()">Remove</button> }
+      </div>
+    }
+  </div>
+
+  <div class="bt-info-box"><mat-icon fontSet="material-symbols-rounded">tips_and_updates</mat-icon><span>24 image presentations are available. Before / After uses two images; the other presets use one image.</span></div>
+</div>

@@ -1,1 +1,13 @@
-/* link editor uses the existing global braintechno-editor.component.scss rules unchanged. */
+.bt-link-editor{display:flex;flex-direction:column;gap:12px}
+.bt-link-editor__intro{display:flex;gap:10px;align-items:flex-start;padding:12px;border:1px solid #E2E8F0;border-radius:12px;background:#F8FAFC}
+.bt-link-editor__intro mat-icon{font-size:22px;width:22px;height:22px;color:#2563EB}
+.bt-link-editor__intro strong{display:block;font-size:13px;color:#0F172A}
+.bt-link-editor__intro span{display:block;margin-top:2px;font-size:12px;line-height:1.45;color:#64748B}
+.bt-link-editor label{display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:700;color:#334155}
+.bt-link-editor input,.bt-link-editor select{width:100%;min-height:38px;box-sizing:border-box;padding:9px 10px;border:1px solid #CBD5E1;border-radius:9px;background:#FFFFFF;color:#0F172A;font:inherit;font-weight:500;outline:none}
+.bt-link-editor input:focus,.bt-link-editor select:focus{border-color:#93C5FD;box-shadow:0 0 0 3px rgba(37,99,235,.10)}
+.bt-link-editor__grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.bt-link-editor__hint{padding:10px 12px;border-radius:10px;background:#F1F5F9;color:#475569;font-size:12px;line-height:1.5}
+.bt-link-editor .bt-check{display:flex;flex-direction:row;align-items:center;gap:8px;padding:9px 10px;border:1px solid #E2E8F0;border-radius:9px;background:#FFFFFF}
+.bt-link-editor .bt-check input{width:auto;min-height:auto}
+@media(max-width:520px){.bt-link-editor__grid{grid-template-columns:1fr}}

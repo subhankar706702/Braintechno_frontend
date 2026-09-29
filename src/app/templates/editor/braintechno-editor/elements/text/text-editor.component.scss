@@ -1,1 +1,21 @@
-/* text editor uses the existing global braintechno-editor.component.scss rules unchanged. */
+.bt-text-editor{display:flex;flex-direction:column;gap:12px}
+.bt-text-editor label{display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:700;color:#334155}
+.bt-text-editor input,.bt-text-editor textarea{width:100%;box-sizing:border-box;border:1px solid #E2E8F0;border-radius:9px;padding:10px 11px;font:inherit;font-size:13px;color:#0F172A;background:#fff;outline:none}
+.bt-text-editor input:focus,.bt-text-editor textarea:focus{border-color:#FF4D6D;box-shadow:0 0 0 3px rgba(255,77,109,.10)}
+.bt-text-editor textarea{resize:vertical;min-height:90px;line-height:1.55}
+.bt-inline-fields{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.bt-check{display:flex!important;flex-direction:row!important;align-items:center;gap:8px!important}
+.bt-check input{width:auto}
+.bt-text-media{display:flex;align-items:center;gap:12px;padding:10px;border:1px dashed #CBD5E1;border-radius:10px;background:#F8FAFC}
+.bt-text-media img{width:48px;height:48px;object-fit:cover;border-radius:50%}
+.bt-text-media__choose,.bt-text-media__remove{border:1px solid #E2E8F0;background:#fff;border-radius:8px;padding:8px 10px;cursor:pointer;font:inherit;font-size:12px;font-weight:700}
+.bt-text-media__choose{display:inline-flex;align-items:center;gap:6px}
+.bt-text-media__remove{margin-left:6px;color:#DC2626}
+.bt-text-items{display:flex;flex-direction:column;gap:10px}
+.bt-text-items__head{display:flex;align-items:center;justify-content:space-between}
+.bt-text-items__head button{border:0;background:#FF4D6D;color:#fff;border-radius:8px;padding:7px 10px;font-weight:700;cursor:pointer}
+.bt-text-item{padding:10px;border:1px solid #E2E8F0;border-radius:10px;background:#F8FAFC;display:flex;flex-direction:column;gap:9px}
+.bt-text-item__head{display:flex;align-items:center;justify-content:space-between;font-size:12px}
+.bt-text-item__head span{display:flex;gap:4px}
+.bt-text-item__head button{border:1px solid #E2E8F0;background:#fff;border-radius:6px;padding:3px 7px;cursor:pointer}
+.bt-text-item__head button:disabled{opacity:.45;cursor:not-allowed}

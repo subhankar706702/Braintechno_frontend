@@ -1,1 +1,126 @@
-<label>Link text<input [(ngModel)]="block.content['label']" (ngModelChange)="context.updateSelected()"></label><label>Link URL<input [(ngModel)]="block.content['url']" (ngModelChange)="context.updateSelected()"></label><label>Target<select [(ngModel)]="block.content['target']" (ngModelChange)="context.updateSelected()"><option value="_self">Same tab</option><option value="_blank">New tab</option></select></label>
+<div class="bt-link-editor">
+  <div class="bt-link-editor__intro">
+    <mat-icon fontSet="material-symbols-rounded">link</mat-icon>
+    <div>
+      <strong>Link URL</strong>
+      <span>Create a clickable URL with different visual styles.</span>
+    </div>
+  </div>
+
+  <label>Style
+    <select [(ngModel)]="block.content['variant']" (ngModelChange)="onVariantChange()">
+      <option value="text">Simple Text</option>
+      <option value="underline">Underline</option>
+      <option value="arrow">Arrow Link</option>
+      <option value="chevron">Chevron Link</option>
+      <option value="pill">Pill Link</option>
+      <option value="outline">Outline</option>
+      <option value="soft">Soft Button</option>
+      <option value="card">Link Card</option>
+      <option value="icon-left">Icon Left</option>
+      <option value="icon-right">Icon Right</option>
+      <option value="external">External Link</option>
+      <option value="download">Download</option>
+      <option value="contact">Contact Action</option>
+      <option value="anchor">Section Anchor</option>
+      <option value="stacked">Stacked URL</option>
+    </select>
+  </label>
+
+  <label>Link text
+    <input [(ngModel)]="block.content['label']" (ngModelChange)="update()" placeholder="Learn more">
+  </label>
+
+  <label>Link URL
+    <input [(ngModel)]="block.content['url']" (ngModelChange)="update()" placeholder="https://example.com">
+  </label>
+
+  <div class="bt-link-editor__grid">
+    <label>Action
+      <select [(ngModel)]="block.content['action']" (ngModelChange)="onActionChange()">
+        <option value="web">Website</option>
+        <option value="email">Email</option>
+        <option value="phone">Phone</option>
+        <option value="whatsapp">WhatsApp</option>
+        <option value="anchor">Section anchor</option>
+        <option value="file">File / download</option>
+      </select>
+    </label>
+
+    <label>Target
+      <select [(ngModel)]="block.content['target']" (ngModelChange)="update()">
+        <option value="_self">Same tab</option>
+        <option value="_blank">New tab</option>
+      </select>
+    </label>
+  </div>
+
+  @if (block.content['variant'] === 'stacked' || block.content['showUrl']) {
+    <label class="bt-check">
+      <input type="checkbox" [(ngModel)]="block.content['showUrl']" (ngModelChange)="update()">
+      <span>Show URL below label</span>
+    </label>
+  }
+
+  <label>Icon
+    <input [(ngModel)]="block.content['icon']" (ngModelChange)="update()" placeholder="arrow_forward">
+  </label>
+
+  @if (block.content['variant'] === 'download' || block.content['action'] === 'file') {
+    <div class="bt-link-editor__grid">
+      <label>Download
+        <select [(ngModel)]="block.content['download']" (ngModelChange)="update()">
+          <option [ngValue]="true">Enabled</option>
+          <option [ngValue]="false">Open normally</option>
+        </select>
+      </label>
+      <label>File name
+        <input [(ngModel)]="block.content['downloadName']" (ngModelChange)="update()" placeholder="brochure.pdf">
+      </label>
+    </div>
+  }
+
+  <div class="bt-link-editor__grid">
+    <label>Font size
+      <input type="number" min="10" max="48" [(ngModel)]="block.style['fontSize']" (ngModelChange)="update()">
+    </label>
+    <label>Font weight
+      <select [(ngModel)]="block.style['fontWeight']" (ngModelChange)="update()">
+        <option [ngValue]="400">Regular</option>
+        <option [ngValue]="500">Medium</option>
+        <option [ngValue]="600">Semibold</option>
+        <option [ngValue]="700">Bold</option>
+        <option [ngValue]="800">Extra Bold</option>
+      </select>
+    </label>
+  </div>
+
+  <div class="bt-link-editor__grid">
+    <label>Text color
+      <input type="text" [(ngModel)]="block.style['color']" (ngModelChange)="update()" placeholder="#2563EB">
+    </label>
+    <label>Hover color
+      <input type="text" [(ngModel)]="block.style['hoverColor']" (ngModelChange)="update()" placeholder="#1D4ED8">
+    </label>
+  </div>
+
+  <div class="bt-link-editor__grid">
+    <label>Align
+      <select [(ngModel)]="block.style['align']" (ngModelChange)="update()">
+        <option value="left">Left</option>
+        <option value="center">Center</option>
+        <option value="right">Right</option>
+      </select>
+    </label>
+    <label>Radius
+      <input type="number" min="0" max="999" [(ngModel)]="block.style['radius']" (ngModelChange)="update()">
+    </label>
+  </div>
+
+  @if (block.content['variant'] === 'external') {
+    <div class="bt-link-editor__hint">External Link automatically opens in a new tab.</div>
+  }
+  @if (block.content['variant'] === 'anchor') {
+    <div class="bt-link-editor__hint">Use a URL such as <strong>#pricing</strong> and give the destination section the same HTML id.</div>
+  }
+</div>

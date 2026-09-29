@@ -1,14 +1,26 @@
-import { ElementPreset } from '../../models/editor-block.model';
-
-export const IMAGE_PRESETS: ElementPreset[] = [
-{ key: 'banner', label: 'Banner', description: 'Full width banner image', preview: 'Banner' },
-      { key: 'rounded', label: 'Rounded', description: 'Rounded image block', preview: 'Round' },
-      { key: 'card', label: 'Card Image', description: 'Image inside a card frame', preview: 'Card' },
-      { key: 'compact', label: 'Compact', description: 'Compact centered image', preview: 'Small' },
-      { key: 'shadow', label: 'Shadow', description: 'Raised visual style', preview: 'Lift' },
-      { key: 'square', label: 'Square', description: 'Square media image', preview: '1:1' },
-      { key: 'portrait', label: 'Portrait', description: 'Portrait ratio visual', preview: '3:4' },
-      { key: 'circle', label: 'Circle', description: 'Circular profile style', preview: '○' },
-      { key: 'bordered', label: 'Bordered', description: 'Crisp bordered image', preview: 'Box' },
-      { key: 'full-bleed', label: 'Full Bleed', description: 'Edge-to-edge image', preview: 'Full' }
+export const IMAGE_PRESETS = [
+  { key: 'banner', label: 'Banner', description: 'Wide horizontal visual', preview: 'Banner' },
+  { key: 'rounded', label: 'Rounded', description: 'Soft rounded image block', preview: 'Round' },
+  { key: 'card', label: 'Card', description: 'Image inside a structured card shell', preview: 'Card' },
+  { key: 'compact', label: 'Compact', description: 'Smaller focused image presentation', preview: 'Compact' },
+  { key: 'shadow', label: 'Shadow', description: 'Elevated image with depth', preview: 'Shadow' },
+  { key: 'square', label: 'Square', description: 'Balanced 1:1 composition', preview: '1:1' },
+  { key: 'portrait', label: 'Portrait', description: 'Tall portrait composition', preview: 'Portrait' },
+  { key: 'circle', label: 'Circle', description: 'Circular image treatment', preview: 'Circle' },
+  { key: 'bordered', label: 'Bordered', description: 'Clean framed image', preview: 'Frame' },
+  { key: 'full-bleed', label: 'Full Bleed', description: 'Edge-to-edge visual', preview: 'Bleed' },
+  { key: 'polaroid', label: 'Polaroid', description: 'Print-style photo card', preview: 'Polaroid' },
+  { key: 'frame', label: 'Offset Frame', description: 'Layered frame with offset feel', preview: 'Offset' },
+  { key: 'overlay-caption', label: 'Overlay Caption', description: 'Caption layered over image', preview: 'Overlay' },
+  { key: 'gradient-overlay', label: 'Gradient Overlay', description: 'Gradient-backed image caption', preview: 'Gradient' },
+  { key: 'editorial', label: 'Editorial', description: 'Asymmetric image + caption layout', preview: 'Editorial' },
+  { key: 'split', label: 'Split', description: 'Image and caption split side-by-side', preview: 'Split' },
+  { key: 'before-after', label: 'Before / After', description: 'Two-image comparison presentation', preview: 'B/A' },
+  { key: 'hover-zoom', label: 'Hover Zoom', description: 'Image enlarges on hover', preview: 'Zoom' },
+  { key: 'tilt-card', label: 'Tilt Card', description: 'Angled premium visual card', preview: 'Tilt' },
+  { key: 'cutout', label: 'Cutout', description: 'Image clipped into an organic shape', preview: 'Cutout' },
+  { key: 'duotone', label: 'Duotone', description: 'Tinted monochrome visual treatment', preview: 'Duo' },
+  { key: 'monochrome', label: 'Monochrome', description: 'Black-and-white editorial image', preview: 'Mono' },
+  { key: 'ring', label: 'Ring', description: 'Circular image with accent ring', preview: 'Ring' },
+  { key: 'magazine', label: 'Magazine', description: 'Asymmetric magazine-style composition', preview: 'Mag' }
 ];

@@ -183,7 +183,7 @@ export class BraintechnoEditorComponent implements OnChanges, OnDestroy {
   @Output() readonly ready = new EventEmitter<void>();
   @Output() readonly changed = new EventEmitter<void>();
 
-  constructor(private readonly sanitizer: DomSanitizer) {}
+  constructor(private readonly sanitizer: DomSanitizer) { }
 
   private readonly catalog = inject(ElementCatalogService);
 
@@ -1252,8 +1252,8 @@ export class BraintechnoEditorComponent implements OnChanges, OnDestroy {
       case 'block': return createBlockBlock(this, base, variant);
       case 'heading': return createHeadingBlock(this, base, variant);
       case 'text': return createTextBlock(this, base, variant);
-      case 'link': return createLinkBlock(this, base, variant);
-      case 'image': return createImageBlock(this, base, variant);
+      case 'link': return createLinkBlock(this.uid('link'), variant);
+      case 'image': return createImageBlock(this.uid('image'), variant);
       case 'video': return createVideoBlock(this, base, variant);
       case 'slider': return createSliderBlock(this, base, variant);
       case 'gallery': return createGalleryBlock(this, base, variant);
@@ -1587,7 +1587,7 @@ export class BraintechnoEditorComponent implements OnChanges, OnDestroy {
   private renderBlock(block: EditorBlock): string {
     const c = block.content || {};
     const s = block.style || {};
-    const common = `${this.exportBackgroundStyle(s)}padding:${this.cssPx(s.padding, 24)};margin-top:${this.cssPx(s.marginTop, 0)};margin-bottom:${this.cssPx(s.marginBottom, 0)};text-align:${this.css(s.align, 'left')};border-radius:${this.cssPx(s.radius, 0)};color:${this.css(s.color, '#0F172A')};border:${Number(s.borderWidth)||0}px ${this.css(s.borderStyle,'solid')} ${this.css(s.borderColor,'#E2E8F0')};box-shadow:${this.shadowCss(s.shadow)};font-family:${this.css(s.fontFamily, 'Inter,Arial,sans-serif')};font-style:${this.css(s.fontStyle,'normal')};letter-spacing:${Number(s.letterSpacing)||0}px;text-decoration:${s.underline?'underline ':''}${s.strike?'line-through':''};`;
+    const common = `${this.exportBackgroundStyle(s)}padding:${this.cssPx(s.padding, 24)};margin-top:${this.cssPx(s.marginTop, 0)};margin-bottom:${this.cssPx(s.marginBottom, 0)};text-align:${this.css(s.align, 'left')};border-radius:${this.cssPx(s.radius, 0)};color:${this.css(s.color, '#0F172A')};border:${Number(s.borderWidth) || 0}px ${this.css(s.borderStyle, 'solid')} ${this.css(s.borderColor, '#E2E8F0')};box-shadow:${this.shadowCss(s.shadow)};font-family:${this.css(s.fontFamily, 'Inter,Arial,sans-serif')};font-style:${this.css(s.fontStyle, 'normal')};letter-spacing:${Number(s.letterSpacing) || 0}px;text-decoration:${s.underline ? 'underline ' : ''}${s.strike ? 'line-through' : ''};`;
 
     switch (block.type) {
       case 'section': return renderSectionBlock(this, block, common);

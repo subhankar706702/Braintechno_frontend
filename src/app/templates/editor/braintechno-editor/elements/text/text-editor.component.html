@@ -1,1 +1,81 @@
-<label>Text<textarea [(ngModel)]="block.content['text']" rows="8" (ngModelChange)="context.updateSelected()"></textarea></label><label>Font size<input type="number" [(ngModel)]="block.style['fontSize']" (ngModelChange)="context.updateSelected()"></label>
+<div class="bt-text-editor">
+  <label>Text
+    <textarea rows="7" [(ngModel)]="block.content['text']" (ngModelChange)="update()" placeholder="Write your text here..."></textarea>
+  </label>
+
+  @if (['note','callout','success','warning'].includes(block.content['variant'])) {
+    <label>Icon
+      <input [(ngModel)]="block.content['icon']" (ngModelChange)="update()" placeholder="info">
+    </label>
+  }
+
+  @if (block.content['variant'] === 'highlight') {
+    <label>Highlight text
+      <input [(ngModel)]="block.content['highlight']" (ngModelChange)="update()" placeholder="Important phrase">
+    </label>
+  }
+
+  @if (block.content['variant'] === 'quote-card') {
+    <label>Author
+      <input [(ngModel)]="block.content['author']" (ngModelChange)="update()">
+    </label>
+    <label>Source / Designation
+      <input [(ngModel)]="block.content['source']" (ngModelChange)="update()">
+    </label>
+    <div class="bt-text-media">
+      @if (block.content['avatar']) {
+        <img [src]="block.content['avatar']" alt="Quote avatar">
+      }
+      <div>
+        <button type="button" class="bt-text-media__choose" (click)="chooseAvatar()">
+          <mat-icon fontSet="material-symbols-rounded">photo_library</mat-icon>
+          {{ block.content['avatar'] ? 'Change avatar' : 'Choose avatar' }}
+        </button>
+        @if (block.content['avatar']) {
+          <button type="button" class="bt-text-media__remove" (click)="removeAvatar()">Remove</button>
+        }
+      </div>
+    </div>
+  }
+
+  @if (block.content['variant'] === 'numeric') {
+    <div class="bt-inline-fields">
+      <label>Value<input [(ngModel)]="block.content['value']" (ngModelChange)="update()"></label>
+      <label>Suffix<input [(ngModel)]="block.content['suffix']" (ngModelChange)="update()"></label>
+    </div>
+    <label>Label<input [(ngModel)]="block.content['label']" (ngModelChange)="update()"></label>
+  }
+
+  @if (block.content['variant'] === 'expandable') {
+    <label>Summary / Label
+      <input [(ngModel)]="block.content['eyebrow']" (ngModelChange)="update()" placeholder="Read more">
+    </label>
+    <label>Expanded text
+      <textarea rows="5" [(ngModel)]="block.content['moreText']" (ngModelChange)="update()"></textarea>
+    </label>
+    <label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['defaultOpen']" (ngModelChange)="update()"><span>Open by default</span></label>
+  }
+
+  @if (block.content['variant'] === 'checklist') {
+    <div class="bt-text-items">
+      <div class="bt-text-items__head">
+        <strong>Checklist items</strong>
+        <button type="button" (click)="addChecklistItem()">+ Add</button>
+      </div>
+      @for (item of block.content['items']; track item.id || $index) {
+        <div class="bt-text-item">
+          <div class="bt-text-item__head">
+            <strong>Item {{ $index + 1 }}</strong>
+            <span>
+              <button type="button" (click)="moveChecklistItem($index, -1)" [disabled]="$index === 0">↑</button>
+              <button type="button" (click)="moveChecklistItem($index, 1)" [disabled]="$index === block.content['items'].length - 1">↓</button>
+              <button type="button" (click)="removeChecklistItem($index)" [disabled]="block.content['items'].length <= 1">×</button>
+            </span>
+          </div>
+          <label>Text<input [(ngModel)]="item.text" (ngModelChange)="update()"></label>
+          <label>Icon<input [(ngModel)]="item.icon" (ngModelChange)="update()" placeholder="check_circle"></label>
+        </div>
+      }
+    </div>
+  }
+</div>

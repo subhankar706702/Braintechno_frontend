@@ -1,1 +1,284 @@
-<div class="bt-media-field"><span class="bt-field-label">Slider images</span><div class="gallery-manager">@for (image of block.content['images']; track $index) { @if (image) { <div class="gallery-item"><img [src]="image" alt=""></div> } }</div><button type="button" class="bt-media-choose" (click)="context.openMultipleMediaPicker(block.content, 'images', 'mediaIds', 'Choose slider images')"><mat-icon fontSet="material-symbols-rounded">collections</mat-icon>Choose images from gallery</button></div><label>Slide time (seconds)<input type="number" min="1" step="1" [ngModel]="(block.content['interval'] || 3500) / 1000" (ngModelChange)="block.content['interval'] = (+$event || 1) * 1000; context.updateSelected()"></label><label class="bt-check"><input type="checkbox" [(ngModel)]="block.content['autoplay']" (ngModelChange)="context.updateSelected()"><span>Autoplay</span></label>
+<div class="bt-slider-editor">
+  <div class="bt-slider-editor__topbar">
+    <div>
+      <strong>Slides</strong>
+      <small>{{ slides.length }} / {{ maxSlides }}</small>
+    </div>
+    <div class="bt-slider-editor__top-actions">
+      <button type="button" class="bt-slider-action" (click)="chooseImages()">
+        <mat-icon fontSet="material-symbols-rounded">collections</mat-icon>
+        Choose images
+      </button>
+      <button type="button" class="bt-slider-action bt-slider-action--primary" (click)="addSlide()" [disabled]="!canAddSlide">
+        <mat-icon fontSet="material-symbols-rounded">add</mat-icon>
+        Add Slide
+      </button>
+    </div>
+  </div>
+
+  <div class="bt-slider-limit">Maximum 6 slides. Each slide has its own content and button action.</div>
+
+  <section class="bt-slider-panel">
+    <div class="bt-slider-panel__heading">
+      <div>
+        <strong>Slide content</strong>
+        <span>Image, heading, sub-title, description and button are controlled per slide.</span>
+      </div>
+    </div>
+
+    <div class="bt-slider-slide-list">
+      @for (slide of slides; track trackByIndex($index)) {
+        <article class="bt-slider-slide">
+          <header class="bt-slider-slide__header">
+            <div class="bt-slider-slide__title">
+              <span class="bt-slider-slide__index">{{ $index + 1 }}</span>
+              <div>
+                <strong>Slide {{ $index + 1 }}</strong>
+                <small>{{ slide.title || 'Untitled slide' }}</small>
+              </div>
+            </div>
+            <div class="bt-slider-slide__actions">
+              <button type="button" title="Move up" aria-label="Move up" (click)="moveSlide($index, -1)" [disabled]="$index === 0">
+                <mat-icon fontSet="material-symbols-rounded">arrow_upward</mat-icon>
+              </button>
+              <button type="button" title="Move down" aria-label="Move down" (click)="moveSlide($index, 1)" [disabled]="$index === slides.length - 1">
+                <mat-icon fontSet="material-symbols-rounded">arrow_downward</mat-icon>
+              </button>
+              <button type="button" class="is-danger" title="Delete slide" aria-label="Delete slide" (click)="removeSlide($index)" [disabled]="slides.length <= 1">
+                <mat-icon fontSet="material-symbols-rounded">delete</mat-icon>
+              </button>
+            </div>
+          </header>
+
+          <div class="bt-slider-slide__body">
+            <div class="bt-slider-media-row">
+              <div class="bt-slider-thumb">
+                @if (slide.image) {
+                  <img [src]="slide.image" [alt]="slide.alt || ''">
+                } @else {
+                  <div class="bt-slider-thumb__empty"><mat-icon fontSet="material-symbols-rounded">image</mat-icon></div>
+                }
+              </div>
+              <div class="bt-slider-media-actions">
+                <button type="button" class="bt-slider-action bt-slider-action--primary" (click)="chooseSlideImage($index)">
+                  <mat-icon fontSet="material-symbols-rounded">photo_library</mat-icon>
+                  {{ slide.image ? 'Change image' : 'Choose image' }}
+                </button>
+                @if (slide.image) {
+                  <button type="button" class="bt-slider-action bt-slider-action--ghost" (click)="clearSlideImage($index)">Remove image</button>
+                }
+                <label class="bt-slider-field bt-slider-field--full">
+                  <span>Alt text</span>
+                  <input [ngModel]="slide.alt" (ngModelChange)="slide.alt = $event; update()" placeholder="Describe the image">
+                </label>
+              </div>
+            </div>
+
+            <div class="bt-slider-field-grid">
+              <label class="bt-slider-field">
+                <span>Eyebrow</span>
+                <input [ngModel]="slide.eyebrow" (ngModelChange)="slide.eyebrow = $event; update()" placeholder="Optional small label">
+              </label>
+              <label class="bt-slider-field">
+                <span>Badge</span>
+                <input [ngModel]="slide.badge" (ngModelChange)="slide.badge = $event; update()" placeholder="Optional badge">
+              </label>
+              <label class="bt-slider-field bt-slider-field--full">
+                <span>Heading</span>
+                <input [ngModel]="slide.title" (ngModelChange)="slide.title = $event; update()" placeholder="Your slider heading">
+              </label>
+              <label class="bt-slider-field bt-slider-field--full">
+                <span>Sub-title</span>
+                <textarea rows="2" [ngModel]="slide.subtitle" (ngModelChange)="slide.subtitle = $event; update()" placeholder="Short supporting message"></textarea>
+              </label>
+              <label class="bt-slider-field bt-slider-field--full">
+                <span>Description</span>
+                <textarea rows="3" [ngModel]="slide.description" (ngModelChange)="slide.description = $event; update()" placeholder="Optional longer description"></textarea>
+              </label>
+            </div>
+
+            <div class="bt-slider-subsection">
+              <div class="bt-slider-subsection__heading">
+                <strong>Button</strong>
+                <span>Each slide controls its own button.</span>
+              </div>
+              <div class="bt-slider-field-grid">
+                <label class="bt-slider-check bt-slider-field--full">
+                  <input type="checkbox" [ngModel]="slide.showButton" (ngModelChange)="slide.showButton = $event; update()">
+                  <span>Show button</span>
+                </label>
+                @if (slide.showButton) {
+                  <label class="bt-slider-field">
+                    <span>Button text</span>
+                    <input [ngModel]="slide.buttonText" (ngModelChange)="slide.buttonText = $event; update()" placeholder="Learn More">
+                  </label>
+                  <label class="bt-slider-field">
+                    <span>Button style</span>
+                    <select [ngModel]="slide.buttonStyle" (ngModelChange)="slide.buttonStyle = $event; update()">
+                      <option value="primary">Primary</option>
+                      <option value="outline">Outline</option>
+                      <option value="soft">Soft</option>
+                      <option value="pill">Pill</option>
+                      <option value="dark">Dark</option>
+                      <option value="link">Link</option>
+                    </select>
+                  </label>
+                  <label class="bt-slider-field">
+                    <span>Button icon</span>
+                    <input [ngModel]="slide.buttonIcon" (ngModelChange)="slide.buttonIcon = $event; update()" placeholder="arrow_forward">
+                  </label>
+                  <label class="bt-slider-field">
+                    <span>Button action</span>
+                    <select [ngModel]="ensureAction(slide).type" (ngModelChange)="setActionType($index, $event)">
+                      @for (action of actionTypes; track action.value) {
+                        <option [value]="action.value">{{ action.label }}</option>
+                      }
+                    </select>
+                  </label>
+                }
+              </div>
+
+              @if (slide.showButton && ensureAction(slide).type !== 'none') {
+                <div class="bt-slider-action-box">
+                  <div class="bt-slider-action-box__heading">
+                    <mat-icon fontSet="material-symbols-rounded">touch_app</mat-icon>
+                    <span>{{ actionLabel(ensureAction(slide).type) }}</span>
+                  </div>
+
+                  @switch (ensureAction(slide).type) {
+                    @case ('website') {
+                      <div class="bt-slider-field-grid">
+                        <label class="bt-slider-field bt-slider-field--full">
+                          <span>Website URL</span>
+                          <input [ngModel]="ensureAction(slide).url" (ngModelChange)="setActionValue($index, 'url', $event)" placeholder="https://example.com">
+                        </label>
+                        <label class="bt-slider-field">
+                          <span>Target</span>
+                          <select [ngModel]="ensureAction(slide).target" (ngModelChange)="setActionValue($index, 'target', $event)">
+                            <option value="_self">Same tab</option>
+                            <option value="_blank">New tab</option>
+                          </select>
+                        </label>
+                      </div>
+                    }
+                    @case ('section') {
+                      <label class="bt-slider-field bt-slider-field--full">
+                        <span>Section ID</span>
+                        <input [ngModel]="ensureAction(slide).sectionId" (ngModelChange)="setActionValue($index, 'sectionId', $event)" placeholder="contact">
+                      </label>
+                    }
+                    @case ('whatsapp') {
+                      <div class="bt-slider-field-grid">
+                        <label class="bt-slider-field">
+                          <span>WhatsApp number</span>
+                          <input [ngModel]="ensureAction(slide).whatsapp" (ngModelChange)="setActionValue($index, 'whatsapp', $event)" placeholder="919876543210">
+                        </label>
+                        <label class="bt-slider-field bt-slider-field--full">
+                          <span>Message</span>
+                          <textarea rows="2" [ngModel]="ensureAction(slide).message" (ngModelChange)="setActionValue($index, 'message', $event)" placeholder="Hello, I am interested"></textarea>
+                        </label>
+                      </div>
+                    }
+                    @case ('phone') {
+                      <label class="bt-slider-field bt-slider-field--full">
+                        <span>Phone number</span>
+                        <input [ngModel]="ensureAction(slide).phone" (ngModelChange)="setActionValue($index, 'phone', $event)" placeholder="+919876543210">
+                      </label>
+                    }
+                    @case ('email') {
+                      <div class="bt-slider-field-grid">
+                        <label class="bt-slider-field">
+                          <span>Email</span>
+                          <input [ngModel]="ensureAction(slide).email" (ngModelChange)="setActionValue($index, 'email', $event)" placeholder="hello@example.com">
+                        </label>
+                        <label class="bt-slider-field">
+                          <span>Subject</span>
+                          <input [ngModel]="ensureAction(slide).subject" (ngModelChange)="setActionValue($index, 'subject', $event)" placeholder="Enquiry">
+                        </label>
+                      </div>
+                    }
+                    @case ('sms') {
+                      <div class="bt-slider-field-grid">
+                        <label class="bt-slider-field">
+                          <span>Phone number</span>
+                          <input [ngModel]="ensureAction(slide).phone" (ngModelChange)="setActionValue($index, 'phone', $event)" placeholder="+919876543210">
+                        </label>
+                        <label class="bt-slider-field bt-slider-field--full">
+                          <span>Message</span>
+                          <textarea rows="2" [ngModel]="ensureAction(slide).message" (ngModelChange)="setActionValue($index, 'message', $event)" placeholder="Hello"></textarea>
+                        </label>
+                      </div>
+                    }
+                    @case ('download') {
+                      <div class="bt-slider-field-grid">
+                        <label class="bt-slider-field bt-slider-field--full">
+                          <span>File URL</span>
+                          <input [ngModel]="ensureAction(slide).fileUrl" (ngModelChange)="setActionValue($index, 'fileUrl', $event)" placeholder="https://example.com/file.pdf">
+                        </label>
+                        <label class="bt-slider-field">
+                          <span>Target</span>
+                          <select [ngModel]="ensureAction(slide).target" (ngModelChange)="setActionValue($index, 'target', $event)">
+                            <option value="_self">Same tab</option>
+                            <option value="_blank">New tab</option>
+                          </select>
+                        </label>
+                      </div>
+                    }
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        </article>
+      }
+    </div>
+  </section>
+
+  <section class="bt-slider-panel">
+    <div class="bt-slider-panel__heading">
+      <div>
+        <strong>Slider behaviour</strong>
+        <span>Common settings for all slides.</span>
+      </div>
+    </div>
+    <div class="bt-slider-field-grid bt-slider-field-grid--checks">
+      <label class="bt-slider-field"><span>Transition</span><select [(ngModel)]="block.content['transition']" (ngModelChange)="update()"><option value="slide">Slide</option><option value="fade">Fade</option><option value="zoom">Zoom</option></select></label>
+      <label class="bt-slider-field"><span>Transition speed (ms)</span><input type="number" min="100" max="5000" step="100" [(ngModel)]="block.content['transitionSpeed']" (ngModelChange)="update()"></label>
+      <label class="bt-slider-field"><span>Slide time (seconds)</span><input type="number" min="1" max="60" step="1" [ngModel]="(block.content['interval'] || 3500) / 1000" (ngModelChange)="setIntervalSeconds($event)"></label>
+      <label class="bt-slider-check"><input type="checkbox" [(ngModel)]="block.content['autoplay']" (ngModelChange)="update()"><span>Autoplay</span></label>
+      <label class="bt-slider-check"><input type="checkbox" [(ngModel)]="block.content['loop']" (ngModelChange)="update()"><span>Loop</span></label>
+      <label class="bt-slider-check"><input type="checkbox" [(ngModel)]="block.content['pauseOnHover']" (ngModelChange)="update()"><span>Pause on hover</span></label>
+      <label class="bt-slider-check"><input type="checkbox" [(ngModel)]="block.content['pauseOnInteraction']" (ngModelChange)="update()"><span>Pause after interaction</span></label>
+      <label class="bt-slider-check"><input type="checkbox" [(ngModel)]="block.content['swipe']" (ngModelChange)="update()"><span>Swipe</span></label>
+      <label class="bt-slider-check"><input type="checkbox" [(ngModel)]="block.content['keyboard']" (ngModelChange)="update()"><span>Keyboard</span></label>
+    </div>
+  </section>
+
+  <section class="bt-slider-panel">
+    <div class="bt-slider-panel__heading"><div><strong>Navigation</strong><span>Controls shown on the slider.</span></div></div>
+    <div class="bt-slider-field-grid bt-slider-field-grid--checks">
+      <label class="bt-slider-check"><input type="checkbox" [(ngModel)]="block.content['showArrows']" (ngModelChange)="update()"><span>Arrows</span></label>
+      <label class="bt-slider-check"><input type="checkbox" [(ngModel)]="block.content['showDots']" (ngModelChange)="update()"><span>Dots</span></label>
+      <label class="bt-slider-check"><input type="checkbox" [(ngModel)]="block.content['showCounter']" (ngModelChange)="update()"><span>Counter</span></label>
+      <label class="bt-slider-check"><input type="checkbox" [(ngModel)]="block.content['showProgress']" (ngModelChange)="update()"><span>Progress</span></label>
+      <label class="bt-slider-check"><input type="checkbox" [(ngModel)]="block.content['showThumbnails']" (ngModelChange)="update()"><span>Thumbnails</span></label>
+      <label class="bt-slider-field"><span>Arrow style</span><select [(ngModel)]="block.content['arrowStyle']" (ngModelChange)="update()"><option value="circle">Circle</option><option value="square">Square</option><option value="minimal">Minimal</option></select></label>
+      <label class="bt-slider-field"><span>Arrow position</span><select [(ngModel)]="block.content['arrowPosition']" (ngModelChange)="update()"><option value="inside">Inside</option><option value="edge">Edge</option></select></label>
+      <label class="bt-slider-field"><span>Dot style</span><select [(ngModel)]="block.content['dotStyle']" (ngModelChange)="update()"><option value="circle">Circle</option><option value="line">Line</option><option value="square">Square</option></select></label>
+    </div>
+  </section>
+
+  <section class="bt-slider-panel">
+    <div class="bt-slider-panel__heading"><div><strong>Layout & responsive</strong><span>Radius can be 0.</span></div></div>
+    <div class="bt-slider-field-grid">
+      <label class="bt-slider-field"><span>Object fit</span><select [(ngModel)]="block.content['objectFit']" (ngModelChange)="update()"><option value="cover">Cover</option><option value="contain">Contain</option><option value="fill">Fill</option></select></label>
+      <label class="bt-slider-field"><span>Object position</span><select [(ngModel)]="block.content['objectPosition']" (ngModelChange)="update()"><option value="center">Center</option><option value="top">Top</option><option value="bottom">Bottom</option><option value="left">Left</option><option value="right">Right</option></select></label>
+      <label class="bt-slider-field"><span>Slides per view</span><select [(ngModel)]="block.content['slidesPerView']" (ngModelChange)="update()"><option [ngValue]="1">1</option><option [ngValue]="2">2</option><option [ngValue]="3">3</option></select></label>
+      <label class="bt-slider-field"><span>Mobile slides</span><select [(ngModel)]="block.content['mobileSlidesPerView']" (ngModelChange)="update()"><option [ngValue]="1">1</option><option [ngValue]="2">2</option></select></label>
+      <label class="bt-slider-field"><span>Desktop height (px)</span><input type="number" min="120" max="1200" [(ngModel)]="block.style['height']" (ngModelChange)="update()"></label>
+      <label class="bt-slider-field"><span>Mobile height (px)</span><input type="number" min="120" max="900" [(ngModel)]="block.style['mobileHeight']" (ngModelChange)="update()"></label>
+      <label class="bt-slider-field"><span>Gap (px)</span><input type="number" min="0" max="48" [(ngModel)]="block.style['gap']" (ngModelChange)="update()"></label>
+      <label class="bt-slider-field"><span>Radius (px)</span><input type="number" min="0" max="60" [(ngModel)]="block.style['radius']" (ngModelChange)="update()"></label>
+    </div>
+  </section>
+</div>

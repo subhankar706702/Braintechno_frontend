@@ -374,115 +374,112 @@ export class TemplateEditorComponent implements OnInit {
    *   }
    * }
    */
-  async importJson(
-    event: Event
-  ): Promise<void> {
+ async importJson(event: Event): Promise<void> {
+  const input = event.target as HTMLInputElement;
+  const file = input.files?.[0];
 
-    const input =
-      event.target as HTMLInputElement;
-
-    const file =
-      input.files?.[0];
-
-    if (!file) {
-      return;
-    }
-
-    try {
-
-      this.busy.set(true);
-
-      this.status.set(
-        'Importing JSON...'
-      );
-
-      const text =
-        await file.text();
-
-      const parsed =
-        JSON.parse(text);
-
-      const design =
-        parsed?.design &&
-        typeof parsed.design === 'object'
-          ? parsed.design
-          : parsed;
-
-      if (
-        !this.isValidDesign(design)
-      ) {
-
-        throw new Error(
-          'This file is not a valid Braintechno design JSON.'
-        );
-
-      }
-
-      console.log(
-        '[Template Editor] Imported JSON:',
-        design
-      );
-
-      this.template = {
-        ...this.template,
-
-        design,
-
-        html: ''
-      };
-
-      /*
-       * Child will either load immediately
-       * or queue it until editor:ready.
-       */
-      if (this.editor) {
-
-        this.editor.loadDesign(
-          design
-        );
-
-      }
-
-      this.dirty.set(true);
-
-      this.status.set(
-        'JSON imported'
-      );
-
-      this.notify(
-        'success',
-        'Design imported',
-        'The JSON design was imported successfully.'
-      );
-
-    } catch (error) {
-
-      console.error(
-        '[Template Editor] JSON import failed:',
-        error
-      );
-
-      this.status.set(
-        'Import failed'
-      );
-
-      this.notify(
-        'error',
-        'Import failed',
-        'Please select a valid BRAIN TECHNO design JSON file.'
-      );
-
-    } finally {
-
-      this.busy.set(false);
-
-      /*
-       * Allows selecting same file again.
-       */
-      input.value = '';
-
-    }
+  if (!file) {
+    return;
   }
+
+  try {
+    this.busy.set(true);
+    this.status.set('Importing JSON...');
+
+    const text = await file.text();
+    const parsed = JSON.parse(text);
+
+    if (
+      !parsed ||
+      typeof parsed !== 'object' ||
+      Array.isArray(parsed)
+    ) {
+      throw new Error(
+        'JSON root must be an object.'
+      );
+    }
+
+    /*
+     * If JSON contains a "design" object,
+     * use that as the editor design.
+     *
+     * Otherwise use the complete JSON object
+     * directly as the editor design.
+     */
+    const design =
+      parsed.design &&
+      typeof parsed.design === 'object' &&
+      !Array.isArray(parsed.design)
+        ? parsed.design
+        : parsed;
+
+    /*
+     * Validate the final design object.
+     */
+    if (!this.isValidDesign(design)) {
+      throw new Error(
+        'This file is not a valid BRAIN TECHNO design JSON.'
+      );
+    }
+
+    console.log(
+      '[Template Editor] Imported JSON:',
+      design
+    );
+
+    /*
+     * Update current template.
+     */
+    this.template = {
+      ...this.template,
+      design,
+      html: ''
+    };
+
+    /*
+     * Load into editor.
+     */
+    if (this.editor) {
+      this.editor.loadDesign(design);
+    }
+
+    this.dirty.set(true);
+
+    this.status.set('JSON imported');
+
+    this.notify(
+      'success',
+      'Design imported',
+      'The JSON design was imported successfully.'
+    );
+
+  } catch (error) {
+
+    console.error(
+      '[Template Editor] JSON import failed:',
+      error
+    );
+
+    this.status.set('Import failed');
+
+    this.notify(
+      'error',
+      'Import failed',
+      error instanceof Error
+        ? error.message
+        : 'Please select a valid BRAIN TECHNO design JSON file.'
+    );
+
+  } finally {
+
+    this.busy.set(false);
+
+    /*
+     * Allows selecting the same file again.
+     */
+    input.value = '';
+  }
+}
 
   /**
    * Start blank design.

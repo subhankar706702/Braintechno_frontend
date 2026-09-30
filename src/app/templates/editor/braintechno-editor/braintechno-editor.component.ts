@@ -1255,7 +1255,7 @@ export class BraintechnoEditorComponent implements OnChanges, OnDestroy {
       case 'link': return createLinkBlock(this.uid('link'), variant);
       case 'image': return createImageBlock(this.uid('image'), variant);
       case 'video': return createVideoBlock(this.uid('video'), variant);
-      case 'slider': return createSliderBlock(this, base, variant);
+      case 'slider': return createSliderBlock(this.uid('slider'), variant);
       case 'gallery': return createGalleryBlock(this, base, variant);
       case 'button': return createButtonBlock(this, base, variant);
       case 'icon': return createIconBlock(this, base, variant);

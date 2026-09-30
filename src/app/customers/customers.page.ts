@@ -19,6 +19,14 @@ import {
 } from '@angular/material/icon';
 
 import {
+  MatSelectModule
+} from '@angular/material/select';
+
+import {
+  MatFormFieldModule
+} from '@angular/material/form-field';
+
+import {
   finalize
 } from 'rxjs';
 
@@ -35,6 +43,8 @@ import {
   CustomerType
 } from '../core/customer-api.service';
 import { CustomerManualFormComponent } from './customer-manual-form/customer-manual-form.component';
+import { CustomerType as CustomerTypeEnum } from '../shared/enums/customer-type.enum';
+import { ConfirmDialogService } from '../Common/components/confirm-dialog/confirm-dialog.service';
 
 
 type CustomerViewMode =
@@ -65,6 +75,8 @@ interface CustomerCountCard {
     CommonModule,
     FormsModule,
     MatIconModule,
+    MatSelectModule,
+    MatFormFieldModule,
     CustomerManualFormComponent
   ],
 
@@ -78,7 +90,7 @@ export class CustomersPage
   implements OnInit, OnDestroy {
 
   readonly defaultProfileImage =
-    '/assets/image/profile.png';
+    '/assets/customer/default-avatar.svg';
 
   readonly pageSize =
     16;
@@ -132,9 +144,6 @@ export class CustomersPage
   readonly apiError =
     signal('');
 
-  readonly usingDemoData =
-    signal(false);
-
   readonly countData =
     signal<CustomerCounts>({
       total: 0,
@@ -149,18 +158,22 @@ export class CustomersPage
   readonly manualFormOpen =
     signal(false);
 
+  readonly editingCustomer =
+    signal<CustomerItem | null>(null);
+
+  readonly viewingCustomer =
+    signal<CustomerItem | null>(null);
+
+  readonly contactOpenId =
+    signal<string | null>(null);
+
+  readonly updatingTypeId =
+    signal<string | null>(null);
 
 
-  readonly customerTypes:
-    CustomerType[] =
-    [
-      'New',
-      'Regular',
-      'VIP',
-      'Interested',
-      'Followup',
-      'Converted'
-    ];
+  readonly customerTypes: CustomerType[] = Object.values(CustomerTypeEnum);
+
+  readonly customerTypeEnum = CustomerTypeEnum;
 
 
   readonly customerSources:
@@ -183,228 +196,6 @@ export class CustomersPage
     null;
 
 
-  private readonly demoCustomers:
-    CustomerItem[] =
-    [
-      {
-        id: 'demo-1',
-        accountId: 'BT00001',
-        name: 'Rahul Sharma',
-        mobile: '+91 98765 43210',
-        email: 'rahul.sharma@example.com',
-        customerType: 'VIP',
-        source: 'Facebook',
-        image: 'https://i.pravatar.cc/160?img=12',
-        createdAt: '2026-09-23T10:20:00',
-        lastContactAt: '2026-09-23T11:45:00'
-      },
-      {
-        id: 'demo-2',
-        accountId: 'BT00001',
-        name: 'Priya Das',
-        mobile: '+91 98312 77891',
-        email: 'priya.das@example.com',
-        customerType: 'New',
-        source: 'Instagram',
-        image: 'https://i.pravatar.cc/160?img=47',
-        createdAt: '2026-09-23T09:10:00',
-        lastContactAt: '2026-09-23T10:20:00'
-      },
-      {
-        id: 'demo-3',
-        accountId: 'BT00001',
-        name: 'Arindam Sen',
-        mobile: '+91 90022 14398',
-        email: 'arindam.sen@example.com',
-        customerType: 'Regular',
-        source: 'WhatsApp',
-        image: 'https://i.pravatar.cc/160?img=33',
-        createdAt: '2026-09-22T15:25:00',
-        lastContactAt: '2026-09-22T18:00:00'
-      },
-      {
-        id: 'demo-4',
-        accountId: 'BT00001',
-        name: '',
-        mobile: '+91 98360 55128',
-        email: 'unknown@example.com',
-        customerType: 'Interested',
-        source: 'Direct',
-        image: '',
-        createdAt: '2026-09-22T13:45:00',
-        lastContactAt: '2026-09-22T16:20:00'
-      },
-      {
-        id: 'demo-5',
-        accountId: 'BT00001',
-        name: 'Sourav Ghosh',
-        mobile: '+91 70039 33219',
-        email: 'sourav.ghosh@example.com',
-        customerType: 'Followup',
-        source: 'Manual',
-        image: '',
-        createdAt: '2026-09-21T16:10:00',
-        lastContactAt: '2026-09-21T18:15:00'
-      },
-      {
-        id: 'demo-6',
-        accountId: 'BT00001',
-        name: 'Madhumita Paul',
-        mobile: '+91 98741 39087',
-        email: 'madhumita.paul@example.com',
-        customerType: 'Converted',
-        source: 'Excel',
-        image: 'https://i.pravatar.cc/160?img=44',
-        createdAt: '2026-09-20T12:20:00',
-        lastContactAt: '2026-09-20T16:30:00'
-      },
-      {
-        id: 'demo-7',
-        accountId: 'BT00001',
-        name: 'Amitava Dey',
-        mobile: '+91 80139 82910',
-        email: 'amitava.dey@example.com',
-        customerType: 'Regular',
-        source: 'AI',
-        image: '',
-        createdAt: '2026-09-19T18:05:00',
-        lastContactAt: '2026-09-19T18:30:00'
-      },
-      {
-        id: 'demo-8',
-        accountId: 'BT00001',
-        name: 'Nandini Chatterjee',
-        mobile: '+91 98302 78116',
-        email: 'nandini.c@example.com',
-        customerType: 'VIP',
-        source: 'Instagram',
-        image: 'https://i.pravatar.cc/160?img=49',
-        createdAt: '2026-09-18T10:30:00',
-        lastContactAt: '2026-09-18T12:10:00'
-      },
-      {
-        id: 'demo-9',
-        accountId: 'BT00001',
-        name: 'Ritwik Banerjee',
-        mobile: '+91 98364 90127',
-        email: 'ritwik.b@example.com',
-        customerType: 'Interested',
-        source: 'Facebook',
-        image: '',
-        createdAt: '2026-09-17T09:15:00',
-        lastContactAt: '2026-09-17T11:00:00'
-      },
-      {
-        id: 'demo-10',
-        accountId: 'BT00001',
-        name: 'Ananya Mukherjee',
-        mobile: '+91 62910 47883',
-        email: 'ananya.m@example.com',
-        customerType: 'New',
-        source: 'Direct',
-        image: 'https://i.pravatar.cc/160?img=32',
-        createdAt: '2026-09-16T14:35:00',
-        lastContactAt: '2026-09-16T15:20:00'
-      },
-      {
-        id: 'demo-11',
-        accountId: 'BT00001',
-        name: 'Debjit Saha',
-        mobile: '+91 98314 57241',
-        email: 'debjit.saha@example.com',
-        customerType: 'Followup',
-        source: 'WhatsApp',
-        image: '',
-        createdAt: '2026-09-15T08:40:00',
-        lastContactAt: '2026-09-15T09:40:00'
-      },
-      {
-        id: 'demo-12',
-        accountId: 'BT00001',
-        name: 'Ishita Bose',
-        mobile: '+91 70444 22819',
-        email: 'ishita.bose@example.com',
-        customerType: 'Converted',
-        source: 'Manual',
-        image: 'https://i.pravatar.cc/160?img=48',
-        createdAt: '2026-09-14T11:50:00',
-        lastContactAt: '2026-09-14T14:00:00'
-      },
-      {
-        id: 'demo-13',
-        accountId: 'BT00001',
-        name: 'Abhishek Pal',
-        mobile: '+91 98365 90288',
-        email: 'abhishek.pal@example.com',
-        customerType: 'Regular',
-        source: 'Excel',
-        image: '',
-        createdAt: '2026-09-13T17:05:00',
-        lastContactAt: '2026-09-13T18:05:00'
-      },
-      {
-        id: 'demo-14',
-        accountId: 'BT00001',
-        name: 'Riya Mondal',
-        mobile: '+91 62915 33118',
-        email: 'riya.mondal@example.com',
-        customerType: 'VIP',
-        source: 'AI',
-        image: 'https://i.pravatar.cc/160?img=46',
-        createdAt: '2026-09-12T10:15:00',
-        lastContactAt: '2026-09-12T12:00:00'
-      },
-      {
-        id: 'demo-15',
-        accountId: 'BT00001',
-        name: 'Kaustav Ray',
-        mobile: '+91 90075 41822',
-        email: 'kaustav.ray@example.com',
-        customerType: 'Interested',
-        source: 'Facebook',
-        image: '',
-        createdAt: '2026-09-11T09:50:00',
-        lastContactAt: '2026-09-11T10:50:00'
-      },
-      {
-        id: 'demo-16',
-        accountId: 'BT00001',
-        name: 'Tania Dutta',
-        mobile: '+91 98310 44072',
-        email: 'tania.dutta@example.com',
-        customerType: 'New',
-        source: 'Instagram',
-        image: '',
-        createdAt: '2026-09-10T13:30:00',
-        lastContactAt: '2026-09-10T15:30:00'
-      },
-      {
-        id: 'demo-17',
-        accountId: 'BT00001',
-        name: 'Sagnik Bhattacharya',
-        mobile: '+91 87775 66310',
-        email: 'sagnik.b@example.com',
-        customerType: 'Followup',
-        source: 'Direct',
-        image: '',
-        createdAt: '2026-09-09T12:20:00',
-        lastContactAt: '2026-09-09T13:00:00'
-      },
-      {
-        id: 'demo-18',
-        accountId: 'BT00001',
-        name: 'Moumita Kar',
-        mobile: '+91 98304 82176',
-        email: 'moumita.kar@example.com',
-        customerType: 'Converted',
-        source: 'WhatsApp',
-        image: 'https://i.pravatar.cc/160?img=41',
-        createdAt: '2026-09-08T09:05:00',
-        lastContactAt: '2026-09-08T10:20:00'
-      }
-    ];
-
-
   readonly countCards =
     computed<
       CustomerCountCard[]
@@ -425,42 +216,42 @@ export class CustomersPage
           label: 'New',
           value: value.new,
           icon: 'person_add',
-          key: 'New',
+          key: CustomerTypeEnum.New,
           tone: 'green'
         },
         {
           label: 'Regular',
           value: value.regular,
           icon: 'repeat',
-          key: 'Regular',
+          key: CustomerTypeEnum.Regular,
           tone: 'teal'
         },
         {
           label: 'VIP',
           value: value.vip,
           icon: 'workspace_premium',
-          key: 'VIP',
+          key: CustomerTypeEnum.VIP,
           tone: 'violet'
         },
         {
           label: 'Interested',
           value: value.interested,
           icon: 'favorite',
-          key: 'Interested',
+          key: CustomerTypeEnum.Interested,
           tone: 'pink'
         },
         {
           label: 'Followup',
           value: value.followup,
           icon: 'schedule',
-          key: 'Followup',
+          key: CustomerTypeEnum.Followup,
           tone: 'orange'
         },
         {
           label: 'Converted',
           value: value.converted,
           icon: 'verified',
-          key: 'Converted',
+          key: CustomerTypeEnum.Converted,
           tone: 'green'
         }
       ];
@@ -472,7 +263,10 @@ export class CustomersPage
       AuthService,
 
     private readonly customerApi:
-      CustomerApiService
+      CustomerApiService,
+
+    private readonly confirmDialog:
+      ConfirmDialogService
   ) { }
 
 
@@ -549,17 +343,13 @@ export class CustomersPage
       .subscribe({
         next: response => {
 
-          this.usingDemoData.set(
-            false
-          );
-
-          this.customers.set(
-            Array.isArray(
-              response.items
+          const items = Array.isArray(response.items)
+            ? response.items.map(item =>
+              this.normalizeCustomer(item)
             )
-              ? response.items
-              : []
-          );
+            : [];
+
+          this.customers.set(items);
 
           this.hasMore.set(
             !!response.meta
@@ -577,155 +367,23 @@ export class CustomersPage
             'Customer API failed:',
             error
           );
-
-          /*
-           * Demo fallback is kept only so the UI
-           * can still be reviewed while backend is
-           * not running. Remove this fallback later
-           * if production should show API errors only.
-           */
-          this.loadDemoData();
-
+          this.customers.set([]);
+          this.hasMore.set(false);
+          this.countData.set({
+            total: 0,
+            new: 0,
+            regular: 0,
+            vip: 0,
+            interested: 0,
+            followup: 0,
+            converted: 0
+          });
           this.apiError.set(
-            'Backend is not connected. Showing demo customers.'
+            error?.error?.message ||
+            'Could not load customers.'
           );
         }
       });
-  }
-
-
-  loadMore(): void {
-
-    if (
-      this.loading() ||
-      this.loadingMore() ||
-      !this.hasMore() ||
-      this.usingDemoData()
-    ) {
-      return;
-    }
-
-    const accountId =
-      this.accountId;
-
-    if (
-      accountId === null ||
-      accountId === undefined ||
-      accountId === ''
-    ) {
-      return;
-    }
-
-    const nextPage =
-      this.page() + 1;
-
-    this.loadingMore.set(true);
-
-    this.customerApi
-      .list({
-        accountId,
-        page: nextPage,
-        limit: this.pageSize,
-        search:
-          this.searchTerm(),
-        type:
-          this.selectedType(),
-        source:
-          this.selectedSource(),
-        sort:
-          this.sortMode()
-      })
-      .pipe(
-        finalize(() => {
-          this.loadingMore.set(
-            false
-          );
-        })
-      )
-      .subscribe({
-        next: response => {
-
-          const incoming =
-            Array.isArray(
-              response.items
-            )
-              ? response.items
-              : [];
-
-          this.customers.update(
-            current => [
-              ...current,
-              ...incoming
-            ]
-          );
-
-          this.page.set(
-            nextPage
-          );
-
-          this.hasMore.set(
-            !!response.meta
-              ?.hasMore
-          );
-
-          this.countData.set(
-            response.counts
-          );
-        },
-
-        error: error => {
-
-          console.error(
-            'Could not load more customers:',
-            error
-          );
-        }
-      });
-  }
-
-
-  onResultsScroll(
-    event: Event
-  ): void {
-
-    // const target =
-    //   event.currentTarget
-    //   as HTMLElement;
-
-    // const remaining =
-    //   target.scrollHeight -
-    //   target.scrollTop -
-    //   target.clientHeight;
-
-    // if (
-    //   remaining <= 220
-    // ) {
-    //   this.loadMore();
-    // }
-  }
-
-
-  onSearchChange(
-    value: string
-  ): void {
-
-    this.searchTerm.set(
-      String(value || '')
-    );
-
-    if (this.searchTimer) {
-      clearTimeout(
-        this.searchTimer
-      );
-    }
-
-    this.searchTimer =
-      setTimeout(
-        () => {
-          this.loadFirstPage();
-        },
-        350
-      );
   }
 
 
@@ -820,7 +478,6 @@ export class CustomersPage
   }
 
 
-
   importExcel(): void {
 
     this.closeAddMenu();
@@ -845,23 +502,155 @@ export class CustomersPage
     customer:
       CustomerItem
   ): void {
+    this.contactOpenId.set(null);
+    this.viewingCustomer.set(customer);
+  }
 
-    console.log(
-      'View customer:',
-      customer
+
+  closeCustomerView(): void {
+    this.viewingCustomer.set(null);
+  }
+
+
+  editCustomer(
+    customer:
+      CustomerItem
+  ): void {
+    this.contactOpenId.set(null);
+    this.viewingCustomer.set(null);
+    this.editingCustomer.set(customer);
+    this.manualFormOpen.set(true);
+  }
+
+
+  toggleContact(
+    customer:
+      CustomerItem
+  ): void {
+    this.viewingCustomer.set(null);
+    this.contactOpenId.update(
+      current =>
+        current === customer.id
+          ? null
+          : customer.id
     );
   }
 
 
-  messageCustomer(
+  updateCustomerType(
+    customer: CustomerItem,
+    nextType: CustomerType
+  ): void {
+    const previousType = customer.customerType;
+
+    if (
+      previousType === nextType ||
+      this.updatingTypeId()
+    ) {
+      return;
+    }
+
+    this.updatingTypeId.set(
+      customer.id
+    );
+
+    this.customerApi
+      .update(
+        customer.id,
+        {
+          customerType: nextType
+        }
+      )
+      .pipe(
+        finalize(() => {
+          this.updatingTypeId.set(null);
+        })
+      )
+      .subscribe({
+        next: updated => {
+          const updatedType =
+            this.normalizeCustomerType(
+              updated.customerType
+            );
+
+          this.customers.update(
+            items =>
+              items.map(item =>
+                item.id === customer.id
+                  ? {
+                    ...item,
+                    customerType: updatedType
+                  }
+                  : item
+              )
+          );
+
+          this.rebuildCountsFromCustomers();
+        },
+
+        error: error => {
+          console.error(
+            'Customer type update failed:',
+            error
+          );
+
+          this.apiError.set(
+            error?.error?.message ||
+            'Could not update customer type.'
+          );
+        }
+      });
+  }
+
+  private rebuildCountsFromCustomers(): void {
+    const items = this.customers();
+    const count = (type: CustomerType) =>
+      items.filter(item => item.customerType === type).length;
+
+    this.countData.set({
+      total: items.length,
+      new: count(CustomerTypeEnum.New),
+      regular: count(CustomerTypeEnum.Regular),
+      vip: count(CustomerTypeEnum.VIP),
+      interested: count(CustomerTypeEnum.Interested),
+      followup: count(CustomerTypeEnum.Followup),
+      converted: count(CustomerTypeEnum.Converted)
+    });
+  }
+
+
+  phoneLink(
     customer:
       CustomerItem
-  ): void {
+  ): string {
+    const value =
+      String(customer.mobile || '').trim();
 
-    console.log(
-      'Message customer:',
-      customer
-    );
+    return value
+      ? `tel:${value}`
+      : '';
+  }
+
+
+  whatsappLink(
+    customer:
+      CustomerItem
+  ): string {
+    const digits =
+      String(customer.mobile || '')
+        .replace(/\D/g, '');
+
+    return digits
+      ? `https://wa.me/${digits}`
+      : '';
+  }
+
+
+  hasMobile(
+    customer:
+      CustomerItem
+  ): boolean {
+    return !!String(customer.mobile || '').trim();
   }
 
 
@@ -869,75 +658,44 @@ export class CustomersPage
     customer:
       CustomerItem
   ): void {
-
-    if (
-      this.deletingId()
-    ) {
+    if (this.deletingId()) {
       return;
     }
 
     const name =
-      this.displayName(
-        customer
-      );
+      this.displayName(customer);
 
-    const confirmed =
-      window.confirm(
-        `Delete ${name}?`
-      );
+    this.confirmDialog.confirm({
+      title: 'Delete customer?',
+      subtitle: `Are you sure you want to delete ${name}? This action cannot be undone.`,
+      type: 'danger',
+      icon: 'delete',
+      showCancel: true,
+      successButtonName: 'Delete',
+      cancelButtonName: 'Cancel',
+      success: () => this.performDelete(customer)
+    });
+  }
 
-    if (!confirmed) {
-      return;
-    }
 
-    if (
-      this.usingDemoData() ||
-      customer.id
-        .startsWith(
-          'demo-'
-        )
-    ) {
-      this.customers.update(
-        current =>
-          current.filter(
-            item =>
-              item.id !==
-              customer.id
-          )
-      );
-
-      this.rebuildDemoCounts();
-
-      return;
-    }
-
-    this.deletingId.set(
-      customer.id
-    );
+  private performDelete(
+    customer:
+      CustomerItem
+  ): void {
+    this.deletingId.set(customer.id);
 
     this.customerApi
-      .delete(
-        customer.id
-      )
+      .delete(customer.id)
       .pipe(
         finalize(() => {
-          this.deletingId.set(
-            null
-          );
+          this.deletingId.set(null);
         })
       )
       .subscribe({
-        next: () => {
-          this.loadFirstPage();
-        },
-
+        next: () => this.loadFirstPage(),
         error: error => {
-          console.error(
-            'Delete customer failed:',
-            error
-          );
-
-          window.alert(
+          console.error('Delete customer failed:', error);
+          this.apiError.set(
             error?.error?.message ||
             'Could not delete customer.'
           );
@@ -1030,6 +788,60 @@ export class CustomersPage
   }
 
 
+  customerTypeLabel(
+    type: CustomerType
+  ): string {
+    const value = String(type ?? '').trim();
+
+    const labels: Record<string, string> = {
+      new: 'New',
+      New: 'New',
+      regular: 'Regular',
+      Regular: 'Regular',
+      vip: 'VIP',
+      VIP: 'VIP',
+      interested: 'Interested',
+      Interested: 'Interested',
+      followup: 'Followup',
+      Followup: 'Followup',
+      converted: 'Converted',
+      Converted: 'Converted'
+    };
+
+    return labels[value] || value;
+  }
+
+
+  private normalizeCustomerType(
+    value: unknown
+  ): CustomerType {
+    const raw = String(value ?? '').trim().toLowerCase();
+
+    const map: Record<string, CustomerType> = {
+      new: CustomerTypeEnum.New,
+      regular: CustomerTypeEnum.Regular,
+      vip: CustomerTypeEnum.VIP,
+      interested: CustomerTypeEnum.Interested,
+      followup: CustomerTypeEnum.Followup,
+      converted: CustomerTypeEnum.Converted
+    };
+
+    return map[raw] ?? CustomerTypeEnum.New;
+  }
+
+
+  private normalizeCustomer(
+    customer: CustomerItem
+  ): CustomerItem {
+    return {
+      ...customer,
+      customerType: this.normalizeCustomerType(
+        customer.customerType
+      )
+    };
+  }
+
+
   sourceIcon(
     source:
       CustomerSource
@@ -1059,208 +871,147 @@ export class CustomersPage
       CustomerType
   ): string {
 
-    const map:
-      Record<
-        CustomerType,
-        string
-      > =
-    {
-      New: 'person_add',
-      Regular: 'repeat',
-      VIP: 'workspace_premium',
-      Interested: 'favorite',
-      Followup: 'schedule',
-      Converted: 'verified'
+    const map: Record<string, string> = {
+      new: 'person_add',
+      regular: 'repeat',
+      vip: 'workspace_premium',
+      interested: 'favorite',
+      followup: 'schedule',
+      converted: 'verified'
     };
 
-    return map[type];
+    return (
+      map[String(type ?? '').trim().toLowerCase()] ||
+      'person'
+    );
   }
-
-
-  private loadDemoData():
-    void {
-
-    this.usingDemoData.set(
-      true
-    );
-
-    const type =
-      this.selectedType();
-
-    const source =
-      this.selectedSource();
-
-    const search =
-      this.searchTerm()
-        .trim()
-        .toLowerCase();
-
-    let items =
-      [...this.demoCustomers];
-
-    if (type) {
-      items =
-        items.filter(
-          item =>
-            item.customerType ===
-            type
-        );
-    }
-
-    if (source) {
-      items =
-        items.filter(
-          item =>
-            item.source ===
-            source
-        );
-    }
-
-    if (search) {
-      items =
-        items.filter(
-          item =>
-            [
-              this.displayName(
-                item
-              ),
-              item.mobile,
-              item.email,
-              item.source,
-              item.customerType
-            ]
-              .join(' ')
-              .toLowerCase()
-              .includes(
-                search
-              )
-        );
-    }
-
-    items.sort(
-      (
-        left,
-        right
-      ) => {
-
-        if (
-          this.sortMode() ===
-          'name_asc'
-        ) {
-          return this
-            .displayName(left)
-            .localeCompare(
-              this.displayName(
-                right
-              )
-            );
-        }
-
-        if (
-          this.sortMode() ===
-          'name_desc'
-        ) {
-          return this
-            .displayName(right)
-            .localeCompare(
-              this.displayName(
-                left
-              )
-            );
-        }
-
-        const leftTime =
-          new Date(
-            left.createdAt
-          ).getTime();
-
-        const rightTime =
-          new Date(
-            right.createdAt
-          ).getTime();
-
-        return (
-          this.sortMode() ===
-          'oldest'
-        )
-          ? leftTime -
-          rightTime
-          : rightTime -
-          leftTime;
-      }
-    );
-
-    this.customers.set(
-      items
-    );
-
-    this.hasMore.set(
-      false
-    );
-
-    this.rebuildDemoCounts();
-  }
-
-
-  private rebuildDemoCounts():
-    void {
-
-    const items =
-      this.demoCustomers;
-
-    const count =
-      (
-        type:
-          CustomerType
-      ) =>
-        items.filter(
-          item =>
-            item.customerType ===
-            type
-        ).length;
-
-    this.countData.set({
-      total:
-        items.length,
-
-      new:
-        count('New'),
-
-      regular:
-        count('Regular'),
-
-      vip:
-        count('VIP'),
-
-      interested:
-        count('Interested'),
-
-      followup:
-        count('Followup'),
-
-      converted:
-        count('Converted')
-    });
-  }
-
-
 
 
   addManual(): void {
     this.closeAddMenu();
-
+    this.viewingCustomer.set(null);
+    this.contactOpenId.set(null);
+    this.editingCustomer.set(null);
     this.manualFormOpen.set(true);
   }
+  loadMore(): void {
+    if (
+      this.loading() ||
+      this.loadingMore() ||
+      !this.hasMore()
+    ) {
+      return;
+    }
 
+    const accountId = this.accountId;
+
+    if (
+      accountId === null ||
+      accountId === undefined ||
+      accountId === ''
+    ) {
+      return;
+    }
+
+    const nextPage = this.page() + 1;
+
+    this.loadingMore.set(true);
+
+    this.customerApi
+      .list({
+        accountId,
+        page: nextPage,
+        limit: this.pageSize,
+        search: this.searchTerm(),
+        type: this.selectedType(),
+        source: this.selectedSource(),
+        sort: this.sortMode()
+      })
+      .pipe(
+        finalize(() => {
+          this.loadingMore.set(false);
+        })
+      )
+      .subscribe({
+        next: response => {
+          const incoming = Array.isArray(response.items)
+            ? response.items
+            : [];
+
+          this.customers.update(current => [
+            ...current,
+            ...incoming
+          ]);
+
+          this.page.set(nextPage);
+
+          this.hasMore.set(
+            !!response.meta?.hasMore
+          );
+
+          this.countData.set(
+            response.counts
+          );
+        },
+
+        error: error => {
+          console.error(
+            'Could not load more customers:',
+            error
+          );
+
+          this.apiError.set(
+            error?.error?.message ||
+            'Could not load more customers.'
+          );
+        }
+      });
+  }
+
+
+  onResultsScroll(event: Event): void {
+    const target = event.currentTarget as HTMLElement;
+
+    if (!target) {
+      return;
+    }
+
+    const remaining =
+      target.scrollHeight -
+      target.scrollTop -
+      target.clientHeight;
+
+    if (remaining <= 220) {
+      this.loadMore();
+    }
+  }
+
+
+  onSearchChange(value: string): void {
+    this.searchTerm.set(
+      String(value || '')
+    );
+
+    if (this.searchTimer) {
+      clearTimeout(this.searchTimer);
+    }
+
+    this.searchTimer = setTimeout(() => {
+      this.loadFirstPage();
+    }, 350);
+  }
 
   closeManualForm(): void {
     this.manualFormOpen.set(false);
+    this.editingCustomer.set(null);
   }
 
 
-  onManualCustomerCreated(): void {
+  onManualCustomerSaved(
+    customer: CustomerItem
+  ): void {
     this.manualFormOpen.set(false);
-
+    this.editingCustomer.set(null);
     this.loadFirstPage();
   }
 }

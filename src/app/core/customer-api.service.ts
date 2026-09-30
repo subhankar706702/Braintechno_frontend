@@ -16,13 +16,9 @@ import {
 } from './api.config';
 
 
-export type CustomerType =
-  | 'New'
-  | 'Regular'
-  | 'VIP'
-  | 'Interested'
-  | 'Followup'
-  | 'Converted';
+import { CustomerType } from '../shared/enums/customer-type.enum';
+
+export { CustomerType };
 
 export type CustomerSource =
   | 'Facebook'
@@ -175,6 +171,18 @@ export class CustomerApiService {
 
     return this.http.post<CustomerItem>(
       `${API_BASE_URL}/customers`,
+      payload
+    );
+  }
+
+
+  update(
+    id: string,
+    payload: Partial<CreateCustomerPayload>
+  ): Observable<CustomerItem> {
+
+    return this.http.patch<CustomerItem>(
+      `${API_BASE_URL}/customers/${id}`,
       payload
     );
   }

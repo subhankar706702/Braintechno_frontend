@@ -1,342 +1,299 @@
 @if (open) {
 
-  <div
-    class="manual-customer-overlay"
-    (click)="close()"
-  >
+<div class="manual-customer-overlay" (click)="close()">
 
-    <section
-      class="manual-customer-dialog"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="manual-customer-title"
-      (click)="$event.stopPropagation()"
-    >
+  <section class="manual-customer-dialog" role="dialog" aria-modal="true" aria-labelledby="manual-customer-title"
+    (click)="$event.stopPropagation()">
 
-      <!-- HEADER -->
+    <!-- HEADER -->
 
-      <header class="manual-customer-dialog__header">
+    <header class="manual-customer-dialog__header">
 
-        <div class="manual-customer-dialog__heading">
+      <div class="manual-customer-dialog__heading">
 
-          <span class="manual-customer-dialog__icon">
-            <mat-icon>
-              person_add
-            </mat-icon>
+        <span class="manual-customer-dialog__icon">
+          <mat-icon>
+            {{ isEditMode ? 'edit' : 'person_add' }}
+          </mat-icon>
+        </span>
+
+        <div>
+          <span class="manual-customer-dialog__eyebrow">
+            Customer management
           </span>
 
-          <div>
-            <span class="manual-customer-dialog__eyebrow">
-              Customer management
+          <h2 id="manual-customer-title">
+            {{ isEditMode ? 'Edit Customer' : 'Add Customer' }}
+          </h2>
+
+          <p>
+            {{ isEditMode ? 'Update the customer profile and save the latest details.' : 'Create a customer profile
+            manually.' }}
+          </p>
+        </div>
+
+      </div>
+
+
+      <button type="button" class="manual-customer-dialog__close" aria-label="Close" [disabled]="submitting()"
+        (click)="close()">
+        <mat-icon>
+          close
+        </mat-icon>
+      </button>
+
+    </header>
+
+
+    <!-- CONTENT -->
+
+    <div class="manual-customer-dialog__content">
+
+      @if (error()) {
+
+      <div class="form-message form-message--error">
+        <mat-icon>
+          error
+        </mat-icon>
+
+        <span>
+          {{ error() }}
+        </span>
+      </div>
+
+      }
+
+
+      @if (success()) {
+
+      <div class="form-message form-message--success">
+        <mat-icon>
+          check_circle
+        </mat-icon>
+
+        <span>
+          {{ success() }}
+        </span>
+      </div>
+
+      }
+
+
+      <form class="manual-customer-form" (ngSubmit)="submit()">
+
+        <!-- NAME -->
+
+        <label class="form-field">
+
+          <span class="form-field__label">
+            Customer name
+          </span>
+
+          <div class="input-control">
+
+            <mat-icon>
+              person
+            </mat-icon>
+
+            <input type="text" name="name" [(ngModel)]="name" placeholder="Enter customer name"
+              [disabled]="submitting()" />
+
+          </div>
+
+        </label>
+
+
+        <!-- MOBILE -->
+
+        <label class="form-field">
+
+          <span class="form-field__label">
+            Mobile number
+          </span>
+
+          <div class="input-control">
+
+            <mat-icon>
+              call
+            </mat-icon>
+
+            <input type="tel" name="mobile" [(ngModel)]="mobile" placeholder="+91 98765 43210"
+              [disabled]="submitting()" />
+
+          </div>
+
+        </label>
+
+
+        <!-- EMAIL -->
+
+        <label class="form-field form-field--wide">
+
+          <span class="form-field__label">
+            Email address
+          </span>
+
+          <div class="input-control">
+
+            <mat-icon>
+              mail
+            </mat-icon>
+
+            <input type="email" name="email" [(ngModel)]="email" placeholder="customer@example.com"
+              [disabled]="submitting()" />
+
+          </div>
+
+        </label>
+
+
+        <!-- TYPE -->
+
+        <label class="form-field">
+
+          <span class="form-field__label">
+            Customer type
+          </span>
+
+          <div class="native-select-control">
+            <mat-icon>badge</mat-icon>
+
+            <select name="customerType" [(ngModel)]="customerType" [disabled]="submitting()" aria-label="Customer type">
+              @for (type of customerTypes; track type) {
+              <option [ngValue]="type">
+                {{ type }}
+              </option>
+              }
+            </select>
+
+            <mat-icon class="native-select-arrow">
+              expand_more
+            </mat-icon>
+          </div>
+
+        </label>
+
+
+        <!-- SOURCE -->
+
+        <label class="form-field">
+
+          <span class="form-field__label">
+            Source
+          </span>
+
+          <div class="native-select-control native-select-control--disabled">
+            <mat-icon>hub</mat-icon>
+
+            <select name="source" [(ngModel)]="source" disabled aria-label="Customer source">
+              <option [ngValue]="source">
+                {{ source }}
+              </option>
+            </select>
+
+            <mat-icon class="native-select-arrow">
+              expand_more
+            </mat-icon>
+
+            <span class="native-select-control__hint">
+              Source is automatic for this form
             </span>
+          </div>
 
-            <h2 id="manual-customer-title">
-              Add Customer
-            </h2>
+        </label>
 
-            <p>
-              Create a customer profile manually.
-            </p>
+
+        <!-- PROFILE IMAGE -->
+
+        <div class="form-field form-field--wide">
+
+          <span class="form-field__label">
+            Profile image
+            <small>
+              Optional
+            </small>
+          </span>
+
+          <div class="customer-image-picker">
+
+            <div class="customer-image-picker__preview">
+              @if (image) {
+              <img [src]="image" alt="Customer profile" />
+              } @else {
+              <mat-icon>person</mat-icon>
+              }
+            </div>
+
+            <div class="customer-image-picker__content">
+              <strong>Choose customer image</strong>
+              <span>Upload a new image or select one from your media library.</span>
+
+              <button type="button" class="secondary-button customer-image-picker__button" [disabled]="submitting()"
+                (click)="openImagePicker()">
+                <mat-icon>photo_library</mat-icon>
+                <span>{{ image ? 'Change image' : 'Choose / Upload' }}</span>
+              </button>
+
+              @if (image) {
+              <button type="button" class="customer-image-picker__remove" [disabled]="submitting()"
+                (click)="image = ''">
+                Remove image
+              </button>
+              }
+            </div>
+
           </div>
 
         </div>
 
 
-        <button
-          type="button"
-          class="manual-customer-dialog__close"
-          aria-label="Close"
-          [disabled]="submitting()"
-          (click)="close()"
-        >
-          <mat-icon>
-            close
-          </mat-icon>
-        </button>
+        <!-- FOOTER -->
 
-      </header>
+        <div class="manual-customer-form__footer">
+
+          <button type="button" class="secondary-button" [disabled]="submitting()" (click)="close()">
+            Cancel
+          </button>
 
 
-      <!-- CONTENT -->
+          <button type="submit" class="primary-button" [disabled]="submitting()">
 
-      <div class="manual-customer-dialog__content">
+            @if (submitting()) {
 
-        @if (error()) {
+            <span class="button-spinner"></span>
 
-          <div class="form-message form-message--error">
+            <span>
+              {{ isEditMode ? 'Saving...' : 'Adding...' }}
+            </span>
+
+            } @else {
+
             <mat-icon>
-              error
+              {{ isEditMode ? 'save' : 'person_add' }}
             </mat-icon>
 
             <span>
-              {{ error() }}
-            </span>
-          </div>
-
-        }
-
-
-        @if (success()) {
-
-          <div class="form-message form-message--success">
-            <mat-icon>
-              check_circle
-            </mat-icon>
-
-            <span>
-              {{ success() }}
-            </span>
-          </div>
-
-        }
-
-
-        <form
-          class="manual-customer-form"
-          (ngSubmit)="submit()"
-        >
-
-          <!-- NAME -->
-
-          <label class="form-field">
-
-            <span class="form-field__label">
-              Customer name
+              {{ isEditMode ? 'Save changes' : 'Add Customer' }}
             </span>
 
-            <div class="input-control">
+            }
 
-              <mat-icon>
-                person
-              </mat-icon>
+          </button>
 
-              <input
-                type="text"
-                name="name"
-                [(ngModel)]="name"
-                placeholder="Enter customer name"
-                [disabled]="submitting()"
-              />
+        </div>
 
-            </div>
+      </form>
 
-          </label>
+    </div>
 
+  </section>
 
-          <!-- MOBILE -->
+</div>
 
-          <label class="form-field">
+}
 
-            <span class="form-field__label">
-              Mobile number
-            </span>
 
-            <div class="input-control">
-
-              <mat-icon>
-                call
-              </mat-icon>
-
-              <input
-                type="tel"
-                name="mobile"
-                [(ngModel)]="mobile"
-                placeholder="+91 98765 43210"
-                [disabled]="submitting()"
-              />
-
-            </div>
-
-          </label>
-
-
-          <!-- EMAIL -->
-
-          <label class="form-field form-field--wide">
-
-            <span class="form-field__label">
-              Email address
-            </span>
-
-            <div class="input-control">
-
-              <mat-icon>
-                mail
-              </mat-icon>
-
-              <input
-                type="email"
-                name="email"
-                [(ngModel)]="email"
-                placeholder="customer@example.com"
-                [disabled]="submitting()"
-              />
-
-            </div>
-
-          </label>
-
-
-          <!-- TYPE -->
-
-          <label class="form-field">
-
-            <span class="form-field__label">
-              Customer type
-            </span>
-
-            <div class="select-control">
-
-              <mat-icon>
-                badge
-              </mat-icon>
-
-              <select
-                name="customerType"
-                [(ngModel)]="customerType"
-                [disabled]="submitting()"
-              >
-                @for (
-                  type of customerTypes;
-                  track type
-                ) {
-                  <option
-                    [value]="type"
-                  >
-                    {{ type }}
-                  </option>
-                }
-              </select>
-
-              <mat-icon class="select-control__chevron">
-                expand_more
-              </mat-icon>
-
-            </div>
-
-          </label>
-
-
-          <!-- SOURCE -->
-
-          <label class="form-field">
-
-            <span class="form-field__label">
-              Source
-            </span>
-
-            <div class="select-control">
-
-              <mat-icon>
-                hub
-              </mat-icon>
-
-              <select
-                name="source"
-                [(ngModel)]="source"
-                [disabled]="submitting()"
-              >
-                @for (
-                  item of customerSources;
-                  track item
-                ) {
-                  <option
-                    [value]="item"
-                  >
-                    {{ item }}
-                  </option>
-                }
-              </select>
-
-              <mat-icon class="select-control__chevron">
-                expand_more
-              </mat-icon>
-
-            </div>
-
-          </label>
-
-
-          <!-- IMAGE -->
-
-          <label class="form-field form-field--wide">
-
-            <span class="form-field__label">
-              Profile image URL
-              <small>
-                Optional
-              </small>
-            </span>
-
-            <div class="input-control">
-
-              <mat-icon>
-                image
-              </mat-icon>
-
-              <input
-                type="url"
-                name="image"
-                [(ngModel)]="image"
-                placeholder="https://example.com/customer.jpg"
-                [disabled]="submitting()"
-              />
-
-            </div>
-
-          </label>
-
-
-          <!-- FOOTER -->
-
-          <div class="manual-customer-form__footer">
-
-            <button
-              type="button"
-              class="secondary-button"
-              [disabled]="submitting()"
-              (click)="close()"
-            >
-              Cancel
-            </button>
-
-
-            <button
-              type="submit"
-              class="primary-button"
-              [disabled]="submitting()"
-            >
-
-              @if (submitting()) {
-
-                <span class="button-spinner"></span>
-
-                <span>
-                  Adding...
-                </span>
-
-              } @else {
-
-                <mat-icon>
-                  person_add
-                </mat-icon>
-
-                <span>
-                  Add Customer
-                </span>
-
-              }
-
-            </button>
-
-          </div>
-
-        </form>
-
-      </div>
-
-    </section>
-
-  </div>
-
+@if (mediaPickerOpen) {
+<app-media-picker [open]="mediaPickerOpen" [multiple]="false" title="Choose customer image"
+  (closed)="closeImagePicker()" (selected)="onImageSelected($event)" />
 }

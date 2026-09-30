@@ -51,7 +51,7 @@
 
           <button
             type="button"
-            (click)="addManual()"
+            (click)="$event.stopPropagation(); addManual()"
           >
             <span class="add-customer-menu__icon add-customer-menu__icon--manual">
               <mat-icon>
@@ -121,6 +121,17 @@
     </div>
 
   </header>
+
+
+  <button
+    type="button"
+    class="customer-mobile-fab"
+    aria-label="Add customer"
+    title="Add customer"
+    (click)="addManual()"
+  >
+    <mat-icon>person_add</mat-icon>
+  </button>
 
 
   <section class="customer-stats">
@@ -378,23 +389,9 @@
 
   @if (apiError()) {
 
-    <div
-      class="api-note"
-      [class.api-note--demo]="
-        usingDemoData()
-      "
-    >
-      <mat-icon>
-        {{
-          usingDemoData()
-            ? 'info'
-            : 'error'
-        }}
-      </mat-icon>
-
-      <span>
-        {{ apiError() }}
-      </span>
+    <div class="api-note">
+      <mat-icon>error</mat-icon>
+      <span>{{ apiError() }}</span>
     </div>
 
   }
@@ -467,54 +464,65 @@
               <div class="customer-card__top">
 
                 <div class="customer-avatar-wrap">
-
                   <img
                     [src]="customerImage(customer)"
                     [alt]="displayName(customer)"
-                    (error)="
-                      onCustomerImageError($event)
-                    "
+                    (error)="onCustomerImageError($event)"
                   />
 
                   <span
                     class="customer-avatar-status"
                     aria-hidden="true"
                   ></span>
-
                 </div>
 
-
                 <div class="customer-card__identity">
+                  <div class="customer-card__name-row">
+                    <h2 [title]="displayName(customer)">
+                      {{ displayName(customer) }}
+                    </h2>
 
-                  <h2
-                    [title]="
-                      displayName(customer)
-                    "
-                  >
-                    {{
-                      displayName(customer)
-                    }}
-                  </h2>
+                    <button
+                      type="button"
+                      class="customer-icon-button customer-icon-button--danger"
+                      title="Delete customer"
+                      [disabled]="deletingId() === customer.id"
+                      (click)="deleteCustomer(customer)"
+                    >
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </div>
 
-                  <span
-                    class="customer-type"
-                    [attr.data-type]="
-                      customer.customerType
-                    "
-                  >
-                    <mat-icon>
-                      {{
-                        typeIcon(
-                          customer.customerType
-                        )
-                      }}
-                    </mat-icon>
+                  <div class="customer-card__type-row">
+                    <label
+                      class="customer-type-select"
+                      [attr.data-type]="customer.customerType"
+                      title="Change customer type"
+                      (click)="$event.stopPropagation()"
+                    >
+                      <mat-icon>{{ typeIcon(customer.customerType) }}</mat-icon>
+                      <select
+                        class="customer-type-native-select"
+                        [ngModel]="customer.customerType"
+                        [disabled]="updatingTypeId() === customer.id"
+                        [attr.aria-label]="'Customer type for ' + displayName(customer)"
+                        (ngModelChange)="updateCustomerType(customer, $event)"
+                        (click)="$event.stopPropagation()"
+                      >
+                        @for (type of customerTypes; track type) {
+                          <option [ngValue]="type">
+                            {{ customerTypeLabel(type) }}
+                          </option>
+                        }
+                      </select>
+                      <mat-icon class="customer-type-arrow">expand_more</mat-icon>
+                    </label>
 
-                    {{
-                      customer.customerType
-                    }}
-                  </span>
-
+                    <span class="customer-card__source">
+                      <mat-icon>{{ sourceIcon(customer.source) }}</mat-icon>
+                      {{ customer.source }}
+                    </span>
+                  </div>
                 </div>
 
               </div>
@@ -552,97 +560,80 @@
 
 
               <div class="customer-card__meta">
-
-                <span class="source-chip">
-                  <mat-icon>
-                    {{
-                      sourceIcon(
-                        customer.source
-                      )
-                    }}
-                  </mat-icon>
-
-                  <span>
-                    Source
-                  </span>
-
-                  <strong>
-                    {{ customer.source }}
-                  </strong>
+                <span class="customer-card__meta-item">
+                  <mat-icon>schedule</mat-icon>
+                  <span>Last contact</span>
+                  <strong>{{ lastContactLabel(customer) }}</strong>
                 </span>
 
-                <span class="last-contact">
-                  <span>
-                    Last contact
-                  </span>
-
-                  <strong>
-                    {{
-                      lastContactLabel(
-                        customer
-                      )
-                    }}
-                  </strong>
+                <span class="customer-card__meta-item customer-card__meta-item--right">
+                  <mat-icon>event</mat-icon>
+                  <span>Added</span>
+                  <strong>{{ customer.createdAt | date:'dd MMM yyyy' }}</strong>
                 </span>
-
               </div>
 
 
               <div class="customer-card__actions">
-
                 <button
                   type="button"
                   class="customer-action"
-                  (click)="
-                    viewCustomer(customer)
-                  "
+                  (click)="viewCustomer(customer)"
                 >
-                  <mat-icon>
-                    visibility
-                  </mat-icon>
-
-                  <span>
-                    View
-                  </span>
+                  <mat-icon>visibility</mat-icon>
+                  <span>View</span>
                 </button>
 
                 <button
                   type="button"
                   class="customer-action"
-                  (click)="
-                    messageCustomer(customer)
-                  "
+                  (click)="editCustomer(customer)"
                 >
-                  <mat-icon>
-                    chat
-                  </mat-icon>
-
-                  <span>
-                    Message
-                  </span>
+                  <mat-icon>edit</mat-icon>
+                  <span>Edit</span>
                 </button>
 
                 <button
                   type="button"
-                  class="customer-action customer-action--danger"
-                  [disabled]="
-                    deletingId() ===
-                    customer.id
-                  "
-                  (click)="
-                    deleteCustomer(customer)
-                  "
+                  class="customer-action customer-action--contact"
+                  (click)="toggleContact(customer)"
                 >
-                  <mat-icon>
-                    delete
-                  </mat-icon>
-
-                  <span>
-                    Delete
-                  </span>
+                  <mat-icon>contact_phone</mat-icon>
+                  <span>Contact</span>
                 </button>
-
               </div>
+
+              @if (contactOpenId() === customer.id) {
+                <div class="customer-contact-panel">
+                  <span>Contact {{ displayName(customer) }}</span>
+
+                  <div class="customer-contact-panel__actions">
+                    @if (hasMobile(customer)) {
+                      <a
+                        class="contact-link contact-link--call"
+                        [href]="phoneLink(customer)"
+                      >
+                        <mat-icon>call</mat-icon>
+                        <span>Call</span>
+                      </a>
+
+                      <a
+                        class="contact-link contact-link--whatsapp"
+                        [href]="whatsappLink(customer)"
+                        target="_blank"
+                        rel="noopener"
+                      >
+                        <mat-icon>chat</mat-icon>
+                        <span>WhatsApp</span>
+                      </a>
+                    } @else {
+                      <span class="contact-link contact-link--disabled">
+                        No mobile number
+                      </span>
+                    }
+                  </div>
+                </div>
+              }
 
             </article>
 
@@ -704,24 +695,28 @@
 
 
               <div class="customer-list-row__type">
-                <span
-                  class="customer-type"
-                  [attr.data-type]="
-                    customer.customerType
-                  "
+                <label
+                  class="customer-type-select customer-type-select--list"
+                  [attr.data-type]="customer.customerType"
+                  (click)="$event.stopPropagation()"
                 >
-                  <mat-icon>
-                    {{
-                      typeIcon(
-                        customer.customerType
-                      )
-                    }}
-                  </mat-icon>
-
-                  {{
-                    customer.customerType
-                  }}
-                </span>
+                  <mat-icon>{{ typeIcon(customer.customerType) }}</mat-icon>
+                  <select
+                    class="customer-type-native-select"
+                    [ngModel]="customer.customerType"
+                    [disabled]="updatingTypeId() === customer.id"
+                    [attr.aria-label]="'Customer type for ' + displayName(customer)"
+                    (ngModelChange)="updateCustomerType(customer, $event)"
+                    (click)="$event.stopPropagation()"
+                  >
+                    @for (type of customerTypes; track type) {
+                      <option [ngValue]="type">
+                        {{ customerTypeLabel(type) }}
+                      </option>
+                    }
+                  </select>
+                  <mat-icon class="customer-type-arrow">expand_more</mat-icon>
+                </label>
               </div>
 
 
@@ -745,49 +740,43 @@
 
 
               <div class="customer-list-row__actions">
-
-                <button
-                  type="button"
-                  title="View"
-                  (click)="
-                    viewCustomer(customer)
-                  "
-                >
-                  <mat-icon>
-                    visibility
-                  </mat-icon>
+                <button type="button" title="View" (click)="viewCustomer(customer)">
+                  <mat-icon>visibility</mat-icon>
                 </button>
 
-                <button
-                  type="button"
-                  title="Message"
-                  (click)="
-                    messageCustomer(customer)
-                  "
-                >
-                  <mat-icon>
-                    chat
-                  </mat-icon>
+                <button type="button" title="Edit" (click)="editCustomer(customer)">
+                  <mat-icon>edit</mat-icon>
+                </button>
+
+                <button type="button" title="Contact" (click)="toggleContact(customer)">
+                  <mat-icon>contact_phone</mat-icon>
                 </button>
 
                 <button
                   type="button"
                   class="danger"
                   title="Delete"
-                  [disabled]="
-                    deletingId() ===
-                    customer.id
-                  "
-                  (click)="
-                    deleteCustomer(customer)
-                  "
+                  [disabled]="deletingId() === customer.id"
+                  (click)="deleteCustomer(customer)"
                 >
-                  <mat-icon>
-                    delete
-                  </mat-icon>
+                  <mat-icon>delete</mat-icon>
                 </button>
-
               </div>
+
+              @if (contactOpenId() === customer.id) {
+                <div class="customer-list-contact">
+                  @if (hasMobile(customer)) {
+                    <a [href]="phoneLink(customer)">
+                      <mat-icon>call</mat-icon> Call
+                    </a>
+                    <a [href]="whatsappLink(customer)" target="_blank" rel="noopener">
+                      <mat-icon>chat</mat-icon> WhatsApp
+                    </a>
+                  } @else {
+                    <span>No mobile number</span>
+                  }
+                </div>
+              }
 
             </article>
 
@@ -811,7 +800,7 @@
         </div>
 
       } @else if (
-        !usingDemoData() &&
+        
         hasMore()
       ) {
 
@@ -846,10 +835,82 @@
 </section>
 
 
+@if (viewingCustomer(); as customer) {
+  <div class="customer-view-overlay" (click)="closeCustomerView()">
+    <section
+      class="customer-view-dialog"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="customer-view-title"
+      (click)="$event.stopPropagation()"
+    >
+      <header class="customer-view-dialog__header">
+        <div class="customer-view-dialog__heading">
+          <div class="customer-view-dialog__avatar">
+            <img
+              [src]="customerImage(customer)"
+              [alt]="displayName(customer)"
+              (error)="onCustomerImageError($event)"
+            />
+          </div>
+          <div>
+            <span>Customer profile</span>
+            <h2 id="customer-view-title">{{ displayName(customer) }}</h2>
+            <small>{{ customer.customerType }} · {{ customer.source }}</small>
+          </div>
+        </div>
+
+        <button type="button" class="customer-view-dialog__close" (click)="closeCustomerView()" aria-label="Close">
+          <mat-icon>close</mat-icon>
+        </button>
+      </header>
+
+      <div class="customer-view-dialog__content">
+        <div class="customer-view-grid">
+          <div class="customer-view-item">
+            <span>Mobile number</span>
+            <strong>{{ customer.mobile || 'Not provided' }}</strong>
+          </div>
+          <div class="customer-view-item">
+            <span>Email address</span>
+            <strong>{{ customer.email || 'Not provided' }}</strong>
+          </div>
+          <div class="customer-view-item">
+            <span>Last contact</span>
+            <strong>{{ lastContactLabel(customer) }}</strong>
+          </div>
+          <div class="customer-view-item">
+            <span>Added on</span>
+            <strong>{{ customer.createdAt | date:'dd MMM yyyy, hh:mm a' }}</strong>
+          </div>
+        </div>
+      </div>
+
+      <footer class="customer-view-dialog__footer">
+        @if (hasMobile(customer)) {
+          <a class="view-contact-button view-contact-button--call" [href]="phoneLink(customer)">
+            <mat-icon>call</mat-icon> Call
+          </a>
+          <a class="view-contact-button view-contact-button--whatsapp" [href]="whatsappLink(customer)" target="_blank" rel="noopener">
+            <mat-icon>chat</mat-icon> WhatsApp
+          </a>
+        }
+        <button type="button" class="view-contact-button view-contact-button--edit" (click)="editCustomer(customer)">
+          <mat-icon>edit</mat-icon> Edit
+        </button>
+        <button type="button" class="view-contact-button view-contact-button--close" (click)="closeCustomerView()">
+          Close
+        </button>
+      </footer>
+    </section>
+  </div>
+}
+
 
 <app-customer-manual-form
   [open]="manualFormOpen()"
   [accountId]="accountId || ''"
+  [customer]="editingCustomer()"
   (closed)="closeManualForm()"
-  (created)="onManualCustomerCreated()"
+  (saved)="onManualCustomerSaved($event)"
 ></app-customer-manual-form>

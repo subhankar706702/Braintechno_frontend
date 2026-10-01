@@ -16,9 +16,13 @@ import {
 } from './api.config';
 
 
-import { CustomerType } from '../shared/enums/customer-type.enum';
-
-export { CustomerType };
+export type CustomerType =
+  | 'New'
+  | 'Regular'
+  | 'VIP'
+  | 'Interested'
+  | 'Followup'
+  | 'Converted';
 
 export type CustomerSource =
   | 'Facebook'
@@ -27,7 +31,8 @@ export type CustomerSource =
   | 'Excel'
   | 'AI'
   | 'Instagram'
-  | 'Direct';
+  | 'Direct'
+  | 'Campaign';
 
 export type CustomerSort =
   | 'newest'
@@ -171,18 +176,6 @@ export class CustomerApiService {
 
     return this.http.post<CustomerItem>(
       `${API_BASE_URL}/customers`,
-      payload
-    );
-  }
-
-
-  update(
-    id: string,
-    payload: Partial<CreateCustomerPayload>
-  ): Observable<CustomerItem> {
-
-    return this.http.patch<CustomerItem>(
-      `${API_BASE_URL}/customers/${id}`,
       payload
     );
   }

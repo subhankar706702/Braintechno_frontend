@@ -26,6 +26,7 @@ export const routes: Routes = [
       { path: 'template-gallery', loadComponent: () => import('./templates/template-gallery/template-gallery.component').then(m => m.TemplateGalleryComponent) },
       { path: 'campaigns', loadComponent: () => import('./campaigns/campaigns.component').then(m => m.CampaignsComponent) },
       { path: 'customers', loadComponent: () => import('./customers/customers.page').then(m => m.CustomersPage) },
+      { path: 'messages', loadComponent: () => import('./messages/messages.page').then(m => m.MessagesPage) },
       { path: 'settings', loadComponent: () => import('./settings/settings.page').then(m => m.SettingsPage) },
       { path: '', pathMatch: 'full', redirectTo: 'dashboard' }
     ]

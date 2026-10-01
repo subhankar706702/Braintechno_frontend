@@ -1,0 +1,331 @@
+<section class="messages-page">
+  <header class="messages-page__head">
+    <div>
+      <h1>Messages</h1>
+      <p>Customer inquiries and conversations</p>
+    </div>
+
+    <div class="messages-summary-card">
+      <div class="messages-summary-card__icon">
+        <mat-icon>mail</mat-icon>
+      </div>
+      <div>
+        <span>Total Messages</span>
+        <strong>{{ total() }}</strong>
+      </div>
+      <div class="messages-summary-card__new">
+        <i></i>
+        {{ unread() }} New
+      </div>
+    </div>
+  </header>
+
+  @if (apiError()) {
+    <div class="messages-error" role="alert">
+      <mat-icon>error_outline</mat-icon>
+      <span>{{ apiError() }}</span>
+    </div>
+  }
+
+  <div class="messages-workspace">
+    <aside class="message-list-panel">
+      <div class="message-tabs" role="tablist" aria-label="Message filters">
+        @for (tab of tabs; track tab.key) {
+          <button
+            type="button"
+            [class.message-tabs__item--active]="activeTab() === tab.key"
+            class="message-tabs__item"
+            (click)="selectTab(tab.key)"
+          >
+            {{ tab.label }}
+            <span>
+              @if (tab.key === 'all') { {{ total() }} }
+              @if (tab.key === 'unread') { {{ unread() }} }
+              @if (tab.key === 'read') { {{ read() }} }
+            </span>
+          </button>
+        }
+      </div>
+
+      <div class="message-search">
+        <mat-icon>search</mat-icon>
+        <input
+          type="search"
+          placeholder="Search messages..."
+          [value]="searchTerm()"
+          (input)="onSearchInput($event)"
+          aria-label="Search messages"
+        />
+        <button type="button" aria-label="Message filters" title="Filters">
+          <mat-icon>filter_list</mat-icon>
+        </button>
+      </div>
+
+      <div class="message-thread-list">
+        @if (loading()) {
+          <div class="message-list-state">
+            <mat-icon>sync</mat-icon>
+            <span>Loading messages...</span>
+          </div>
+        } @else if (!threads().length) {
+          <div class="message-list-state message-list-state--empty">
+            <div class="message-list-state__icon">
+              <mat-icon>mail_outline</mat-icon>
+            </div>
+            <strong>No messages yet</strong>
+            <span>Customer form submissions will appear here.</span>
+          </div>
+        } @else {
+          @for (thread of threads(); track thread.customer.id) {
+            <button
+              type="button"
+              class="message-thread"
+              [class.message-thread--active]="selectedThread()?.customer.id === thread.customer.id"
+              (click)="selectThread(thread)"
+            >
+              <div class="message-avatar">
+                @if (thread.customer.image) {
+                  <img
+                    [src]="thread.customer.image"
+                    [alt]="thread.customer.name"
+                  />
+                } @else {
+                  <span>{{ initials(thread.customer) }}</span>
+                }
+              </div>
+
+              <div class="message-thread__body">
+                <div class="message-thread__topline">
+                  <strong>{{ displayName(thread.customer) }}</strong>
+                  <time>{{ messageTime(thread.latestMessage.createdAt) }}</time>
+                </div>
+
+                <p>{{ thread.latestMessage.message }}</p>
+
+                <div class="message-thread__bottomline">
+                  <span class="campaign-chip">
+                    {{ thread.campaign.name || 'Campaign' }}
+                  </span>
+
+                  @if (thread.unreadCount > 0) {
+                    <b class="unread-badge">{{ thread.unreadCount }}</b>
+                  }
+                </div>
+              </div>
+            </button>
+          }
+        }
+      </div>
+    </aside>
+
+    <section class="conversation-panel">
+      @if (selectedThread(); as thread) {
+        <header class="conversation-head">
+          <button
+            type="button"
+            class="conversation-back"
+            aria-label="Back to messages"
+            (click)="selectedThread.set(null)"
+          >
+            <mat-icon>arrow_back</mat-icon>
+          </button>
+
+          <div class="conversation-avatar">
+            @if (customer()?.image) {
+              <img [src]="customer()!.image" [alt]="displayName(customer())" />
+            } @else {
+              <span>{{ initials(customer()) }}</span>
+            }
+          </div>
+
+          <div class="conversation-head__identity">
+            <strong>{{ displayName(customer()) }}</strong>
+            <span><i></i> Active</span>
+          </div>
+
+          <div class="conversation-head__actions">
+            <button type="button" aria-label="Call customer" title="Call" (click)="callCustomer()">
+              <mat-icon>call</mat-icon>
+            </button>
+            <button type="button" aria-label="WhatsApp customer" title="WhatsApp" (click)="whatsappCustomer()">
+              <mat-icon>chat</mat-icon>
+            </button>
+            <button type="button" aria-label="More actions" title="More">
+              <mat-icon>more_vert</mat-icon>
+            </button>
+          </div>
+        </header>
+
+        <div class="conversation-body">
+          <article class="campaign-message-card">
+            <div class="campaign-message-card__visual">
+              <mat-icon>campaign</mat-icon>
+            </div>
+            <div class="campaign-message-card__copy">
+              <strong>{{ thread.campaign.name || 'Campaign' }}</strong>
+              <span>Customer inquiry from your campaign page</span>
+            </div>
+            <button type="button" (click)="openCampaign()">
+              View Campaign
+            </button>
+          </article>
+
+          @if (loadingConversation()) {
+            <div class="conversation-state">
+              <mat-icon>sync</mat-icon>
+              <span>Loading conversation...</span>
+            </div>
+          } @else {
+            <div class="conversation-messages">
+              @for (item of conversation(); track item.id) {
+                <article class="incoming-message">
+                  <div class="incoming-message__bubble">
+                    {{ item.message }}
+                  </div>
+                  <div class="incoming-message__meta">
+                    {{ messageTime(item.createdAt) }} · {{ messageDate(item.createdAt) }}
+                  </div>
+                </article>
+              }
+
+              @if (!conversation().length) {
+                <div class="conversation-state conversation-state--empty">
+                  <mat-icon>mail_outline</mat-icon>
+                  <span>No message content available.</span>
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+        <footer class="conversation-footer">
+          <div class="query-status-row">
+            <span>Query Status</span>
+            <label>
+              <mat-icon [class.status-icon--new]="latestMessage()?.queryStatus === 'New'">radio_button_checked</mat-icon>
+              <select
+                [value]="latestMessage()?.queryStatus || 'New'"
+                [disabled]="updatingStatus() || !latestMessage()"
+                (change)="updateQueryStatus($any($event.target).value)"
+                aria-label="Query status"
+              >
+                @for (status of queryStatuses; track status) {
+                  <option [value]="status">{{ status }}</option>
+                }
+              </select>
+              <mat-icon>expand_more</mat-icon>
+            </label>
+          </div>
+
+          <div class="quick-actions">
+            <button type="button" class="quick-action quick-action--call" (click)="callCustomer()">
+              <mat-icon>call</mat-icon>
+              <span>Call</span>
+            </button>
+            <button type="button" class="quick-action quick-action--whatsapp" (click)="whatsappCustomer()">
+              <mat-icon>chat</mat-icon>
+              <span>WhatsApp</span>
+            </button>
+            <button type="button" class="quick-action quick-action--sms" (click)="smsCustomer()">
+              <mat-icon>sms</mat-icon>
+              <span>SMS</span>
+            </button>
+            <button type="button" class="quick-action quick-action--email" (click)="emailCustomer()">
+              <mat-icon>mail</mat-icon>
+              <span>Email</span>
+            </button>
+          </div>
+        </footer>
+      } @else {
+        <div class="conversation-placeholder">
+          <div>
+            <mat-icon>forum</mat-icon>
+            <strong>Select a message</strong>
+            <span>Customer inquiries will open here.</span>
+          </div>
+        </div>
+      }
+    </section>
+
+    <aside class="customer-details-panel">
+      @if (customer(); as person) {
+        <section class="details-card">
+          <header class="details-card__head">
+            <strong>Customer Details</strong>
+            <button type="button" (click)="openCustomer()">View</button>
+          </header>
+
+          <div class="customer-profile">
+            <div class="customer-profile__avatar">
+              @if (person.image) {
+                <img [src]="person.image" [alt]="displayName(person)" />
+              } @else {
+                <span>{{ initials(person) }}</span>
+              }
+            </div>
+            <div>
+              <strong>{{ displayName(person) }}</strong>
+              <span>{{ customerTypeLabel(person.customerType) }}</span>
+            </div>
+          </div>
+
+          <div class="contact-details">
+            <a [href]="'tel:' + person.mobile">
+              <mat-icon>call</mat-icon>
+              <span>{{ person.mobile || 'No mobile number' }}<small>(Mobile)</small></span>
+            </a>
+
+            <a [href]="whatsappHref(person.mobile)" target="_blank" rel="noopener noreferrer">
+              <mat-icon>chat</mat-icon>
+              <span>{{ person.mobile || 'No WhatsApp number' }}<small>(WhatsApp)</small></span>
+            </a>
+
+            @if (person.email) {
+              <a [href]="'mailto:' + person.email">
+                <mat-icon>mail</mat-icon>
+                <span>{{ person.email }}<small>(Email)</small></span>
+              </a>
+            }
+          </div>
+        </section>
+
+        <section class="details-card details-card--compact">
+          <header class="details-card__title">Source &amp; Campaign</header>
+          <div class="detail-line">
+            <span>Source</span>
+            <strong>Campaign</strong>
+          </div>
+          <div class="detail-line">
+            <span>Campaign</span>
+            <strong>{{ selectedThread()?.campaign.name || 'Campaign' }}</strong>
+          </div>
+        </section>
+
+        <section class="details-card details-card--compact">
+          <header class="details-card__title">Customer Status</header>
+          <div class="customer-status-pill">
+            {{ customerTypeLabel(person.customerType) }}
+            <mat-icon>expand_more</mat-icon>
+          </div>
+        </section>
+
+        <section class="details-card details-card--compact">
+          <header class="details-card__title">Quick Actions</header>
+          <button type="button" class="detail-action" (click)="openCustomer()">
+            <mat-icon>person</mat-icon>
+            <span>View Customer</span>
+          </button>
+          <button type="button" class="detail-action" (click)="openCampaign()">
+            <mat-icon>campaign</mat-icon>
+            <span>View Campaign</span>
+          </button>
+        </section>
+      } @else {
+        <div class="details-empty">
+          <mat-icon>person_outline</mat-icon>
+          <span>Select a customer to view details.</span>
+        </div>
+      }
+    </aside>
+  </div>
+</section>

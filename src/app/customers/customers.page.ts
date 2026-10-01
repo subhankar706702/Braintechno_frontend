@@ -1265,4 +1265,8 @@ export class CustomersPage
 
     this.loadFirstPage();
   }
+
+  onManualCustomerSaved(event: CustomerItem): void {}
+  editingCustomer(a?: CustomerItem){ }
+  closeCustomerView(a: CustomerItem){}
 }

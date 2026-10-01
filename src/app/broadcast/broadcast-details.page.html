@@ -1,0 +1,47 @@
+<div class="details-page">
+  @if (error()) { <div class="alert"><mat-icon>error_outline</mat-icon>{{ error() }}</div> }
+  <button class="back" type="button" (click)="back()"><mat-icon>arrow_back</mat-icon> Broadcast</button>
+
+  @if (loading()) {
+    <div class="empty"><mat-icon>sync</mat-icon> Loading broadcast...</div>
+  } @else if (item(); as broadcast) {
+    <header class="header">
+      <div class="title-icon"><mat-icon>{{ channelIcon(broadcast.channels[0] || 'WhatsApp') }}</mat-icon></div>
+      <div><h1>{{ broadcast.name }}</h1><p>{{ formatDate(broadcast.createdAt) }}</p></div>
+      <span class="status" [attr.data-status]="broadcast.status">{{ broadcast.status }}</span>
+    </header>
+
+    <section class="metrics">
+      <article><span>Recipients</span><strong>{{ broadcast.recipientCount }}</strong></article>
+      <article><span>Sent</span><strong>{{ broadcast.sentCount }}</strong></article>
+      <article><span>Delivered</span><strong>{{ broadcast.deliveredCount }}</strong></article>
+      <article><span>Failed</span><strong>{{ broadcast.failedCount }}</strong></article>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <h2>Broadcast Details</h2>
+        <div class="row"><span>Channel</span><strong>{{ broadcast.channels.join(', ') }}</strong></div>
+        <div class="row"><span>Send Mode</span><strong>{{ broadcast.sendMode === 'now' ? 'Send Now' : 'Scheduled' }}</strong></div>
+        <div class="row"><span>Scheduled At</span><strong>{{ formatDate(broadcast.scheduledAt) }}</strong></div>
+        <div class="row"><span>Created At</span><strong>{{ formatDate(broadcast.createdAt) }}</strong></div>
+      </article>
+      <article class="card">
+        <h2>Audience</h2>
+        <div class="row"><span>Customer Group</span><strong>{{ broadcast.audience.customerType }}</strong></div>
+        <div class="row"><span>Matched</span><strong>{{ broadcast.matchedAudienceCount }}</strong></div>
+        <div class="row"><span>Eligible</span><strong>{{ broadcast.recipientCount }}</strong></div>
+        <div class="row"><span>Excluded</span><strong>{{ broadcast.excludedRecipientCount }}</strong></div>
+      </article>
+    </section>
+
+    <section class="card message-card">
+      <h2>Message</h2>
+      <div class="message">{{ broadcast.message }}</div>
+    </section>
+
+    @if (broadcast.status === 'Scheduled') {
+      <div class="actions"><button class="cancel" type="button" [disabled]="cancelling()" (click)="cancel()">{{ cancelling() ? 'Cancelling...' : 'Cancel Broadcast' }}</button></div>
+    }
+  }
+</div>

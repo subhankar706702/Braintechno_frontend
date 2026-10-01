@@ -1,0 +1,279 @@
+<div class="broadcast-page">
+
+  @if (apiError()) {
+    <div class="broadcast-error">
+      <mat-icon>error_outline</mat-icon>
+      <span>{{ apiError() }}</span>
+      <button type="button" (click)="apiError.set('')" aria-label="Close error">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+  }
+
+  <header class="broadcast-header">
+    <div class="header-copy">
+      <span class="eyebrow">Communication</span>
+      <h1>Broadcast</h1>
+      <p>Send promotional messages to your customers.</p>
+    </div>
+
+    <!-- Desktop / Tablet Create button -->
+    <div class="create-wrap desktop-create">
+      <button
+        class="primary-button"
+        type="button"
+        (click)="toggleCreateMenu()"
+        [attr.aria-expanded]="createOpen()">
+        <mat-icon>add</mat-icon>
+        <span>Create Broadcast</span>
+        <mat-icon class="button-arrow">expand_more</mat-icon>
+      </button>
+
+      @if (createOpen()) {
+        <div class="create-menu">
+          @for (item of channelMenu; track item.channel) {
+            <button type="button" (click)="openChannel(item.channel)">
+              <span class="menu-icon" [attr.data-channel]="item.channel">
+                <mat-icon>{{ item.icon }}</mat-icon>
+              </span>
+              <span>{{ item.label }}</span>
+              <mat-icon class="menu-arrow">chevron_right</mat-icon>
+            </button>
+          }
+        </div>
+      }
+    </div>
+  </header>
+
+  <!-- Available Messages -->
+  <section class="available-section">
+    <div class="available-intro">
+      <span class="available-main-icon">
+        <mat-icon>storage</mat-icon>
+      </span>
+
+      <div>
+        <h2>Available Messages</h2>
+        <p>Use your available messages to send a broadcast.</p>
+      </div>
+    </div>
+
+    <div class="available-channels">
+      @for (item of channelMenu; track item.channel) {
+        <div class="available-channel" [attr.data-channel]="item.channel">
+          <span class="channel-logo">
+            <mat-icon>{{ item.icon }}</mat-icon>
+          </span>
+
+          <div class="channel-info">
+            <strong>{{ item.channel }}</strong>
+            <span>
+              @if (walletLoading()) {
+                —
+              } @else {
+                {{ wallet()[item.channel] }}
+              }
+            </span>
+          </div>
+
+          <button class="buy-more" type="button" (click)="buyMore()">
+            Buy More
+          </button>
+        </div>
+      }
+    </div>
+  </section>
+
+  <!-- Broadcast Summary -->
+  <section class="summary-grid">
+    <article class="summary-card">
+      <span class="summary-icon">
+        <mat-icon>campaign</mat-icon>
+      </span>
+      <div>
+        <small>Total Broadcasts</small>
+        <strong>{{ summary().total }}</strong>
+      </div>
+      <mat-icon class="summary-arrow">chevron_right</mat-icon>
+    </article>
+
+    <article class="summary-card">
+      <span class="summary-icon blue">
+        <mat-icon>schedule</mat-icon>
+      </span>
+      <div>
+        <small>Scheduled</small>
+        <strong>{{ summary().scheduled }}</strong>
+      </div>
+      <mat-icon class="summary-arrow">chevron_right</mat-icon>
+    </article>
+
+    <article class="summary-card">
+      <span class="summary-icon green">
+        <mat-icon>check_circle</mat-icon>
+      </span>
+      <div>
+        <small>Sent</small>
+        <strong>{{ summary().sent }}</strong>
+      </div>
+      <mat-icon class="summary-arrow">chevron_right</mat-icon>
+    </article>
+
+    <article class="summary-card">
+      <span class="summary-icon orange">
+        <mat-icon>edit_note</mat-icon>
+      </span>
+      <div>
+        <small>Drafts</small>
+        <strong>{{ summary().drafts }}</strong>
+      </div>
+      <mat-icon class="summary-arrow">chevron_right</mat-icon>
+    </article>
+  </section>
+
+  <!-- Recent Broadcasts -->
+  <section class="section-block history-section">
+    <div class="section-heading section-heading--row">
+      <div>
+        <h2>Recent Broadcasts</h2>
+        <p>Your latest WhatsApp, SMS and Email broadcasts.</p>
+      </div>
+
+      <button
+        class="refresh-button"
+        type="button"
+        (click)="loadAll()"
+        aria-label="Refresh broadcasts">
+        <mat-icon>refresh</mat-icon>
+      </button>
+    </div>
+
+    <div class="list-card">
+      <div class="list-toolbar">
+        <label class="search-box">
+          <mat-icon>search</mat-icon>
+          <input
+            type="search"
+            placeholder="Search broadcasts..."
+            [value]="searchTerm()"
+            (input)="onSearch($event)" />
+        </label>
+      </div>
+
+      @if (loading()) {
+        <div class="empty-state">
+          <mat-icon>sync</mat-icon>
+          <span>Loading broadcasts...</span>
+        </div>
+      } @else if (!broadcasts().length) {
+        <div class="empty-state">
+          <span class="empty-icon">
+            <mat-icon>campaign</mat-icon>
+          </span>
+          <strong>No broadcasts yet</strong>
+          <span>Create your first WhatsApp, SMS or Email broadcast.</span>
+        </div>
+      } @else {
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Broadcast</th>
+                <th>Recipients</th>
+                <th>Channel</th>
+                <th>Status</th>
+                <th>Date</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              @for (item of broadcasts(); track item.id) {
+                <tr>
+                  <td>
+                    <div class="broadcast-name">
+                      <span class="row-icon">
+                        <mat-icon>{{ channelIcon(item.channels[0] || 'WhatsApp') }}</mat-icon>
+                      </span>
+
+                      <div>
+                        <strong>{{ item.name }}</strong>
+                        <small>{{ item.message }}</small>
+                      </div>
+                    </div>
+                  </td>
+
+                  <td>{{ item.recipientCount }}</td>
+
+                  <td>
+                    <div class="channel-tags">
+                      @for (channel of item.channels; track channel) {
+                        <span [attr.data-channel]="channel">
+                          <mat-icon>{{ channelIcon(channel) }}</mat-icon>
+                          {{ channel }}
+                        </span>
+                      }
+                    </div>
+                  </td>
+
+                  <td>
+                    <span class="status" [attr.data-status]="item.status">
+                      <mat-icon>{{ statusIcon(item.status) }}</mat-icon>
+                      {{ item.status }}
+                    </span>
+                  </td>
+
+                  <td>{{ formatDateTime(item.scheduledAt || item.createdAt) }}</td>
+
+                  <td class="actions-cell">
+                    <button
+                      class="row-button"
+                      type="button"
+                      (click)="viewDetails(item)">
+                      View
+                    </button>
+
+                    @if (item.status === 'Scheduled') {
+                      <button
+                        class="cancel-button"
+                        type="button"
+                        (click)="cancelBroadcast(item)">
+                        Cancel
+                      </button>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  </section>
+
+  <!-- Mobile FAB -->
+  <div class="mobile-fab-wrap">
+    @if (createOpen()) {
+      <div class="fab-menu">
+        @for (item of channelMenu; track item.channel) {
+          <button type="button" class="fab-menu-item" (click)="openChannel(item.channel)">
+            <span class="fab-menu-icon" [attr.data-channel]="item.channel">
+              <mat-icon>{{ item.icon }}</mat-icon>
+            </span>
+            <span>{{ item.label }}</span>
+          </button>
+        }
+      </div>
+    }
+
+    <button
+      class="mobile-fab"
+      type="button"
+      (click)="toggleCreateMenu()"
+      [attr.aria-expanded]="createOpen()"
+      aria-label="Create broadcast">
+      <mat-icon>{{ createOpen() ? 'close' : 'add' }}</mat-icon>
+    </button>
+  </div>
+
+</div>

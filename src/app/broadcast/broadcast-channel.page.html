@@ -1,12 +1,12 @@
 <div class="channel-page">
   @if (apiError()) {
-    <div class="alert">
-      <mat-icon>error_outline</mat-icon>
-      <span>{{ apiError() }}</span>
-      <button type="button" (click)="apiError.set('')" aria-label="Close error">
-        <mat-icon>close</mat-icon>
-      </button>
-    </div>
+  <div class="alert">
+    <mat-icon>error_outline</mat-icon>
+    <span>{{ apiError() }}</span>
+    <button type="button" (click)="apiError.set('')" aria-label="Close error">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
   }
 
   <header class="page-head">
@@ -15,61 +15,59 @@
       Broadcast
     </button>
 
-    <div class="title-row">
+    <!-- <div class="title-row">
       <span class="title-icon" [attr.data-channel]="channel">
         <mat-icon>{{ channelIcon }}</mat-icon>
       </span>
-      <div>
+      <div class="title-copy">
         <div class="eyebrow">COMMUNICATION</div>
         <h1>{{ channelTitle }}</h1>
         <p>Send a simple promotional message to your customers.</p>
       </div>
-    </div>
+      <div class="recipient-pill header-recipient-pill">
+        <mat-icon>groups</mat-icon>
+        <span>
+          @if (loadingCount()) { Checking... } @else { {{ recipientCount() }} recipients }
+        </span>
+      </div>
+    </div> -->
   </header>
 
   <main class="content">
-    <!-- Channel-specific available message -->
-    <section class="balance-bar" [attr.data-channel]="channel">
-      <div class="balance-left">
-        <span class="balance-icon"><mat-icon>{{ channelIcon }}</mat-icon></span>
-        <div>
-          <strong>Available Messages</strong>
-          <small>Use your {{ channel }} messages for this broadcast.</small>
-        </div>
-      </div>
-      <div class="balance-right">
-        <strong>{{ availableMessages }}</strong>
-        <span>messages</span>
-        <button type="button" (click)="goBack()">Buy More</button>
-      </div>
-    </section>
-
     <!-- Full-width easy form -->
     <section class="form-card">
       <div class="form-heading">
         <div>
           <span class="section-kicker">BROADCAST DETAILS</span>
-          <h2>Create your message</h2>
+          <h2>Create your {{ channelTitle }} message</h2>
           <p>Keep it simple. Choose your audience, write your message and send.</p>
         </div>
-        <div class="recipient-pill">
-          <mat-icon>groups</mat-icon>
-          <span>
-            @if (loadingCount()) { Checking... } @else { {{ recipientCount() }} recipients }
-          </span>
+        <div>
+          <div class="recipient-pill header-recipient-pill">
+            <mat-icon>groups</mat-icon>
+            <span>
+              @if (loadingCount()) {
+              Checking...
+              } @else {
+              {{ recipientCount() }} recipients
+              }
+            </span>
+          </div>
+
+          <div class="recipient-pill header-recipient-pill">
+            <mat-icon>message</mat-icon>
+            <span>
+              {{ availableMessages }} messages
+            </span>
+          </div>
         </div>
       </div>
 
       <div class="form-grid">
         <div class="field field-full">
           <label for="broadcastName">Broadcast Name <span>*</span></label>
-          <input
-            id="broadcastName"
-            class="input"
-            [(ngModel)]="form.name"
-            placeholder="e.g. Diwali Offer"
-            maxlength="120"
-          />
+          <input id="broadcastName" class="input" [(ngModel)]="form.name" placeholder="e.g. Diwali Offer"
+            maxlength="120" />
         </div>
 
         <!-- Send To -->
@@ -87,7 +85,8 @@
             <span class="send-to-icon"><mat-icon>groups</mat-icon></span>
             <span class="send-to-copy">
               <strong>{{ selectedAudienceLabel }}</strong>
-              <small>{{ selectedSourceLabel }} • {{ form.lastContact === 'any' ? 'Any time' : form.lastContact }}</small>
+              <small>{{ selectedSourceLabel }} • {{ form.lastContact === 'any' ? 'Any time' : form.lastContact
+                }}</small>
             </span>
             <span class="send-to-count">
               <strong>{{ recipientCount() }}</strong>
@@ -97,79 +96,75 @@
           </button>
 
           @if (sendToOpen()) {
-            <div class="filter-panel">
-              <div class="filter-panel-head">
-                <div>
-                  <strong>Send to</strong>
-                  <small>Choose customers and apply filters.</small>
-                </div>
-                <button type="button" class="close-filter" (click)="sendToOpen.set(false)">
-                  <mat-icon>close</mat-icon>
-                </button>
+          <div class="filter-panel">
+            <div class="filter-panel-head">
+              <div>
+                <strong>Send to</strong>
+                <small>Choose customers and apply filters.</small>
+              </div>
+              <button type="button" class="close-filter" (click)="sendToOpen.set(false)">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+
+            <div class="filter-grid">
+              <div class="filter-field">
+                <label>Customer group</label>
+                <select class="select" [(ngModel)]="form.customerType">
+                  @for (type of customerTypes; track type.value) {
+                  <option [ngValue]="type.value">{{ type.label }}</option>
+                  }
+                </select>
               </div>
 
-              <div class="filter-grid">
-                <div class="filter-field">
-                  <label>Customer group</label>
-                  <select class="select" [(ngModel)]="form.customerType">
-                    @for (type of customerTypes; track type.value) {
-                      <option [ngValue]="type.value">{{ type.label }}</option>
-                    }
-                  </select>
-                </div>
-
-                <div class="filter-field">
-                  <label>City</label>
-                  <input class="input" [(ngModel)]="form.city" placeholder="All cities" />
-                </div>
-
-                <div class="filter-field">
-                  <label>Last contact</label>
-                  <select class="select" [(ngModel)]="form.lastContact">
-                    <option value="any">Any time</option>
-                    <option value="7">Last 7 days</option>
-                    <option value="30">Last 30 days</option>
-                    <option value="90">Last 90 days</option>
-                  </select>
-                </div>
-
-                <div class="filter-field filter-field--sources">
-                  <label>Source</label>
-                  <div class="source-list">
-                    @if (loadingOptions()) {
-                      <span class="source-empty">Loading sources...</span>
-                    } @else if (!options().sources.length) {
-                      <span class="source-empty">No source filters available</span>
-                    } @else {
-                      @for (source of options().sources; track source) {
-                        <label class="source-option">
-                          <input
-                            type="checkbox"
-                            [checked]="isSourceSelected(source)"
-                            (change)="toggleSource(source)"
-                          />
-                          <span>{{ source }}</span>
-                        </label>
-                      }
-                    }
-                  </div>
-                </div>
+              <div class="filter-field">
+                <label>City</label>
+                <input class="input" [(ngModel)]="form.city" placeholder="All cities" />
               </div>
 
-              <div class="filter-result">
-                <div>
-                  <mat-icon>groups</mat-icon>
-                  <div>
-                    <strong>{{ matchedCount() }} matching customers</strong>
-                    <small>{{ recipientCount() }} eligible for {{ channel }} · {{ excludedCount() }} not eligible</small>
-                  </div>
-                </div>
-                <div class="filter-actions">
-                  <button type="button" class="clear-button" (click)="clearFilters()">Clear</button>
-                  <button type="button" class="apply-button" (click)="applyFilters()">Apply Filters</button>
+              <div class="filter-field">
+                <label>Last contact</label>
+                <select class="select" [(ngModel)]="form.lastContact">
+                  <option value="any">Any time</option>
+                  <option value="7">Last 7 days</option>
+                  <option value="30">Last 30 days</option>
+                  <option value="90">Last 90 days</option>
+                </select>
+              </div>
+
+              <div class="filter-field filter-field--sources">
+                <label>Source</label>
+                <div class="source-list">
+                  @if (loadingOptions()) {
+                  <span class="source-empty">Loading sources...</span>
+                  } @else if (!options().sources.length) {
+                  <span class="source-empty">No source filters available</span>
+                  } @else {
+                  @for (source of options().sources; track source) {
+                  <label class="source-option">
+                    <input type="checkbox" [checked]="isSourceSelected(source)" (change)="toggleSource(source)" />
+                    <span>{{ source }}</span>
+                  </label>
+                  }
+                  }
                 </div>
               </div>
             </div>
+
+            <div class="filter-result">
+              <div>
+                <mat-icon>groups</mat-icon>
+                <div>
+                  <strong>{{ matchedCount() }} matching customers</strong>
+                  <small>{{ recipientCount() }} eligible for {{ channel }} · {{ excludedCount() }} not eligible</small>
+                </div>
+              </div>
+              <div class="filter-actions">
+                <button type="button" class="clear-button" (click)="clearFilters()">Clear</button>
+                <button type="button" class="apply-button" (click)="applyFilters()">Apply Filters</button>
+              </div>
+            </div>
+          </div>
           }
 
           <small class="hint">Only customers with a valid {{ channel }} contact can receive this broadcast.</small>
@@ -179,9 +174,9 @@
           <div class="field-label-row">
             <label>{{ channel === 'Email' ? 'Email Content' : 'Message' }} <span>*</span></label>
             @if (channel === 'Email') {
-              <span class="counter">{{ emailTextLength }}/5000</span>
+            <span class="counter">{{ emailTextLength }}/5000</span>
             } @else {
-              <span class="counter">{{ form.message.length }}/2000</span>
+            <span class="counter">{{ form.message.length }}/2000</span>
             }
           </div>
 
@@ -192,46 +187,44 @@
           </div>
 
           @if (channel === 'Email') {
-            <div class="email-editor-shell">
-              <div class="email-toolbar" role="toolbar" aria-label="Email editor toolbar">
-                <button type="button" title="Bold" (click)="emailCommand('bold')"><mat-icon>format_bold</mat-icon></button>
-                <button type="button" title="Italic" (click)="emailCommand('italic')"><mat-icon>format_italic</mat-icon></button>
-                <button type="button" title="Underline" (click)="emailCommand('underline')"><mat-icon>format_underlined</mat-icon></button>
-                <span class="toolbar-divider"></span>
-                <button type="button" title="Bulleted list" (click)="emailCommand('insertUnorderedList')"><mat-icon>format_list_bulleted</mat-icon></button>
-                <button type="button" title="Numbered list" (click)="emailCommand('insertOrderedList')"><mat-icon>format_list_numbered</mat-icon></button>
-                <span class="toolbar-divider"></span>
-                <button type="button" title="Align left" (click)="emailCommand('justifyLeft')"><mat-icon>format_align_left</mat-icon></button>
-                <button type="button" title="Align center" (click)="emailCommand('justifyCenter')"><mat-icon>format_align_center</mat-icon></button>
-                <button type="button" title="Align right" (click)="emailCommand('justifyRight')"><mat-icon>format_align_right</mat-icon></button>
-                <span class="toolbar-divider"></span>
-                <button type="button" title="Add link" (click)="emailLink()"><mat-icon>link</mat-icon></button>
-                <button type="button" title="Remove formatting" (click)="emailClearFormat()"><mat-icon>format_clear</mat-icon></button>
-              </div>
-
-              <div
-                class="email-editor"
-                contenteditable="true"
-                role="textbox"
-                aria-multiline="true"
-                data-placeholder="Write your email content..."
-                [innerHTML]="emailEditorHtml"
-                (input)="onEmailEditorInput($event)"
-              ></div>
-
-              <div class="email-editor-footer">
-                <span><mat-icon>mail_outline</mat-icon> Email editor</span>
-                <span>HTML formatting supported</span>
-              </div>
+          <div class="email-editor-shell">
+            <div class="email-toolbar" role="toolbar" aria-label="Email editor toolbar">
+              <button type="button" title="Bold"
+                (click)="emailCommand('bold')"><mat-icon>format_bold</mat-icon></button>
+              <button type="button" title="Italic"
+                (click)="emailCommand('italic')"><mat-icon>format_italic</mat-icon></button>
+              <button type="button" title="Underline"
+                (click)="emailCommand('underline')"><mat-icon>format_underlined</mat-icon></button>
+              <span class="toolbar-divider"></span>
+              <button type="button" title="Bulleted list"
+                (click)="emailCommand('insertUnorderedList')"><mat-icon>format_list_bulleted</mat-icon></button>
+              <button type="button" title="Numbered list"
+                (click)="emailCommand('insertOrderedList')"><mat-icon>format_list_numbered</mat-icon></button>
+              <span class="toolbar-divider"></span>
+              <button type="button" title="Align left"
+                (click)="emailCommand('justifyLeft')"><mat-icon>format_align_left</mat-icon></button>
+              <button type="button" title="Align center"
+                (click)="emailCommand('justifyCenter')"><mat-icon>format_align_center</mat-icon></button>
+              <button type="button" title="Align right"
+                (click)="emailCommand('justifyRight')"><mat-icon>format_align_right</mat-icon></button>
+              <span class="toolbar-divider"></span>
+              <button type="button" title="Add link" (click)="emailLink()"><mat-icon>link</mat-icon></button>
+              <button type="button" title="Remove formatting"
+                (click)="emailClearFormat()"><mat-icon>format_clear</mat-icon></button>
             </div>
+
+            <div class="email-editor" contenteditable="true" role="textbox" aria-multiline="true"
+              data-placeholder="Write your email content..." [innerHTML]="emailEditorHtml"
+              (input)="onEmailEditorInput($event)"></div>
+
+            <div class="email-editor-footer">
+              <span><mat-icon>mail_outline</mat-icon> Email editor</span>
+              <span>HTML formatting supported</span>
+            </div>
+          </div>
           } @else {
-            <textarea
-              id="message"
-              class="textarea"
-              [(ngModel)]="form.message"
-              maxlength="2000"
-              placeholder="Write your message..."
-            ></textarea>
+          <textarea id="message" class="textarea" [(ngModel)]="form.message" maxlength="2000"
+            placeholder="Write your message..."></textarea>
           }
         </div>
 
@@ -244,7 +237,7 @@
           <select class="select" [ngModel]="selectedPageId" (ngModelChange)="selectPage($event)">
             <option value="">Select a published page</option>
             @for (page of options().campaigns; track page.id) {
-              <option [value]="page.id">{{ page.name }}</option>
+            <option [value]="page.id">{{ page.name }}</option>
             }
           </select>
 
@@ -254,22 +247,22 @@
           </button>
 
           @if (showLinkInput) {
-            <div class="link-row">
-              <input class="input" [(ngModel)]="customUrl" placeholder="https://example.com/offer" />
-              <button class="outline-button" type="button" (click)="useCustomUrl()">Add Link</button>
-            </div>
+          <div class="link-row">
+            <input class="input" [(ngModel)]="customUrl" placeholder="https://example.com/offer" />
+            <button class="outline-button" type="button" (click)="useCustomUrl()">Add Link</button>
+          </div>
           }
 
           @if (selectedPageUrl) {
-            <div class="selected-link">
-              <div>
-                <strong>{{ selectedPage?.name }}</strong>
-                <small>{{ selectedPageUrl }}</small>
-              </div>
-              <button type="button" (click)="removeLink()" aria-label="Remove link">
-                <mat-icon>close</mat-icon>
-              </button>
+          <div class="selected-link">
+            <div>
+              <strong>{{ selectedPage?.name }}</strong>
+              <small>{{ selectedPageUrl }}</small>
             </div>
+            <button type="button" (click)="removeLink()" aria-label="Remove link">
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
           }
         </div>
 
@@ -287,10 +280,10 @@
           </div>
 
           @if (form.sendMode === 'schedule') {
-            <div class="schedule-grid">
-              <input class="input" type="date" [(ngModel)]="form.date" />
-              <input class="input" type="time" [(ngModel)]="form.time" />
-            </div>
+          <div class="schedule-grid">
+            <input class="input" type="date" [(ngModel)]="form.date" />
+            <input class="input" type="time" [(ngModel)]="form.time" />
+          </div>
           }
         </div>
       </div>
@@ -298,21 +291,24 @@
       <div class="bottom-summary">
         <div><span>Recipients</span><strong>{{ recipientCount() }}</strong></div>
         <div><span>Available</span><strong>{{ availableMessages }}</strong></div>
-        <div><span>After send</span><strong>{{ availableMessages >= recipientCount() ? availableMessages - recipientCount() : 0 }}</strong></div>
+        <div><span>After send</span><strong>{{ availableMessages >= recipientCount() ? availableMessages -
+            recipientCount() : 0 }}</strong></div>
       </div>
 
       <div class="actions">
         <button class="secondary-button" type="button" (click)="goBack()">Cancel</button>
         @if (form.sendMode === 'schedule') {
-          <button class="primary-button" type="button" [disabled]="saving()" (click)="schedule()">
-            <mat-icon>schedule_send</mat-icon>
-            {{ saving() ? 'Scheduling...' : 'Schedule Broadcast' }}
-          </button>
+        <button class="primary-button" type="button" [disabled]="saving() || availableMessages < recipientCount()"
+          (click)="schedule()">
+          <mat-icon>schedule_send</mat-icon>
+          {{ saving() ? 'Scheduling...' : 'Schedule Broadcast' }}
+        </button>
         } @else {
-          <button class="primary-button" type="button" [disabled]="saving()" (click)="send()">
-            <mat-icon>send</mat-icon>
-            {{ saving() ? 'Sending...' : 'Send Now' }}
-          </button>
+        <button class="primary-button" type="button" [disabled]="saving() || availableMessages < recipientCount()"
+          (click)="send()">
+          <mat-icon>send</mat-icon>
+          {{ saving() ? 'Sending...' : 'Send Now' }}
+        </button>
         }
       </div>
     </section>

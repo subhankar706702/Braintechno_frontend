@@ -825,12 +825,13 @@ export class CustomersPage
       CustomerItem
   ): string {
 
-    return (
+    const image =
       String(
         customer.image || ''
-      ).trim() ||
-      this.defaultProfileImage
-    );
+      ).trim();
+
+    return image ||
+      this.fallbackAvatarImage(customer);
   }
 
 
@@ -841,16 +842,128 @@ export class CustomersPage
     const image =
       event.target as HTMLImageElement;
 
-    if (
-      image.src.endsWith(
-        this.defaultProfileImage
-      )
-    ) {
+    if (!image) {
       return;
     }
 
-    image.src =
-      this.defaultProfileImage;
+    const fallback =
+      this.fallbackAvatarImageFromName(
+        image.alt
+      );
+
+    if (image.src === fallback) {
+      return;
+    }
+
+    image.src = fallback;
+  }
+
+
+  private fallbackAvatarImage(
+    customer:
+      CustomerItem
+  ): string {
+
+    return this.fallbackAvatarImageFromName(
+      String(customer.name || '').trim(),
+      String(customer.id || '').trim()
+    );
+  }
+
+
+  private fallbackAvatarImageFromName(
+    name: string,
+    seed = ''
+  ): string {
+
+    const normalizedName =
+      String(name || '').trim();
+
+    const firstName =
+      normalizedName
+        .split(/\s+/)
+        .filter(Boolean)[0] || 'U';
+
+    const initial =
+      Array.from(firstName)[0]?.toUpperCase() || 'U';
+
+    const background =
+      this.avatarBackgroundColor(
+        `${seed}|${normalizedName}`
+      );
+
+    const svg = `
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="128"
+        height="128"
+        viewBox="0 0 128 128"
+      >
+        <rect
+          width="128"
+          height="128"
+          rx="28"
+          fill="${background}"
+        />
+        <text
+          x="64"
+          y="67"
+          text-anchor="middle"
+          dominant-baseline="middle"
+          font-family="Arial, Helvetica, sans-serif"
+          font-size="58"
+          font-weight="700"
+          fill="#ffffff"
+        >${this.escapeSvgText(initial)}</text>
+      </svg>
+    `;
+
+    return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
+  }
+
+
+  private avatarBackgroundColor(
+    seed: string
+  ): string {
+
+    const colors = [
+      '#2563EB',
+      '#7C3AED',
+      '#DB2777',
+      '#EA580C',
+      '#059669',
+      '#0891B2',
+      '#4F46E5',
+      '#CA8A04',
+      '#0F766E',
+      '#9333EA'
+    ];
+
+    let hash = 0;
+
+    for (const character of String(seed || '')) {
+      hash =
+        (hash * 31 + character.charCodeAt(0)) |
+        0;
+    }
+
+    const index =
+      Math.abs(hash) % colors.length;
+
+    return colors[index];
+  }
+
+
+  private escapeSvgText(
+    value: string
+  ): string {
+
+    return String(value || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&apos;');
   }
 
 

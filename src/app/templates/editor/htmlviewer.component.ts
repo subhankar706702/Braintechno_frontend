@@ -75,7 +75,7 @@ import {
               </span>
             </button>
 
-            <span class="preview-divider"></span>
+            <!-- <span class="preview-divider"></span> -->
 
             <button
               type="button"

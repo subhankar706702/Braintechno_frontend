@@ -58,6 +58,11 @@ export class DashboardShellComponent implements OnInit {
       route: '/app/broadcast',
     },
     {
+      label: 'Social',
+      icon: 'travel_explore',
+      route: '/app/social',
+    },
+    {
       label: 'Customers',
       icon: 'group',
       route: '/app/customers',
@@ -66,11 +71,6 @@ export class DashboardShellComponent implements OnInit {
       label: 'Messages',
       icon: 'message',
       route: '/app/messages',
-    },
-    {
-      label: 'Social',
-      icon: 'travel_explore',
-      route: '/app/social',
     },
     {
       label: 'Analytics',
@@ -90,7 +90,7 @@ export class DashboardShellComponent implements OnInit {
     private readonly confirmDialogService: ConfirmDialogService,
     private readonly businessProfileService: BusinessProfileService,
     public readonly appResource: AppResourceService,
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.businessProfileService

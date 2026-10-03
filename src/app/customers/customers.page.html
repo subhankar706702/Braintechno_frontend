@@ -496,7 +496,7 @@
                   <div class="customer-card__type-row">
                     <label
                       class="customer-type-select"
-                      [attr.data-type]="customer.customerType"
+                      [attr.data-type-index]="typeIndex(customer.customerType)"
                       title="Change customer type"
                       (click)="$event.stopPropagation()"
                     >
@@ -697,7 +697,7 @@
               <div class="customer-list-row__type">
                 <label
                   class="customer-type-select customer-type-select--list"
-                  [attr.data-type]="customer.customerType"
+                  [attr.data-type-index]="typeIndex(customer.customerType)"
                   (click)="$event.stopPropagation()"
                 >
                   <mat-icon>{{ typeIcon(customer.customerType) }}</mat-icon>

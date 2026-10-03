@@ -25,7 +25,7 @@ export const routes: Routes = [
       { path: 'templates', loadComponent: () => import('./templates/templates.component').then(m => m.TemplatesComponent) },
       { path: 'template-gallery', loadComponent: () => import('./templates/template-gallery/template-gallery.component').then(m => m.TemplateGalleryComponent) },
       { path: 'campaigns', loadComponent: () => import('./campaigns/campaigns.component').then(m => m.CampaignsComponent) },
-    //  { path: 'customers', loadComponent: () => import('./customers/customers.page').then(m => m.CustomersPage) },
+      { path: 'customers', loadComponent: () => import('./customers/customers.page').then(m => m.CustomersPage) },
       { path: 'messages', loadComponent: () => import('./messages/messages.page').then(m => m.MessagesPage) },
       { path: 'broadcast', loadComponent: () => import('./broadcast/broadcast.page').then(m => m.BroadcastPage) },
       { path: 'broadcast/history/:id', loadComponent: () => import('./broadcast/broadcast-details.page').then(m => m.BroadcastDetailsPage) },

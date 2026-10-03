@@ -16,23 +16,12 @@ import {
 } from './api.config';
 
 
-export type CustomerType =
-  | 'New'
-  | 'Regular'
-  | 'VIP'
-  | 'Interested'
-  | 'Followup'
-  | 'Converted';
-
-export type CustomerSource =
-  | 'Facebook'
-  | 'WhatsApp'
-  | 'Manual'
-  | 'Excel'
-  | 'AI'
-  | 'Instagram'
-  | 'Direct'
-  | 'Campaign';
+/**
+ * Customer type/source values are runtime values owned by the backend.
+ * Do not convert these into a frontend enum or literal union.
+ */
+export type CustomerType = string;
+export type CustomerSource = string;
 
 export type CustomerSort =
   | 'newest'
@@ -56,12 +45,12 @@ export interface CustomerItem {
 
 export interface CustomerCounts {
   total: number;
-  new: number;
-  regular: number;
-  vip: number;
-  interested: number;
-  followup: number;
-  converted: number;
+  byType: Record<string, number>;
+}
+
+export interface CustomerOptions {
+  customerTypes: string[];
+  customerSources: string[];
 }
 
 export interface CustomerListResponse {
@@ -98,6 +87,16 @@ export interface CreateCustomerPayload {
   image?: string;
 }
 
+export interface UpdateCustomerPayload {
+  accountId?: string | number;
+  name?: string;
+  mobile?: string;
+  email?: string;
+  customerType?: CustomerType;
+  source?: CustomerSource;
+  image?: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -107,6 +106,13 @@ export class CustomerApiService {
     private readonly http:
       HttpClient
   ) { }
+
+
+  options(): Observable<CustomerOptions> {
+    return this.http.get<CustomerOptions>(
+      `${API_BASE_URL}/customers/options`
+    );
+  }
 
 
   list(
@@ -138,34 +144,29 @@ export class CustomerApiService {
       ).trim();
 
     if (search) {
-      params =
-        params.set(
-          'search',
-          search
-        );
+      params = params.set(
+        'search',
+        search
+      );
     }
 
     if (query.type) {
-      params =
-        params.set(
-          'type',
-          query.type
-        );
+      params = params.set(
+        'type',
+        query.type
+      );
     }
 
     if (query.source) {
-      params =
-        params.set(
-          'source',
-          query.source
-        );
+      params = params.set(
+        'source',
+        query.source
+      );
     }
 
     return this.http.get<CustomerListResponse>(
       `${API_BASE_URL}/customers`,
-      {
-        params
-      }
+      { params }
     );
   }
 
@@ -173,7 +174,6 @@ export class CustomerApiService {
   create(
     payload: CreateCustomerPayload
   ): Observable<CustomerItem> {
-
     return this.http.post<CustomerItem>(
       `${API_BASE_URL}/customers`,
       payload
@@ -181,15 +181,21 @@ export class CustomerApiService {
   }
 
 
+  update(
+    id: string,
+    payload: UpdateCustomerPayload
+  ): Observable<CustomerItem> {
+    return this.http.patch<CustomerItem>(
+      `${API_BASE_URL}/customers/${id}`,
+      payload
+    );
+  }
+
+
   delete(
     id: string
-  ): Observable<{
-    message: string;
-  }> {
-
-    return this.http.delete<{
-      message: string;
-    }>(
+  ): Observable<{ message: string }> {
+    return this.http.delete<{ message: string }>(
       `${API_BASE_URL}/customers/${id}`
     );
   }
@@ -197,16 +203,9 @@ export class CustomerApiService {
 
   importExcelRows(
     accountId: string | number,
-    rows: Array<
-      Partial<CustomerItem>
-    >
-  ): Observable<{
-    imported: number;
-  }> {
-
-    return this.http.post<{
-      imported: number;
-    }>(
+    rows: Array<Partial<CustomerItem>>
+  ): Observable<{ imported: number }> {
+    return this.http.post<{ imported: number }>(
       `${API_BASE_URL}/customers/import/excel`,
       {
         accountId,
@@ -218,16 +217,9 @@ export class CustomerApiService {
 
   importAiRows(
     accountId: string | number,
-    rows: Array<
-      Partial<CustomerItem>
-    >
-  ): Observable<{
-    imported: number;
-  }> {
-
-    return this.http.post<{
-      imported: number;
-    }>(
+    rows: Array<Partial<CustomerItem>>
+  ): Observable<{ imported: number }> {
+    return this.http.post<{ imported: number }>(
       `${API_BASE_URL}/customers/import/ai`,
       {
         accountId,

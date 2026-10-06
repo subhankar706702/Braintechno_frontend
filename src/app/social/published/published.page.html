@@ -1,0 +1,135 @@
+<div class="social-page">
+  <div class="page-header">
+    <div>
+      <div class="eyebrow">SOCIAL</div>
+      <h1>Published</h1>
+      <p>View social media posts that have already been published.</p>
+    </div>
+
+    <button class="btn btn-primary" type="button" (click)="createPost()">
+      Create Social Post
+    </button>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <span class="stat-label">Published</span>
+      <strong>{{ publishedCount }}</strong>
+      <small>Successfully published</small>
+    </div>
+
+    <div class="stat-card">
+      <span class="stat-label">Failed</span>
+      <strong>{{ failedCount }}</strong>
+      <small>Publishing failures</small>
+    </div>
+
+    <div class="stat-card">
+      <span class="stat-label">Platforms</span>
+      <strong>{{ platformCount }}</strong>
+      <small>Platforms with posts</small>
+    </div>
+
+    <div class="stat-card">
+      <span class="stat-label">Total</span>
+      <strong>{{ publishedPosts.length }}</strong>
+      <small>Published records</small>
+    </div>
+  </div>
+
+  <section class="panel">
+    <div class="panel-header">
+      <div>
+        <h2>Published Social Posts</h2>
+        <p>Preview, platform, caption, publish date, status and provider ID.</p>
+      </div>
+    </div>
+
+    <div class="empty-state" *ngIf="publishedPosts.length === 0">
+      <div class="empty-icon">✓</div>
+      <h3>No published posts</h3>
+      <p>
+        Successfully published social posts will appear here once the
+        publishing backend is connected.
+      </p>
+
+      <button class="btn btn-primary empty-action" type="button" (click)="createPost()">
+        Create Social Post
+      </button>
+    </div>
+
+    <div class="table-wrap" *ngIf="publishedPosts.length > 0">
+      <table>
+        <thead>
+          <tr>
+            <th>Preview</th>
+            <th>Platform</th>
+            <th>Caption</th>
+            <th>Published Date</th>
+            <th>Status</th>
+            <th>Provider Post ID</th>
+            <th class="actions-head">Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let post of publishedPosts">
+            <td>
+              <div class="preview-box">
+                <img
+                  *ngIf="post.imageUrl"
+                  [src]="post.imageUrl"
+                  alt="Published post preview"
+                />
+                <span *ngIf="!post.imageUrl">No image</span>
+              </div>
+            </td>
+
+            <td>
+              <span class="platform-badge" [ngClass]="post.platformClass">
+                {{ post.platform }}
+              </span>
+            </td>
+
+            <td>
+              <div class="caption-cell">
+                {{ post.caption }}
+              </div>
+            </td>
+
+            <td>
+              <div class="date-cell">
+                <strong>{{ post.publishedAt }}</strong>
+              </div>
+            </td>
+
+            <td>
+              <span
+                class="status-badge"
+                [ngClass]="post.status.toLowerCase()"
+              >
+                {{ post.status }}
+              </span>
+            </td>
+
+            <td>
+              <span class="provider-id">
+                {{ post.providerPostId || '—' }}
+              </span>
+            </td>
+
+            <td>
+              <button
+                class="action-btn"
+                type="button"
+                (click)="viewDetails(post)"
+              >
+                Details
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>

@@ -1,0 +1,249 @@
+<div class="social-overview-page">
+
+  <header class="social-header">
+    <div class="social-header__copy">
+      <span class="page-eyebrow">
+        Social media management
+      </span>
+      <h1>Social Overview</h1>
+      <p>Manage connected social accounts, create posts and track publishing activity.</p>
+    </div>
+
+    <div class="social-header__actions">
+      <button
+        type="button"
+        class="outline-button"
+        (click)="openConnectedAccounts()">
+        <mat-icon>link</mat-icon>
+        Connect Accounts
+      </button>
+
+      <button
+        type="button"
+        class="primary-button"
+        (click)="openCreatePost()">
+        <mat-icon>add</mat-icon>
+        Create Social Post
+      </button>
+    </div>
+  </header>
+
+  <section class="stats-grid" aria-label="Social post statistics">
+    @for (stat of stats; track stat.label) {
+      <article class="stat-card">
+        <div class="stat-card__icon" [class]="'stat-card__icon--' + stat.tone">
+          <mat-icon>{{ stat.icon }}</mat-icon>
+        </div>
+
+        <div class="stat-card__content">
+          <span>{{ stat.label }}</span>
+          <strong>{{ stat.value }}</strong>
+        </div>
+      </article>
+    }
+  </section>
+
+  <div class="social-content-scroll">
+    <div class="social-content">
+
+  <section class="content-grid">
+
+    <article class="surface-card accounts-card">
+      <div class="section-heading">
+        <div>
+          <div class="section-heading__title">
+            <mat-icon>account_circle</mat-icon>
+            <h2>Connected Accounts</h2>
+          </div>
+          <p>Connect the platforms you want to use for social publishing.</p>
+        </div>
+
+        <button
+          type="button"
+          class="text-button"
+          (click)="openConnectedAccounts()">
+          Manage
+          <mat-icon>arrow_forward</mat-icon>
+        </button>
+      </div>
+
+      <div class="accounts-list">
+        @for (account of connectedAccounts; track account.platform) {
+          <div class="account-row">
+            <div class="account-row__platform">
+              <div class="platform-icon">
+                <mat-icon>{{ account.icon }}</mat-icon>
+              </div>
+
+              <div class="account-row__copy">
+                <strong>{{ account.platform }}</strong>
+                @if (account.connected) {
+                  <span>{{ account.username }}</span>
+                } @else {
+                  <span>Not connected</span>
+                }
+              </div>
+            </div>
+
+            @if (account.connected) {
+              <span class="status-pill status-pill--connected">
+                <span></span>
+                Connected
+              </span>
+            } @else {
+              <button
+                type="button"
+                class="small-outline-button"
+                (click)="openConnectedAccounts()">
+                Connect
+              </button>
+            }
+          </div>
+        }
+      </div>
+    </article>
+
+    <article class="surface-card quick-card">
+      <div class="section-heading">
+        <div>
+          <div class="section-heading__title">
+            <mat-icon>bolt</mat-icon>
+            <h2>Quick Actions</h2>
+          </div>
+          <p>Start your next social publishing task.</p>
+        </div>
+      </div>
+
+      <div class="quick-actions">
+        <button type="button" class="quick-action" (click)="openCreatePost()">
+          <span class="quick-action__icon quick-action__icon--primary">
+            <mat-icon>add_photo_alternate</mat-icon>
+          </span>
+          <span>
+            <strong>Create Social Post</strong>
+            <small>Create one post for one or multiple platforms.</small>
+          </span>
+          <mat-icon class="quick-action__arrow">arrow_forward</mat-icon>
+        </button>
+
+        <button type="button" class="quick-action" (click)="openScheduled()">
+          <span class="quick-action__icon quick-action__icon--warning">
+            <mat-icon>schedule</mat-icon>
+          </span>
+          <span>
+            <strong>Scheduled Posts</strong>
+            <small>View and manage posts waiting to publish.</small>
+          </span>
+          <mat-icon class="quick-action__arrow">arrow_forward</mat-icon>
+        </button>
+
+        <button type="button" class="quick-action" (click)="openPublished()">
+          <span class="quick-action__icon quick-action__icon--success">
+            <mat-icon>published_with_changes</mat-icon>
+          </span>
+          <span>
+            <strong>Published Posts</strong>
+            <small>Review your published social activity.</small>
+          </span>
+          <mat-icon class="quick-action__arrow">arrow_forward</mat-icon>
+        </button>
+      </div>
+    </article>
+  </section>
+
+  <section class="content-grid content-grid--bottom">
+
+    <article class="surface-card recent-card">
+      <div class="section-heading">
+        <div>
+          <div class="section-heading__title">
+            <mat-icon>history</mat-icon>
+            <h2>Recent Social Posts</h2>
+          </div>
+          <p>Your latest social publishing activity.</p>
+        </div>
+
+        <button
+          type="button"
+          class="text-button"
+          (click)="openPublished()">
+          View All
+          <mat-icon>arrow_forward</mat-icon>
+        </button>
+      </div>
+
+      @if (recentPosts.length === 0) {
+        <div class="empty-state">
+          <div class="empty-state__icon">
+            <mat-icon>article</mat-icon>
+          </div>
+          <strong>No social posts yet</strong>
+          <p>Create your first social post to start building your publishing history.</p>
+          <button type="button" class="small-primary-button" (click)="openCreatePost()">
+            <mat-icon>add</mat-icon>
+            Create Post
+          </button>
+        </div>
+      } @else {
+        <div class="post-list">
+          @for (post of recentPosts; track post.id) {
+            <div class="post-row">
+              <div class="post-row__icon">
+                <mat-icon>{{ post.platform === 'Instagram' ? 'photo_camera' : 'public' }}</mat-icon>
+              </div>
+              <div class="post-row__copy">
+                <strong>{{ post.caption }}</strong>
+                <span>{{ post.platform }} · {{ post.date }}</span>
+              </div>
+              <span class="post-status">{{ post.status }}</span>
+            </div>
+          }
+        </div>
+      }
+    </article>
+
+    <article class="surface-card platform-card">
+      <div class="section-heading">
+        <div>
+          <div class="section-heading__title">
+            <mat-icon>bar_chart</mat-icon>
+            <h2>Platform Overview</h2>
+          </div>
+          <p>Posts by connected social platform.</p>
+        </div>
+      </div>
+
+      <div class="platform-list">
+        @for (item of platformSummary; track item.platform) {
+          <button
+            type="button"
+            class="platform-row"
+            (click)="openPlatform(item.platform)">
+            <span class="platform-row__icon">
+              <mat-icon>{{ item.icon }}</mat-icon>
+            </span>
+            <span class="platform-row__name">{{ item.platform }}</span>
+            <strong>{{ item.posts }}</strong>
+            <mat-icon class="platform-row__arrow">arrow_forward</mat-icon>
+          </button>
+        }
+      </div>
+
+      <div class="connected-summary">
+        <div>
+          <span>Connected platforms</span>
+          <strong>{{ connectedCount }} / {{ totalPlatforms }}</strong>
+        </div>
+        <button type="button" class="text-button" (click)="openConnectedAccounts()">
+          Manage
+          <mat-icon>arrow_forward</mat-icon>
+        </button>
+      </div>
+    </article>
+
+  </section>
+
+    </div>
+  </div>
+
+</div>

@@ -1,0 +1,181 @@
+<div class="page-scroll">
+  <div class="page-header">
+    <div>
+      <h1>Facebook</h1>
+      <p>Manage your Facebook Page social publishing activity.</p>
+    </div>
+
+    <div class="header-actions">
+      <button
+        type="button"
+        class="btn secondary"
+        (click)="connectFacebook()"
+        *ngIf="!isConnected">
+        Connect Facebook
+      </button>
+
+      <button
+        type="button"
+        class="btn primary"
+        (click)="createPost()">
+        Create Social Post
+      </button>
+    </div>
+  </div>
+
+  <div class="content-grid">
+    <section class="panel account-panel">
+      <div class="panel-header">
+        <div>
+          <h2>Facebook Page</h2>
+          <p>Connected Facebook Page information and status.</p>
+        </div>
+
+        <span
+          class="status-badge"
+          [class.connected]="isConnected"
+          [class.disconnected]="!isConnected">
+          <span class="status-dot"></span>
+          {{ connectionText }}
+        </span>
+      </div>
+
+      <div class="account-content" *ngIf="isConnected; else notConnected">
+        <div class="account-avatar">f</div>
+
+        <div class="account-info">
+          <strong>{{ pageName || 'Facebook Page' }}</strong>
+          <span>{{ pageUsername || '@facebook-page' }}</span>
+        </div>
+
+        <button
+          type="button"
+          class="text-btn danger"
+          (click)="disconnectFacebook()">
+          Disconnect
+        </button>
+      </div>
+
+      <ng-template #notConnected>
+        <div class="empty-account">
+          <div class="empty-icon">f</div>
+
+          <div>
+            <h3>Facebook is not connected</h3>
+            <p>Connect a Facebook Page to publish and manage social posts.</p>
+          </div>
+
+          <button
+            type="button"
+            class="btn secondary"
+            (click)="connectFacebook()">
+            Connect
+          </button>
+        </div>
+      </ng-template>
+    </section>
+
+    <section class="stats-grid">
+      <div class="stat-card">
+        <span class="stat-label">Recent Posts</span>
+        <strong>{{ recentPosts.length }}</strong>
+      </div>
+
+      <div class="stat-card">
+        <span class="stat-label">Scheduled</span>
+        <strong>{{ scheduledPosts.length }}</strong>
+      </div>
+
+      <div class="stat-card">
+        <span class="stat-label">Connection</span>
+        <strong>{{ isConnected ? 'Active' : 'Inactive' }}</strong>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-header">
+        <div>
+          <h2>Recent Facebook Posts</h2>
+          <p>Your latest published Facebook posts.</p>
+        </div>
+
+        <button
+          type="button"
+          class="text-btn"
+          (click)="viewPublished()">
+          View Published
+        </button>
+      </div>
+
+      <div class="post-list" *ngIf="recentPosts.length; else noRecentPosts">
+        <div class="post-row" *ngFor="let post of recentPosts">
+          <div class="post-thumb" *ngIf="post.image; else thumbPlaceholder">
+            <img [src]="post.image" alt="Facebook post" />
+          </div>
+
+          <ng-template #thumbPlaceholder>
+            <div class="post-thumb placeholder">f</div>
+          </ng-template>
+
+          <div class="post-details">
+            <strong>{{ post.caption || 'Facebook post' }}</strong>
+            <span>{{ post.date }}</span>
+          </div>
+
+          <span class="post-status published">{{ post.status }}</span>
+        </div>
+      </div>
+
+      <ng-template #noRecentPosts>
+        <div class="empty-state">
+          <div class="empty-icon">f</div>
+          <h3>No recent posts</h3>
+          <p>Published Facebook posts will appear here.</p>
+        </div>
+      </ng-template>
+    </section>
+
+    <section class="panel">
+      <div class="panel-header">
+        <div>
+          <h2>Scheduled Facebook Posts</h2>
+          <p>Posts waiting to be published on Facebook.</p>
+        </div>
+
+        <button
+          type="button"
+          class="text-btn"
+          (click)="viewScheduled()">
+          View Scheduled
+        </button>
+      </div>
+
+      <div class="post-list" *ngIf="scheduledPosts.length; else noScheduledPosts">
+        <div class="post-row" *ngFor="let post of scheduledPosts">
+          <div class="post-thumb" *ngIf="post.image; else scheduledThumb">
+            <img [src]="post.image" alt="Scheduled Facebook post" />
+          </div>
+
+          <ng-template #scheduledThumb>
+            <div class="post-thumb placeholder">f</div>
+          </ng-template>
+
+          <div class="post-details">
+            <strong>{{ post.caption || 'Scheduled Facebook post' }}</strong>
+            <span>{{ post.date }}</span>
+          </div>
+
+          <span class="post-status scheduled">{{ post.status }}</span>
+        </div>
+      </div>
+
+      <ng-template #noScheduledPosts>
+        <div class="empty-state compact">
+          <div class="empty-icon">◷</div>
+          <h3>No scheduled posts</h3>
+          <p>Scheduled Facebook posts will appear here.</p>
+        </div>
+      </ng-template>
+    </section>
+  </div>
+</div>

@@ -30,6 +30,15 @@ export const routes: Routes = [
       { path: 'broadcast', loadComponent: () => import('./broadcast/broadcast.page').then(m => m.BroadcastPage) },
       { path: 'broadcast/history/:id', loadComponent: () => import('./broadcast/broadcast-details.page').then(m => m.BroadcastDetailsPage) },
       { path: 'broadcast/:channel', loadComponent: () => import('./broadcast/broadcast-channel.page').then(m => m.BroadcastChannelPage) },
+      { path: 'social', loadComponent: () => import('./social/social-overview/social-overview.page').then(m => m.SocialOverviewPage) },
+      { path: 'social/connected-accounts', loadComponent: () => import('./social/connected-accounts/connected-accounts.page').then(m => m.ConnectedAccountsPage) },
+      { path: 'social/create-post', loadComponent: () => import('./social/create-post/create-social-post.page').then(m => m.CreateSocialPostPage) },
+      { path: 'social/facebook', loadComponent: () => import('./social/facebook/facebook.page').then(m => m.FacebookPage) },
+      { path: 'social/instagram', loadComponent: () => import('./social/instagram/instagram.page').then(m => m.InstagramPage) },
+      { path: 'social/linkedin', loadComponent: () => import('./social/linkedin/linkedin.page').then(m => m.LinkedInPage) },
+      { path: 'social/google-business', loadComponent: () => import('./social/google-business/google-business.page').then(m => m.GoogleBusinessPage) },
+      { path: 'social/scheduled', loadComponent: () => import('./social/scheduled/scheduled.page').then(m => m.ScheduledPage) },
+      { path: 'social/published', loadComponent: () => import('./social/published/published.page').then(m => m.PublishedPage) },
       { path: 'settings', loadComponent: () => import('./settings/settings.page').then(m => m.SettingsPage) },
       { path: '', pathMatch: 'full', redirectTo: 'dashboard' }
     ]

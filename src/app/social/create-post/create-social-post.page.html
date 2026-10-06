@@ -1,0 +1,313 @@
+<div class="social-page">
+  <div class="page-scroll">
+    <header class="page-header">
+      <div class="header-copy">
+        <span class="eyebrow">SOCIAL</span>
+        <h1>Create Social Post</h1>
+        <p>Create one post and prepare it for your connected social platforms.</p>
+      </div>
+
+      <div class="header-actions">
+        <button type="button" class="btn btn-secondary" (click)="saveDraft()">
+          Save Draft
+        </button>
+      </div>
+    </header>
+
+    <div class="content-grid">
+      <main class="editor-column">
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <span class="section-label">POST TO</span>
+              <h2>Select platforms</h2>
+            </div>
+            <span class="selection-count">
+              {{ postToAll ? connectedPlatforms.length : selectedPlatforms.length }}
+              selected
+            </span>
+          </div>
+
+          <div class="platform-list">
+            <button
+              type="button"
+              class="platform-option all-option"
+              [class.selected]="postToAll"
+              [disabled]="connectedPlatforms.length === 0"
+              (click)="toggleAllPlatforms()"
+            >
+              <span class="checkbox" [class.checked]="postToAll">
+                <span *ngIf="postToAll">✓</span>
+              </span>
+
+              <span class="platform-icon all-icon">ALL</span>
+
+              <span class="platform-copy">
+                <strong>All Social Media</strong>
+                <small>Publish to all connected platforms</small>
+              </span>
+            </button>
+
+            <button
+              type="button"
+              class="platform-option"
+              *ngFor="let platform of platforms"
+              [class.selected]="isPlatformSelected(platform)"
+              [class.disabled]="!platform.connected"
+              [disabled]="!platform.connected"
+              (click)="togglePlatform(platform)"
+            >
+              <span class="checkbox" [class.checked]="isPlatformSelected(platform)">
+                <span *ngIf="isPlatformSelected(platform)">✓</span>
+              </span>
+
+              <span class="platform-icon">{{ platform.shortName }}</span>
+
+              <span class="platform-copy">
+                <strong>{{ platform.name }}</strong>
+                <small *ngIf="platform.connected">
+                  {{ platform.accountName || 'Connected account' }}
+                </small>
+                <small *ngIf="!platform.connected">Connect account first</small>
+              </span>
+
+              <span class="connection-state" [class.connected]="platform.connected">
+                {{ platform.connected ? 'Connected' : 'Not connected' }}
+              </span>
+            </button>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <span class="section-label">CONTENT</span>
+              <h2>Post content</h2>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label for="caption">Caption</label>
+            <textarea
+              id="caption"
+              name="caption"
+              [(ngModel)]="caption"
+              rows="7"
+              maxlength="5000"
+              placeholder="Write your social post caption..."
+            ></textarea>
+            <div class="field-meta">
+              <span>Add a clear and engaging message for your audience.</span>
+              <span>{{ caption.length }}/5000</span>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label for="link">Link</label>
+            <input
+              id="link"
+              name="link"
+              type="url"
+              [(ngModel)]="link"
+              placeholder="https://www.braintechno.com/business/offer"
+            />
+          </div>
+
+          <div class="two-column-fields">
+            <div class="field-group">
+              <label for="hashtags">Hashtags</label>
+              <input
+                id="hashtags"
+                name="hashtags"
+                type="text"
+                [(ngModel)]="hashtags"
+                placeholder="#offer #promotion #business"
+              />
+            </div>
+
+            <div class="field-group">
+              <label for="cta">CTA</label>
+              <select id="cta" name="cta" [(ngModel)]="cta">
+                <option value="">Select CTA</option>
+                <option *ngFor="let option of ctaOptions" [value]="option">
+                  {{ option }}
+                </option>
+              </select>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <span class="section-label">IMAGE</span>
+              <h2>Post image</h2>
+            </div>
+            <span class="muted">Original image stays unchanged</span>
+          </div>
+
+          <div class="upload-area" [class.has-image]="imagePreview">
+            <input
+              #imageInput
+              type="file"
+              accept="image/*"
+              (change)="onImageSelected($event)"
+              hidden
+            />
+
+            <ng-container *ngIf="!imagePreview; else imageUploaded">
+              <div class="upload-icon">↑</div>
+              <strong>Upload an image</strong>
+              <span>PNG, JPG or WEBP</span>
+              <button type="button" class="btn btn-secondary" (click)="imageInput.click()">
+                Choose Image
+              </button>
+            </ng-container>
+
+            <ng-template #imageUploaded>
+              <img [src]="imagePreview!" [alt]="imageName || 'Social post image'" />
+              <div class="image-details">
+                <strong>{{ imageName }}</strong>
+                <button type="button" class="text-button" (click)="removeImage()">
+                  Remove image
+                </button>
+              </div>
+            </ng-template>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <span class="section-label">PUBLISH</span>
+              <h2>Publish options</h2>
+            </div>
+          </div>
+
+          <div class="publish-choice">
+            <label class="radio-option">
+              <input
+                type="radio"
+                name="publishMode"
+                [checked]="!scheduleEnabled"
+                (change)="scheduleEnabled = false"
+              />
+              <span>
+                <strong>Publish Now</strong>
+                <small>Publish after the post is validated.</small>
+              </span>
+            </label>
+
+            <label class="radio-option">
+              <input
+                type="radio"
+                name="publishMode"
+                [checked]="scheduleEnabled"
+                (change)="scheduleEnabled = true"
+              />
+              <span>
+                <strong>Schedule</strong>
+                <small>Choose a date and time for publishing.</small>
+              </span>
+            </label>
+          </div>
+
+          <div class="schedule-fields" *ngIf="scheduleEnabled">
+            <div class="field-group">
+              <label for="scheduledDate">Date</label>
+              <input
+                id="scheduledDate"
+                name="scheduledDate"
+                type="date"
+                [(ngModel)]="scheduledDate"
+              />
+            </div>
+
+            <div class="field-group">
+              <label for="scheduledTime">Time</label>
+              <input
+                id="scheduledTime"
+                name="scheduledTime"
+                type="time"
+                [(ngModel)]="scheduledTime"
+              />
+            </div>
+          </div>
+
+          <div class="publish-footer">
+            <div class="validation-note" [class.ready]="canPublish">
+              <span class="status-dot"></span>
+              <span *ngIf="canPublish">Post is ready to continue.</span>
+              <span *ngIf="!canPublish">
+                Select a connected platform and enter a caption.
+              </span>
+            </div>
+
+            <div class="publish-actions">
+              <button
+                *ngIf="!scheduleEnabled"
+                type="button"
+                class="btn btn-primary"
+                [disabled]="!canPublish"
+                (click)="publishNow()"
+              >
+                Publish Now
+              </button>
+
+              <button
+                *ngIf="scheduleEnabled"
+                type="button"
+                class="btn btn-primary"
+                [disabled]="!canPublish || !scheduledDate || !scheduledTime"
+                (click)="schedulePost()"
+              >
+                Schedule Post
+              </button>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <aside class="preview-column">
+        <section class="panel preview-panel">
+          <div class="panel-header">
+            <div>
+              <span class="section-label">PREVIEW</span>
+              <h2>Social preview</h2>
+            </div>
+          </div>
+
+          <div class="preview-platform">
+            <span class="preview-avatar">
+              {{ selectedPlatformNames ? selectedPlatformNames.charAt(0) : 'S' }}
+            </span>
+            <div>
+              <strong>{{ selectedPlatformNames || 'Select a platform' }}</strong>
+              <small>Preview</small>
+            </div>
+          </div>
+
+          <div class="preview-image" *ngIf="imagePreview; else emptyPreview">
+            <img [src]="imagePreview!" alt="Social preview" />
+          </div>
+
+          <ng-template #emptyPreview>
+            <div class="preview-image empty">
+              <span>Image preview</span>
+            </div>
+          </ng-template>
+
+          <div class="preview-copy">
+            <p *ngIf="caption; else emptyCaption">{{ caption }}</p>
+            <ng-template #emptyCaption>
+              <p class="placeholder-copy">Your caption preview will appear here.</p>
+            </ng-template>
+
+            <p class="preview-link" *ngIf="link">{{ link }}</p>
+            <p class="preview-hashtags" *ngIf="hashtags">{{ hashtags }}</p>
+          </div>
+        </section>
+      </aside>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,179 @@
+<div class="social-page">
+  <div class="page-header">
+    <div>
+      <div class="eyebrow">SOCIAL</div>
+      <h1>Google Business</h1>
+      <p>Manage your Google Business Profile posts and publishing.</p>
+    </div>
+
+    <div class="header-actions">
+      <button class="btn btn-secondary" type="button" (click)="viewPublished()">
+        Published
+      </button>
+
+      <button class="btn btn-secondary" type="button" (click)="viewScheduled()">
+        Scheduled
+      </button>
+
+      <button class="btn btn-primary" type="button" (click)="createPost()">
+        Create Social Post
+      </button>
+    </div>
+  </div>
+
+  <div class="connection-card">
+    <div class="connection-main">
+      <div class="platform-icon google-icon">G</div>
+
+      <div class="connection-info">
+        <div class="connection-title-row">
+          <h2>Google Business Profile</h2>
+
+          <span
+            class="status-badge"
+            [class.connected]="isConnected"
+            [class.disconnected]="!isConnected"
+          >
+            {{ isConnected ? 'Connected' : 'Not Connected' }}
+          </span>
+        </div>
+
+        <p *ngIf="isConnected">
+          {{ businessName }}
+          <span *ngIf="locationName"> · {{ locationName }}</span>
+        </p>
+
+        <p *ngIf="!isConnected">
+          Connect your Google Business Profile to publish posts.
+        </p>
+      </div>
+    </div>
+
+    <div class="connection-actions">
+      <button
+        *ngIf="!isConnected"
+        class="btn btn-primary"
+        type="button"
+        (click)="connectGoogleBusiness()"
+      >
+        Connect Google Business
+      </button>
+
+      <button
+        *ngIf="isConnected"
+        class="btn btn-danger-outline"
+        type="button"
+        (click)="disconnectGoogleBusiness()"
+      >
+        Disconnect
+      </button>
+    </div>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <span class="stat-label">Connection</span>
+      <strong>{{ isConnected ? 'Active' : 'Inactive' }}</strong>
+      <small>Google Business Profile</small>
+    </div>
+
+    <div class="stat-card">
+      <span class="stat-label">Recent Posts</span>
+      <strong>{{ recentPosts.length }}</strong>
+      <small>Published from Social</small>
+    </div>
+
+    <div class="stat-card">
+      <span class="stat-label">Scheduled</span>
+      <strong>{{ scheduledPosts.length }}</strong>
+      <small>Upcoming posts</small>
+    </div>
+
+    <div class="stat-card">
+      <span class="stat-label">Location</span>
+      <strong>{{ isConnected ? '1' : '0' }}</strong>
+      <small>Connected locations</small>
+    </div>
+  </div>
+
+  <div class="content-grid">
+    <section class="panel">
+      <div class="panel-header">
+        <div>
+          <h2>Recent Google Business Posts</h2>
+          <p>Your latest published posts.</p>
+        </div>
+
+        <button class="text-btn" type="button" (click)="viewPublished()">
+          View all
+        </button>
+      </div>
+
+      <div class="empty-state" *ngIf="recentPosts.length === 0">
+        <div class="empty-icon">G</div>
+        <h3>No published posts yet</h3>
+        <p>
+          Published Google Business posts will appear here once publishing is
+          connected to the backend.
+        </p>
+      </div>
+
+      <div class="post-list" *ngIf="recentPosts.length > 0">
+        <div class="post-row" *ngFor="let post of recentPosts">
+          <div class="post-content">
+            <strong>{{ post.caption }}</strong>
+            <span>{{ post.publishedAt }}</span>
+          </div>
+
+          <span class="mini-status published">Published</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-header">
+        <div>
+          <h2>Scheduled Posts</h2>
+          <p>Upcoming Google Business posts.</p>
+        </div>
+
+        <button class="text-btn" type="button" (click)="viewScheduled()">
+          View all
+        </button>
+      </div>
+
+      <div class="empty-state" *ngIf="scheduledPosts.length === 0">
+        <div class="empty-icon">◷</div>
+        <h3>No scheduled posts</h3>
+        <p>
+          Scheduled Google Business posts will appear here when you create
+          scheduled content.
+        </p>
+      </div>
+
+      <div class="post-list" *ngIf="scheduledPosts.length > 0">
+        <div class="post-row" *ngFor="let post of scheduledPosts">
+          <div class="post-content">
+            <strong>{{ post.caption }}</strong>
+            <span>{{ post.scheduledAt }}</span>
+          </div>
+
+          <span class="mini-status scheduled">Scheduled</span>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <section class="info-panel">
+    <div class="info-icon">i</div>
+
+    <div>
+      <h3>Google Business publishing</h3>
+      <p>
+        Connect a Google Business Profile location to manage Google Business
+        posts from the Social module. OAuth, location selection, publishing,
+        and provider response handling will be connected to the backend.
+      </p>
+    </div>
+  </section>
+</div>

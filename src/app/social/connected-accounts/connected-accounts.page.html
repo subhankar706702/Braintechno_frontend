@@ -1,0 +1,178 @@
+<div class="social-page">
+  <header class="page-header">
+    <div class="page-heading">
+      <div class="eyebrow">SOCIAL</div>
+      <h1>Connected Accounts</h1>
+      <p>Connect and manage the social accounts you use for publishing.</p>
+    </div>
+
+    <div class="page-actions">
+      <button
+        mat-stroked-button
+        type="button"
+        class="header-action"
+      >
+        <mat-icon>help_outline</mat-icon>
+        <span>How it works</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="page-content">
+
+    @if (loading) {
+      <div class="loading-state">
+        Loading connected accounts...
+      </div>
+    }
+
+    @if (errorMessage) {
+      <div class="error-state">
+        {{ errorMessage }}
+      </div>
+    }
+
+    <section class="intro-card">
+      <div class="intro-icon">
+        <mat-icon>hub</mat-icon>
+      </div>
+
+      <div class="intro-copy">
+        <h2>Manage your social connections</h2>
+        <p>
+          Connect your accounts once and use them from the Social posting workflow.
+          Only connected platforms will be available when creating a post.
+        </p>
+      </div>
+
+      <div class="intro-status">
+        <span class="status-dot"></span>
+        <span>{{ connectedCount }} connected</span>
+      </div>
+    </section>
+
+    <section class="section-block">
+      <div class="section-heading">
+        <div>
+          <h2>Social platforms</h2>
+          <p>Connect the platforms where you want to publish.</p>
+        </div>
+      </div>
+
+      <div class="accounts-grid">
+        @for (account of accounts; track account.platform) {
+
+          <article
+            class="account-card"
+            [class.is-connected]="account.connected"
+          >
+
+            <div class="account-top">
+              <div
+                class="platform-icon"
+                [attr.data-platform]="account.platform"
+              >
+                <mat-icon>{{ account.icon }}</mat-icon>
+              </div>
+
+              <span
+                class="connection-badge"
+                [class.connected]="account.connected"
+              >
+                <span class="badge-dot"></span>
+
+                {{ account.connected ? 'Connected' : 'Not connected' }}
+              </span>
+            </div>
+
+            <div class="account-body">
+              <h3>{{ account.name }}</h3>
+
+              @if (account.connected) {
+
+                <p class="account-name">
+                  {{ account.accountName || 'Connected account' }}
+                </p>
+
+                <p class="account-description">
+                  {{ account.username || account.description }}
+                </p>
+
+              } @else {
+
+                <p class="account-description">
+                  {{ account.description }}
+                </p>
+
+              }
+            </div>
+
+            <div class="account-footer">
+
+              @if (account.connected) {
+
+                <!-- MANAGE BUTTON -->
+                <button
+                  mat-stroked-button
+                  type="button"
+                  (click)="manage(account)"
+                  [disabled]="actionPlatform === account.platform"
+                >
+                  <mat-icon>settings</mat-icon>
+                  Manage
+                </button>
+
+                <!-- DISCONNECT BUTTON -->
+                <button
+                  mat-button
+                  type="button"
+                  class="disconnect-button"
+                  (click)="disconnect(account)"
+                  [disabled]="actionPlatform === account.platform"
+                >
+                  @if (actionPlatform === account.platform) {
+                    Disconnecting...
+                  } @else {
+                    Disconnect
+                  }
+                </button>
+
+              } @else {
+
+                <!-- CONNECT BUTTON -->
+                <button
+                  mat-flat-button
+                  type="button"
+                  class="connect-button"
+                  (click)="connect(account)"
+                  [disabled]="actionPlatform === account.platform"
+                >
+                  <mat-icon>link</mat-icon>
+                  Connect
+                </button>
+
+              }
+
+            </div>
+
+          </article>
+
+        }
+      </div>
+    </section>
+
+    <section class="security-note">
+      <mat-icon>lock</mat-icon>
+
+      <div>
+        <strong>Your account connections are secure</strong>
+
+        <p>
+          Social authorization and token handling will be managed securely
+          through the Social backend.
+        </p>
+      </div>
+    </section>
+
+  </main>
+</div>

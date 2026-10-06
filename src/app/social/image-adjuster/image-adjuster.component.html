@@ -1,0 +1,63 @@
+<div class="image-adjuster">
+  <div class="adjuster-header">
+    <div>
+      <h3>Image Adjuster</h3>
+      <p>{{ platformName }} image presentation</p>
+    </div>
+    <button type="button" class="reset-btn" (click)="reset()" [disabled]="!imageUrl">Reset</button>
+  </div>
+
+  <div class="adjuster-body" *ngIf="imageUrl; else noImage">
+    <div class="preview-area">
+      <div class="preview-frame">
+        <img [src]="imageUrl" alt="Social post preview" [style]="getImageStyle()" />
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="control-group">
+        <label>Aspect Ratio</label>
+        <select [(ngModel)]="localSettings.aspectRatio" (ngModelChange)="updateSetting()">
+          <option value="1:1">1:1 — Square</option>
+          <option value="4:5">4:5 — Portrait</option>
+          <option value="9:16">9:16 — Story</option>
+          <option value="16:9">16:9 — Landscape</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label>Display</label>
+        <div class="mode-buttons">
+          <button type="button" [class.active]="localSettings.fit === 'fit'" (click)="setFitMode('fit')">Fit</button>
+          <button type="button" [class.active]="localSettings.fit === 'fill'" (click)="setFitMode('fill')">Fill</button>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <div class="label-row"><label>Zoom</label><span>{{ localSettings.zoom }}%</span></div>
+        <input type="range" min="100" max="200" step="1"
+          [ngModel]="localSettings.zoom" (ngModelChange)="onZoomChange($event)" />
+      </div>
+
+      <div class="control-group">
+        <div class="label-row"><label>Horizontal Position</label><span>{{ localSettings.cropX }}%</span></div>
+        <input type="range" min="0" max="100" step="1"
+          [ngModel]="localSettings.cropX" (ngModelChange)="onPositionChange('cropX', $event)" />
+      </div>
+
+      <div class="control-group">
+        <div class="label-row"><label>Vertical Position</label><span>{{ localSettings.cropY }}%</span></div>
+        <input type="range" min="0" max="100" step="1"
+          [ngModel]="localSettings.cropY" (ngModelChange)="onPositionChange('cropY', $event)" />
+      </div>
+    </div>
+  </div>
+
+  <ng-template #noImage>
+    <div class="empty-state">
+      <div class="empty-icon">🖼️</div>
+      <h4>No image selected</h4>
+      <p>Upload an image to adjust crop, zoom and position.</p>
+    </div>
+  </ng-template>
+</div>

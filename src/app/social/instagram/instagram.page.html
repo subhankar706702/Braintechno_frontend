@@ -1,0 +1,161 @@
+<div class="page-scroll">
+  <div class="page-header">
+    <div>
+      <h1>Instagram</h1>
+      <p>Manage your Instagram social publishing activity.</p>
+    </div>
+
+    <div class="header-actions">
+      <button type="button" class="btn secondary" (click)="connectInstagram()" *ngIf="!isConnected">
+        Connect Instagram
+      </button>
+
+      <button type="button" class="btn primary" (click)="createPost()">
+        Create Social Post
+      </button>
+    </div>
+  </div>
+
+  <div class="content-grid">
+    <section class="panel account-panel">
+      <div class="panel-header">
+        <div>
+          <h2>Instagram Account</h2>
+          <p>Connected account information and status.</p>
+        </div>
+
+        <span
+          class="status-badge"
+          [class.connected]="isConnected"
+          [class.disconnected]="!isConnected">
+          <span class="status-dot"></span>
+          {{ connectionText }}
+        </span>
+      </div>
+
+      <div class="account-content" *ngIf="isConnected; else notConnected">
+        <div class="account-avatar">IG</div>
+
+        <div class="account-info">
+          <strong>{{ accountName || 'Instagram Account' }}</strong>
+          <span>{{ username || '@instagram-account' }}</span>
+        </div>
+
+        <button type="button" class="text-btn danger" (click)="disconnectInstagram()">
+          Disconnect
+        </button>
+      </div>
+
+      <ng-template #notConnected>
+        <div class="empty-account">
+          <div class="empty-icon">◎</div>
+          <div>
+            <h3>Instagram is not connected</h3>
+            <p>Connect an Instagram account to publish and manage social posts.</p>
+          </div>
+
+          <button type="button" class="btn secondary" (click)="connectInstagram()">
+            Connect
+          </button>
+        </div>
+      </ng-template>
+    </section>
+
+    <section class="stats-grid">
+      <div class="stat-card">
+        <span class="stat-label">Recent Posts</span>
+        <strong>{{ recentPosts.length }}</strong>
+      </div>
+
+      <div class="stat-card">
+        <span class="stat-label">Scheduled</span>
+        <strong>{{ scheduledPosts.length }}</strong>
+      </div>
+
+      <div class="stat-card">
+        <span class="stat-label">Connection</span>
+        <strong>{{ isConnected ? 'Active' : 'Inactive' }}</strong>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-header">
+        <div>
+          <h2>Recent Instagram Posts</h2>
+          <p>Your latest published Instagram posts.</p>
+        </div>
+
+        <button type="button" class="text-btn" (click)="viewPublished()">
+          View Published
+        </button>
+      </div>
+
+      <div class="post-list" *ngIf="recentPosts.length; else noRecentPosts">
+        <div class="post-row" *ngFor="let post of recentPosts">
+          <div class="post-thumb" *ngIf="post.image; else thumbPlaceholder">
+            <img [src]="post.image" alt="Instagram post" />
+          </div>
+
+          <ng-template #thumbPlaceholder>
+            <div class="post-thumb placeholder">IG</div>
+          </ng-template>
+
+          <div class="post-details">
+            <strong>{{ post.caption || 'Instagram post' }}</strong>
+            <span>{{ post.date }}</span>
+          </div>
+
+          <span class="post-status published">{{ post.status }}</span>
+        </div>
+      </div>
+
+      <ng-template #noRecentPosts>
+        <div class="empty-state">
+          <div class="empty-icon">◎</div>
+          <h3>No recent posts</h3>
+          <p>Published Instagram posts will appear here.</p>
+        </div>
+      </ng-template>
+    </section>
+
+    <section class="panel">
+      <div class="panel-header">
+        <div>
+          <h2>Scheduled Instagram Posts</h2>
+          <p>Posts waiting to be published on Instagram.</p>
+        </div>
+
+        <button type="button" class="text-btn" (click)="viewScheduled()">
+          View Scheduled
+        </button>
+      </div>
+
+      <div class="post-list" *ngIf="scheduledPosts.length; else noScheduledPosts">
+        <div class="post-row" *ngFor="let post of scheduledPosts">
+          <div class="post-thumb" *ngIf="post.image; else scheduledThumb">
+            <img [src]="post.image" alt="Scheduled Instagram post" />
+          </div>
+
+          <ng-template #scheduledThumb>
+            <div class="post-thumb placeholder">IG</div>
+          </ng-template>
+
+          <div class="post-details">
+            <strong>{{ post.caption || 'Scheduled Instagram post' }}</strong>
+            <span>{{ post.date }}</span>
+          </div>
+
+          <span class="post-status scheduled">{{ post.status }}</span>
+        </div>
+      </div>
+
+      <ng-template #noScheduledPosts>
+        <div class="empty-state compact">
+          <div class="empty-icon">◷</div>
+          <h3>No scheduled posts</h3>
+          <p>Scheduled Instagram posts will appear here.</p>
+        </div>
+      </ng-template>
+    </section>
+  </div>
+</div>

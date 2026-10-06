@@ -1,0 +1,66 @@
+<div class="social-preview">
+  <div class="preview-header">
+    <div>
+      <h3>Social Preview</h3>
+      <p>Preview how the post will appear on the selected platform.</p>
+    </div>
+
+    <span class="platform-badge">
+      <span class="platform-icon">{{ platformIcon }}</span>
+      {{ platformLabel }}
+    </span>
+  </div>
+
+  <div class="preview-content">
+    <div class="social-card">
+      <div class="post-top">
+        <div class="avatar">
+          {{ accountName.charAt(0) || 'A' }}
+        </div>
+
+        <div class="account-info">
+          <strong>{{ accountName }}</strong>
+          <span>{{ platformLabel }}</span>
+        </div>
+
+        <button type="button" class="more-btn" aria-label="More options">•••</button>
+      </div>
+
+      <div class="post-caption">
+        <p>{{ captionText }}</p>
+
+        <p class="hashtags" *ngIf="hashtagText">
+          {{ hashtagText }}
+        </p>
+      </div>
+
+      <div class="post-image" *ngIf="imageUrl; else imagePlaceholder">
+        <img [src]="imageUrl" alt="Social post preview" />
+      </div>
+
+      <ng-template #imagePlaceholder>
+        <div class="post-image placeholder">
+          <span>Image preview</span>
+        </div>
+      </ng-template>
+
+      <div class="post-link" *ngIf="linkText">
+        <span class="link-label">LINK</span>
+        <span class="link-value">{{ linkText }}</span>
+      </div>
+
+      <div class="post-actions">
+        <span>Like</span>
+        <span>Comment</span>
+        <span>Share</span>
+      </div>
+
+      <button
+        type="button"
+        class="cta-btn"
+        *ngIf="ctaText">
+        {{ ctaText }}
+      </button>
+    </div>
+  </div>
+</div>

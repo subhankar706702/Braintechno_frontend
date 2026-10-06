@@ -1,0 +1,148 @@
+<div class="social-page">
+  <div class="page-header">
+    <div>
+      <div class="eyebrow">SOCIAL</div>
+      <h1>Scheduled</h1>
+      <p>Manage upcoming social media posts and publishing times.</p>
+    </div>
+
+    <button class="btn btn-primary" type="button" (click)="createPost()">
+      Create Social Post
+    </button>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <span class="stat-label">Scheduled</span>
+      <strong>{{ activeScheduledCount }}</strong>
+      <small>Upcoming posts</small>
+    </div>
+
+    <div class="stat-card">
+      <span class="stat-label">Publishing</span>
+      <strong>{{ publishingCount }}</strong>
+      <small>Currently publishing</small>
+    </div>
+
+    <div class="stat-card">
+      <span class="stat-label">Cancelled</span>
+      <strong>{{ cancelledCount }}</strong>
+      <small>Cancelled posts</small>
+    </div>
+
+    <div class="stat-card">
+      <span class="stat-label">Total</span>
+      <strong>{{ scheduledPosts.length }}</strong>
+      <small>Scheduled records</small>
+    </div>
+  </div>
+
+  <section class="panel">
+    <div class="panel-header">
+      <div>
+        <h2>Upcoming Social Posts</h2>
+        <p>Preview, platform, caption, schedule time and status.</p>
+      </div>
+    </div>
+
+    <div class="empty-state" *ngIf="scheduledPosts.length === 0">
+      <div class="empty-icon">◷</div>
+      <h3>No scheduled posts</h3>
+      <p>
+        Posts scheduled from Create Social Post will appear here once the
+        publishing backend is connected.
+      </p>
+
+      <button class="btn btn-primary empty-action" type="button" (click)="createPost()">
+        Create Scheduled Post
+      </button>
+    </div>
+
+    <div class="table-wrap" *ngIf="scheduledPosts.length > 0">
+      <table>
+        <thead>
+          <tr>
+            <th>Preview</th>
+            <th>Platform</th>
+            <th>Caption</th>
+            <th>Date &amp; Time</th>
+            <th>Status</th>
+            <th class="actions-head">Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let post of scheduledPosts">
+            <td>
+              <div class="preview-box">
+                <img
+                  *ngIf="post.imageUrl"
+                  [src]="post.imageUrl"
+                  alt="Scheduled post preview"
+                />
+                <span *ngIf="!post.imageUrl">No image</span>
+              </div>
+            </td>
+
+            <td>
+              <span class="platform-badge" [ngClass]="post.platformClass">
+                {{ post.platform }}
+              </span>
+            </td>
+
+            <td>
+              <div class="caption-cell">
+                {{ post.caption }}
+              </div>
+            </td>
+
+            <td>
+              <div class="date-cell">
+                <strong>{{ post.scheduledAt }}</strong>
+              </div>
+            </td>
+
+            <td>
+              <span
+                class="status-badge"
+                [ngClass]="post.status.toLowerCase()"
+              >
+                {{ post.status }}
+              </span>
+            </td>
+
+            <td>
+              <div class="row-actions">
+                <button
+                  class="action-btn"
+                  type="button"
+                  (click)="viewPost(post)"
+                >
+                  View
+                </button>
+
+                <button
+                  class="action-btn"
+                  type="button"
+                  [disabled]="post.status === 'Cancelled'"
+                  (click)="editPost(post)"
+                >
+                  Edit
+                </button>
+
+                <button
+                  class="action-btn danger"
+                  type="button"
+                  [disabled]="post.status === 'Cancelled'"
+                  (click)="cancelPost(post)"
+                >
+                  Cancel
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>

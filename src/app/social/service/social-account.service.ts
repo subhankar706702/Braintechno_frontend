@@ -1,88 +1,69 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { API_BASE_URL } from '../../core/api.config';
 
 export type SocialPlatform =
-  | 'facebook'
-  | 'instagram'
-  | 'linkedin'
-  | 'google_business';
-
-export type BackendSocialPlatform =
   | 'Facebook'
   | 'Instagram'
   | 'LinkedIn'
   | 'Google Business Profile';
 
-export type SocialAccountStatus =
-  | 'Connected'
-  | 'Not Connected'
-  | 'Expired'
-  | 'Error';
-
 export interface SocialAccount {
   id: string;
-  platform: BackendSocialPlatform;
+  platform: SocialPlatform;
   accountName: string;
   pageName: string;
-  status: SocialAccountStatus | string;
+  status: 'Connected' | 'Not Connected' | 'Expired' | 'Error' | string;
   tokenExpiresAt: string | null;
-}
-
-export interface ConnectSocialAccountPayload {
-  platform: BackendSocialPlatform;
-  accountName: string;
-  pageName?: string;
   externalAccountId: string;
 }
 
-@Injectable({
-  providedIn: 'root',
-})
+interface OAuthStartResponse {
+  authorizationUrl: string;
+}
+
+export interface FacebookPageOption {
+  id: string;
+  name: string;
+}
+
+@Injectable({ providedIn: 'root' })
 export class SocialAccountService {
   private readonly http = inject(HttpClient);
-
-  /*
-   * platform.routes.corrected.ts exposes:
-   *
-   * GET    /social/accounts
-   * POST   /social/accounts/connect
-   * PATCH  /social/accounts/:id
-   * DELETE /social/accounts/:id
-   *
-   * The existing backend platform router is mounted under /api/platform.
-   */
-  private readonly baseUrl = '/api/platform/social/accounts';
+  private readonly baseUrl = `${API_BASE_URL}/social`;
 
   getAccounts(): Observable<SocialAccount[]> {
-    return this.http.get<SocialAccount[]>(this.baseUrl);
+    return this.http.get<SocialAccount[]>(`${this.baseUrl}/accounts`);
   }
 
-  connectAccount(
-    payload: ConnectSocialAccountPayload
-  ): Observable<SocialAccount> {
-    return this.http.post<SocialAccount>(
-      `${this.baseUrl}/connect`,
-      payload
+  startFacebookOAuth(): Observable<OAuthStartResponse> {
+    return this.http.post<OAuthStartResponse>(
+      `${this.baseUrl}/oauth/facebook/start`,
+      {}
     );
   }
 
-  updateAccount(
-    id: string,
-    payload: {
-      accountName?: string;
-      pageName?: string;
-    }
-  ): Observable<SocialAccount> {
-    return this.http.patch<SocialAccount>(
-      `${this.baseUrl}/${encodeURIComponent(id)}`,
-      payload
+  getFacebookPages(selectionToken: string): Observable<{ pages: FacebookPageOption[] }> {
+    return this.http.get<{ pages: FacebookPageOption[] }>(
+      `${this.baseUrl}/oauth/facebook/pages`,
+      { params: { selectionToken } }
+    );
+  }
+
+  selectFacebookPage(
+    selectionToken: string,
+    pageId: string
+  ): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(
+      `${this.baseUrl}/oauth/facebook/pages/select`,
+      { selectionToken, pageId }
     );
   }
 
   disconnectAccount(id: string): Observable<{ message: string }> {
     return this.http.delete<{ message: string }>(
-      `${this.baseUrl}/${encodeURIComponent(id)}`
+      `${this.baseUrl}/accounts/${encodeURIComponent(id)}`
     );
   }
 }

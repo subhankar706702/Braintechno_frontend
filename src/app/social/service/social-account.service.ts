@@ -1,7 +1,19 @@
-import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { API_BASE_URL } from '../../core/api.config';
+import {
+  Injectable,
+  inject,
+} from '@angular/core';
+
+import {
+  HttpClient,
+} from '@angular/common/http';
+
+import {
+  Observable,
+} from 'rxjs';
+
+import {
+  API_BASE_URL,
+} from '../../core/api.config';
 
 export type SocialPlatform =
   | 'Facebook'
@@ -11,12 +23,26 @@ export type SocialPlatform =
 
 export interface SocialAccount {
   id: string;
-  platform: SocialPlatform;
+
+  platform:
+    SocialPlatform;
+
   accountName: string;
+
   pageName: string;
-  status: 'Connected' | 'Not Connected' | 'Expired' | 'Error' | string;
-  tokenExpiresAt: string | null;
-  externalAccountId: string;
+
+  status:
+    | 'Connected'
+    | 'Not Connected'
+    | 'Expired'
+    | 'Error'
+    | string;
+
+  tokenExpiresAt:
+    string | null;
+
+  externalAccountId:
+    string;
 }
 
 interface OAuthStartResponse {
@@ -28,42 +54,88 @@ export interface FacebookPageOption {
   name: string;
 }
 
-@Injectable({ providedIn: 'root' })
+@Injectable({
+  providedIn: 'root',
+})
 export class SocialAccountService {
-  private readonly http = inject(HttpClient);
-  private readonly baseUrl = `${API_BASE_URL}/social`;
+  private readonly http =
+    inject(HttpClient);
 
-  getAccounts(): Observable<SocialAccount[]> {
-    return this.http.get<SocialAccount[]>(`${this.baseUrl}/accounts`);
-  }
+  private readonly baseUrl =
+    `${API_BASE_URL}/social`;
 
-  startFacebookOAuth(): Observable<OAuthStartResponse> {
-    return this.http.post<OAuthStartResponse>(
-      `${this.baseUrl}/oauth/facebook/start`,
-      {}
+  getAccounts():
+    Observable<SocialAccount[]> {
+    return this.http.get<
+      SocialAccount[]
+    >(
+      `${this.baseUrl}/accounts`,
     );
   }
 
-  getFacebookPages(selectionToken: string): Observable<{ pages: FacebookPageOption[] }> {
-    return this.http.get<{ pages: FacebookPageOption[] }>(
+  startInstagramOAuth():
+    Observable<OAuthStartResponse> {
+    return this.http.post<
+      OAuthStartResponse
+    >(
+      `${this.baseUrl}/oauth/instagram/start`,
+      {},
+    );
+  }
+
+  startFacebookOAuth():
+    Observable<OAuthStartResponse> {
+    return this.http.post<
+      OAuthStartResponse
+    >(
+      `${this.baseUrl}/oauth/facebook/start`,
+      {},
+    );
+  }
+
+  getFacebookPages(
+    selectionToken: string,
+  ): Observable<{
+    pages: FacebookPageOption[];
+  }> {
+    return this.http.get<{
+      pages: FacebookPageOption[];
+    }>(
       `${this.baseUrl}/oauth/facebook/pages`,
-      { params: { selectionToken } }
+      {
+        params: {
+          selectionToken,
+        },
+      },
     );
   }
 
   selectFacebookPage(
     selectionToken: string,
-    pageId: string
-  ): Observable<{ message: string }> {
-    return this.http.post<{ message: string }>(
+    pageId: string,
+  ): Observable<{
+    message: string;
+  }> {
+    return this.http.post<{
+      message: string;
+    }>(
       `${this.baseUrl}/oauth/facebook/pages/select`,
-      { selectionToken, pageId }
+      {
+        selectionToken,
+        pageId,
+      },
     );
   }
 
-  disconnectAccount(id: string): Observable<{ message: string }> {
-    return this.http.delete<{ message: string }>(
-      `${this.baseUrl}/accounts/${encodeURIComponent(id)}`
+  disconnectAccount(
+    id: string,
+  ): Observable<{
+    message: string;
+  }> {
+    return this.http.delete<{
+      message: string;
+    }>(
+      `${this.baseUrl}/accounts/${encodeURIComponent(id)}`,
     );
   }
 }

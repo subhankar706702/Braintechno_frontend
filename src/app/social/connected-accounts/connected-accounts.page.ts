@@ -29,9 +29,7 @@ import {
   SocialPlatform,
 } from '../service/social-account.service';
 
-
 interface SocialAccountCard {
-
   platform:
     | 'facebook'
     | 'instagram'
@@ -62,6 +60,9 @@ interface SocialAccountCard {
   tokenExpiresAt?: string | null;
 }
 
+interface OAuthStartResponse {
+  authorizationUrl: string;
+}
 
 @Component({
   selector:
@@ -87,16 +88,8 @@ interface SocialAccountCard {
 export class ConnectedAccountsPage
   implements OnInit {
 
-
-  /*
-   * ---------------------------------------------------------
-   * SOCIAL ACCOUNT CARDS
-   * ---------------------------------------------------------
-   */
-
   readonly accounts:
     SocialAccountCard[] = [
-
       {
         platform:
           'facebook',
@@ -116,7 +109,6 @@ export class ConnectedAccountsPage
         connected:
           false,
       },
-
 
       {
         platform:
@@ -138,7 +130,6 @@ export class ConnectedAccountsPage
           false,
       },
 
-
       {
         platform:
           'linkedin',
@@ -158,7 +149,6 @@ export class ConnectedAccountsPage
         connected:
           false,
       },
-
 
       {
         platform:
@@ -181,13 +171,6 @@ export class ConnectedAccountsPage
       },
     ];
 
-
-  /*
-   * ---------------------------------------------------------
-   * PAGE STATE
-   * ---------------------------------------------------------
-   */
-
   loading =
     false;
 
@@ -198,13 +181,6 @@ export class ConnectedAccountsPage
   errorMessage =
     '';
 
-
-  /*
-   * ---------------------------------------------------------
-   * FACEBOOK PAGE SELECTION
-   * ---------------------------------------------------------
-   */
-
   facebookPages:
     FacebookPageOption[] =
       [];
@@ -214,7 +190,6 @@ export class ConnectedAccountsPage
 
   selectingFacebookPage =
     false;
-
 
   constructor(
     private readonly socialAccountService:
@@ -230,31 +205,16 @@ export class ConnectedAccountsPage
       ChangeDetectorRef,
   ) {}
 
-
-  /*
-   * ---------------------------------------------------------
-   * INIT
-   * ---------------------------------------------------------
-   */
-
   ngOnInit():
     void {
-
     this.readOAuthResult();
 
     this.loadAccounts();
   }
 
 
-  /*
-   * ---------------------------------------------------------
-   * CONNECTED COUNT
-   * ---------------------------------------------------------
-   */
-
   get connectedCount():
     number {
-
     return this.accounts.filter(
       account =>
         account.connected,
@@ -263,44 +223,32 @@ export class ConnectedAccountsPage
 
 
   /*
-   * ---------------------------------------------------------
-   * CONNECT
-   * ---------------------------------------------------------
+   * CONNECT SOCIAL ACCOUNT
    */
-
   connect(
     account: SocialAccountCard,
   ): void {
-
-    /*
-     * Prevent two OAuth actions from running
-     * at the same time.
-     */
-
-    if (this.actionPlatform) {
+    if (
+      this.actionPlatform
+    ) {
       return;
     }
 
-
     /*
-     * Facebook, Instagram and LinkedIn are
-     * currently configured OAuth platforms.
+     * LinkedIn is now supported.
      *
-     * Google Business is intentionally kept
-     * disabled until its backend OAuth flow exists.
+     * Google Business is intentionally
+     * kept disabled until its OAuth
+     * implementation is added.
      */
-
     if (
       account.platform !==
         'facebook' &&
-
       account.platform !==
         'instagram' &&
-
       account.platform !==
         'linkedin'
     ) {
-
       this.errorMessage =
         `${account.name} connection is not configured yet.`;
 
@@ -308,7 +256,6 @@ export class ConnectedAccountsPage
 
       return;
     }
-
 
     this.actionPlatform =
       account.platform;
@@ -318,72 +265,43 @@ export class ConnectedAccountsPage
 
     this.cdr.markForCheck();
 
+    let start$:
+      ReturnType<
+        SocialAccountService[
+          | 'startFacebookOAuth'
+          | 'startInstagramOAuth'
+          | 'startLinkedInOAuth'
+        ]
+      >;
 
-    /*
-     * Select the correct OAuth start API.
-     */
-
-    let start$;
-
-    switch (
-      account.platform
+    if (
+      account.platform ===
+      'facebook'
     ) {
-
-      case 'facebook':
-
-        start$ =
-          this.socialAccountService
-            .startFacebookOAuth();
-
-        break;
-
-
-      case 'instagram':
-
-        start$ =
-          this.socialAccountService
-            .startInstagramOAuth();
-
-        break;
-
-
-      case 'linkedin':
-
-        start$ =
-          this.socialAccountService
-            .startLinkedInOAuth();
-
-        break;
-
-
-      default:
-
-        this.actionPlatform =
-          null;
-
-        this.errorMessage =
-          `${account.name} connection is not configured yet.`;
-
-        this.cdr.markForCheck();
-
-        return;
+      start$ =
+        this.socialAccountService
+          .startFacebookOAuth();
+    } else if (
+      account.platform ===
+      'instagram'
+    ) {
+      start$ =
+        this.socialAccountService
+          .startInstagramOAuth();
+    } else {
+      start$ =
+        this.socialAccountService
+          .startLinkedInOAuth();
     }
 
-
-    /*
-     * OAuth START request must go through Angular
-     * HttpClient so the JWT interceptor can attach
-     * the Authorization header.
-     */
-
     start$.subscribe({
-
       next: ({
         authorizationUrl,
-      }) => {
+      }: OAuthStartResponse) => {
 
-        if (!authorizationUrl) {
-
+        if (
+          !authorizationUrl
+        ) {
           this.actionPlatform =
             null;
 
@@ -395,23 +313,24 @@ export class ConnectedAccountsPage
           return;
         }
 
-
         /*
-         * Once the backend gives us the provider
-         * authorization URL, normal browser
-         * navigation is safe.
+         * OAuth start is called through
+         * Angular HttpClient first.
+         *
+         * This allows the auth interceptor
+         * to attach the JWT.
+         *
+         * Browser navigation happens only
+         * after receiving the provider URL.
          */
-
         window.location.assign(
           authorizationUrl,
         );
       },
 
-
       error: (
         error: unknown,
       ) => {
-
         this.actionPlatform =
           null;
 
@@ -428,15 +347,11 @@ export class ConnectedAccountsPage
 
 
   /*
-   * ---------------------------------------------------------
-   * MANAGE
-   * ---------------------------------------------------------
+   * MANAGE ACCOUNT
    */
-
   manage(
     account: SocialAccountCard,
   ): void {
-
     if (
       !account.connected ||
       this.actionPlatform
@@ -444,35 +359,27 @@ export class ConnectedAccountsPage
       return;
     }
 
-
     /*
-     * Keep current UI/function stable.
-     *
-     * Platform-specific Edit/Manage flows can
-     * be added later without changing the card UI.
+     * Manage flow can be expanded
+     * later without changing the
+     * existing UI.
      */
-
     this.loadAccounts();
   }
 
 
   /*
-   * ---------------------------------------------------------
-   * DISCONNECT
-   * ---------------------------------------------------------
+   * DISCONNECT ACCOUNT
    */
-
   disconnect(
     account: SocialAccountCard,
   ): void {
-
     if (
       !account.accountId ||
       this.actionPlatform
     ) {
       return;
     }
-
 
     this.actionPlatform =
       account.platform;
@@ -482,15 +389,12 @@ export class ConnectedAccountsPage
 
     this.cdr.markForCheck();
 
-
     this.socialAccountService
       .disconnectAccount(
         account.accountId,
       )
       .subscribe({
-
         next: () => {
-
           this.resetAccount(
             account,
           );
@@ -501,11 +405,9 @@ export class ConnectedAccountsPage
           this.cdr.markForCheck();
         },
 
-
         error: (
           error: unknown,
         ) => {
-
           this.actionPlatform =
             null;
 
@@ -522,14 +424,10 @@ export class ConnectedAccountsPage
 
 
   /*
-   * ---------------------------------------------------------
-   * LOAD ACCOUNTS
-   * ---------------------------------------------------------
+   * LOAD CONNECTED ACCOUNTS
    */
-
   private loadAccounts():
     void {
-
     this.loading =
       true;
 
@@ -538,16 +436,13 @@ export class ConnectedAccountsPage
 
     this.cdr.markForCheck();
 
-
     this.socialAccountService
       .getAccounts()
       .subscribe({
-
         next: (
           backendAccounts:
             SocialAccount[],
         ) => {
-
           this.applyBackendAccounts(
             backendAccounts,
           );
@@ -558,11 +453,9 @@ export class ConnectedAccountsPage
           this.cdr.markForCheck();
         },
 
-
         error: (
           error: unknown,
         ) => {
-
           this.loading =
             false;
 
@@ -579,29 +472,28 @@ export class ConnectedAccountsPage
 
 
   /*
-   * ---------------------------------------------------------
-   * READ OAUTH CALLBACK
-   * ---------------------------------------------------------
+   * READ OAUTH RESULT
    */
-
   private readOAuthResult():
     void {
-
     const params =
-      this.route.snapshot.queryParamMap;
-
+      this.route.snapshot
+        .queryParamMap;
 
     const status =
-      params.get('status');
-
+      params.get(
+        'status',
+      );
 
     const message =
-      params.get('message');
-
+      params.get(
+        'message',
+      );
 
     const social =
-      params.get('social');
-
+      params.get(
+        'social',
+      );
 
     const selectionToken =
       params.get(
@@ -610,28 +502,38 @@ export class ConnectedAccountsPage
 
 
     /*
-     * OAuth ERROR
+     * OAUTH ERROR
      */
-
     if (
       status ===
       'error'
     ) {
+      let platformName =
+        'Social account';
 
-      const platformName =
-        social === 'instagram'
-          ? 'Instagram'
-          : social === 'linkedin'
-            ? 'LinkedIn'
-            : 'Facebook';
-
+      if (
+        social ===
+        'instagram'
+      ) {
+        platformName =
+          'Instagram';
+      } else if (
+        social ===
+        'linkedin'
+      ) {
+        platformName =
+          'LinkedIn';
+      } else if (
+        social ===
+        'facebook'
+      ) {
+        platformName =
+          'Facebook';
+      }
 
       this.errorMessage =
         message ||
         `${platformName} connection failed.`;
-
-
-      this.cdr.markForCheck();
 
       return;
     }
@@ -640,77 +542,42 @@ export class ConnectedAccountsPage
     /*
      * FACEBOOK PAGE SELECTION
      */
-
     if (
       status ===
         'select_page' &&
-
       selectionToken
     ) {
-
       this.facebookPageSelectionToken =
         selectionToken;
-
 
       this.loadFacebookPages(
         selectionToken,
       );
-
-      this.cdr.markForCheck();
-
-      return;
-    }
-
-
-    /*
-     * Successful OAuth callback.
-     *
-     * Backend already saved the account.
-     * loadAccounts() in ngOnInit will refresh the UI.
-     */
-
-    if (
-      status ===
-      'connected'
-    ) {
-
-      this.errorMessage =
-        '';
-
-      this.cdr.markForCheck();
     }
   }
 
 
   /*
-   * ---------------------------------------------------------
    * LOAD FACEBOOK PAGES
-   * ---------------------------------------------------------
    */
-
   private loadFacebookPages(
     selectionToken: string,
   ):
     void {
-
     this.selectingFacebookPage =
       true;
-
-    this.cdr.markForCheck();
-
 
     this.socialAccountService
       .getFacebookPages(
         selectionToken,
       )
       .subscribe({
-
         next: (
           response: {
-            pages: FacebookPageOption[];
+            pages:
+              FacebookPageOption[];
           },
         ) => {
-
           this.facebookPages =
             response.pages || [];
 
@@ -720,11 +587,9 @@ export class ConnectedAccountsPage
           this.cdr.markForCheck();
         },
 
-
         error: (
           error: unknown,
         ) => {
-
           this.selectingFacebookPage =
             false;
 
@@ -741,23 +606,18 @@ export class ConnectedAccountsPage
 
 
   /*
-   * ---------------------------------------------------------
    * SELECT FACEBOOK PAGE
-   * ---------------------------------------------------------
    */
-
   selectFacebookPage(
     page: FacebookPageOption,
   ):
     void {
-
     if (
       this.selectingFacebookPage ||
       !this.facebookPageSelectionToken
     ) {
       return;
     }
-
 
     this.selectingFacebookPage =
       true;
@@ -767,16 +627,13 @@ export class ConnectedAccountsPage
 
     this.cdr.markForCheck();
 
-
     this.socialAccountService
       .selectFacebookPage(
         this.facebookPageSelectionToken,
         page.id,
       )
       .subscribe({
-
         next: () => {
-
           this.facebookPages =
             [];
 
@@ -786,12 +643,6 @@ export class ConnectedAccountsPage
           this.selectingFacebookPage =
             false;
 
-
-          /*
-           * Remove OAuth callback query params
-           * without reloading the page.
-           */
-
           this.router.navigate(
             [],
 
@@ -799,25 +650,21 @@ export class ConnectedAccountsPage
               relativeTo:
                 this.route,
 
-              queryParams:
-                {},
+              queryParams: {},
 
               replaceUrl:
                 true,
             },
           );
 
-
           this.loadAccounts();
 
           this.cdr.markForCheck();
         },
 
-
         error: (
           error: unknown,
         ) => {
-
           this.selectingFacebookPage =
             false;
 
@@ -834,21 +681,16 @@ export class ConnectedAccountsPage
 
 
   /*
-   * ---------------------------------------------------------
-   * APPLY BACKEND DATA TO UI CARDS
-   * ---------------------------------------------------------
+   * APPLY BACKEND ACCOUNTS
    */
-
   private applyBackendAccounts(
     backendAccounts:
       SocialAccount[],
   ):
     void {
-
     for (
       const card of this.accounts
     ) {
-
       const backendAccount =
         backendAccounts.find(
           account =>
@@ -856,9 +698,7 @@ export class ConnectedAccountsPage
             card.backendPlatform,
         );
 
-
       if (!backendAccount) {
-
         this.resetAccount(
           card,
         );
@@ -866,55 +706,35 @@ export class ConnectedAccountsPage
         continue;
       }
 
-
       const connected =
         String(
           backendAccount.status,
         ).toLowerCase() ===
         'connected';
 
-
       card.connected =
         connected;
-
 
       card.accountName =
         backendAccount.accountName ||
         '';
-
-
-      /*
-       * Facebook:
-       * pageName contains Page name.
-       *
-       * Instagram:
-       * pageName contains @username.
-       *
-       * LinkedIn:
-       * pageName/accountName can contain
-       * the connected member/profile name.
-       */
 
       card.username =
         backendAccount.pageName ||
         backendAccount.accountName ||
         '';
 
-
       card.pageName =
         backendAccount.pageName ||
         '';
-
 
       card.accountId =
         backendAccount.id ||
         undefined;
 
-
       card.status =
         backendAccount.status ||
         'Not Connected';
-
 
       card.tokenExpiresAt =
         backendAccount.tokenExpiresAt ??
@@ -924,16 +744,12 @@ export class ConnectedAccountsPage
 
 
   /*
-   * ---------------------------------------------------------
-   * RESET CARD
-   * ---------------------------------------------------------
+   * RESET ACCOUNT
    */
-
   private resetAccount(
     account: SocialAccountCard,
   ):
     void {
-
     account.connected =
       false;
 
@@ -958,23 +774,18 @@ export class ConnectedAccountsPage
 
 
   /*
-   * ---------------------------------------------------------
-   * ERROR MESSAGE
-   * ---------------------------------------------------------
+   * ERROR MESSAGE HELPER
    */
-
   private getErrorMessage(
     error: unknown,
     fallback: string,
   ):
     string {
-
     if (
       typeof error ===
         'object' &&
       error !== null
     ) {
-
       const apiError =
         error as {
           error?: {
@@ -984,27 +795,22 @@ export class ConnectedAccountsPage
           message?: unknown;
         };
 
-
       if (
         apiError.error?.message
       ) {
-
         return String(
           apiError.error.message,
         );
       }
 
-
       if (
         apiError.message
       ) {
-
         return String(
           apiError.message,
         );
       }
     }
-
 
     return fallback;
   }

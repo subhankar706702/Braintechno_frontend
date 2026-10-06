@@ -26,8 +26,7 @@ export type SocialPlatform =
 export interface SocialAccount {
   id: string;
 
-  platform:
-    SocialPlatform;
+  platform: SocialPlatform;
 
   accountName: string;
 
@@ -41,10 +40,10 @@ export interface SocialAccount {
     | string;
 
   tokenExpiresAt:
-    string | null;
+    | string
+    | null;
 
-  externalAccountId:
-    string;
+  externalAccountId: string;
 }
 
 
@@ -72,11 +71,8 @@ export class SocialAccountService {
 
 
   /*
-   * ---------------------------------------------------------
-   * GET CONNECTED SOCIAL ACCOUNTS
-   * ---------------------------------------------------------
+   * GET CONNECTED ACCOUNTS
    */
-
   getAccounts():
     Observable<SocialAccount[]> {
 
@@ -89,29 +85,8 @@ export class SocialAccountService {
 
 
   /*
-   * ---------------------------------------------------------
-   * INSTAGRAM OAUTH
-   * ---------------------------------------------------------
-   */
-
-  startInstagramOAuth():
-    Observable<OAuthStartResponse> {
-
-    return this.http.post<
-      OAuthStartResponse
-    >(
-      `${this.baseUrl}/oauth/instagram/start`,
-      {},
-    );
-  }
-
-
-  /*
-   * ---------------------------------------------------------
    * FACEBOOK OAUTH
-   * ---------------------------------------------------------
    */
-
   startFacebookOAuth():
     Observable<OAuthStartResponse> {
 
@@ -125,38 +100,14 @@ export class SocialAccountService {
 
 
   /*
-   * ---------------------------------------------------------
-   * LINKEDIN OAUTH
-   * ---------------------------------------------------------
-   *
-   * JWT is attached automatically by the existing
-   * Angular auth interceptor because this request uses
-   * HttpClient instead of direct browser navigation.
+   * FACEBOOK PAGE LIST
    */
-
-  startLinkedInOAuth():
-    Observable<OAuthStartResponse> {
-
-    return this.http.post<
-      OAuthStartResponse
-    >(
-      `${this.baseUrl}/oauth/linkedin/start`,
-      {},
-    );
-  }
-
-
-  /*
-   * ---------------------------------------------------------
-   * FACEBOOK PAGE SELECTION
-   * ---------------------------------------------------------
-   */
-
   getFacebookPages(
     selectionToken: string,
-  ): Observable<{
-    pages: FacebookPageOption[];
-  }> {
+  ):
+    Observable<{
+      pages: FacebookPageOption[];
+    }> {
 
     return this.http.get<{
       pages: FacebookPageOption[];
@@ -171,12 +122,16 @@ export class SocialAccountService {
   }
 
 
+  /*
+   * FACEBOOK PAGE SELECT
+   */
   selectFacebookPage(
     selectionToken: string,
     pageId: string,
-  ): Observable<{
-    message: string;
-  }> {
+  ):
+    Observable<{
+      message: string;
+    }> {
 
     return this.http.post<{
       message: string;
@@ -191,16 +146,44 @@ export class SocialAccountService {
 
 
   /*
-   * ---------------------------------------------------------
-   * DISCONNECT SOCIAL ACCOUNT
-   * ---------------------------------------------------------
+   * INSTAGRAM OAUTH
    */
+  startInstagramOAuth():
+    Observable<OAuthStartResponse> {
 
+    return this.http.post<
+      OAuthStartResponse
+    >(
+      `${this.baseUrl}/oauth/instagram/start`,
+      {},
+    );
+  }
+
+
+  /*
+   * LINKEDIN OAUTH
+   */
+  startLinkedInOAuth():
+    Observable<OAuthStartResponse> {
+
+    return this.http.post<
+      OAuthStartResponse
+    >(
+      `${this.baseUrl}/oauth/linkedin/start`,
+      {},
+    );
+  }
+
+
+  /*
+   * DISCONNECT SOCIAL ACCOUNT
+   */
   disconnectAccount(
     id: string,
-  ): Observable<{
-    message: string;
-  }> {
+  ):
+    Observable<{
+      message: string;
+    }> {
 
     return this.http.delete<{
       message: string;

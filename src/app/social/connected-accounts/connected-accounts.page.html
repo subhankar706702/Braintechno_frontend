@@ -1,5 +1,9 @@
 <div class="social-page">
 
+  <!-- ===================================================== -->
+  <!-- PAGE HEADER -->
+  <!-- ===================================================== -->
+
   <header class="page-header">
 
     <div class="page-heading">
@@ -18,6 +22,7 @@
 
     </div>
 
+
     <div class="page-actions">
 
       <button
@@ -25,6 +30,7 @@
         type="button"
         class="header-action"
       >
+
         <mat-icon>
           help_outline
         </mat-icon>
@@ -32,12 +38,17 @@
         <span>
           How it works
         </span>
+
       </button>
 
     </div>
 
   </header>
 
+
+  <!-- ===================================================== -->
+  <!-- ERROR MESSAGE -->
+  <!-- ===================================================== -->
 
   @if (errorMessage) {
 
@@ -58,6 +69,10 @@
 
   }
 
+
+  <!-- ===================================================== -->
+  <!-- FACEBOOK PAGE SELECTION -->
+  <!-- ===================================================== -->
 
   @if (facebookPageSelectionToken) {
 
@@ -130,6 +145,7 @@
 
                 </span>
 
+
                 <span class="facebook-page-option__copy">
 
                   <strong>
@@ -141,6 +157,7 @@
                   </small>
 
                 </span>
+
 
                 <mat-icon>
                   chevron_right
@@ -171,7 +188,16 @@
   }
 
 
+  <!-- ===================================================== -->
+  <!-- MAIN CONTENT -->
+  <!-- ===================================================== -->
+
   <main class="page-content">
+
+
+    <!-- =================================================== -->
+    <!-- INTRO CARD -->
+    <!-- =================================================== -->
 
     <section class="intro-card">
 
@@ -182,6 +208,7 @@
         </mat-icon>
 
       </div>
+
 
       <div class="intro-copy">
 
@@ -196,6 +223,7 @@
 
       </div>
 
+
       <div class="intro-status">
 
         <span class="status-dot"></span>
@@ -208,6 +236,10 @@
 
     </section>
 
+
+    <!-- =================================================== -->
+    <!-- SOCIAL PLATFORMS -->
+    <!-- =================================================== -->
 
     <section class="section-block">
 
@@ -239,6 +271,11 @@
             class="account-card"
             [class.is-connected]="account.connected"
           >
+
+
+            <!-- ========================================= -->
+            <!-- ACCOUNT TOP -->
+            <!-- ========================================= -->
 
             <div class="account-top">
 
@@ -272,6 +309,10 @@
             </div>
 
 
+            <!-- ========================================= -->
+            <!-- ACCOUNT BODY -->
+            <!-- ========================================= -->
+
             <div class="account-body">
 
               <h3>
@@ -282,17 +323,22 @@
               @if (account.connected) {
 
                 <p class="account-name">
+
                   {{
                     account.accountName ||
                     'Connected account'
                   }}
+
                 </p>
 
+
                 <p class="account-description">
+
                   {{
                     account.username ||
                     account.description
                   }}
+
                 </p>
 
               } @else {
@@ -305,6 +351,10 @@
 
             </div>
 
+
+            <!-- ========================================= -->
+            <!-- ACCOUNT FOOTER -->
+            <!-- ========================================= -->
 
             <div class="account-footer">
 
@@ -333,7 +383,9 @@
                   [disabled]="actionPlatform === account.platform"
                   (click)="disconnect(account)"
                 >
+
                   Disconnect
+
                 </button>
 
               } @else {
@@ -351,6 +403,7 @@
                   <mat-icon>
                     link
                   </mat-icon>
+
 
                   {{
                     actionPlatform === account.platform
@@ -373,11 +426,16 @@
     </section>
 
 
+    <!-- =================================================== -->
+    <!-- SECURITY NOTE -->
+    <!-- =================================================== -->
+
     <section class="security-note">
 
       <mat-icon>
         lock
       </mat-icon>
+
 
       <div>
 

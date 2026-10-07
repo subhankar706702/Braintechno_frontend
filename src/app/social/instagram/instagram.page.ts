@@ -32,6 +32,10 @@ export class InstagramPage {
     return this.isConnected ? 'Connected' : 'Not Connected';
   }
 
+  back(): void {
+    this.router.navigate(['/app/social']);
+  }
+
   connectInstagram(): void {
     // OAuth connection will be handled by the backend service.
     // Keeping this method safe until OAuth is connected.
@@ -46,14 +50,14 @@ export class InstagramPage {
   }
 
   createPost(): void {
-    this.router.navigate(['/social/create-post']);
+    this.router.navigate(['/app/social/create-post']);
   }
 
   viewScheduled(): void {
-    this.router.navigate(['/social/scheduled']);
+    this.router.navigate(['/app/social/scheduled']);
   }
 
   viewPublished(): void {
-    this.router.navigate(['/social/published']);
+    this.router.navigate(['/app/social/published']);
   }
 }

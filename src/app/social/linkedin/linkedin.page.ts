@@ -32,6 +32,10 @@ export class LinkedInPage {
     return this.isConnected ? 'Connected' : 'Not Connected';
   }
 
+  back(): void {
+    this.router.navigate(['/app/social']);
+  }
+
   connectLinkedIn(): void {
     // LinkedIn OAuth and account selection will be connected later.
   }
@@ -45,14 +49,14 @@ export class LinkedInPage {
   }
 
   createPost(): void {
-    this.router.navigate(['/social/create-post']);
+    this.router.navigate(['/app/social/create-post']);
   }
 
   viewScheduled(): void {
-    this.router.navigate(['/social/scheduled']);
+    this.router.navigate(['/app/social/scheduled']);
   }
 
   viewPublished(): void {
-    this.router.navigate(['/social/published']);
+    this.router.navigate(['/app/social/published']);
   }
 }

@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
+import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
 
 type PublishedStatus = 'Published' | 'Failed';
@@ -18,7 +19,7 @@ interface PublishedPost {
 @Component({
   selector: 'app-published',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule,MatIconModule],
   templateUrl: './published.page.html',
   styleUrl: './published.page.scss'
 })
@@ -27,8 +28,12 @@ export class PublishedPage {
 
   constructor(private router: Router) {}
 
+  back(): void {
+    this.router.navigate(['/app/social']);
+  }
+
   createPost(): void {
-    this.router.navigate(['/social/create-post']);
+    this.router.navigate(['/app/social/create-post']);
   }
 
   viewDetails(post: PublishedPost): void {

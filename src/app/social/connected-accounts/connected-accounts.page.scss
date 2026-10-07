@@ -30,12 +30,42 @@
 }
 
 .eyebrow {
-  margin-bottom: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  margin: 0 0 6px;
+  padding: 0;
+
+  border: 0;
+  background: transparent;
+
+  font-family: inherit;
   font-size: 11px;
   line-height: 1.2;
   font-weight: 700;
   letter-spacing: .11em;
   color: var(--primary, #2563eb);
+
+  cursor: pointer;
+  text-transform: uppercase;
+
+  mat-icon {
+    width: 16px;
+    height: 16px;
+    font-size: 16px;
+    line-height: 16px;
+  }
+
+  &:hover {
+    color: var(--primary-dark, #1d4ed8);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--primary, #2563eb);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
 }
 
 .page-heading h1 {
@@ -195,7 +225,7 @@
   font-size: 11px;
 }
 
-.facebook-page-option > mat-icon {
+.facebook-page-option>mat-icon {
   flex: 0 0 auto;
   color: #98a2b3;
 }
@@ -220,7 +250,9 @@
 }
 
 @keyframes social-spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .page-content {
@@ -475,7 +507,7 @@
   gap: 11px;
 }
 
-.security-note > mat-icon {
+.security-note>mat-icon {
   flex: 0 0 auto;
   color: #667085;
   font-size: 19px;

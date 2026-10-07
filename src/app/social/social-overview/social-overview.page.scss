@@ -45,11 +45,42 @@ button {
 }
 
 .page-eyebrow {
-    color: var(--bt-primary);
-    font-size: 9px;
-    font-weight: 800;
-    letter-spacing: .08em;
-    text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  margin: 0 0 6px;
+  padding: 0;
+
+  border: 0;
+  background: transparent;
+
+  font-family: inherit;
+  font-size: 11px;
+  line-height: 1.2;
+  font-weight: 700;
+  letter-spacing: .11em;
+  color: var(--primary, #2563eb);
+
+  cursor: pointer;
+  text-transform: uppercase;
+
+  mat-icon {
+    width: 16px;
+    height: 16px;
+    font-size: 16px;
+    line-height: 16px;
+  }
+
+  &:hover {
+    color: var(--primary-dark, #1d4ed8);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--primary, #2563eb);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
 }
 
 .social-header h1 {

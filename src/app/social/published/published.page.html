@@ -1,14 +1,19 @@
 <div class="social-page">
   <div class="page-header">
     <div>
-      <div class="eyebrow">SOCIAL</div>
+      <button type="button" class="eyebrow" (click)="back()">
+        <mat-icon>arrow_back</mat-icon>
+        <span>SOCIAL</span>
+      </button>
       <h1>Published</h1>
       <p>View social media posts that have already been published.</p>
     </div>
 
-    <button class="btn btn-primary" type="button" (click)="createPost()">
-      Create Social Post
-    </button>
+    <div class="header-actions">
+      <button class="btn btn-primary" type="button" (click)="createPost()">
+        Create Social Post
+      </button>
+    </div>
   </div>
 
   <div class="stats-grid">
@@ -76,11 +81,7 @@
           <tr *ngFor="let post of publishedPosts">
             <td>
               <div class="preview-box">
-                <img
-                  *ngIf="post.imageUrl"
-                  [src]="post.imageUrl"
-                  alt="Published post preview"
-                />
+                <img *ngIf="post.imageUrl" [src]="post.imageUrl" alt="Published post preview" />
                 <span *ngIf="!post.imageUrl">No image</span>
               </div>
             </td>
@@ -104,10 +105,7 @@
             </td>
 
             <td>
-              <span
-                class="status-badge"
-                [ngClass]="post.status.toLowerCase()"
-              >
+              <span class="status-badge" [ngClass]="post.status.toLowerCase()">
                 {{ post.status }}
               </span>
             </td>
@@ -119,11 +117,7 @@
             </td>
 
             <td>
-              <button
-                class="action-btn"
-                type="button"
-                (click)="viewDetails(post)"
-              >
+              <button class="action-btn" type="button" (click)="viewDetails(post)">
                 Details
               </button>
             </td>

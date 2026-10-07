@@ -2,7 +2,10 @@
   <div class="page-scroll">
     <header class="page-header">
       <div class="header-copy">
-        <span class="eyebrow">SOCIAL</span>
+        <button type="button" class="eyebrow" (click)="back()">
+          <mat-icon>arrow_back</mat-icon>
+          <span>SOCIAL</span>
+        </button>
         <h1>Create Social Post</h1>
         <p>Create one post and prepare it for your connected social platforms.</p>
       </div>
@@ -29,13 +32,8 @@
           </div>
 
           <div class="platform-list">
-            <button
-              type="button"
-              class="platform-option all-option"
-              [class.selected]="postToAll"
-              [disabled]="connectedPlatforms.length === 0"
-              (click)="toggleAllPlatforms()"
-            >
+            <button type="button" class="platform-option all-option" [class.selected]="postToAll"
+              [disabled]="connectedPlatforms.length === 0" (click)="toggleAllPlatforms()">
               <span class="checkbox" [class.checked]="postToAll">
                 <span *ngIf="postToAll">✓</span>
               </span>
@@ -48,15 +46,9 @@
               </span>
             </button>
 
-            <button
-              type="button"
-              class="platform-option"
-              *ngFor="let platform of platforms"
-              [class.selected]="isPlatformSelected(platform)"
-              [class.disabled]="!platform.connected"
-              [disabled]="!platform.connected"
-              (click)="togglePlatform(platform)"
-            >
+            <button type="button" class="platform-option" *ngFor="let platform of platforms"
+              [class.selected]="isPlatformSelected(platform)" [class.disabled]="!platform.connected"
+              [disabled]="!platform.connected" (click)="togglePlatform(platform)">
               <span class="checkbox" [class.checked]="isPlatformSelected(platform)">
                 <span *ngIf="isPlatformSelected(platform)">✓</span>
               </span>
@@ -88,14 +80,8 @@
 
           <div class="field-group">
             <label for="caption">Caption</label>
-            <textarea
-              id="caption"
-              name="caption"
-              [(ngModel)]="caption"
-              rows="7"
-              maxlength="5000"
-              placeholder="Write your social post caption..."
-            ></textarea>
+            <textarea id="caption" name="caption" [(ngModel)]="caption" rows="7" maxlength="5000"
+              placeholder="Write your social post caption..."></textarea>
             <div class="field-meta">
               <span>Add a clear and engaging message for your audience.</span>
               <span>{{ caption.length }}/5000</span>
@@ -104,25 +90,15 @@
 
           <div class="field-group">
             <label for="link">Link</label>
-            <input
-              id="link"
-              name="link"
-              type="url"
-              [(ngModel)]="link"
-              placeholder="https://www.braintechno.com/business/offer"
-            />
+            <input id="link" name="link" type="url" [(ngModel)]="link"
+              placeholder="https://www.braintechno.com/business/offer" />
           </div>
 
           <div class="two-column-fields">
             <div class="field-group">
               <label for="hashtags">Hashtags</label>
-              <input
-                id="hashtags"
-                name="hashtags"
-                type="text"
-                [(ngModel)]="hashtags"
-                placeholder="#offer #promotion #business"
-              />
+              <input id="hashtags" name="hashtags" type="text" [(ngModel)]="hashtags"
+                placeholder="#offer #promotion #business" />
             </div>
 
             <div class="field-group">
@@ -147,13 +123,7 @@
           </div>
 
           <div class="upload-area" [class.has-image]="imagePreview">
-            <input
-              #imageInput
-              type="file"
-              accept="image/*"
-              (change)="onImageSelected($event)"
-              hidden
-            />
+            <input #imageInput type="file" accept="image/*" (change)="onImageSelected($event)" hidden />
 
             <ng-container *ngIf="!imagePreview; else imageUploaded">
               <div class="upload-icon">↑</div>
@@ -186,12 +156,7 @@
 
           <div class="publish-choice">
             <label class="radio-option">
-              <input
-                type="radio"
-                name="publishMode"
-                [checked]="!scheduleEnabled"
-                (change)="scheduleEnabled = false"
-              />
+              <input type="radio" name="publishMode" [checked]="!scheduleEnabled" (change)="scheduleEnabled = false" />
               <span>
                 <strong>Publish Now</strong>
                 <small>Publish after the post is validated.</small>
@@ -199,12 +164,7 @@
             </label>
 
             <label class="radio-option">
-              <input
-                type="radio"
-                name="publishMode"
-                [checked]="scheduleEnabled"
-                (change)="scheduleEnabled = true"
-              />
+              <input type="radio" name="publishMode" [checked]="scheduleEnabled" (change)="scheduleEnabled = true" />
               <span>
                 <strong>Schedule</strong>
                 <small>Choose a date and time for publishing.</small>
@@ -215,22 +175,12 @@
           <div class="schedule-fields" *ngIf="scheduleEnabled">
             <div class="field-group">
               <label for="scheduledDate">Date</label>
-              <input
-                id="scheduledDate"
-                name="scheduledDate"
-                type="date"
-                [(ngModel)]="scheduledDate"
-              />
+              <input id="scheduledDate" name="scheduledDate" type="date" [(ngModel)]="scheduledDate" />
             </div>
 
             <div class="field-group">
               <label for="scheduledTime">Time</label>
-              <input
-                id="scheduledTime"
-                name="scheduledTime"
-                type="time"
-                [(ngModel)]="scheduledTime"
-              />
+              <input id="scheduledTime" name="scheduledTime" type="time" [(ngModel)]="scheduledTime" />
             </div>
           </div>
 
@@ -244,23 +194,13 @@
             </div>
 
             <div class="publish-actions">
-              <button
-                *ngIf="!scheduleEnabled"
-                type="button"
-                class="btn btn-primary"
-                [disabled]="!canPublish"
-                (click)="publishNow()"
-              >
+              <button *ngIf="!scheduleEnabled" type="button" class="btn btn-primary" [disabled]="!canPublish"
+                (click)="publishNow()">
                 Publish Now
               </button>
 
-              <button
-                *ngIf="scheduleEnabled"
-                type="button"
-                class="btn btn-primary"
-                [disabled]="!canPublish || !scheduledDate || !scheduledTime"
-                (click)="schedulePost()"
-              >
+              <button *ngIf="scheduleEnabled" type="button" class="btn btn-primary"
+                [disabled]="!canPublish || !scheduledDate || !scheduledTime" (click)="schedulePost()">
                 Schedule Post
               </button>
             </div>

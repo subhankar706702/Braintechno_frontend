@@ -18,6 +18,11 @@ interface SocialPost {
   styleUrl: './google-business.page.scss'
 })
 export class GoogleBusinessPage {
+  back(): void {
+    this.router.navigate(['/app/social']);
+  }
+
+
   isConnected = false;
 
   businessName = 'Google Business Profile';
@@ -29,9 +34,7 @@ export class GoogleBusinessPage {
   constructor(private router: Router) {}
 
   connectGoogleBusiness(): void {
-    // OAuth / Google Business Profile connection will be implemented with backend.
-    this.isConnected = true;
-    this.locationName = 'Business Location';
+    // Google Business Profile OAuth will be connected from the backend.
   }
 
   disconnectGoogleBusiness(): void {
@@ -40,14 +43,14 @@ export class GoogleBusinessPage {
   }
 
   createPost(): void {
-    this.router.navigate(['/social/create-post']);
+    this.router.navigate(['/app/social/create-post']);
   }
 
   viewScheduled(): void {
-    this.router.navigate(['/social/scheduled']);
+    this.router.navigate(['/app/social/scheduled']);
   }
 
   viewPublished(): void {
-    this.router.navigate(['/social/published']);
+    this.router.navigate(['/app/social/published']);
   }
 }

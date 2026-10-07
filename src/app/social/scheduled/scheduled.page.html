@@ -1,14 +1,19 @@
 <div class="social-page">
   <div class="page-header">
     <div>
-      <div class="eyebrow">SOCIAL</div>
+      <button type="button" class="eyebrow" (click)="back()">
+        <mat-icon>arrow_back</mat-icon>
+        <span>SOCIAL</span>
+      </button>
       <h1>Scheduled</h1>
       <p>Manage upcoming social media posts and publishing times.</p>
     </div>
 
-    <button class="btn btn-primary" type="button" (click)="createPost()">
-      Create Social Post
-    </button>
+    <div class="header-actions">
+      <button class="btn btn-primary" type="button" (click)="createPost()">
+        Create Social Post
+      </button>
+    </div>
   </div>
 
   <div class="stats-grid">
@@ -75,11 +80,7 @@
           <tr *ngFor="let post of scheduledPosts">
             <td>
               <div class="preview-box">
-                <img
-                  *ngIf="post.imageUrl"
-                  [src]="post.imageUrl"
-                  alt="Scheduled post preview"
-                />
+                <img *ngIf="post.imageUrl" [src]="post.imageUrl" alt="Scheduled post preview" />
                 <span *ngIf="!post.imageUrl">No image</span>
               </div>
             </td>
@@ -103,39 +104,24 @@
             </td>
 
             <td>
-              <span
-                class="status-badge"
-                [ngClass]="post.status.toLowerCase()"
-              >
+              <span class="status-badge" [ngClass]="post.status.toLowerCase()">
                 {{ post.status }}
               </span>
             </td>
 
             <td>
               <div class="row-actions">
-                <button
-                  class="action-btn"
-                  type="button"
-                  (click)="viewPost(post)"
-                >
+                <button class="action-btn" type="button" (click)="viewPost(post)">
                   View
                 </button>
 
-                <button
-                  class="action-btn"
-                  type="button"
-                  [disabled]="post.status === 'Cancelled'"
-                  (click)="editPost(post)"
-                >
+                <button class="action-btn" type="button" [disabled]="post.status === 'Cancelled'"
+                  (click)="editPost(post)">
                   Edit
                 </button>
 
-                <button
-                  class="action-btn danger"
-                  type="button"
-                  [disabled]="post.status === 'Cancelled'"
-                  (click)="cancelPost(post)"
-                >
+                <button class="action-btn danger" type="button" [disabled]="post.status === 'Cancelled'"
+                  (click)="cancelPost(post)">
                   Cancel
                 </button>
               </div>

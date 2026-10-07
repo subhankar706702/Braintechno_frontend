@@ -213,6 +213,11 @@ export class ConnectedAccountsPage
   }
 
 
+  back(): void {
+    this.router.navigate(['/app/social']);
+  }
+
+
   get connectedCount():
     number {
     return this.accounts.filter(

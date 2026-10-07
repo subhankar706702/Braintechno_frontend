@@ -32,6 +32,10 @@ export class FacebookPage {
     return this.isConnected ? 'Connected' : 'Not Connected';
   }
 
+  back(): void {
+    this.router.navigate(['/app/social']);
+  }
+
   connectFacebook(): void {
     // Facebook OAuth and Page selection will be connected later.
   }
@@ -45,14 +49,14 @@ export class FacebookPage {
   }
 
   createPost(): void {
-    this.router.navigate(['/social/create-post']);
+    this.router.navigate(['/app/social/create-post']);
   }
 
   viewScheduled(): void {
-    this.router.navigate(['/social/scheduled']);
+    this.router.navigate(['/app/social/scheduled']);
   }
 
   viewPublished(): void {
-    this.router.navigate(['/social/published']);
+    this.router.navigate(['/app/social/published']);
   }
 }

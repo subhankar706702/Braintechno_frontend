@@ -78,6 +78,10 @@ export class SocialOverviewPage {
     return this.connectedAccounts.length;
   }
 
+  back(): void {
+    this.router.navigate(['/app/dashboard']);
+  }
+
   openConnectedAccounts(): void {
     this.router.navigate(['/app/social/connected-accounts']);
   }

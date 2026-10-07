@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
+import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
 
 type ScheduledStatus = 'Scheduled' | 'Publishing' | 'Cancelled';
@@ -17,7 +18,7 @@ interface ScheduledPost {
 @Component({
   selector: 'app-scheduled',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule,MatIconModule],
   templateUrl: './scheduled.page.html',
   styleUrl: './scheduled.page.scss'
 })
@@ -26,8 +27,12 @@ export class ScheduledPage {
 
   constructor(private router: Router) {}
 
+  back(): void {
+    this.router.navigate(['/app/social']);
+  }
+
   createPost(): void {
-    this.router.navigate(['/social/create-post']);
+    this.router.navigate(['/app/social/create-post']);
   }
 
   viewPost(post: ScheduledPost): void {

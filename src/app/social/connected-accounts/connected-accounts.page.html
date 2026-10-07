@@ -8,9 +8,10 @@
 
     <div class="page-heading">
 
-      <div class="eyebrow">
-        SOCIAL
-      </div>
+      <button type="button" class="eyebrow" (click)="back()">
+        <mat-icon>arrow_back</mat-icon>
+        <span>SOCIAL</span>
+      </button>
 
       <h1>
         Connected Accounts
@@ -24,12 +25,7 @@
 
 
     <div class="page-actions">
-
-      <button
-        mat-stroked-button
-        type="button"
-        class="header-action"
-      >
+      <button mat-stroked-button type="button" class="header-action">
 
         <mat-icon>
           help_outline
@@ -52,20 +48,17 @@
 
   @if (errorMessage) {
 
-    <div
-      class="social-feedback social-feedback--error"
-      role="alert"
-    >
+  <div class="social-feedback social-feedback--error" role="alert">
 
-      <mat-icon>
-        error_outline
-      </mat-icon>
+    <mat-icon>
+      error_outline
+    </mat-icon>
 
-      <span>
-        {{ errorMessage }}
-      </span>
+    <span>
+      {{ errorMessage }}
+    </span>
 
-    </div>
+  </div>
 
   }
 
@@ -76,114 +69,105 @@
 
   @if (facebookPageSelectionToken) {
 
-    <section
-      class="facebook-page-selection"
-      aria-labelledby="facebook-page-selection-title"
-    >
+  <section class="facebook-page-selection" aria-labelledby="facebook-page-selection-title">
 
-      <div class="facebook-page-selection__header">
+    <div class="facebook-page-selection__header">
 
-        <div>
+      <div>
 
-          <span class="eyebrow">
-            FACEBOOK
-          </span>
+        <span class="eyebrow">
+          FACEBOOK
+        </span>
 
-          <h2 id="facebook-page-selection-title">
-            Select a Facebook Page
-          </h2>
+        <h2 id="facebook-page-selection-title">
+          Select a Facebook Page
+        </h2>
 
-          <p>
-            Choose the Page you want BRAIN TECHNO to use for publishing.
-          </p>
-
-        </div>
+        <p>
+          Choose the Page you want BRAIN TECHNO to use for publishing.
+        </p>
 
       </div>
 
+    </div>
 
-      @if (
-        selectingFacebookPage &&
-        facebookPages.length === 0
+
+    @if (
+    selectingFacebookPage &&
+    facebookPages.length === 0
+    ) {
+
+    <div class="facebook-page-selection__loading">
+
+      <span class="facebook-page-selection__spinner"></span>
+
+      <span>
+        Loading your Facebook Pages...
+      </span>
+
+    </div>
+
+    } @else {
+
+    @if (facebookPages.length > 0) {
+
+    <div class="facebook-page-selection__list">
+
+      @for (
+      page of facebookPages;
+      track page.id
       ) {
 
-        <div class="facebook-page-selection__loading">
+      <button type="button" class="facebook-page-option" [disabled]="selectingFacebookPage"
+        (click)="selectFacebookPage(page)">
 
-          <span
-            class="facebook-page-selection__spinner"
-          ></span>
+        <span class="facebook-page-option__icon">
 
-          <span>
-            Loading your Facebook Pages...
-          </span>
+          <mat-icon>
+            flag
+          </mat-icon>
 
-        </div>
-
-      } @else {
-
-        @if (facebookPages.length > 0) {
-
-          <div class="facebook-page-selection__list">
-
-            @for (
-              page of facebookPages;
-              track page.id
-            ) {
-
-              <button
-                type="button"
-                class="facebook-page-option"
-                [disabled]="selectingFacebookPage"
-                (click)="selectFacebookPage(page)"
-              >
-
-                <span class="facebook-page-option__icon">
-
-                  <mat-icon>
-                    flag
-                  </mat-icon>
-
-                </span>
+        </span>
 
 
-                <span class="facebook-page-option__copy">
+        <span class="facebook-page-option__copy">
 
-                  <strong>
-                    {{ page.name }}
-                  </strong>
+          <strong>
+            {{ page.name }}
+          </strong>
 
-                  <small>
-                    Facebook Page
-                  </small>
+          <small>
+            Facebook Page
+          </small>
 
-                </span>
+        </span>
 
 
-                <mat-icon>
-                  chevron_right
-                </mat-icon>
+        <mat-icon>
+          chevron_right
+        </mat-icon>
 
-              </button>
-
-            }
-
-          </div>
-
-        } @else {
-
-          <div class="facebook-page-selection__loading">
-
-            <span>
-              No Facebook Pages were returned.
-            </span>
-
-          </div>
-
-        }
+      </button>
 
       }
 
-    </section>
+    </div>
+
+    } @else {
+
+    <div class="facebook-page-selection__loading">
+
+      <span>
+        No Facebook Pages were returned.
+      </span>
+
+    </div>
+
+    }
+
+    }
+
+  </section>
 
   }
 
@@ -263,161 +247,137 @@
       <div class="accounts-grid">
 
         @for (
-          account of accounts;
-          track account.platform
+        account of accounts;
+        track account.platform
         ) {
 
-          <article
-            class="account-card"
-            [class.is-connected]="account.connected"
-          >
+        <article class="account-card" [class.is-connected]="account.connected">
 
 
-            <!-- ========================================= -->
-            <!-- ACCOUNT TOP -->
-            <!-- ========================================= -->
+          <!-- ========================================= -->
+          <!-- ACCOUNT TOP -->
+          <!-- ========================================= -->
 
-            <div class="account-top">
+          <div class="account-top">
 
-              <div
-                class="platform-icon"
-                [attr.data-platform]="account.platform"
-              >
+            <div class="platform-icon" [attr.data-platform]="account.platform">
 
-                <mat-icon>
-                  {{ account.icon }}
-                </mat-icon>
-
-              </div>
-
-
-              <span
-                class="connection-badge"
-                [class.connected]="account.connected"
-              >
-
-                <span class="badge-dot"></span>
-
-                {{
-                  account.connected
-                    ? 'Connected'
-                    : 'Not connected'
-                }}
-
-              </span>
+              <mat-icon>
+                {{ account.icon }}
+              </mat-icon>
 
             </div>
 
 
-            <!-- ========================================= -->
-            <!-- ACCOUNT BODY -->
-            <!-- ========================================= -->
+            <span class="connection-badge" [class.connected]="account.connected">
 
-            <div class="account-body">
+              <span class="badge-dot"></span>
 
-              <h3>
-                {{ account.name }}
-              </h3>
+              {{
+              account.connected
+              ? 'Connected'
+              : 'Not connected'
+              }}
 
+            </span>
 
-              @if (account.connected) {
-
-                <p class="account-name">
-
-                  {{
-                    account.accountName ||
-                    'Connected account'
-                  }}
-
-                </p>
+          </div>
 
 
-                <p class="account-description">
+          <!-- ========================================= -->
+          <!-- ACCOUNT BODY -->
+          <!-- ========================================= -->
 
-                  {{
-                    account.username ||
-                    account.description
-                  }}
+          <div class="account-body">
 
-                </p>
-
-              } @else {
-
-                <p class="account-description">
-                  {{ account.description }}
-                </p>
-
-              }
-
-            </div>
+            <h3>
+              {{ account.name }}
+            </h3>
 
 
-            <!-- ========================================= -->
-            <!-- ACCOUNT FOOTER -->
-            <!-- ========================================= -->
+            @if (account.connected) {
 
-            <div class="account-footer">
+            <p class="account-name">
 
-              @if (account.connected) {
+              {{
+              account.accountName ||
+              'Connected account'
+              }}
 
-                <button
-                  mat-stroked-button
-                  type="button"
-                  [disabled]="actionPlatform === account.platform"
-                  (click)="manage(account)"
-                >
-
-                  <mat-icon>
-                    settings
-                  </mat-icon>
-
-                  Manage
-
-                </button>
+            </p>
 
 
-                <button
-                  mat-button
-                  type="button"
-                  class="disconnect-button"
-                  [disabled]="actionPlatform === account.platform"
-                  (click)="disconnect(account)"
-                >
+            <p class="account-description">
 
-                  Disconnect
+              {{
+              account.username ||
+              account.description
+              }}
 
-                </button>
+            </p>
 
-              } @else {
+            } @else {
 
-                <button
-                  mat-flat-button
-                  type="button"
-                  class="connect-button"
-                  [disabled]="
+            <p class="account-description">
+              {{ account.description }}
+            </p>
+
+            }
+
+          </div>
+
+
+          <!-- ========================================= -->
+          <!-- ACCOUNT FOOTER -->
+          <!-- ========================================= -->
+
+          <div class="account-footer">
+
+            @if (account.connected) {
+
+            <button mat-stroked-button type="button" [disabled]="actionPlatform === account.platform"
+              (click)="manage(account)">
+
+              <mat-icon>
+                settings
+              </mat-icon>
+
+              Manage
+
+            </button>
+
+
+            <button mat-button type="button" class="disconnect-button" [disabled]="actionPlatform === account.platform"
+              (click)="disconnect(account)">
+
+              Disconnect
+
+            </button>
+
+            } @else {
+
+            <button mat-flat-button type="button" class="connect-button" [disabled]="
                     actionPlatform === account.platform
-                  "
-                  (click)="connect(account)"
-                >
+                  " (click)="connect(account)">
 
-                  <mat-icon>
-                    link
-                  </mat-icon>
+              <mat-icon>
+                link
+              </mat-icon>
 
 
-                  {{
-                    actionPlatform === account.platform
-                      ? 'Connecting...'
-                      : 'Connect'
-                  }}
+              {{
+              actionPlatform === account.platform
+              ? 'Connecting...'
+              : 'Connect'
+              }}
 
-                </button>
+            </button>
 
-              }
+            }
 
-            </div>
+          </div>
 
-          </article>
+        </article>
 
         }
 

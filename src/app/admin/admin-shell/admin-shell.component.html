@@ -1,0 +1,13 @@
+<div class="admin-shell">
+    <aside>
+      <a class="brand" routerLink="/admin/dashboard"><span class="mark">BT</span><span>BRAIN TECHNO ADMIN</span></a>
+      @if (auth.isAdmin()) {
+      <nav aria-label="Admin navigation">
+        <a routerLink="/admin/dashboard" routerLinkActive="active">Admin Dashboard</a>
+        <a routerLink="/admin/subscription-payments" routerLinkActive="active">Subscription &amp; Payments</a>
+      </nav>
+      }
+      <div class="profile"><strong>{{auth.user()?.name}}</strong><small>{{auth.user()?.email}}</small><button type="button" (click)="logout()">Logout</button></div>
+    </aside>
+    <main><router-outlet /></main>
+  </div>

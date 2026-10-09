@@ -1,0 +1,223 @@
+<div class="bt-page admin-subscription-page">
+      <div class="bt-page-head">
+        <div>
+          <h1>Subscription & Payments</h1>
+          <p class="bt-muted">
+            Control subscription pricing, trial, grace period and payment records.
+          </p>
+        </div>
+
+        <button
+          class="bt-btn secondary"
+          type="button"
+          (click)="loadAll()"
+          [disabled]="loading"
+        >
+          Refresh
+        </button>
+      </div>
+
+      @if (error) {
+        <div class="error-box">
+          {{ error }}
+        </div>
+      }
+
+      @if (success) {
+        <div class="success-box">
+          {{ success }}
+        </div>
+      }
+
+      @if (settings) {
+        <section class="settings-grid">
+          <article class="bt-card panel wide">
+            <div class="panel-head">
+              <div>
+                <h2>Subscription settings</h2>
+                <p>
+                  These values are used for new trials and new payment requests.
+                </p>
+              </div>
+
+              <button
+                class="bt-btn primary"
+                type="button"
+                (click)="saveSettings()"
+                [disabled]="saving"
+              >
+                {{ saving ? 'Saving…' : 'Save Settings' }}
+              </button>
+            </div>
+
+            <div class="form-grid">
+              <label>
+                <span>Trial enabled</span>
+                <input
+                  type="checkbox"
+                  [(ngModel)]="settings.trialEnabled"
+                />
+              </label>
+
+              <label>
+                <span>Trial days</span>
+                <input
+                  type="number"
+                  min="1"
+                  max="365"
+                  [(ngModel)]="settings.trialDays"
+                />
+              </label>
+
+              <label>
+                <span>Grace period hours</span>
+                <input
+                  type="number"
+                  min="0"
+                  max="168"
+                  [(ngModel)]="settings.gracePeriodHours"
+                />
+              </label>
+            </div>
+          </article>
+
+          @for (key of planKeys; track key) {
+            <article class="bt-card panel plan-settings-card">
+              <div class="plan-head">
+                <div>
+                  <span class="plan-eyebrow">PLAN</span>
+                  <h2>{{ key | titlecase }}</h2>
+                </div>
+
+                <label class="switch">
+                  <input
+                    type="checkbox"
+                    [(ngModel)]="settings.plans[key].enabled"
+                  />
+                  <span></span>
+                </label>
+              </div>
+
+              @for (cycle of billingCycles; track cycle.key) {
+                <section class="billing-setting">
+                  <div class="billing-setting__head">
+                    <strong>{{ cycle.label }}</strong>
+
+                    <label class="inline-toggle">
+                      <input
+                        type="checkbox"
+                        [(ngModel)]="settings.plans[key].billing[cycle.key].enabled"
+                      />
+                      <span>Enabled</span>
+                    </label>
+                  </div>
+
+                  <div class="billing-fields">
+                    <label class="field">
+                      <span>Payable amount (₹)</span>
+                      <input
+                        type="number"
+                        min="0"
+                        [(ngModel)]="settings.plans[key].billing[cycle.key].baseAmount"
+                      />
+                    </label>
+
+                    <label class="field">
+                      <span>Actual amount (₹)</span>
+                      <input
+                        type="number"
+                        min="0"
+                        [(ngModel)]="settings.plans[key].billing[cycle.key].actualAmount"
+                      />
+                    </label>
+
+                    <label class="field">
+                      <span>Discount (%)</span>
+                      <input
+                        type="number"
+                        min="0"
+                        max="100"
+                        [(ngModel)]="settings.plans[key].billing[cycle.key].discountPercentage"
+                      />
+                    </label>
+                  </div>
+                </section>
+              }
+            </article>
+          }
+        </section>
+      }
+
+      <section class="bt-card panel payments-panel">
+        <div class="panel-head">
+          <div>
+            <h2>Payment records</h2>
+            <p>Gateway-ready payment lifecycle for all businesses.</p>
+          </div>
+
+          <select
+            [(ngModel)]="statusFilter"
+            (change)="loadPayments()"
+          >
+            <option value="">All statuses</option>
+            <option value="pending">Pending</option>
+            <option value="processing">Processing</option>
+            <option value="success">Success</option>
+            <option value="failed">Failed</option>
+            <option value="cancelled">Cancelled</option>
+            <option value="refunded">Refunded</option>
+          </select>
+        </div>
+
+        @if (paymentsLoading) {
+          <p class="bt-muted">Loading payments…</p>
+        } @else if (!payments.length) {
+          <p class="bt-muted">No payments found.</p>
+        } @else {
+          <div class="payment-table">
+            <div class="table-row table-head">
+              <span>Payment</span>
+              <span>Business</span>
+              <span>Plan</span>
+              <span>Amount</span>
+              <span>Status</span>
+              <span>Date</span>
+            </div>
+
+            @for (payment of payments; track payment.paymentId) {
+              <div class="table-row">
+                <span>
+                  <strong>{{ payment.paymentId }}</strong>
+                  <small>
+                    {{ payment.gateway || 'Gateway pending' }}
+                  </small>
+                </span>
+
+                <span class="mono">
+                  {{ payment.businessId }}
+                </span>
+
+                <span>
+                  {{ payment.plan | titlecase }}
+                  ·
+                  {{ payment.billingCycle | titlecase }}
+                </span>
+
+                <strong>₹{{ payment.amount }}</strong>
+
+                <span
+                  class="status"
+                  [class]="'status-' + payment.status"
+                >
+                  {{ payment.status | titlecase }}
+                </span>
+
+                <span>
+                  {{ payment.createdAt | date:'short' }}
+                </span>
+              </div>
+            }
+          </div>
+        }
+      </section>
+    </div>

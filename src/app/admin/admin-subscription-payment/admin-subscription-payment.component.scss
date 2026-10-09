@@ -1,0 +1,299 @@
+.admin-subscription-page {
+      max-width: 1600px;
+    }
+
+    .settings-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .panel {
+      padding: 20px;
+    }
+
+    .wide {
+      grid-column: 1 / -1;
+    }
+
+    .panel-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .panel-head h2 {
+      margin: 0;
+      font-size: 17px;
+    }
+
+    .panel-head p {
+      margin: 5px 0 0;
+      color: #667085;
+      font-size: 12px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+
+    .form-grid label,
+    .field {
+      display: grid;
+      gap: 7px;
+      color: #475467;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .form-grid input[type=number],
+    .field input,
+    .field select,
+    .panel-head select {
+      min-height: 42px;
+      border: 1px solid #d0d5dd;
+      border-radius: 10px;
+      padding: 0 12px;
+      background: #fff;
+      color: #101828;
+    }
+
+    .form-grid label {
+      padding: 12px;
+      border: 1px solid #eaecf0;
+      border-radius: 12px;
+    }
+
+    .form-grid input[type=checkbox] {
+      width: 18px;
+      height: 18px;
+    }
+
+    .plan-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .plan-eyebrow {
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: .1em;
+      color: #667085;
+    }
+
+    .plan-head h2 {
+      margin: 3px 0 0;
+      font-size: 18px;
+    }
+
+    .field {
+      margin-top: 13px;
+    }
+
+    .billing-setting {
+      border-top: 1px solid #eaecf0;
+      padding-top: 14px;
+      margin-top: 14px;
+    }
+
+    .billing-setting__head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+      color: #344054;
+    }
+
+    .billing-fields {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .inline-toggle {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .inline-toggle input {
+      accent-color: #2563eb;
+    }
+
+    .plan-settings-card {
+      min-width: 0;
+    }
+
+    .switch input {
+      display: none;
+    }
+
+    .switch span {
+      display: block;
+      width: 42px;
+      height: 24px;
+      border-radius: 999px;
+      background: #d0d5dd;
+      position: relative;
+      cursor: pointer;
+    }
+
+    .switch span:after {
+      content: '';
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      top: 3px;
+      left: 3px;
+      border-radius: 50%;
+      background: #fff;
+      transition: .2s;
+    }
+
+    .switch input:checked + span {
+      background: #2563eb;
+    }
+
+    .switch input:checked + span:after {
+      left: 21px;
+    }
+
+    .payments-panel {
+      margin-top: 18px;
+    }
+
+    .payment-table {
+      overflow: auto;
+    }
+
+    .table-row {
+      min-width: 980px;
+      display: grid;
+      grid-template-columns: 1.5fr 1.3fr .9fr .7fr .8fr .9fr;
+      gap: 12px;
+      align-items: center;
+      padding: 12px 0;
+      border-top: 1px solid #eaecf0;
+      font-size: 12px;
+    }
+
+    .table-head {
+      border-top: 0;
+      color: #667085;
+      font-weight: 800;
+    }
+
+    .table-row small {
+      display: block;
+      margin-top: 3px;
+      color: #98a2b3;
+    }
+
+    .mono {
+      font-family: monospace;
+      font-size: 10px;
+    }
+
+    .status {
+      display: inline-flex;
+      width: max-content;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .status-pending {
+      background: #fff7ed;
+      color: #c2410c;
+    }
+
+    .status-processing {
+      background: #eff6ff;
+      color: #1d4ed8;
+    }
+
+    .status-success {
+      background: #ecfdf3;
+      color: #15803d;
+    }
+
+    .status-failed {
+      background: #fef2f2;
+      color: #b91c1c;
+    }
+
+    .status-cancelled {
+      background: #f2f4f7;
+      color: #475467;
+    }
+
+    .status-refunded {
+      background: #f5f3ff;
+      color: #6d28d9;
+    }
+
+    .error-box,
+    .success-box {
+      padding: 12px 14px;
+      border-radius: 12px;
+      margin-bottom: 14px;
+    }
+
+    .error-box {
+      border: 1px solid #fecdca;
+      background: #fef3f2;
+      color: #b42318;
+    }
+
+    .success-box {
+      border: 1px solid #abefc6;
+      background: #ecfdf3;
+      color: #067647;
+    }
+
+    @media (max-width: 1000px) {
+      .settings-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .wide {
+        grid-column: 1 / -1;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 650px) {
+      .settings-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .billing-fields {
+        grid-template-columns: 1fr;
+      }
+
+      .panel-head {
+        display: block;
+      }
+
+      .panel-head button,
+      .panel-head select {
+        margin-top: 12px;
+      }
+
+      .panel-head button {
+        width: 100%;
+      }
+    }

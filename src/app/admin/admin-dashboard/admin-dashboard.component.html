@@ -1,0 +1,13 @@
+<div class="bt-page admin-page">
+    <div class="bt-page-head"><div><h1>Admin Dashboard</h1><p class="bt-muted">Platform-level overview across BRAIN TECHNO.</p></div><button class="bt-btn secondary" type="button" (click)="load()" [disabled]="loading">Refresh</button></div>
+    @if(error){<div class="error-box">{{error}}</div>}
+    <section class="stats">
+      @for(card of statCards(); track card.label){<article class="bt-card stat"><span>{{card.label}}</span><strong>{{card.value}}</strong></article>}
+    </section>
+    <section class="grid-two">
+      <article class="bt-card panel"><h2>Recent businesses</h2>@for(row of businesses.slice(0,8); track row.id){<div class="row"><div><strong>{{row.name}}</strong><small>/{{row.slug}}</small></div><span>{{row.updatedAt | indiaDate}}</span></div>}@if(!businesses.length){<p class="bt-muted">No businesses.</p>}</article>
+      <article class="bt-card panel"><h2>Recent users</h2>@for(row of users.slice(0,8); track row.id){<div class="row"><div><strong>{{row.name}}</strong><small>{{row.email}} · {{row.role}}</small></div><span>{{row.updatedAt | indiaDate}}</span></div>}@if(!users.length){<p class="bt-muted">No users.</p>}</article>
+      <article class="bt-card panel"><h2>Recent templates</h2>@for(row of templates.slice(0,8); track row.id){<div class="row"><div><strong>{{row.name}}</strong><small>{{row.status}}</small></div><span>{{row.updatedAt | indiaDate}}</span></div>}@if(!templates.length){<p class="bt-muted">No templates.</p>}</article>
+      <article class="bt-card panel"><h2>Recent campaigns</h2>@for(row of campaigns.slice(0,8); track row.id || row._id){<div class="row"><div><strong>{{row.name}}</strong><small>/{{row.businessSlug}}/{{row.pageSlug}} · {{row.status}}</small></div><span>{{row.updatedAt | indiaDate}}</span></div>}@if(!campaigns.length){<p class="bt-muted">No campaigns.</p>}</article>
+    </section>
+  </div>

@@ -1,16 +1,50 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap } from 'rxjs';
+import { Observable } from 'rxjs';
 import { API_BASE_URL } from './api.config';
 
-export type SubscriptionPlan = 'trial' | 'basic' | 'premium' | 'custom';
-export type BillingCycle = 'trial' | 'monthly' | 'halfYearly' | 'yearly' | 'custom';
-export type SubscriptionStatus = 'trialing' | 'active' | 'expired' | 'cancelled' | 'missing';
+export type SubscriptionPlan =
+  | 'trial'
+  | 'basic'
+  | 'premium'
+  | 'custom';
+
+export type BillingCycle =
+  | 'trial'
+  | 'monthly'
+  | 'halfYearly'
+  | 'yearly'
+  | 'custom';
+
+export type SubscriptionStatus =
+  | 'trialing'
+  | 'active'
+  | 'expired'
+  | 'cancelled'
+  | 'missing';
+
+export interface BillingPriceSetting {
+  baseAmount: number;
+  actualAmount: number;
+  discountPercentage: number;
+  enabled: boolean;
+}
+
+export interface PlanBillingSettings {
+  monthly: BillingPriceSetting;
+  halfYearly: BillingPriceSetting;
+  yearly: BillingPriceSetting;
+}
 
 export interface PlanSetting {
   enabled: boolean;
-  price: number | null;
-  billingCycle: 'monthly' | 'halfYearly' | 'yearly' | 'custom';
+  billing: PlanBillingSettings;
+}
+
+export interface SubscriptionPlans {
+  basic: PlanSetting;
+  premium: PlanSetting;
+  custom: PlanSetting;
 }
 
 export interface SubscriptionSettings {
@@ -18,11 +52,7 @@ export interface SubscriptionSettings {
   trialEnabled: boolean;
   trialDays: number;
   gracePeriodHours: number;
-  plans: {
-    basic: PlanSetting;
-    premium: PlanSetting;
-    custom: PlanSetting;
-  };
+  plans: SubscriptionPlans;
 }
 
 export interface SubscriptionRecord {
@@ -42,40 +72,62 @@ export interface SubscriptionRecord {
   previousPlan: SubscriptionPlan | null;
 }
 
+export interface SubscriptionPermissions {
+  plan: SubscriptionPlan;
+  features: Record<string, boolean>;
+}
+
 export interface SubscriptionMeResponse {
   subscription: SubscriptionRecord | null;
   status: SubscriptionStatus;
   pageAccess: boolean;
   pageAccessUntil: string | null;
   gracePeriod: boolean;
-  permissions: {
-    plan: SubscriptionPlan;
-    features: Record<string, boolean>;
-  } | null;
-  plans: SubscriptionSettings['plans'];
+  permissions: SubscriptionPermissions | null;
+  plans: SubscriptionPlans;
 }
 
-@Injectable({ providedIn: 'root' })
+export interface SubscriptionPlansResponse {
+  plans: SubscriptionPlans;
+}
+
+@Injectable({
+  providedIn: 'root',
+})
 export class SubscriptionService {
   private readonly http = inject(HttpClient);
 
-  getPlans(): Observable<{ plans: SubscriptionSettings['plans'] }> {
-    return this.http.get<{ plans: SubscriptionSettings['plans'] }>(`${API_BASE_URL}/subscription/plans`);
+  getPlans(): Observable<SubscriptionPlansResponse> {
+    return this.http.get<SubscriptionPlansResponse>(
+      `${API_BASE_URL}/subscription/plans`
+    );
   }
 
   getMe(): Observable<SubscriptionMeResponse> {
-    return this.http.get<SubscriptionMeResponse>(`${API_BASE_URL}/subscription/me`);
+    return this.http.get<SubscriptionMeResponse>(
+      `${API_BASE_URL}/subscription/me`
+    );
   }
 
   startTrial(): Observable<SubscriptionRecord> {
-    return this.http.post<SubscriptionRecord>(`${API_BASE_URL}/subscription/trial`, {});
+    return this.http.post<SubscriptionRecord>(
+      `${API_BASE_URL}/subscription/trial`,
+      {}
+    );
   }
 
   getAdminSettings(): Observable<SubscriptionSettings> {
-    return this.http.get<SubscriptionSettings>(`${API_BASE_URL}/subscription/admin/settings`);
+    return this.http.get<SubscriptionSettings>(
+      `${API_BASE_URL}/subscription/admin/settings`
+    );
   }
 
-  updateAdminSettings(patch: Partial<SubscriptionSettings>): Observable<SubscriptionSettings> {
-    return this.http.patch<SubscriptionSettings>(`${API_BASE_URL}/subscription/admin/settings`, patch);
+  updateAdminSettings(
+    patch: Partial<SubscriptionSettings>
+  ): Observable<SubscriptionSettings> {
+    return this.http.patch<SubscriptionSettings>(
+      `${API_BASE_URL}/subscription/admin/settings`,
+      patch
+    );
   }
 }

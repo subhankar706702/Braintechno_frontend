@@ -1,0 +1,84 @@
+<section class="settings-page settings-page--individual">
+  <header class="settings-header">
+    <div>
+      <h1>Settings</h1>
+      <p>Manage your app preferences and account settings</p>
+    </div>
+  </header>
+
+  <div class="settings-layout settings-layout--individual">
+    <main class="settings-content settings-content--individual">
+      <section class="settings-panel">
+
+          <header class="settings-panel__header">
+            <div>
+              <h2>
+                System
+              </h2>
+              <p>
+                App information and maintenance
+              </p>
+            </div>
+          </header>
+
+
+          <div class="system-info">
+
+            <div>
+              <span>
+                Application
+              </span>
+              <strong>
+                BRAIN TECHNO
+              </strong>
+            </div>
+
+            <div>
+              <span>
+                Version
+              </span>
+              <strong>
+                1.0.0
+              </strong>
+            </div>
+
+          </div>
+
+
+          <div class="system-actions">
+
+            <button
+              type="button"
+              class="secondary-action"
+              (click)="clearCache()"
+            >
+              <mat-icon>
+                cleaning_services
+              </mat-icon>
+
+              Clear cache
+            </button>
+
+
+            <button
+              type="button"
+              class="secondary-action secondary-action--danger"
+              (click)="resetSettings()"
+            >
+              <mat-icon>
+                restart_alt
+              </mat-icon>
+
+              Reset settings
+            </button>
+
+          </div>
+
+        </section>
+      <div class="settings-actions">
+        <button type="button" class="button button--secondary" (click)="resetSettings()">Reset to default</button>
+        <button type="button" class="button button--primary" (click)="saveChanges()">Save changes</button>
+      </div>
+    </main>
+  </div>
+</section>

@@ -1,0 +1,143 @@
+<section class="settings-page settings-page--individual">
+  <header class="settings-header">
+    <div>
+      <h1>Settings</h1>
+      <p>Manage your app preferences and account settings</p>
+    </div>
+  </header>
+
+  <div class="settings-layout settings-layout--individual">
+    <main class="settings-content settings-content--individual">
+      <section class="settings-panel">
+
+          <header class="settings-panel__header">
+            <div>
+              <h2>
+                Notifications
+              </h2>
+              <p>
+                Choose which alerts you want to receive
+              </p>
+            </div>
+          </header>
+
+
+          <div class="settings-list">
+
+            <button
+              type="button"
+              class="settings-row"
+              (click)="
+                toggleBrowserNotifications()
+              "
+            >
+              <span class="settings-row__copy">
+                <strong>
+                  Browser notifications
+                </strong>
+                <small>
+                  Receive notifications in your browser
+                </small>
+              </span>
+
+              <span
+                class="switch"
+                [class.switch--on]="
+                  browserNotifications()
+                "
+              >
+                <span></span>
+              </span>
+            </button>
+
+
+            <button
+              type="button"
+              class="settings-row"
+              (click)="
+                toggleEnquiryAlerts()
+              "
+            >
+              <span class="settings-row__copy">
+                <strong>
+                  New enquiry alerts
+                </strong>
+                <small>
+                  Get notified when a customer submits an enquiry
+                </small>
+              </span>
+
+              <span
+                class="switch"
+                [class.switch--on]="
+                  enquiryAlerts()
+                "
+              >
+                <span></span>
+              </span>
+            </button>
+
+
+            <button
+              type="button"
+              class="settings-row"
+              (click)="
+                toggleCampaignAlerts()
+              "
+            >
+              <span class="settings-row__copy">
+                <strong>
+                  Campaign alerts
+                </strong>
+                <small>
+                  Get campaign delivery and status updates
+                </small>
+              </span>
+
+              <span
+                class="switch"
+                [class.switch--on]="
+                  campaignAlerts()
+                "
+              >
+                <span></span>
+              </span>
+            </button>
+
+
+            <button
+              type="button"
+              class="settings-row"
+              (click)="
+                toggleExpiryAlerts()
+              "
+            >
+              <span class="settings-row__copy">
+                <strong>
+                  Page expiry alerts
+                </strong>
+                <small>
+                  Remind me before published pages expire
+                </small>
+              </span>
+
+              <span
+                class="switch"
+                [class.switch--on]="
+                  expiryAlerts()
+                "
+              >
+                <span></span>
+              </span>
+            </button>
+
+          </div>
+
+        </section>
+      <div class="settings-actions">
+        <button type="button" class="button button--secondary" (click)="resetSettings()">Reset to default</button>
+        <button type="button" class="button button--primary" (click)="saveChanges()">Save changes</button>
+      </div>
+    </main>
+  </div>
+</section>

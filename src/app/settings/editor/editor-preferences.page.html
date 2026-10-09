@@ -1,0 +1,232 @@
+<section class="settings-page settings-page--individual">
+  <header class="settings-header">
+    <div>
+      <h1>Settings</h1>
+      <p>Manage your app preferences and account settings</p>
+    </div>
+  </header>
+
+  <div class="settings-layout settings-layout--individual">
+    <main class="settings-content settings-content--individual">
+      <section class="settings-panel">
+
+          <header class="settings-panel__header">
+            <div>
+              <h2>
+                Editor Preferences
+              </h2>
+              <p>
+                Customize how the page editor behaves
+              </p>
+            </div>
+          </header>
+
+
+          <div class="settings-group">
+
+            <div class="settings-group__heading">
+              <strong>
+                Default preview
+              </strong>
+              <span>
+                Choose the preview mode used when the editor opens
+              </span>
+            </div>
+
+
+            <div class="choice-grid choice-grid--three">
+
+              <button
+                type="button"
+                class="choice-card"
+                [class.choice-card--selected]="
+                  defaultPreview() ===
+                  'desktop'
+                "
+                (click)="
+                  setDefaultPreview(
+                    'desktop'
+                  )
+                "
+              >
+                <mat-icon>
+                  desktop_windows
+                </mat-icon>
+                <strong>
+                  Desktop
+                </strong>
+                <span class="choice-radio"></span>
+              </button>
+
+
+              <button
+                type="button"
+                class="choice-card"
+                [class.choice-card--selected]="
+                  defaultPreview() ===
+                  'tablet'
+                "
+                (click)="
+                  setDefaultPreview(
+                    'tablet'
+                  )
+                "
+              >
+                <mat-icon>
+                  tablet_mac
+                </mat-icon>
+                <strong>
+                  Tablet
+                </strong>
+                <span class="choice-radio"></span>
+              </button>
+
+
+              <button
+                type="button"
+                class="choice-card"
+                [class.choice-card--selected]="
+                  defaultPreview() ===
+                  'mobile'
+                "
+                (click)="
+                  setDefaultPreview(
+                    'mobile'
+                  )
+                "
+              >
+                <mat-icon>
+                  smartphone
+                </mat-icon>
+                <strong>
+                  Mobile
+                </strong>
+                <span class="choice-radio"></span>
+              </button>
+
+            </div>
+
+          </div>
+
+
+          <div class="settings-list">
+
+            <button
+              type="button"
+              class="settings-row"
+              (click)="toggleAutoSave()"
+            >
+              <span class="settings-row__copy">
+                <strong>
+                  Auto save
+                </strong>
+                <small>
+                  Save editor changes automatically
+                </small>
+              </span>
+              <span
+                class="switch"
+                [class.switch--on]="autoSave()"
+              >
+                <span></span>
+              </span>
+            </button>
+
+
+            <button
+              type="button"
+              class="settings-row"
+              (click)="toggleShowGrid()"
+            >
+              <span class="settings-row__copy">
+                <strong>
+                  Show grid & guides
+                </strong>
+                <small>
+                  Display alignment helpers in the editor
+                </small>
+              </span>
+              <span
+                class="switch"
+                [class.switch--on]="showGrid()"
+              >
+                <span></span>
+              </span>
+            </button>
+
+
+            <button
+              type="button"
+              class="settings-row"
+              (click)="toggleSnapElements()"
+            >
+              <span class="settings-row__copy">
+                <strong>
+                  Snap elements
+                </strong>
+                <small>
+                  Automatically align nearby elements
+                </small>
+              </span>
+              <span
+                class="switch"
+                [class.switch--on]="snapElements()"
+              >
+                <span></span>
+              </span>
+            </button>
+
+
+            <button
+              type="button"
+              class="settings-row"
+              (click)="toggleConfirmDelete()"
+            >
+              <span class="settings-row__copy">
+                <strong>
+                  Confirm before delete
+                </strong>
+                <small>
+                  Ask before removing an element or block
+                </small>
+              </span>
+              <span
+                class="switch"
+                [class.switch--on]="confirmDelete()"
+              >
+                <span></span>
+              </span>
+            </button>
+
+
+            <button
+              type="button"
+              class="settings-row"
+              (click)="toggleRestoreLastDesign()"
+            >
+              <span class="settings-row__copy">
+                <strong>
+                  Restore last design
+                </strong>
+                <small>
+                  Reopen the most recent design when possible
+                </small>
+              </span>
+              <span
+                class="switch"
+                [class.switch--on]="restoreLastDesign()"
+              >
+                <span></span>
+              </span>
+            </button>
+
+          </div>
+
+        </section>
+      <div class="settings-actions">
+        <button type="button" class="button button--secondary" (click)="resetSettings()">Reset to default</button>
+        <button type="button" class="button button--primary" (click)="saveChanges()">Save changes</button>
+      </div>
+    </main>
+  </div>
+</section>

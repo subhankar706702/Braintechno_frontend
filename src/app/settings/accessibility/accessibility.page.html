@@ -1,0 +1,101 @@
+<section class="settings-page settings-page--individual">
+  <header class="settings-header">
+    <div>
+      <h1>Settings</h1>
+      <p>Manage your app preferences and account settings</p>
+    </div>
+  </header>
+
+  <div class="settings-layout settings-layout--individual">
+    <main class="settings-content settings-content--individual">
+      <section class="settings-panel">
+
+          <header class="settings-panel__header">
+            <div>
+              <h2>
+                Accessibility
+              </h2>
+              <p>
+                Adjust the interface for easier use
+              </p>
+            </div>
+          </header>
+
+
+          <div class="settings-list">
+
+            <button
+              type="button"
+              class="settings-row"
+              (click)="toggleHighContrast()"
+            >
+              <span class="settings-row__copy">
+                <strong>
+                  High contrast
+                </strong>
+                <small>
+                  Increase contrast between text and surfaces
+                </small>
+              </span>
+              <span
+                class="switch"
+                [class.switch--on]="highContrast()"
+              >
+                <span></span>
+              </span>
+            </button>
+
+
+            <button
+              type="button"
+              class="settings-row"
+              (click)="toggleLargerText()"
+            >
+              <span class="settings-row__copy">
+                <strong>
+                  Larger text
+                </strong>
+                <small>
+                  Increase default interface text size
+                </small>
+              </span>
+              <span
+                class="switch"
+                [class.switch--on]="largerText()"
+              >
+                <span></span>
+              </span>
+            </button>
+
+
+            <button
+              type="button"
+              class="settings-row"
+              (click)="toggleKeyboardShortcuts()"
+            >
+              <span class="settings-row__copy">
+                <strong>
+                  Keyboard shortcuts
+                </strong>
+                <small>
+                  Enable editor and navigation shortcuts
+                </small>
+              </span>
+              <span
+                class="switch"
+                [class.switch--on]="keyboardShortcuts()"
+              >
+                <span></span>
+              </span>
+            </button>
+
+          </div>
+
+        </section>
+      <div class="settings-actions">
+        <button type="button" class="button button--secondary" (click)="resetSettings()">Reset to default</button>
+        <button type="button" class="button button--primary" (click)="saveChanges()">Save changes</button>
+      </div>
+    </main>
+  </div>
+</section>

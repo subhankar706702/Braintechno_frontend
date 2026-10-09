@@ -1,0 +1,102 @@
+<section class="settings-page settings-page--individual">
+  <header class="settings-header">
+    <div>
+      <h1>Settings</h1>
+      <p>Manage your app preferences and account settings</p>
+    </div>
+  </header>
+
+  <div class="settings-layout settings-layout--individual">
+    <main class="settings-content settings-content--individual">
+      <section class="settings-panel">
+
+          <header class="settings-panel__header">
+            <div>
+              <h2>
+                Language & Region
+              </h2>
+              <p>
+                Configure language, timezone and formats
+              </p>
+            </div>
+          </header>
+
+
+          <div class="form-list">
+
+            <label class="select-field">
+              <span>
+                Language
+              </span>
+
+              <select>
+                <option>
+                  English
+                </option>
+                <option>
+                  বাংলা
+                </option>
+                <option>
+                  हिन्दी
+                </option>
+              </select>
+            </label>
+
+
+            <label class="select-field">
+              <span>
+                Timezone
+              </span>
+
+              <select>
+                <option>
+                  Asia/Kolkata
+                </option>
+              </select>
+            </label>
+
+
+            <label class="select-field">
+              <span>
+                Date format
+              </span>
+
+              <select>
+                <option>
+                  DD/MM/YYYY
+                </option>
+                <option>
+                  MM/DD/YYYY
+                </option>
+                <option>
+                  YYYY-MM-DD
+                </option>
+              </select>
+            </label>
+
+
+            <label class="select-field">
+              <span>
+                Time format
+              </span>
+
+              <select>
+                <option>
+                  12 hour
+                </option>
+                <option>
+                  24 hour
+                </option>
+              </select>
+            </label>
+
+          </div>
+
+        </section>
+      <div class="settings-actions">
+        <button type="button" class="button button--secondary" (click)="resetSettings()">Reset to default</button>
+        <button type="button" class="button button--primary" (click)="saveChanges()">Save changes</button>
+      </div>
+    </main>
+  </div>
+</section>

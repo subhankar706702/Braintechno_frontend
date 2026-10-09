@@ -1108,3 +1108,84 @@ button {
 .sidebar__brand {
   cursor: pointer;
 }
+
+
+/* Settings submenu and safe sidebar scrolling */
+.sidebar {
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: var(--bt-border) transparent;
+}
+
+.sidebar-nav__chevron {
+  margin-left: auto;
+  transition: transform 160ms ease;
+}
+
+.sidebar-nav__chevron--open {
+  transform: rotate(180deg);
+}
+
+.sidebar-subnav {
+  display: grid;
+  gap: 4px;
+  margin: 2px 0 6px 18px;
+  padding-left: 12px;
+  border-left: 1px solid var(--bt-border);
+}
+
+.sidebar-subnav__item {
+  width: 100%;
+  min-height: 38px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 10px;
+  border: 0;
+  border-radius: var(--bt-radius-sm);
+  background: transparent;
+  color: var(--bt-text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition: background 150ms ease, color 150ms ease;
+}
+
+.sidebar-subnav__item mat-icon {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+  font-size: 18px;
+}
+
+.sidebar-subnav__item:hover {
+  background: var(--bt-surface-soft);
+  color: var(--bt-text);
+}
+
+.sidebar-subnav__item--active {
+  background: color-mix(in srgb, var(--bt-primary) 10%, transparent);
+  color: var(--bt-primary);
+}
+
+.sidebar-nav__item[aria-expanded="true"] {
+  color: var(--bt-primary);
+}
+
+.sidebar-bottom {
+  flex: 0 0 auto;
+}
+
+@media (max-height: 760px) and (min-width: 769px) {
+  .sidebar-promo {
+    padding: 12px;
+  }
+
+  .sidebar-promo__icon {
+    width: 36px;
+    height: 36px;
+    margin-bottom: 8px;
+  }
+}

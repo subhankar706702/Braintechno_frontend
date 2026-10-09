@@ -1,0 +1,58 @@
+<section class="payment-history-page">
+  <header class="page-header">
+    <div>
+      <span class="eyebrow">PAYMENTS</span>
+      <h1>Payment History</h1>
+      <p>Track subscription payment requests and gateway results.</p>
+    </div>
+    <a mat-stroked-button routerLink="/app/pricing"><mat-icon>arrow_back</mat-icon> Back to Plans</a>
+  </header>
+
+  @if (error) { <div class="message error">{{ error }}</div> }
+
+  @if (loading) {
+    <div class="empty-card">Loading payment history…</div>
+  } @else if (!payments.length) {
+    <div class="empty-card">
+      <mat-icon>receipt_long</mat-icon>
+      <h2>No payments yet</h2>
+      <p>Choose a subscription plan to create your first payment request.</p>
+      <a mat-flat-button routerLink="/app/pricing">View Plans</a>
+    </div>
+  } @else {
+    <div class="payment-list">
+      @for (payment of payments; track payment.paymentId) {
+        <article class="payment-card">
+          <div class="payment-main">
+            <div class="payment-icon"><mat-icon>payments</mat-icon></div>
+            <div class="payment-copy">
+              <div class="title-row">
+                <h2>{{ payment.plan | titlecase }} Plan</h2>
+                <span class="status" [class]="statusClass(payment.status)">{{ payment.status | titlecase }}</span>
+              </div>
+              <p>{{ payment.billingCycle | titlecase }} · {{ payment.paymentId }}</p>
+              <small>{{ payment.createdAt | date:'medium' }}</small>
+            </div>
+          </div>
+
+          <div class="payment-amount">
+            <strong>₹{{ payment.amount }}</strong>
+            <span>{{ payment.currency }}</span>
+          </div>
+
+          <div class="payment-meta">
+            @if (payment.gateway) { <span>Gateway: {{ payment.gateway }}</span> }
+            @if (payment.paidAt) { <span>Paid: {{ payment.paidAt | date:'medium' }}</span> }
+            @if (payment.failureReason) { <span class="failure">{{ payment.failureReason }}</span> }
+          </div>
+
+          @if (payment.status === 'pending' || payment.status === 'processing') {
+            <button mat-stroked-button type="button" [disabled]="cancelling === payment.paymentId" (click)="cancel(payment)">
+              {{ cancelling === payment.paymentId ? 'Cancelling…' : 'Cancel' }}
+            </button>
+          }
+        </article>
+      }
+    </div>
+  }
+</section>

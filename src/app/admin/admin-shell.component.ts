@@ -11,6 +11,7 @@ import { AuthService } from '../core/auth.service';
       <a class="brand" routerLink="/admin/dashboard"><span class="mark">BT</span><span>BRAIN TECHNO ADMIN</span></a>
       <nav>
         <a routerLink="/admin/dashboard" routerLinkActive="active">Admin Dashboard</a>
+        <a routerLink="/admin/subscription-payments" routerLinkActive="active">Subscription & Payments</a>
         <a routerLink="/app/templates" routerLinkActive="active">Templates</a>
         <a routerLink="/app/campaigns" routerLinkActive="active">Campaigns</a>
       </nav>

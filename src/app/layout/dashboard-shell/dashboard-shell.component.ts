@@ -82,6 +82,11 @@ export class DashboardShellComponent implements OnInit {
       icon: 'settings',
       route: '/app/settings',
     },
+    {
+      label: 'Subscription',
+      icon: 'workspace_premium',
+      route: '/app/pricing',
+    },
   ];
 
   constructor(

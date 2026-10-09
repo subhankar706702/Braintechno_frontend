@@ -1,0 +1,473 @@
+<section class="pricing-page">
+
+  <!-- HEADER -->
+  <header class="pricing-header">
+
+    <span class="eyebrow">
+      Pricing
+    </span>
+
+    <h1>
+      Flexible Plans
+    </h1>
+
+    <p>
+      Choose the plan that works best for your business.
+    </p>
+
+
+    <!-- BILLING SWITCH -->
+    <div
+      class="billing-switch"
+      role="tablist"
+      aria-label="Billing cycle"
+    >
+
+      <button
+        type="button"
+        role="tab"
+        [attr.aria-selected]="billingCycle === 'monthly'"
+        [class.active]="billingCycle === 'monthly'"
+        (click)="setBillingCycle('monthly')"
+      >
+        Monthly
+      </button>
+
+
+      <button
+        type="button"
+        role="tab"
+        [attr.aria-selected]="billingCycle === 'halfYearly'"
+        [class.active]="billingCycle === 'halfYearly'"
+        (click)="setBillingCycle('halfYearly')"
+      >
+        Half-Yearly
+      </button>
+
+
+      <button
+        type="button"
+        role="tab"
+        [attr.aria-selected]="billingCycle === 'yearly'"
+        [class.active]="billingCycle === 'yearly'"
+        (click)="setBillingCycle('yearly')"
+      >
+        Yearly
+
+        <span class="save-badge">
+          Save 18%
+        </span>
+      </button>
+
+    </div>
+
+  </header>
+
+
+  <!-- CURRENT SUBSCRIPTION -->
+  @if (current) {
+
+    <section class="current-subscription">
+
+      <div class="current-subscription__info">
+
+        <span class="status-label">
+          Current subscription
+        </span>
+
+        <strong>
+          {{ current.subscription?.plan || 'No plan' | titlecase }}
+        </strong>
+
+        <span>
+          {{ current.status | titlecase }}
+
+          @if (current.gracePeriod) {
+            · Grace period active
+          }
+        </span>
+
+      </div>
+
+
+      @if (current.subscription?.expiresAt) {
+
+        <div class="expiry-copy">
+
+          <span>
+            Access until
+          </span>
+
+          <strong>
+            {{
+              (current.pageAccessUntil ||
+                current.subscription.expiresAt)
+                | date:'mediumDate'
+            }}
+          </strong>
+
+        </div>
+
+      }
+
+    </section>
+
+  }
+
+
+  <!-- ERROR -->
+  @if (error) {
+
+    <div class="message error-message">
+      {{ error }}
+    </div>
+
+  }
+
+
+  <!-- SUCCESS -->
+  @if (success) {
+
+    <div class="message success-message">
+      {{ success }}
+    </div>
+
+  }
+
+
+  <!-- LOADING -->
+  @if (loading) {
+
+    <div class="loading-card">
+      Loading subscription plans…
+    </div>
+
+  } @else {
+
+    <!-- PLANS -->
+    <div class="plans-grid">
+
+      @for (
+        plan of plans;
+        track plan.id
+      ) {
+
+        <article
+          class="plan-card"
+          [class.popular]="plan.popular"
+          [class.disabled]="!plan.setting.enabled"
+        >
+
+
+          <!-- POPULAR -->
+          @if (plan.popular) {
+
+            <div class="popular-badge">
+              Most Popular
+            </div>
+
+          }
+
+
+          <div class="plan-content">
+
+
+            <!-- PLAN NAME -->
+            <div class="plan-header">
+
+              <div class="plan-title-row">
+
+                <h2>
+                  {{ plan.name }}
+                </h2>
+
+
+                @if (isCurrent(plan)) {
+
+                  <span class="current-badge">
+                    Current
+                  </span>
+
+                }
+
+              </div>
+
+            </div>
+
+
+            <!-- PRICE -->
+            <div class="plan-price">
+
+              @if (getPrice(plan) !== null) {
+
+                <span class="currency">
+                  ₹
+                </span>
+
+                <strong>
+                  {{ getPrice(plan) | number:'1.0-2' }}
+                </strong>
+
+              } @else {
+
+                <strong class="custom-price">
+                  Custom
+                </strong>
+
+              }
+
+            </div>
+
+
+            <!-- PERIOD -->
+            @if (plan.id !== 'custom') {
+
+              <div class="plan-period">
+                / {{ getPeriodLabel() }}
+              </div>
+
+            } @else {
+
+              <div class="plan-period">
+                Custom billing
+              </div>
+
+            }
+
+
+            <!-- DESCRIPTION -->
+            <p class="plan-description">
+              {{ plan.description }}
+            </p>
+
+
+            <!-- FEATURES -->
+            <div class="features">
+
+              @for (
+                feature of plan.features;
+                track feature
+              ) {
+
+                <div class="feature">
+
+                  <span class="feature-icon">
+
+                    <mat-icon>
+                      check
+                    </mat-icon>
+
+                  </span>
+
+                  <span>
+                    {{ feature }}
+                  </span>
+
+                </div>
+
+              }
+
+            </div>
+
+
+            <!-- BUTTON -->
+            <button
+              mat-flat-button
+              type="button"
+              class="plan-button"
+              [disabled]="
+                !plan.setting.enabled ||
+                isCurrent(plan) ||
+                paymentLoading
+              "
+              (click)="selectPlan(plan)"
+            >
+
+              @if (isCurrent(plan)) {
+
+                Current Plan
+
+              } @else if (!plan.setting.enabled) {
+
+                Unavailable
+
+              } @else if (plan.id === 'custom') {
+
+                Contact Admin
+
+              } @else {
+
+                Buy {{ plan.name }}
+
+              }
+
+            </button>
+
+          </div>
+
+        </article>
+
+      }
+
+    </div>
+
+  }
+
+
+  <!-- PAYMENT CREATED -->
+  @if (payment) {
+
+    <div
+      class="payment-created-overlay"
+      role="presentation"
+      (click)="
+        $event.target === $event.currentTarget &&
+        closePayment()
+      "
+    >
+
+      <section
+        class="payment-created"
+        role="dialog"
+        aria-modal="true"
+      >
+
+
+        <button
+          class="close-created"
+          type="button"
+          aria-label="Close"
+          (click)="closePayment()"
+        >
+
+          <mat-icon>
+            close
+          </mat-icon>
+
+        </button>
+
+
+        <div class="created-icon">
+
+          <mat-icon>
+            payments
+          </mat-icon>
+
+        </div>
+
+
+        <span class="eyebrow">
+          PAYMENT
+        </span>
+
+
+        <h2>
+          Payment request created
+        </h2>
+
+
+        <p>
+          Your payment request is ready for the configured gateway.
+        </p>
+
+
+        <div class="payment-summary">
+
+          <div>
+
+            <span>
+              Plan
+            </span>
+
+            <strong>
+              {{ paymentLabel(payment) }}
+            </strong>
+
+          </div>
+
+
+          <div>
+
+            <span>
+              Billing
+            </span>
+
+            <strong>
+              {{ billingLabel(payment) }}
+            </strong>
+
+          </div>
+
+
+          <div>
+
+            <span>
+              Amount
+            </span>
+
+            <strong>
+              ₹{{ payment.amount }}
+            </strong>
+
+          </div>
+
+
+          <div>
+
+            <span>
+              Reference
+            </span>
+
+            <strong>
+              {{ payment.paymentId }}
+            </strong>
+
+          </div>
+
+        </div>
+
+
+        <div class="gateway-note">
+
+          <mat-icon>
+            verified_user
+          </mat-icon>
+
+          <span>
+            The actual gateway checkout can be connected here.
+            Subscription activation happens only after verified
+            gateway success.
+          </span>
+
+        </div>
+
+
+        <div class="created-actions">
+
+          <button
+            mat-stroked-button
+            type="button"
+            (click)="closePayment()"
+          >
+            Close
+          </button>
+
+
+          <a
+            mat-flat-button
+            class="plan-button"
+            routerLink="/app/payment-history"
+            (click)="closePayment()"
+          >
+            View Payment History
+          </a>
+
+        </div>
+
+      </section>
+
+    </div>
+
+  }
+
+</section>

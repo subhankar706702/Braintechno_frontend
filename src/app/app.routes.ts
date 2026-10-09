@@ -15,6 +15,7 @@ export const routes: Routes = [
   {
     path: 'admin', canActivate: [adminGuard], loadComponent: () => import('./admin/admin-shell.component').then(m => m.AdminShellComponent), children: [
       { path: 'dashboard', loadComponent: () => import('./admin/admin-dashboard.component').then(m => m.AdminDashboardComponent) },
+      { path: 'subscription-payments', loadComponent: () => import('./admin/admin-subscription-payment.component').then(m => m.AdminSubscriptionPaymentComponent) },
       { path: '', pathMatch: 'full', redirectTo: 'dashboard' }
     ]
   },
@@ -40,6 +41,8 @@ export const routes: Routes = [
       { path: 'social/scheduled', loadComponent: () => import('./social/scheduled/scheduled.page').then(m => m.ScheduledPage) },
       { path: 'social/published', loadComponent: () => import('./social/published/published.page').then(m => m.PublishedPage) },
       { path: 'settings', loadComponent: () => import('./settings/settings.page').then(m => m.SettingsPage) },
+      { path: 'pricing', loadComponent: () => import('./pricing/pricing.page').then(c => c.PricingPage) },
+      { path: 'payment-history', loadComponent: () => import('./payment/payment-history.page').then(c => c.PaymentHistoryPage) },
       { path: '', pathMatch: 'full', redirectTo: 'dashboard' }
     ]
   },

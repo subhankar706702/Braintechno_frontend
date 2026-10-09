@@ -1,0 +1,35 @@
+@if (open && payment) {
+  <div class="payment-overlay" role="presentation" (click)="onBackdropClick($event)">
+    <section class="payment-panel" role="dialog" aria-modal="true" aria-labelledby="payment-title">
+      <header class="payment-header">
+        <div class="header-copy">
+          <span class="eyebrow">PAYMENT</span>
+          <h2 id="payment-title">Payment Request</h2>
+          <p>Your request has been created for the configured gateway.</p>
+        </div>
+        <button mat-icon-button type="button" class="close-button" aria-label="Close payment" (click)="close()"><mat-icon>close</mat-icon></button>
+      </header>
+
+      <div class="amount-card">
+        <span class="amount-label">Amount</span>
+        <strong class="amount">₹{{ payment.amount }}</strong>
+        <span class="payment-title">{{ payment.plan | titlecase }} Plan</span>
+        <span class="payment-description">{{ payment.billingCycle | titlecase }} billing</span>
+      </div>
+
+      <div class="gateway-card">
+        <mat-icon>account_balance</mat-icon>
+        <div><strong>Gateway checkout</strong><p>Gateway order creation and verified callback will complete this payment. Subscription activation happens only after verified success.</p></div>
+      </div>
+
+      <div class="reference-card">
+        <span>Payment reference</span>
+        <strong>{{ payment.paymentId }}</strong>
+      </div>
+
+      <div class="payment-actions">
+        <button mat-stroked-button type="button" class="cancel-button" (click)="close()">Close</button>
+      </div>
+    </section>
+  </div>
+}

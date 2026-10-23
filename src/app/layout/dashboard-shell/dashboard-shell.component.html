@@ -1,5 +1,4 @@
 <div class="shell">
-
   @if (mobileMenuOpen) {
     <button
       type="button"
@@ -9,175 +8,125 @@
     </button>
   }
 
-  <aside
-    class="sidebar"
-    [class.sidebar--open]="mobileMenuOpen">
+  <aside class="sidebar" [class.sidebar--open]="mobileMenuOpen">
+    <div class="sidebar__scroll-area">
+      <nav class="sidebar-nav" aria-label="Main navigation">
+        @for (item of sidebarItems; track item.route) {
+          @if (item.label === 'Business Hub') {
+            <button
+              type="button"
+              class="sidebar-nav__item"
+              [class.sidebar-nav__item--active]="isBusinessHubActive()"
+              [attr.aria-expanded]="businessHubMenuOpen"
+              aria-controls="business-hub-subnav"
+              (click)="toggleBusinessHubMenu()">
+              <mat-icon>{{ item.icon }}</mat-icon>
+              <span>{{ item.label }}</span>
+              <mat-icon
+                class="sidebar-nav__chevron"
+                [class.sidebar-nav__chevron--open]="businessHubMenuOpen">
+                expand_more
+              </mat-icon>
+            </button>
 
-    <div
-      class="sidebar__brand"
-      role="button"
-      tabindex="0"
-      (click)="openPage('/app/dashboard')"
-      (keydown.enter)="openPage('/app/dashboard')"
-      (keydown.space)="openPage('/app/dashboard')">
+            @if (businessHubMenuOpen) {
+              <div class="sidebar-subnav" id="business-hub-subnav">
+                @for (subItem of businessHubSubItems; track subItem.route) {
+                  <button
+                    type="button"
+                    class="sidebar-subnav__item"
+                    [class.sidebar-subnav__item--active]="isActive(subItem.route)"
+                    (click)="openBusinessHubPage(subItem.route)">
+                    <mat-icon>{{ subItem.icon }}</mat-icon>
+                    <span>{{ subItem.label }}</span>
+                  </button>
+                }
+              </div>
+            }
+          } @else if (item.label === 'Settings') {
+            <button
+              type="button"
+              class="sidebar-nav__item"
+              [class.sidebar-nav__item--active]="isActive('/app/settings')"
+              [attr.aria-expanded]="settingsMenuOpen"
+              aria-controls="settings-subnav"
+              (click)="toggleSettingsMenu()">
+              <mat-icon>{{ item.icon }}</mat-icon>
+              <span>{{ item.label }}</span>
+              <mat-icon
+                class="sidebar-nav__chevron"
+                [class.sidebar-nav__chevron--open]="settingsMenuOpen">
+                expand_more
+              </mat-icon>
+            </button>
 
-      <img
-        class="sidebar__brand-logo"
-        [src]="businessLogo"
-        (error)="onBusinessLogoError($event)"
-        alt="Business logo"
-      />
-
-      <div class="sidebar__brand-copy">
-        <strong>{{ businessName }}</strong>
-        <span class="sidebar__brand-tagline">
-          {{ businessTagName }}
-        </span>
-      </div>
-
-      <button
-        type="button"
-        class="sidebar__close"
-        aria-label="Close menu"
-        (click)="$event.stopPropagation(); closeMobileMenu()">
-        <mat-icon>close</mat-icon>
-      </button>
-
-    </div>
-
-    <nav class="sidebar-nav">
-
-      @for (item of sidebarItems; track item.route) {
-
-        @if (item.label === 'Settings') {
-
-          <button
-            type="button"
-            class="sidebar-nav__item"
-            [class.sidebar-nav__item--active]="isActive('/app/settings')"
-            [attr.aria-expanded]="settingsMenuOpen"
-            aria-controls="settings-subnav"
-            (click)="toggleSettingsMenu()">
-
-            <mat-icon>{{ item.icon }}</mat-icon>
-            <span>{{ item.label }}</span>
-
-            <mat-icon
-              class="sidebar-nav__chevron"
-              [class.sidebar-nav__chevron--open]="settingsMenuOpen">
-              expand_more
-            </mat-icon>
-
-          </button>
-
-          @if (settingsMenuOpen) {
-            <div class="sidebar-subnav" id="settings-subnav">
-
-              @for (subItem of settingsSubItems; track subItem.route) {
-                <button
-                  type="button"
-                  class="sidebar-subnav__item"
-                  [class.sidebar-subnav__item--active]="isActive(subItem.route)"
-                  (click)="openSettingsPage(subItem.route)">
-
-                  <mat-icon>{{ subItem.icon }}</mat-icon>
-                  <span>{{ subItem.label }}</span>
-
-                </button>
-              }
-
-            </div>
+            @if (settingsMenuOpen) {
+              <div class="sidebar-subnav" id="settings-subnav">
+                @for (subItem of settingsSubItems; track subItem.route) {
+                  <button
+                    type="button"
+                    class="sidebar-subnav__item"
+                    [class.sidebar-subnav__item--active]="isActive(subItem.route)"
+                    (click)="openSettingsPage(subItem.route)">
+                    <mat-icon>{{ subItem.icon }}</mat-icon>
+                    <span>{{ subItem.label }}</span>
+                  </button>
+                }
+              </div>
+            }
+          } @else {
+            <button
+              type="button"
+              class="sidebar-nav__item"
+              [class.sidebar-nav__item--active]="isActive(item.route)"
+              (click)="openPage(item.route)">
+              <mat-icon>{{ item.icon }}</mat-icon>
+              <span>{{ item.label }}</span>
+            </button>
           }
-
-        } @else {
-
-          <button
-            type="button"
-            class="sidebar-nav__item"
-            [class.sidebar-nav__item--active]="isActive(item.route)"
-            (click)="openPage(item.route)">
-
-            <mat-icon>{{ item.icon }}</mat-icon>
-            <span>{{ item.label }}</span>
-
-          </button>
-
         }
 
-      }
-
-    </nav>
-
-    <nav class="sidebar-nav sidebar-nav--account">
-
-      <button
-        type="button"
-        class="sidebar-nav__item sidebar-nav__item--danger"
-        (click)="logout()">
-
-        <mat-icon>logout</mat-icon>
-        <span>Logout</span>
-
-      </button>
-
-    </nav>
-
-    <div class="sidebar-bottom">
+        <button
+          type="button"
+          class="sidebar-nav__item sidebar-nav__item--danger"
+          (click)="logout()">
+          <mat-icon>logout</mat-icon>
+          <span>Logout</span>
+        </button>
+      </nav>
 
       <div class="sidebar-promo">
-
         <div class="sidebar-promo__icon">
           <mat-icon>trending_up</mat-icon>
         </div>
-
         <div class="sidebar-promo__copy">
           <strong>Turn ideas into opportunities</strong>
-          <p>
-            Create pages, manage campaigns and grow your business online.
-          </p>
+          <p>Create pages, manage campaigns and grow your business online.</p>
         </div>
-
       </div>
-
-      <footer class="sidebar-platform">
-
-        <a
-          class="sidebar-platform__brand"
-          [href]="appResource.links.website"
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="Open BRAIN TECHNO website">
-
-          <img
-            class="sidebar-platform__logo"
-            [src]="appResource.images.logoMark"
-            [alt]="appResource.brand.name"
-          />
-
-          <span class="sidebar-platform__tm">TM</span>
-
-        </a>
-
-        <div class="sidebar-platform__powered">
-          {{ appResource.brand.poweredBy }}
-        </div>
-
-        <div class="sidebar-platform__copyright">
-          {{ appResource.copyrightText }}
-        </div>
-
-      </footer>
-
     </div>
 
+    <footer class="sidebar-platform">
+      <a
+        class="sidebar-platform__brand"
+        [href]="appResource.links.website"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Open BRAIN TECHNO website">
+        <img
+          class="sidebar-platform__logo"
+          [src]="appResource.images.logoMark"
+          [alt]="appResource.brand.name" />
+        <span class="sidebar-platform__tm">TM</span>
+      </a>
+      <div class="sidebar-platform__powered">{{ appResource.brand.poweredBy }}</div>
+      <div class="sidebar-platform__copyright">{{ appResource.copyrightText }}</div>
+    </footer>
   </aside>
 
   <section class="shell-content">
-
     <header class="topbar">
-
-      <div class="topbar__mobile-left">
-
+      <div class="topbar__brand-area">
         <button
           type="button"
           class="mobile-menu-button"
@@ -186,26 +135,26 @@
           <mat-icon>menu</mat-icon>
         </button>
 
-        <img
-          class="topbar__mobile-logo"
-          [src]="businessLogo"
-          (error)="onBusinessLogoError($event)"
-          alt="Business logo"
-        />
-
-        <div class="topbar__mobile-copy">
-          <strong>{{ businessName }}</strong>
-          <span class="sidebar__brand-tagline">
-            {{ businessTagName }}
+        <button
+          type="button"
+          class="topbar-business"
+          (click)="openPage('/app/dashboard')"
+          aria-label="Go to dashboard">
+          <img
+            class="topbar-business__logo"
+            [src]="businessLogo"
+            (error)="onBusinessLogoError($event)"
+            alt="Business logo" />
+          <span class="topbar-business__copy">
+            <strong class="topbar-business__name">{{ businessName }}</strong>
+            <span class="topbar-business__tagline">{{ businessTagName }}</span>
           </span>
-        </div>
-
+        </button>
       </div>
 
       <div class="topbar__spacer"></div>
 
       <div class="topbar__actions">
-
         <button
           type="button"
           class="topbar-icon-button"
@@ -213,15 +162,11 @@
           title="Notifications">
           <mat-icon>notifications_none</mat-icon>
         </button>
-
       </div>
-
     </header>
 
     <main class="page-content">
       <router-outlet />
     </main>
-
   </section>
-
 </div>

@@ -102,6 +102,67 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'business-hub',
+        pathMatch: 'full',
+        redirectTo: 'business-hub/my-business',
+      },
+      // {
+      //   path: 'business-hub/my-business/sales-expenses',
+      //   loadComponent: () =>
+      //     import('./business-hub/business-hub.page').then(
+      //       (m) => m.BusinessHubPage,
+      //     ),
+      // },
+      {
+        path: 'business-hub/my-business',
+        loadComponent: () =>
+          import('./business-hub/business-hub.page').then(
+            (m) => m.BusinessHubPage,
+          ),
+      },
+      {
+        path: 'business-hub/sales-expenses',
+        loadComponent: () =>
+          import('./business-hub/sales-expense/sales-expense.page').then(
+            (m) => m.SalesExpensePage,
+          ),
+      },
+      // {
+      //   path: 'business-hub/invoice',
+      //   loadComponent: () =>
+      //     import('./business-hub/business-hub.page').then(
+      //       (m) => m.BusinessHubPage,
+      //     ),
+      // },
+      // {
+      //   path: 'business-hub/stock',
+      //   loadComponent: () =>
+      //     import('./business-hub/business-hub.page').then(
+      //       (m) => m.BusinessHubPage,
+      //     ),
+      // },
+      // {
+      //   path: 'business-hub/payment-reminder',
+      //   loadComponent: () =>
+      //     import('./business-hub/business-hub.page').then(
+      //       (m) => m.BusinessHubPage,
+      //     ),
+      // },
+      // {
+      //   path: 'business-hub/growth-checklist',
+      //   loadComponent: () =>
+      //     import('./business-hub/business-hub.page').then(
+      //       (m) => m.BusinessHubPage,
+      //     ),
+      // },
+      // {
+      //   path: 'business-hub/settings',
+      //   loadComponent: () =>
+      //     import('./business-hub/business-hub.page').then(
+      //       (m) => m.BusinessHubPage,
+      //     ),
+      // },
+      {
         path: 'business-profile',
         loadComponent: () =>
           import(

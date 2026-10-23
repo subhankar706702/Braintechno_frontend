@@ -1,0 +1,74 @@
+<div class="hub-page">
+  <header class="hub-header">
+    <div class="hub-header__copy">
+      <div class="eyebrow"><mat-icon>grid_view</mat-icon> BUSINESS HUB</div>
+      <h1>{{ title }}</h1>
+      <p>{{ description }}</p>
+    </div>
+    <div class="hub-header__actions">
+      <a class="button button--secondary" routerLink="/app/business-hub/settings"><mat-icon>tune</mat-icon><span>Hub Settings</span></a>
+    </div>
+  </header>
+
+  @if (section === 'my-business' && !isSalesExpensesView()) {
+    <section class="welcome-panel">
+      <div class="welcome-panel__content">
+        <span class="welcome-panel__tag">YOUR BUSINESS WORKSPACE</span>
+        <h2>Everything important, in one place.</h2>
+        <p>Start with your daily activity, keep stock updated and stay on top of customer payments.</p>
+        <button class="button button--primary" type="button" (click)="open('/app/business-hub/my-business/sales-expenses')"><mat-icon>add</mat-icon>Record sales or expense</button>
+      </div>
+      <div class="welcome-panel__art" aria-hidden="true"><div class="art-orbit art-orbit--one"></div><div class="art-orbit art-orbit--two"></div><div class="art-icon"><mat-icon>storefront</mat-icon></div><span class="art-dot art-dot--one"></span><span class="art-dot art-dot--two"></span></div>
+    </section>
+
+    <section class="section-block">
+      <div class="section-heading"><div><h2>Business Overview</h2><p>Figures will appear here when connected records are available.</p></div><span class="period-pill"><mat-icon>calendar_today</mat-icon> Today</span></div>
+      <div class="metrics-grid">
+        @for (card of overviewCards; track card.label) {
+          <article class="metric-card">
+            <div class="metric-card__top"><span>{{ card.label }}</span><span class="metric-card__icon" [class]="'metric-card__icon metric-card__icon--' + card.tone"><mat-icon>{{ card.icon }}</mat-icon></span></div>
+            <strong>{{ card.value }}</strong><small>{{ card.note }}</small>
+          </article>
+        }
+      </div>
+    </section>
+
+    <section class="section-block">
+      <div class="section-heading"><div><h2>Quick Actions</h2><p>Jump straight to a common task.</p></div></div>
+      <div class="quick-grid">
+        @for (item of quickLinks; track item.route) {
+          <button class="quick-card" type="button" (click)="open(item.route)"><span class="quick-card__icon"><mat-icon>{{ item.icon }}</mat-icon></span><span class="quick-card__text"><strong>{{ item.title }}</strong><small>{{ item.description }}</small></span><mat-icon class="quick-card__arrow">arrow_forward</mat-icon></button>
+        }
+      </div>
+    </section>
+
+    <section class="bottom-grid">
+      <article class="content-card">
+        <div class="section-heading"><div><h2>Festival & Promotion Ideas</h2><p>Admin-published campaign ideas and banners will appear here.</p></div><mat-icon class="heading-icon">campaign</mat-icon></div>
+        <div class="empty-state"><span><mat-icon>lightbulb</mat-icon></span><strong>No suggestions published yet</strong><p>When BRAIN TECHNO publishes a promotion idea or banner, you will find it here.</p></div>
+      </article>
+      <article class="content-card">
+        <div class="section-heading"><div><h2>Growth Checklist</h2><p>Small steps to help your business grow.</p></div><button class="text-link" type="button" (click)="open('/app/business-hub/growth-checklist')">View all <mat-icon>arrow_forward</mat-icon></button></div>
+        <ul class="checklist-preview">@for (item of checklistItems; track item) { <li><mat-icon>radio_button_unchecked</mat-icon><span>{{ item }}</span></li> }</ul>
+      </article>
+    </section>
+  } @else if (section === 'my-business' && isSalesExpensesView()) {
+    <section class="content-card feature-intro"><span class="feature-intro__icon"><mat-icon>account_balance_wallet</mat-icon></span><div><h2>Daily Sales & Expense Tracker</h2><p>This page is ready for the next step: adding validated sales and expense entries, with daily, weekly and monthly summaries.</p></div></section>
+    <section class="notice-card"><mat-icon>info</mat-icon><div><strong>Data entry is not enabled yet</strong><p>This foundation screen does not save financial records. The next implementation step will add the database model, API validation and entry form.</p></div></section>
+    <div class="summary-grid"><article class="metric-card"><span>Daily Sales</span><strong>—</strong><small>Awaiting entries</small></article><article class="metric-card"><span>Daily Expenses</span><strong>—</strong><small>Awaiting entries</small></article><article class="metric-card"><span>Net Balance</span><strong>—</strong><small>Calculated from saved entries</small></article></div>
+  } @else if (section === 'invoice') {
+    <section class="feature-grid"><article class="feature-card feature-card--primary"><span class="feature-card__icon"><mat-icon>receipt_long</mat-icon></span><h2>Create a new invoice</h2><p>The invoice flow will use your business details, saved stock items, GST settings and payment information.</p><button class="button button--primary" type="button" disabled>Invoice form — next phase</button></article><article class="feature-card"><span class="feature-card__icon"><mat-icon>palette</mat-icon></span><h2>Invoice templates</h2><p>Choose from free and eligible premium layouts after template access is connected.</p><button class="button button--secondary" type="button" (click)="open('/app/business-hub/settings')">Open Hub Settings</button></article></section>
+    <section class="notice-card"><mat-icon>info</mat-icon><div><strong>Invoice generation is not active yet</strong><p>Invoice totals, stock deduction, due creation and PDF generation will be implemented together so records remain consistent.</p></div></section>
+  } @else if (section === 'stock') {
+    <section class="feature-toolbar"><div><h2>Stock Items</h2><p>Your saved product list will appear here.</p></div><button class="button button--primary" type="button" disabled><mat-icon>add</mat-icon>Add stock item — next phase</button></section>
+    <section class="empty-page-state"><span><mat-icon>inventory_2</mat-icon></span><h2>Stock management foundation</h2><p>Add products with price, quantity, SKU, GST and a low-stock threshold in the next implementation phase.</p><span class="status-pill">Database connection pending</span></section>
+  } @else if (section === 'payment-reminder') {
+    <div class="metrics-grid metrics-grid--three"><article class="metric-card"><span>Outstanding Dues</span><strong>—</strong><small>Open customer balances</small></article><article class="metric-card"><span>Installments Received</span><strong>—</strong><small>Recorded payments</small></article><article class="metric-card"><span>Fully Paid</span><strong>—</strong><small>Retained paid records</small></article></div>
+    <section class="empty-page-state"><span><mat-icon>event_available</mat-icon></span><h2>Payment tracking foundation</h2><p>Due records will be created only when a finalised invoice has an outstanding balance. Manual reminder messages will be supported.</p><span class="status-pill">Invoice connection pending</span></section>
+  } @else if (section === 'growth-checklist') {
+    <section class="content-card checklist-full"><div class="section-heading"><div><h2>Build your business step by step</h2><p>These starter tasks are suggestions; progress saving will be added in a later step.</p></div><mat-icon class="heading-icon">checklist</mat-icon></div>@for (item of checklistItems; track item; let i = $index) { <div class="checklist-row"><span class="checklist-row__number">{{ i + 1 }}</span><span>{{ item }}</span><span class="checklist-row__state">Not started</span></div> }</section>
+  } @else if (section === 'settings') {
+    <section class="settings-grid"><button class="settings-tile" type="button" disabled><mat-icon>receipt_long</mat-icon><span><strong>Invoice & Templates</strong><small>Default layout and invoice appearance</small></span><mat-icon class="settings-tile__arrow">chevron_right</mat-icon></button><button class="settings-tile" type="button" disabled><mat-icon>percent</mat-icon><span><strong>GST & Tax</strong><small>Tax enablement and default rates</small></span><mat-icon class="settings-tile__arrow">chevron_right</mat-icon></button><button class="settings-tile" type="button" disabled><mat-icon>qr_code_2</mat-icon><span><strong>Payment Details</strong><small>Your own UPI details and payment QR</small></span><mat-icon class="settings-tile__arrow">chevron_right</mat-icon></button><button class="settings-tile" type="button" disabled><mat-icon>draw</mat-icon><span><strong>Signature & Seal</strong><small>Invoice signature preferences</small></span><mat-icon class="settings-tile__arrow">chevron_right</mat-icon></button><button class="settings-tile" type="button" disabled><mat-icon>sms</mat-icon><span><strong>Reminder Message</strong><small>Default manual reminder text</small></span><mat-icon class="settings-tile__arrow">chevron_right</mat-icon></button><button class="settings-tile" type="button" disabled><mat-icon>inventory</mat-icon><span><strong>Stock Threshold</strong><small>Default low-stock quantity</small></span><mat-icon class="settings-tile__arrow">chevron_right</mat-icon></button></section>
+    <section class="notice-card"><mat-icon>info</mat-icon><div><strong>Settings will be connected in a later phase</strong><p>These options are a layout foundation only; no setting is saved or changed yet.</p></div></section>
+  }
+</div>

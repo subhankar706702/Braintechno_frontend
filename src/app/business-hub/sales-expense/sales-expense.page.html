@@ -1,0 +1,117 @@
+<section class="sales-page">
+  <header class="page-header">
+    <div class="page-header__copy">
+      <div class="eyebrow"><mat-icon>storefront</mat-icon> MY BUSINESS</div>
+      <h1>Sales &amp; Expense Tracker</h1>
+      <p>Record your daily income and expenses, and understand how your business is doing.</p>
+    </div>
+    <div class="page-header__actions">
+      <button class="btn btn--outline" type="button" (click)="load()" [disabled]="loading()">
+        <mat-icon>refresh</mat-icon><span>Refresh</span>
+      </button>
+      <button class="btn btn--primary" type="button" (click)="openForm('sale')">
+        <mat-icon>add</mat-icon><span>Add Entry</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="notice notice--error" *ngIf="error() && !formOpen()" role="alert">
+    <mat-icon>error_outline</mat-icon><span>{{ error() }}</span>
+    <button type="button" class="notice__action" (click)="load()">Try again</button>
+  </div>
+  <div class="notice notice--success" *ngIf="success()" role="status">
+    <mat-icon>check_circle</mat-icon><span>{{ success() }}</span>
+    <button type="button" class="notice__close" (click)="success.set('')" aria-label="Dismiss message"><mat-icon>close</mat-icon></button>
+  </div>
+
+  <section class="summary-section" aria-labelledby="summary-heading">
+    <div class="section-heading">
+      <div><h2 id="summary-heading">Business Summary</h2><p>Your recorded transactions for the selected period.</p></div>
+      <div class="period-tabs" role="group" aria-label="Summary period">
+        <button type="button" [class.is-active]="period() === 'day'" (click)="setPeriod('day')">Daily</button>
+        <button type="button" [class.is-active]="period() === 'week'" (click)="setPeriod('week')">Weekly</button>
+        <button type="button" [class.is-active]="period() === 'month'" (click)="setPeriod('month')">Monthly</button>
+      </div>
+    </div>
+
+    <div class="summary-grid">
+      <article class="summary-card">
+        <div class="summary-card__top"><span>Sales / Income</span><span class="summary-icon summary-icon--green"><mat-icon>trending_up</mat-icon></span></div>
+        <strong>{{ formatMoney(summary().sales) }}</strong><small>Total recorded sales</small>
+      </article>
+      <article class="summary-card">
+        <div class="summary-card__top"><span>Expenses</span><span class="summary-icon summary-icon--orange"><mat-icon>trending_down</mat-icon></span></div>
+        <strong>{{ formatMoney(summary().expenses) }}</strong><small>Total recorded expenses</small>
+      </article>
+      <article class="summary-card summary-card--net">
+        <div class="summary-card__top"><span>Net Difference</span><span class="summary-icon summary-icon--blue"><mat-icon>account_balance_wallet</mat-icon></span></div>
+        <strong [class.amount-negative]="summary().net < 0">{{ formatMoney(summary().net) }}</strong><small>Sales minus recorded expenses</small>
+      </article>
+      <article class="summary-card">
+        <div class="summary-card__top"><span>Entries</span><span class="summary-icon summary-icon--violet"><mat-icon>receipt_long</mat-icon></span></div>
+        <strong>{{ summary().count }}</strong><small>Saved transactions</small>
+      </article>
+    </div>
+    <p class="summary-note"><mat-icon>info_outline</mat-icon> Net difference is not accounting profit; product cost, tax and other unrecorded costs may not be included.</p>
+  </section>
+
+  <section class="entries-section" aria-labelledby="entries-heading">
+    <div class="section-heading section-heading--entries">
+      <div><h2 id="entries-heading">Transaction Entries</h2><p>Review your saved sales and expenses.</p></div>
+      <label class="filter-control"><span>Show</span>
+        <select [ngModel]="filterType()" (ngModelChange)="filterType.set($event)" aria-label="Filter transaction type">
+          <option value="all">All entries</option><option value="sale">Sales only</option><option value="expense">Expenses only</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="loading-state" *ngIf="loading()"><span class="spinner"></span><span>Loading entries…</span></div>
+    <div class="table-wrap" *ngIf="!loading() && visibleEntries.length">
+      <table>
+        <thead><tr><th>Date</th><th>Type</th><th>Category / Note</th><th>Payment</th><th class="align-right">Amount</th></tr></thead>
+        <tbody>
+          <tr *ngFor="let item of visibleEntries; trackBy: trackById">
+            <td class="date-cell">{{ item.entryDate | date:'dd MMM yyyy':'Asia/Kolkata' }}</td>
+            <td><span class="type-badge" [class.type-badge--sale]="item.type === 'sale'" [class.type-badge--expense]="item.type === 'expense'">{{ item.type === 'sale' ? 'Sale' : 'Expense' }}</span></td>
+            <td><div class="category-cell"><strong>{{ item.category }}</strong><small *ngIf="item.note">{{ item.note }}</small></div></td>
+            <td class="payment-cell">{{ item.paymentMethod || '—' }}</td>
+            <td class="align-right amount-cell" [class.amount-cell--expense]="item.type === 'expense'">{{ item.type === 'expense' ? '−' : '+' }}{{ formatMoney(item.amount) }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="empty-state" *ngIf="!loading() && !visibleEntries.length">
+      <span class="empty-state__icon"><mat-icon>receipt_long</mat-icon></span>
+      <h3>No entries found</h3>
+      <p>Add a sale or expense to start tracking your business activity. Your entries will appear here.</p>
+      <div class="empty-state__actions">
+        <button class="btn btn--primary" type="button" (click)="openForm('sale')"><mat-icon>add</mat-icon>Add Sale</button>
+        <button class="btn btn--outline" type="button" (click)="openForm('expense')"><mat-icon>add</mat-icon>Add Expense</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="modal-backdrop" *ngIf="formOpen()" (click)="closeForm()">
+    <section class="entry-modal" role="dialog" aria-modal="true" aria-labelledby="entry-modal-title" (click)="$event.stopPropagation()">
+      <header class="entry-modal__header">
+        <div><div class="eyebrow">MY BUSINESS</div><h2 id="entry-modal-title">Add Transaction</h2><p>Record one sale or expense for your business.</p></div>
+        <button type="button" class="icon-button" (click)="closeForm()" [disabled]="saving()" aria-label="Close form"><mat-icon>close</mat-icon></button>
+      </header>
+      <div class="notice notice--error" *ngIf="error()" role="alert"><mat-icon>error_outline</mat-icon><span>{{ error() }}</span></div>
+      <form (ngSubmit)="save()">
+        <div class="type-switch" role="group" aria-label="Transaction type">
+          <button type="button" [class.is-active]="form.type === 'sale'" (click)="setType('sale')"><mat-icon>trending_up</mat-icon>Sale / Income</button>
+          <button type="button" [class.is-active]="form.type === 'expense'" (click)="setType('expense')"><mat-icon>trending_down</mat-icon>Expense</button>
+        </div>
+        <div class="form-grid">
+          <label class="field"><span>Date <b>*</b></span><input type="date" name="entryDate" [(ngModel)]="form.entryDate" required /></label>
+          <label class="field"><span>Amount (₹) <b>*</b></span><input type="number" name="amount" [(ngModel)]="form.amount" min="0.01" step="0.01" placeholder="0.00" required /></label>
+          <label class="field"><span>Category <b>*</b></span><select name="category" [(ngModel)]="form.category" required><option *ngFor="let category of availableCategories" [value]="category">{{ category }}</option></select></label>
+          <label class="field"><span>Payment Method</span><select name="paymentMethod" [(ngModel)]="form.paymentMethod"><option>Cash</option><option>UPI / QR</option><option>Bank Transfer</option><option>Card</option><option>Other</option></select></label>
+          <label class="field field--full"><span>Note <small>(optional)</small></span><textarea name="note" [(ngModel)]="form.note" rows="3" maxlength="500" placeholder="Add a short note for your own records"></textarea></label>
+        </div>
+        <footer class="entry-modal__footer"><button class="btn btn--outline" type="button" (click)="closeForm()" [disabled]="saving()">Cancel</button><button class="btn btn--primary" type="submit" [disabled]="saving()"><mat-icon>{{ saving() ? 'hourglass_top' : 'save' }}</mat-icon>{{ saving() ? 'Saving…' : 'Save Entry' }}</button></footer>
+      </form>
+    </section>
+  </div>
+</section>

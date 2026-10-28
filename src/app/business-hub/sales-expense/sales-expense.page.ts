@@ -8,7 +8,7 @@ import {
   BusinessTransactionPeriod,
   BusinessTransactionType,
   SalesExpenseApiService,
-} from './../../core/sales-expense-api.service';
+} from '../../core/sales-expense-api.service';
 
 @Component({
   selector: 'bt-sales-expense-page',
@@ -75,11 +75,11 @@ export class SalesExpensePage implements OnInit {
     this.api.list(this.period())
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
-        next: (result: any) => {
+        next: result => {
           this.entries.set(result.items ?? []);
           this.summary.set(result.summary ?? { sales: 0, expenses: 0, net: 0, count: 0 });
         },
-        error: (err:any) => {
+        error: err => {
           this.error.set(err?.error?.message || 'Could not load sales and expenses. Please try again.');
         },
       });
@@ -128,7 +128,7 @@ export class SalesExpensePage implements OnInit {
           this.success.set('Entry saved successfully.');
           this.load();
         },
-        error: (err:any) => this.error.set(err?.error?.message || 'Could not save this entry. Please try again.'),
+        error: err => this.error.set(err?.error?.message || 'Could not save this entry. Please try again.'),
       });
   }
 

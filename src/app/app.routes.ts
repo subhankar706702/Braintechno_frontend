@@ -127,6 +127,10 @@ export const routes: Routes = [
             (m) => m.SalesExpensePage,
           ),
       },
+        {
+        path: 'business-hub/my-stock',
+        loadComponent: () => import('./business-hub/my-stock/my-stock.page').then((m) => m.MyStockPage),
+      },
       // {
       //   path: 'business-hub/invoice',
       //   loadComponent: () =>

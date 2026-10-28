@@ -58,7 +58,7 @@ export class DashboardShellComponent implements OnInit, OnDestroy {
     { label: 'My Business', icon: 'business', route: '/app/business-hub/my-business' },
     { label: 'Sales & Expenses', icon: 'analytics', route: '/app/business-hub/sales-expenses' },
     { label: 'Invoice Generator', icon: 'receipt_long', route: '/app/business-hub/invoice' },
-    { label: 'My Stock', icon: 'inventory_2', route: '/app/business-hub/stock' },
+    { label: 'My Stock', icon: 'inventory_2', route: '/app/business-hub/my-stock' },
     { label: 'Payment Reminder', icon: 'payments', route: '/app/business-hub/payment-reminder' },
     { label: 'Growth Checklist', icon: 'checklist', route: '/app/business-hub/growth-checklist' },
     { label: 'Hub Settings', icon: 'tune', route: '/app/business-hub/settings' },

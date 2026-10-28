@@ -16,6 +16,7 @@ button {
   gap: var(--bt-space-4);
   width: min(100%, 1480px);
   margin: 0 auto;
+  padding: var(--bt-space-5) var(--bt-space-6);
 }
 
 .surface-card {

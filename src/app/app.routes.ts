@@ -137,34 +137,12 @@ export const routes: Routes = [
           import('./business-hub/invoice-generator/invoice-generator.page')
             .then(m => m.InvoiceGeneratorPage),
       },
-      // {
-      //   path: 'business-hub/stock',
-      //   loadComponent: () =>
-      //     import('./business-hub/business-hub.page').then(
-      //       (m) => m.BusinessHubPage,
-      //     ),
-      // },
-      // {
-      //   path: 'business-hub/payment-reminder',
-      //   loadComponent: () =>
-      //     import('./business-hub/business-hub.page').then(
-      //       (m) => m.BusinessHubPage,
-      //     ),
-      // },
-      // {
-      //   path: 'business-hub/growth-checklist',
-      //   loadComponent: () =>
-      //     import('./business-hub/business-hub.page').then(
-      //       (m) => m.BusinessHubPage,
-      //     ),
-      // },
-      // {
-      //   path: 'business-hub/settings',
-      //   loadComponent: () =>
-      //     import('./business-hub/business-hub.page').then(
-      //       (m) => m.BusinessHubPage,
-      //     ),
-      // },
+      {
+        path: 'business-hub/payment-reminder',
+        loadComponent: () =>
+          import('./business-hub/payment-reminder/payment-reminder.page')
+            .then(m => m.PaymentReminderPage),
+      },
       {
         path: 'business-profile',
         loadComponent: () =>

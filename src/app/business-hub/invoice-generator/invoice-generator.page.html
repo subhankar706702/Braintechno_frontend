@@ -28,6 +28,15 @@
   <div class="alert alert-success" *ngIf="success()" role="status">
     <span aria-hidden="true">✓</span>
     {{ success() }}
+    <button
+      *ngIf="lastInvoiceId()"
+      type="button"
+      class="btn btn-success print-invoice-button"
+      (click)="openInvoiceForPrint()"
+      [disabled]="printingInvoice()"
+    >
+      {{ printingInvoice() ? 'Opening invoice…' : 'Open / Print Invoice' }}
+    </button>
   </div>
 
   <div class="invoice-layout">

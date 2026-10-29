@@ -48,7 +48,8 @@ export class InvoiceGeneratorPage implements OnInit {
   readonly saving = signal(false);
   readonly error = signal('');
   readonly success = signal('');
-  readonly lastInvoicePrintUrl = signal('');
+  readonly lastInvoiceId = signal('');
+  readonly printingInvoice = signal(false);
   readonly previewMode = signal(false);
 
   readonly items = signal<InvoiceLine[]>([]);
@@ -154,7 +155,9 @@ export class InvoiceGeneratorPage implements OnInit {
   }
 
   addProduct(stockId: string): void {
-    if (!stockId) return;
+    if (!stockId) {
+      return;
+    }
 
     const product = this.stockItems().find(
       item => item.id === stockId,
@@ -223,7 +226,9 @@ export class InvoiceGeneratorPage implements OnInit {
     const lines = [...this.items()];
     const item = lines[index];
 
-    if (!item) return;
+    if (!item) {
+      return;
+    }
 
     if (field === 'quantity') {
       item.quantity = Math.floor(
@@ -250,8 +255,8 @@ export class InvoiceGeneratorPage implements OnInit {
     this.items.update(lines =>
       lines.filter((_, lineIndex) => lineIndex !== index),
     );
-
     this.idempotencyKey = this.createIdempotencyKey();
+
     this.previewMode.set(false);
     this.error.set('');
   }
@@ -272,7 +277,9 @@ export class InvoiceGeneratorPage implements OnInit {
   }
 
   lineTax(item: InvoiceLine): number {
-    if (!item.gstEnabled) return 0;
+    if (!item.gstEnabled) {
+      return 0;
+    }
 
     const taxable =
       this.lineSubtotal(item) - this.lineDiscount(item);
@@ -315,7 +322,9 @@ export class InvoiceGeneratorPage implements OnInit {
       return;
     }
 
-    if (this.saving()) return;
+    if (this.saving()) {
+      return;
+    }
 
     const payload = {
       customer: {
@@ -337,19 +346,11 @@ export class InvoiceGeneratorPage implements OnInit {
     };
 
     const fingerprint = JSON.stringify(payload);
-
-    if (
-      !this.idempotencyKey ||
-      fingerprint !== this.idempotencyFingerprint
-    ) {
+    if (fingerprint !== this.idempotencyFingerprint) {
       this.idempotencyKey = this.createIdempotencyKey();
       this.idempotencyFingerprint = fingerprint;
     }
-
-    const requestPayload = {
-      ...payload,
-      idempotencyKey: this.idempotencyKey,
-    };
+    const requestPayload = { ...payload, idempotencyKey: this.idempotencyKey };
 
     this.saving.set(true);
 
@@ -366,22 +367,18 @@ export class InvoiceGeneratorPage implements OnInit {
           this.success.set(
             `Invoice ${result.invoiceNumber} created successfully.`,
           );
-
-          this.lastInvoicePrintUrl.set(
-            result.id
-              ? `${this.invoiceEndpoint}/${encodeURIComponent(result.id)}/print`
-              : '',
-          );
+          this.lastInvoiceId.set(result.id ?? '');
 
           this.previewMode.set(false);
           this.items.set([]);
           this.customer = this.emptyCustomer();
           this.paidAmount.set(0);
           this.notes = '';
+          this.paymentMethod = 'Cash';
           this.idempotencyKey = '';
           this.idempotencyFingerprint = '';
-
           this.loadStock();
+
         },
         error: err => {
           this.error.set(
@@ -392,8 +389,56 @@ export class InvoiceGeneratorPage implements OnInit {
       });
   }
 
+  openInvoiceForPrint(): void {
+    const invoiceId = this.lastInvoiceId();
+
+    if (!invoiceId || this.printingInvoice()) {
+      return;
+    }
+
+    // Open the window synchronously from the click so popup blockers do not
+    // block it while the authenticated HTTP request is in flight.
+    const printWindow = window.open('', '_blank');
+
+    if (!printWindow) {
+      this.error.set('Your browser blocked the print window. Allow pop-ups and try again.');
+      return;
+    }
+
+    printWindow.document.write(
+      '<!doctype html><html><head><title>Loading invoice…</title></head><body>Loading invoice…</body></html>',
+    );
+    printWindow.document.close();
+
+    this.error.set('');
+    this.printingInvoice.set(true);
+
+    this.http
+      .get(`${this.invoiceEndpoint}/${encodeURIComponent(invoiceId)}/print`, {
+        responseType: 'text',
+      })
+      .pipe(finalize(() => this.printingInvoice.set(false)))
+      .subscribe({
+        next: html => {
+          printWindow.document.open();
+          printWindow.document.write(html);
+          printWindow.document.close();
+          printWindow.focus();
+        },
+        error: err => {
+          printWindow.close();
+          this.error.set(
+            err?.error?.message ||
+              'Could not open the invoice for printing. Please try again.',
+          );
+        },
+      });
+  }
+
   resetInvoice(): void {
-    if (this.saving()) return;
+    if (this.saving()) {
+      return;
+    }
 
     this.customer = this.emptyCustomer();
     this.items.set([]);
@@ -404,7 +449,7 @@ export class InvoiceGeneratorPage implements OnInit {
     this.idempotencyFingerprint = '';
     this.error.set('');
     this.success.set('');
-    this.lastInvoicePrintUrl.set('');
+    this.lastInvoiceId.set('');
     this.previewMode.set(false);
   }
 
@@ -470,7 +515,9 @@ export class InvoiceGeneratorPage implements OnInit {
   ): number {
     const number = Number(value);
 
-    if (!Number.isFinite(number)) return minimum;
+    if (!Number.isFinite(number)) {
+      return minimum;
+    }
 
     return Math.min(maximum, Math.max(minimum, number));
   }

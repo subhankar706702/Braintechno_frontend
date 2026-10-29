@@ -1,0 +1,65 @@
+<section class="due-page">
+  <header class="due-header">
+    <div>
+      <p class="eyebrow">BUSINESS HUB</p>
+      <h1>Payment Reminder</h1>
+      <p>Track unpaid invoices and record customer payments.</p>
+    </div>
+    <button class="btn btn-outline" type="button" (click)="loadRecords()" [disabled]="loading()">↻ Refresh</button>
+  </header>
+
+  <div class="alert alert-error" *ngIf="error()" role="alert">{{ error() }}</div>
+  <div class="alert alert-success" *ngIf="success()" role="status">{{ success() }}</div>
+
+  <div class="toolbar">
+    <label>
+      <span>Show records</span>
+      <select [ngModel]="statusFilter()" (ngModelChange)="changeFilter($event)">
+        <option value="open">Outstanding dues</option>
+        <option value="due">Unpaid</option>
+        <option value="partially-paid">Partially paid</option>
+        <option value="paid">Fully paid</option>
+      </select>
+    </label>
+    <div class="record-count">{{ records().length }} records</div>
+  </div>
+
+  <div class="loading-state" *ngIf="loading()">Loading payment records…</div>
+  <div class="empty-state" *ngIf="!loading() && records().length === 0">
+    <span aria-hidden="true">✓</span>
+    <h2>No payment records found</h2>
+    <p>Outstanding records will appear here after an invoice is finalized with a balance due.</p>
+  </div>
+
+  <div class="due-list" *ngIf="!loading() && records().length > 0">
+    <article class="due-card" *ngFor="let record of records()">
+      <header class="card-heading">
+        <div>
+          <span class="invoice-number">{{ record.invoiceNumber }}</span>
+          <h2>{{ record.customer?.name || 'Customer' }}</h2>
+          <p>{{ record.customer?.mobile || 'No mobile number' }}</p>
+        </div>
+        <span class="status" [class.status--paid]="record.status === 'paid'" [class.status--partial]="record.status === 'partially-paid'">
+          {{ record.status === 'partially-paid' ? 'Partially paid' : (record.status === 'paid' ? 'Paid' : 'Due') }}
+        </span>
+      </header>
+
+      <div class="amount-grid">
+        <div><span>Invoice total</span><strong>{{ money(record.invoiceTotal) }}</strong></div>
+        <div><span>Received</span><strong>{{ money(record.amountPaid) }}</strong></div>
+        <div class="balance"><span>Balance due</span><strong>{{ money(record.balanceDue) }}</strong></div>
+      </div>
+
+      <form class="payment-form" *ngIf="record.balanceDue > 0" (ngSubmit)="recordPayment(record)">
+        <h3>Record a payment</h3>
+        <div class="payment-fields">
+          <label><span>Amount received (₹)</span><input type="number" name="amount-{{record.id}}" min="0.01" [max]="record.balanceDue" step="0.01" required [(ngModel)]="paymentDrafts[record.id].amount" /></label>
+          <label><span>Payment method</span><select name="method-{{record.id}}" [(ngModel)]="paymentDrafts[record.id].paymentMethod"><option *ngFor="let method of paymentMethods" [value]="method">{{ method }}</option></select></label>
+          <label class="note-field"><span>Note (optional)</span><input type="text" name="note-{{record.id}}" maxlength="500" placeholder="Payment reference or note" [(ngModel)]="paymentDrafts[record.id].note" /></label>
+        </div>
+        <button class="btn btn-primary" type="submit" [disabled]="savingId() === record.id">{{ savingId() === record.id ? 'Saving payment…' : 'Record Payment' }}</button>
+      </form>
+      <p class="paid-message" *ngIf="record.status === 'paid'">This invoice has been fully paid.</p>
+    </article>
+  </div>
+</section>

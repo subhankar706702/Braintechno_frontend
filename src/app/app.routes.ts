@@ -127,17 +127,16 @@ export const routes: Routes = [
             (m) => m.SalesExpensePage,
           ),
       },
-        {
+      {
         path: 'business-hub/my-stock',
         loadComponent: () => import('./business-hub/my-stock/my-stock.page').then((m) => m.MyStockPage),
       },
-      // {
-      //   path: 'business-hub/invoice',
-      //   loadComponent: () =>
-      //     import('./business-hub/business-hub.page').then(
-      //       (m) => m.BusinessHubPage,
-      //     ),
-      // },
+      {
+        path: 'business-hub/invoice',
+        loadComponent: () =>
+          import('./business-hub/invoice-generator/invoice-generator.page')
+            .then(m => m.InvoiceGeneratorPage),
+      },
       // {
       //   path: 'business-hub/stock',
       //   loadComponent: () =>

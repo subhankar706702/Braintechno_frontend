@@ -1,0 +1,393 @@
+
+<section class="invoice-page">
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">BUSINESS HUB</p>
+      <h1>Invoice Generator</h1>
+      <p class="page-subtitle">
+        Create an invoice, record payment and track outstanding dues.
+      </p>
+    </div>
+
+    <button
+      type="button"
+      class="btn btn-outline"
+      (click)="resetInvoice()"
+      [disabled]="saving()"
+    >
+      <span aria-hidden="true">↺</span>
+      New Invoice
+    </button>
+  </header>
+
+  <div class="alert alert-error" *ngIf="error()" role="alert">
+    <span aria-hidden="true">!</span>
+    {{ error() }}
+  </div>
+
+  <div class="alert alert-success" *ngIf="success()" role="status">
+    <span aria-hidden="true">✓</span>
+    {{ success() }}
+  </div>
+
+  <div class="invoice-layout">
+    <main class="invoice-main">
+      <section class="panel">
+        <div class="section-heading">
+          <div>
+            <span class="section-number">01</span>
+            <h2>Customer Details</h2>
+          </div>
+          <span class="optional-label">Required for unpaid invoices</span>
+        </div>
+
+        <div class="form-grid">
+          <label class="field">
+            <span>Customer name <span class="required">*</span></span>
+            <input
+              type="text"
+              name="customerName"
+              [(ngModel)]="customer.name"
+              placeholder="Enter customer name"
+              autocomplete="name"
+            />
+          </label>
+
+          <label class="field">
+            <span>Mobile number <span class="required">*</span></span>
+            <input
+              type="tel"
+              name="customerMobile"
+              [(ngModel)]="customer.mobile"
+              placeholder="Enter mobile number"
+              autocomplete="tel"
+              inputmode="tel"
+            />
+          </label>
+
+          <label class="field">
+            <span>Email address</span>
+            <input
+              type="email"
+              name="customerEmail"
+              [(ngModel)]="customer.email"
+              placeholder="customer@example.com"
+              autocomplete="email"
+            />
+          </label>
+
+          <label class="field">
+            <span>GSTIN</span>
+            <input
+              type="text"
+              name="customerGstin"
+              [(ngModel)]="customer.gstin"
+              placeholder="Optional GSTIN"
+              maxlength="15"
+              autocapitalize="characters"
+            />
+          </label>
+
+          <label class="field field-full">
+            <span>Billing address</span>
+            <textarea
+              name="customerAddress"
+              [(ngModel)]="customer.address"
+              rows="2"
+              placeholder="Enter customer billing address"
+            ></textarea>
+          </label>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="section-heading">
+          <div>
+            <span class="section-number">02</span>
+            <h2>Add Products</h2>
+          </div>
+          <span class="item-count">{{ items().length }} items</span>
+        </div>
+
+        <div class="product-picker">
+          <div class="picker-copy">
+            <strong>Select from My Stock</strong>
+            <span>Product details and price will be filled automatically.</span>
+          </div>
+
+          <select
+            #productSelect
+            aria-label="Select a product from stock"
+            [disabled]="loadingStock()"
+            (change)="addProduct(productSelect.value); productSelect.value = ''"
+          >
+            <option value="">
+              {{ loadingStock() ? 'Loading stock...' : 'Choose a product' }}
+            </option>
+            <option
+              *ngFor="let product of stockItems()"
+              [value]="product.id"
+              [disabled]="product.quantity <= 0"
+            >
+              {{ product.name }} · {{ product.quantity }} {{ product.unit }} available
+            </option>
+          </select>
+        </div>
+
+        <div class="loading-state" *ngIf="loadingStock()">
+          Loading your stock products...
+        </div>
+
+        <div class="empty-state" *ngIf="!loadingStock() && items().length === 0">
+          <span class="empty-icon" aria-hidden="true">▤</span>
+          <strong>No products added yet</strong>
+          <p>Select a product above to start creating your invoice.</p>
+        </div>
+
+        <div class="invoice-items" *ngIf="items().length > 0">
+          <article class="invoice-item" *ngFor="let item of items(); let i = index">
+            <div class="item-top">
+              <div class="item-identification">
+                <strong>{{ item.name }}</strong>
+                <span *ngIf="item.sku">SKU: {{ item.sku }}</span>
+                <span *ngIf="item.description">{{ item.description }}</span>
+              </div>
+
+              <button
+                type="button"
+                class="remove-button"
+                (click)="removeLine(i)"
+                [attr.aria-label]="'Remove ' + item.name"
+              >
+                Remove
+              </button>
+            </div>
+
+            <div class="item-fields">
+              <label class="field">
+                <span>Price (₹)</span>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  [ngModel]="item.unitPrice"
+                  [ngModelOptions]="{ standalone: true }"
+                  (ngModelChange)="updateLine(i, 'unitPrice', $event)"
+                />
+              </label>
+
+              <label class="field">
+                <span>Quantity ({{ item.unit }})</span>
+                <input
+                  type="number"
+                  min="1"
+                  [max]="item.availableQuantity"
+                  step="1"
+                  [ngModel]="item.quantity"
+                  [ngModelOptions]="{ standalone: true }"
+                  (ngModelChange)="updateLine(i, 'quantity', $event)"
+                />
+                <small>{{ item.availableQuantity }} available</small>
+              </label>
+
+              <label class="field">
+                <span>Discount (%)</span>
+                <input
+                  type="number"
+                  min="0"
+                  max="100"
+                  step="0.01"
+                  [ngModel]="item.discountPercent"
+                  [ngModelOptions]="{ standalone: true }"
+                  (ngModelChange)="updateLine(i, 'discountPercent', $event)"
+                />
+              </label>
+
+              <div class="item-tax">
+                <span>GST</span>
+                <strong>
+                  {{ item.gstEnabled ? (item.gstRate + '%') : 'Not applicable' }}
+                </strong>
+              </div>
+            </div>
+
+            <div class="item-bottom">
+              <span>
+                Discount: {{ money(lineDiscount(item)) }}
+                <span class="muted" *ngIf="item.gstEnabled">
+                  · GST: {{ money(lineTax(item)) }}
+                </span>
+              </span>
+              <strong>{{ money(lineSubtotal(item) - lineDiscount(item) + lineTax(item)) }}</strong>
+            </div>
+          </article>
+        </div>
+
+        <button
+          type="button"
+          class="text-button"
+          (click)="loadStock()"
+          [disabled]="loadingStock()"
+        >
+          ↻ Refresh stock list
+        </button>
+      </section>
+
+      <section class="panel">
+        <div class="section-heading">
+          <div>
+            <span class="section-number">03</span>
+            <h2>Payment Details</h2>
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <label class="field">
+            <span>Payment method</span>
+            <select name="paymentMethod" [(ngModel)]="paymentMethod">
+              <option *ngFor="let method of paymentMethods" [value]="method">
+                {{ method }}
+              </option>
+            </select>
+          </label>
+
+          <label class="field">
+            <span>Amount received (₹)</span>
+            <input
+              type="number"
+              name="paidAmount"
+              min="0"
+              [max]="grandTotal()"
+              step="0.01"
+              [ngModel]="paidAmount()"
+              (ngModelChange)="setPaidAmount($event)"
+            />
+          </label>
+
+          <label class="field field-full">
+            <span>Invoice notes</span>
+            <textarea
+              name="invoiceNotes"
+              [(ngModel)]="notes"
+              rows="2"
+              placeholder="Optional notes or payment terms"
+            ></textarea>
+          </label>
+        </div>
+      </section>
+    </main>
+
+    <aside class="invoice-sidebar">
+      <section class="summary-card">
+        <div class="summary-heading">
+          <div>
+            <span class="summary-kicker">INVOICE SUMMARY</span>
+            <h2>Amount breakdown</h2>
+          </div>
+          <span class="summary-icon" aria-hidden="true">₹</span>
+        </div>
+
+        <div class="summary-row">
+          <span>Subtotal</span>
+          <strong>{{ money(subtotal()) }}</strong>
+        </div>
+
+        <div class="summary-row discount-row">
+          <span>Discount</span>
+          <strong>− {{ money(discountTotal()) }}</strong>
+        </div>
+
+        <div class="summary-row">
+          <span>Taxable amount</span>
+          <strong>{{ money(taxableAmount()) }}</strong>
+        </div>
+
+        <div class="summary-row">
+          <span>GST total</span>
+          <strong>{{ money(gstTotal()) }}</strong>
+        </div>
+
+        <div class="summary-total">
+          <span>Invoice total</span>
+          <strong>{{ money(grandTotal()) }}</strong>
+        </div>
+
+        <div class="payment-breakdown">
+          <div class="summary-row">
+            <span>Amount received</span>
+            <strong>{{ money(paidAmount()) }}</strong>
+          </div>
+
+          <div class="summary-row due-row">
+            <span>Balance due</span>
+            <strong>{{ money(dueAmount()) }}</strong>
+          </div>
+        </div>
+
+        <div class="due-notice" *ngIf="dueAmount() > 0">
+          <span aria-hidden="true">ⓘ</span>
+          <p>
+            Customer name and mobile are required. Finalizing will need to
+            create a payment reminder for the outstanding balance.
+          </p>
+        </div>
+
+        <div class="paid-notice" *ngIf="grandTotal() > 0 && dueAmount() === 0">
+          <span aria-hidden="true">✓</span>
+          Invoice is fully paid.
+        </div>
+
+        <button
+          type="button"
+          class="btn btn-primary btn-block"
+          (click)="previewInvoice()"
+          [disabled]="saving() || items().length === 0"
+        >
+          Preview Invoice
+          <span aria-hidden="true">→</span>
+        </button>
+
+        <button
+          *ngIf="previewMode()"
+          type="button"
+          class="btn btn-success btn-block"
+          (click)="finalizeInvoice()"
+          [disabled]="saving()"
+        >
+          {{ saving() ? 'Finalizing...' : 'Finalize Invoice' }}
+        </button>
+
+        <p class="sidebar-help">
+          Stock will be deducted only after the backend successfully finalizes
+          the invoice.
+        </p>
+      </section>
+
+      <section class="preview-card" *ngIf="previewMode()">
+        <div class="preview-card-heading">
+          <span class="preview-symbol" aria-hidden="true">▤</span>
+          <div>
+            <strong>Ready to review</strong>
+            <p>Check the totals before finalizing.</p>
+          </div>
+        </div>
+
+        <div class="preview-line" *ngFor="let item of items()">
+          <span>{{ item.name }} × {{ item.quantity }}</span>
+          <strong>
+            {{ money(lineSubtotal(item) - lineDiscount(item) + lineTax(item)) }}
+          </strong>
+        </div>
+
+        <div class="preview-grand-total">
+          <span>Total payable</span>
+          <strong>{{ money(grandTotal()) }}</strong>
+        </div>
+
+        <p class="preview-disclaimer">
+          This is a draft preview. It does not reserve stock or create an invoice.
+        </p>
+      </section>
+    </aside>
+  </div>
+</section>

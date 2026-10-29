@@ -48,6 +48,7 @@ export class InvoiceGeneratorPage implements OnInit {
   readonly saving = signal(false);
   readonly error = signal('');
   readonly success = signal('');
+  readonly lastInvoicePrintUrl = signal('');
   readonly previewMode = signal(false);
 
   readonly items = signal<InvoiceLine[]>([]);
@@ -100,6 +101,8 @@ export class InvoiceGeneratorPage implements OnInit {
   );
 
   customer: InvoiceCustomer = this.emptyCustomer();
+  private idempotencyKey = '';
+  private idempotencyFingerprint = '';
   paymentMethod = 'Cash';
   notes = '';
 
@@ -151,9 +154,7 @@ export class InvoiceGeneratorPage implements OnInit {
   }
 
   addProduct(stockId: string): void {
-    if (!stockId) {
-      return;
-    }
+    if (!stockId) return;
 
     const product = this.stockItems().find(
       item => item.id === stockId,
@@ -209,6 +210,7 @@ export class InvoiceGeneratorPage implements OnInit {
     };
 
     this.items.update(lines => [...lines, line]);
+    this.idempotencyKey = this.createIdempotencyKey();
     this.error.set('');
     this.previewMode.set(false);
   }
@@ -221,9 +223,7 @@ export class InvoiceGeneratorPage implements OnInit {
     const lines = [...this.items()];
     const item = lines[index];
 
-    if (!item) {
-      return;
-    }
+    if (!item) return;
 
     if (field === 'quantity') {
       item.quantity = Math.floor(
@@ -241,6 +241,7 @@ export class InvoiceGeneratorPage implements OnInit {
 
     lines[index] = { ...item };
     this.items.set(lines);
+    this.idempotencyKey = this.createIdempotencyKey();
     this.previewMode.set(false);
     this.error.set('');
   }
@@ -250,6 +251,7 @@ export class InvoiceGeneratorPage implements OnInit {
       lines.filter((_, lineIndex) => lineIndex !== index),
     );
 
+    this.idempotencyKey = this.createIdempotencyKey();
     this.previewMode.set(false);
     this.error.set('');
   }
@@ -270,9 +272,7 @@ export class InvoiceGeneratorPage implements OnInit {
   }
 
   lineTax(item: InvoiceLine): number {
-    if (!item.gstEnabled) {
-      return 0;
-    }
+    if (!item.gstEnabled) return 0;
 
     const taxable =
       this.lineSubtotal(item) - this.lineDiscount(item);
@@ -315,9 +315,7 @@ export class InvoiceGeneratorPage implements OnInit {
       return;
     }
 
-    if (this.saving()) {
-      return;
-    }
+    if (this.saving()) return;
 
     const payload = {
       customer: {
@@ -336,17 +334,32 @@ export class InvoiceGeneratorPage implements OnInit {
       paymentAmount: this.paidAmount(),
       paymentMethod: this.paymentMethod,
       notes: this.notes.trim(),
-      idempotencyKey: this.createIdempotencyKey(),
+    };
+
+    const fingerprint = JSON.stringify(payload);
+
+    if (
+      !this.idempotencyKey ||
+      fingerprint !== this.idempotencyFingerprint
+    ) {
+      this.idempotencyKey = this.createIdempotencyKey();
+      this.idempotencyFingerprint = fingerprint;
+    }
+
+    const requestPayload = {
+      ...payload,
+      idempotencyKey: this.idempotencyKey,
     };
 
     this.saving.set(true);
 
     this.http
       .post<{
+        id?: string;
         invoiceNumber: string;
         pdfUrl?: string;
         dueRecordId?: string;
-      }>(`${this.invoiceEndpoint}/finalize`, payload)
+      }>(`${this.invoiceEndpoint}/finalize`, requestPayload)
       .pipe(finalize(() => this.saving.set(false)))
       .subscribe({
         next: result => {
@@ -354,16 +367,21 @@ export class InvoiceGeneratorPage implements OnInit {
             `Invoice ${result.invoiceNumber} created successfully.`,
           );
 
+          this.lastInvoicePrintUrl.set(
+            result.id
+              ? `${this.invoiceEndpoint}/${encodeURIComponent(result.id)}/print`
+              : '',
+          );
+
           this.previewMode.set(false);
           this.items.set([]);
           this.customer = this.emptyCustomer();
           this.paidAmount.set(0);
           this.notes = '';
-          this.loadStock();
+          this.idempotencyKey = '';
+          this.idempotencyFingerprint = '';
 
-          if (result.pdfUrl) {
-            window.open(result.pdfUrl, '_blank', 'noopener');
-          }
+          this.loadStock();
         },
         error: err => {
           this.error.set(
@@ -375,17 +393,18 @@ export class InvoiceGeneratorPage implements OnInit {
   }
 
   resetInvoice(): void {
-    if (this.saving()) {
-      return;
-    }
+    if (this.saving()) return;
 
     this.customer = this.emptyCustomer();
     this.items.set([]);
     this.paidAmount.set(0);
     this.paymentMethod = 'Cash';
     this.notes = '';
+    this.idempotencyKey = '';
+    this.idempotencyFingerprint = '';
     this.error.set('');
     this.success.set('');
+    this.lastInvoicePrintUrl.set('');
     this.previewMode.set(false);
   }
 
@@ -451,9 +470,7 @@ export class InvoiceGeneratorPage implements OnInit {
   ): number {
     const number = Number(value);
 
-    if (!Number.isFinite(number)) {
-      return minimum;
-    }
+    if (!Number.isFinite(number)) return minimum;
 
     return Math.min(maximum, Math.max(minimum, number));
   }

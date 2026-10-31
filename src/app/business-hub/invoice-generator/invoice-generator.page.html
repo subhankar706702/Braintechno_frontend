@@ -28,15 +28,32 @@
   <div class="alert alert-success" *ngIf="success()" role="status">
     <span aria-hidden="true">✓</span>
     {{ success() }}
-    <button
-      *ngIf="lastInvoiceId()"
-      type="button"
-      class="btn btn-success print-invoice-button"
-      (click)="openInvoiceForPrint()"
-      [disabled]="printingInvoice()"
-    >
-      {{ printingInvoice() ? 'Opening invoice…' : 'Open / Print Invoice' }}
-    </button>
+    <div class="invoice-success-actions" *ngIf="lastInvoiceId()">
+      <button
+        type="button"
+        class="btn btn-success"
+        (click)="openInvoiceForPrint()"
+        [disabled]="printingInvoice()"
+      >
+        {{ printingInvoice() ? 'Opening…' : 'Print Invoice' }}
+      </button>
+      <button
+        type="button"
+        class="btn btn-outline"
+        (click)="downloadInvoicePdf()"
+        [disabled]="generatingPdf()"
+      >
+        {{ generatingPdf() ? 'Creating PDF…' : 'Download PDF' }}
+      </button>
+      <button
+        type="button"
+        class="btn btn-outline"
+        (click)="shareInvoicePdf()"
+        [disabled]="sharingPdf()"
+      >
+        {{ sharingPdf() ? 'Preparing share…' : 'Share PDF' }}
+      </button>
+    </div>
   </div>
 
   <div class="invoice-layout">

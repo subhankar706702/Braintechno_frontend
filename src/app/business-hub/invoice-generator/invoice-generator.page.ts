@@ -4,6 +4,7 @@ import { Component, OnInit, computed, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { finalize } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
+import { jsPDF } from 'jspdf';
 import {
   MyStockApiService,
   StockItem,
@@ -32,6 +33,38 @@ interface InvoiceCustomer {
   gstin: string;
 }
 
+interface FinalizedInvoice {
+  id: string;
+  invoiceNumber: string;
+  invoiceDate?: string | Date;
+  customer: Partial<InvoiceCustomer>;
+  items: Array<{
+    name: string;
+    description?: string;
+    sku?: string;
+    quantity: number;
+    unit: string;
+    unitPrice: number;
+    discountPercent?: number;
+    lineSubtotal?: number;
+    lineDiscount?: number;
+    lineTax?: number;
+    lineTotal?: number;
+    gstRate?: number;
+  }>;
+  calculation: {
+    subtotal: number;
+    discountTotal: number;
+    taxableAmount: number;
+    gstTotal: number;
+    total: number;
+    paidAmount: number;
+    dueAmount: number;
+  };
+  paymentMethod: string;
+  notes?: string;
+}
+
 @Component({
   selector: 'app-invoice-generator-page',
   standalone: true,
@@ -49,7 +82,10 @@ export class InvoiceGeneratorPage implements OnInit {
   readonly error = signal('');
   readonly success = signal('');
   readonly lastInvoiceId = signal('');
+  readonly lastInvoice = signal<FinalizedInvoice | null>(null);
   readonly printingInvoice = signal(false);
+  readonly generatingPdf = signal(false);
+  readonly sharingPdf = signal(false);
   readonly previewMode = signal(false);
 
   readonly items = signal<InvoiceLine[]>([]);
@@ -355,12 +391,7 @@ export class InvoiceGeneratorPage implements OnInit {
     this.saving.set(true);
 
     this.http
-      .post<{
-        id?: string;
-        invoiceNumber: string;
-        pdfUrl?: string;
-        dueRecordId?: string;
-      }>(`${this.invoiceEndpoint}/finalize`, requestPayload)
+      .post<FinalizedInvoice>(`${this.invoiceEndpoint}/finalize`, requestPayload)
       .pipe(finalize(() => this.saving.set(false)))
       .subscribe({
         next: result => {
@@ -368,6 +399,7 @@ export class InvoiceGeneratorPage implements OnInit {
             `Invoice ${result.invoiceNumber} created successfully.`,
           );
           this.lastInvoiceId.set(result.id ?? '');
+          this.lastInvoice.set(result);
 
           this.previewMode.set(false);
           this.items.set([]);
@@ -435,6 +467,180 @@ export class InvoiceGeneratorPage implements OnInit {
       });
   }
 
+  downloadInvoicePdf(): void {
+    const invoice = this.lastInvoice();
+    if (!invoice || this.generatingPdf()) return;
+
+    this.generatingPdf.set(true);
+    try {
+      const pdf = this.createInvoicePdf(invoice);
+      pdf.save(`${this.safeFilename(invoice.invoiceNumber)}.pdf`);
+      this.success.set(`PDF downloaded for ${invoice.invoiceNumber}.`);
+      this.error.set('');
+    } catch (error) {
+      console.error('Invoice PDF generation failed:', error);
+      this.error.set('Could not generate the invoice PDF. Please try again.');
+    } finally {
+      this.generatingPdf.set(false);
+    }
+  }
+
+  async shareInvoicePdf(): Promise<void> {
+    const invoice = this.lastInvoice();
+    if (!invoice || this.sharingPdf()) return;
+
+    this.sharingPdf.set(true);
+    this.error.set('');
+    try {
+      const pdf = this.createInvoicePdf(invoice);
+      const blob = pdf.output('blob');
+      const file = new File(
+        [blob],
+        `${this.safeFilename(invoice.invoiceNumber)}.pdf`,
+        { type: 'application/pdf' },
+      );
+
+      if (typeof navigator !== 'undefined' && 'share' in navigator &&
+          typeof navigator.canShare === 'function' &&
+          navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          files: [file],
+          title: `Invoice ${invoice.invoiceNumber}`,
+          text: `Invoice ${invoice.invoiceNumber} from BRAIN TECHNO`,
+        });
+        this.success.set(`Invoice ${invoice.invoiceNumber} shared successfully.`);
+      } else {
+        // Browsers without file sharing can still download the PDF for WhatsApp/email sharing.
+        pdf.save(`${this.safeFilename(invoice.invoiceNumber)}.pdf`);
+        this.success.set('PDF downloaded. Attach it in WhatsApp, email, or your preferred app to share.');
+      }
+    } catch (error) {
+      if (error instanceof DOMException && error.name === 'AbortError') return;
+      console.error('Invoice PDF sharing failed:', error);
+      this.error.set('Could not share the PDF. Try Download PDF and share the downloaded file.');
+    } finally {
+      this.sharingPdf.set(false);
+    }
+  }
+
+  private createInvoicePdf(invoice: FinalizedInvoice): jsPDF {
+    const pdf = new jsPDF({ unit: 'mm', format: 'a4' });
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+    const margin = 14;
+    const right = pageWidth - margin;
+    let y = 18;
+
+    const rupees = (value: unknown): string =>
+      `Rs. ${Number(value || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const line = (text: string, x = margin, maxWidth = pageWidth - margin * 2): void => {
+      const wrapped = pdf.splitTextToSize(text, maxWidth) as string[];
+      pdf.text(wrapped, x, y);
+      y += wrapped.length * 5;
+    };
+    const ensureSpace = (height: number): void => {
+      if (y + height > pageHeight - 18) {
+        pdf.addPage();
+        y = 18;
+      }
+    };
+
+    pdf.setFont('helvetica', 'bold');
+    pdf.setFontSize(20);
+    pdf.text('INVOICE', margin, y);
+    pdf.setFontSize(12);
+    pdf.text('BRAIN TECHNO', right, y, { align: 'right' });
+    y += 8;
+    pdf.setFont('helvetica', 'normal');
+    pdf.setFontSize(10);
+    pdf.text(`Invoice No: ${invoice.invoiceNumber}`, margin, y);
+    const invoiceDate = invoice.invoiceDate ? new Date(invoice.invoiceDate) : new Date();
+    pdf.text(`Date: ${invoiceDate.toLocaleDateString('en-IN')}`, right, y, { align: 'right' });
+    y += 9;
+    pdf.setDrawColor(210);
+    pdf.line(margin, y, right, y);
+    y += 8;
+
+    pdf.setFont('helvetica', 'bold');
+    line('BILL TO');
+    pdf.setFont('helvetica', 'normal');
+    line(invoice.customer?.name || 'Walk-in Customer');
+    if (invoice.customer?.mobile) line(`Mobile: ${invoice.customer.mobile}`);
+    if (invoice.customer?.email) line(`Email: ${invoice.customer.email}`);
+    if (invoice.customer?.address) line(`Address: ${invoice.customer.address}`);
+    if (invoice.customer?.gstin) line(`GSTIN: ${invoice.customer.gstin}`);
+    y += 5;
+
+    const columns = [margin, 88, 108, 128, 148, right];
+    const headers = ['Product', 'Qty', 'Price', 'Discount', 'GST', 'Amount'];
+    pdf.setFont('helvetica', 'bold');
+    pdf.setFontSize(8);
+    pdf.setFillColor(245, 246, 248);
+    pdf.rect(margin, y - 4, pageWidth - margin * 2, 9, 'F');
+    headers.forEach((header, index) => pdf.text(header, columns[index] + 1, y + 1));
+    y += 10;
+    pdf.setFont('helvetica', 'normal');
+
+    for (const item of invoice.items ?? []) {
+      ensureSpace(14);
+      const discount = Number(item.lineDiscount ?? (item.quantity * item.unitPrice * Number(item.discountPercent ?? 0) / 100));
+      const tax = Number(item.lineTax ?? 0);
+      const total = Number(item.lineTotal ?? (item.quantity * item.unitPrice - discount + tax));
+      const productLines = pdf.splitTextToSize(String(item.name || 'Product'), 48) as string[];
+      const rowHeight = Math.max(8, productLines.length * 4.5);
+      pdf.text(productLines, columns[0] + 1, y);
+      pdf.text(`${item.quantity} ${item.unit || ''}`.trim(), columns[1] + 1, y);
+      pdf.text(rupees(item.unitPrice), columns[2] + 1, y);
+      pdf.text(rupees(discount), columns[3] + 1, y);
+      pdf.text(rupees(tax), columns[4] + 1, y);
+      pdf.text(rupees(total), right - 1, y, { align: 'right' });
+      y += rowHeight;
+      pdf.setDrawColor(230);
+      pdf.line(margin, y - 2, right, y - 2);
+    }
+
+    y += 5;
+    const calc = invoice.calculation;
+    const totals = [
+      ['Subtotal', calc.subtotal],
+      ['Discount', -calc.discountTotal],
+      ['Taxable amount', calc.taxableAmount],
+      ['GST total', calc.gstTotal],
+      ['Invoice total', calc.total],
+      ['Amount received', calc.paidAmount],
+      ['Balance due', calc.dueAmount],
+    ];
+    for (const [label, value] of totals) {
+      ensureSpace(8);
+      const isTotal = label === 'Invoice total';
+      pdf.setFont('helvetica', isTotal ? 'bold' : 'normal');
+      pdf.text(String(label), right - 65, y);
+      pdf.text(rupees(value), right, y, { align: 'right' });
+      y += isTotal ? 8 : 6;
+    }
+
+    ensureSpace(18);
+    y += 5;
+    pdf.setFont('helvetica', 'normal');
+    pdf.text(`Payment method: ${invoice.paymentMethod || 'Cash'}`, margin, y);
+    if (invoice.notes) {
+      y += 7;
+      pdf.setFont('helvetica', 'bold');
+      pdf.text('Notes:', margin, y);
+      y += 5;
+      pdf.setFont('helvetica', 'normal');
+      line(invoice.notes);
+    }
+    y += 10;
+    pdf.setFontSize(9);
+    pdf.text('Thank you for your business.', pageWidth / 2, Math.min(y, pageHeight - 12), { align: 'center' });
+    return pdf;
+  }
+
+  private safeFilename(value: string): string {
+    return String(value || 'invoice').replace(/[^a-z0-9-_]/gi, '_');
+  }
+
   resetInvoice(): void {
     if (this.saving()) {
       return;
@@ -450,6 +656,7 @@ export class InvoiceGeneratorPage implements OnInit {
     this.error.set('');
     this.success.set('');
     this.lastInvoiceId.set('');
+    this.lastInvoice.set(null);
     this.previewMode.set(false);
   }
 

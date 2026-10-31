@@ -661,18 +661,26 @@
 }
 
 
-.print-invoice-button {
-  margin-left: 10px;
-  min-height: 34px;
-  padding: 7px 12px;
-  vertical-align: middle;
+.invoice-success-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  width: 100%;
+  margin-top: 10px;
+}
+
+.invoice-success-actions .btn {
+  min-height: 36px;
+  padding: 8px 12px;
 }
 
 @media (max-width: 600px) {
-  .print-invoice-button {
-    display: flex;
+  .invoice-success-actions {
+    flex-direction: column;
+  }
+
+  .invoice-success-actions .btn {
     width: 100%;
-    margin: 10px 0 0;
   }
 }
 

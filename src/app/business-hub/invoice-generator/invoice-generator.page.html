@@ -5,7 +5,7 @@
       <p class="eyebrow">BUSINESS HUB</p>
       <h1>Invoice Generator</h1>
       <p class="page-subtitle">
-        Create an invoice, record payment and track outstanding dues.
+        Create a local invoice with your saved design and print preferences.
       </p>
     </div>
 
@@ -380,12 +380,11 @@
           (click)="finalizeInvoice()"
           [disabled]="saving()"
         >
-          {{ saving() ? 'Finalizing...' : 'Finalize Invoice' }}
+          {{ saving() ? 'Creating...' : 'Create Invoice' }}
         </button>
 
         <p class="sidebar-help">
-          Stock will be deducted only after the backend successfully finalizes
-          the invoice.
+          Invoice PDF and print are generated in your browser using Hub Settings. Stock quantities are not changed by this local-only invoice.
         </p>
       </section>
 
@@ -411,7 +410,7 @@
         </div>
 
         <p class="preview-disclaimer">
-          This is a draft preview. It does not reserve stock or create an invoice.
+          This preview uses your selected invoice settings. Creating it will generate a local invoice number; it will not update stock or cloud invoice history.
         </p>
       </section>
     </aside>

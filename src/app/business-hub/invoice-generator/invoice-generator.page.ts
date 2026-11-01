@@ -3,13 +3,12 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit, computed, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { finalize } from 'rxjs';
-import { HttpClient } from '@angular/common/http';
+import { InvoiceSettingsService } from '../models/invoice-settings.service';
 import { jsPDF } from 'jspdf';
 import {
   MyStockApiService,
   StockItem,
 } from '../../core/my-stock-api.service';
-import { API_BASE_URL } from '../../core/api.config';
 
 interface InvoiceLine {
   stockItemId: string;
@@ -73,8 +72,6 @@ interface FinalizedInvoice {
   styleUrl: './invoice-generator.page.scss',
 })
 export class InvoiceGeneratorPage implements OnInit {
-  private readonly invoiceEndpoint =
-    `${API_BASE_URL}/business-hub/invoices`;
 
   readonly stockItems = signal<StockItem[]>([]);
   readonly loadingStock = signal(false);
@@ -102,8 +99,8 @@ export class InvoiceGeneratorPage implements OnInit {
       (sum, item) =>
         sum +
         this.lineSubtotal(item) *
-          this.clamp(item.discountPercent, 0, 100) /
-          100,
+        this.clamp(item.discountPercent, 0, 100) /
+        100,
       0,
     ),
   );
@@ -153,8 +150,8 @@ export class InvoiceGeneratorPage implements OnInit {
 
   constructor(
     private readonly stockApi: MyStockApiService,
-    private readonly http: HttpClient,
-  ) {}
+    private readonly invoiceSettingsService: InvoiceSettingsService,
+  ) { }
 
   ngOnInit(): void {
     this.loadStock();
@@ -184,7 +181,7 @@ export class InvoiceGeneratorPage implements OnInit {
         error: err => {
           this.error.set(
             err?.error?.message ||
-              'Could not load stock products. Please try again.',
+            'Could not load stock products. Please try again.',
           );
         },
       });
@@ -300,15 +297,15 @@ export class InvoiceGeneratorPage implements OnInit {
   lineSubtotal(item: InvoiceLine): number {
     return this.roundMoney(
       Math.max(0, Number(item.quantity) || 0) *
-        Math.max(0, Number(item.unitPrice) || 0),
+      Math.max(0, Number(item.unitPrice) || 0),
     );
   }
 
   lineDiscount(item: InvoiceLine): number {
     return this.roundMoney(
       this.lineSubtotal(item) *
-        this.clamp(item.discountPercent, 0, 100) /
-        100,
+      this.clamp(item.discountPercent, 0, 100) /
+      100,
     );
   }
 
@@ -350,121 +347,63 @@ export class InvoiceGeneratorPage implements OnInit {
   finalizeInvoice(): void {
     this.error.set('');
     this.success.set('');
-
     const validation = this.validateInvoice();
-
-    if (validation) {
-      this.error.set(validation);
-      return;
-    }
-
-    if (this.saving()) {
-      return;
-    }
-
-    const payload = {
-      customer: {
-        name: this.customer.name.trim(),
-        mobile: this.customer.mobile.trim(),
-        email: this.customer.email.trim(),
-        address: this.customer.address.trim(),
-        gstin: this.customer.gstin.trim(),
-      },
-      items: this.items().map(item => ({
-        stockItemId: item.stockItemId,
-        quantity: item.quantity,
-        unitPrice: item.unitPrice,
-        discountPercent: item.discountPercent,
-      })),
-      paymentAmount: this.paidAmount(),
-      paymentMethod: this.paymentMethod,
-      notes: this.notes.trim(),
-    };
-
-    const fingerprint = JSON.stringify(payload);
-    if (fingerprint !== this.idempotencyFingerprint) {
-      this.idempotencyKey = this.createIdempotencyKey();
-      this.idempotencyFingerprint = fingerprint;
-    }
-    const requestPayload = { ...payload, idempotencyKey: this.idempotencyKey };
+    if (validation) { this.error.set(validation); return; }
+    if (this.saving()) return;
 
     this.saving.set(true);
-
-    this.http
-      .post<FinalizedInvoice>(`${this.invoiceEndpoint}/finalize`, requestPayload)
-      .pipe(finalize(() => this.saving.set(false)))
-      .subscribe({
-        next: result => {
-          this.success.set(
-            `Invoice ${result.invoiceNumber} created successfully.`,
-          );
-          this.lastInvoiceId.set(result.id ?? '');
-          this.lastInvoice.set(result);
-
-          this.previewMode.set(false);
-          this.items.set([]);
-          this.customer = this.emptyCustomer();
-          this.paidAmount.set(0);
-          this.notes = '';
-          this.paymentMethod = 'Cash';
-          this.idempotencyKey = '';
-          this.idempotencyFingerprint = '';
-          this.loadStock();
-
+    try {
+      const now = new Date();
+      const sequenceKey = 'brain_techno_invoice_sequence_v1';
+      const next = Number(localStorage.getItem(sequenceKey) || 0) + 1;
+      localStorage.setItem(sequenceKey, String(next));
+      const invoiceNumber = `INV-${now.getFullYear()}-${String(next).padStart(5, '0')}`;
+      const invoice: FinalizedInvoice = {
+        id: `local-${Date.now()}`,
+        invoiceNumber,
+        invoiceDate: now,
+        customer: { ...this.customer },
+        items: this.items().map(item => ({
+          name: item.name, description: item.description, sku: item.sku,
+          quantity: item.quantity, unit: item.unit, unitPrice: item.unitPrice,
+          discountPercent: item.discountPercent,
+          lineDiscount: this.lineDiscount(item), lineTax: this.lineTax(item),
+          lineTotal: this.roundMoney(this.lineSubtotal(item) - this.lineDiscount(item) + this.lineTax(item)),
+          gstRate: item.gstEnabled ? item.gstRate : 0,
+        })),
+        calculation: {
+          subtotal: this.subtotal(), discountTotal: this.discountTotal(),
+          taxableAmount: this.taxableAmount(), gstTotal: this.gstTotal(),
+          total: this.grandTotal(), paidAmount: this.paidAmount(), dueAmount: this.dueAmount(),
         },
-        error: err => {
-          this.error.set(
-            err?.error?.message ||
-              'Invoice could not be finalized. Please try again.',
-          );
-        },
-      });
+        paymentMethod: this.paymentMethod, notes: this.notes.trim(),
+      };
+      this.lastInvoice.set(invoice);
+      this.lastInvoiceId.set(invoice.id);
+      this.success.set(`Invoice ${invoiceNumber} created in this browser. Download or print it now.`);
+      this.previewMode.set(false);
+      // Invoice creation is local-only. Stock is intentionally not deducted because no backend transaction is used.
+    } catch (error) {
+      console.error('Local invoice creation failed:', error);
+      this.error.set('Could not create the invoice. Please check browser storage and try again.');
+    } finally { this.saving.set(false); }
   }
 
   openInvoiceForPrint(): void {
-    const invoiceId = this.lastInvoiceId();
-
-    if (!invoiceId || this.printingInvoice()) {
-      return;
-    }
-
-    // Open the window synchronously from the click so popup blockers do not
-    // block it while the authenticated HTTP request is in flight.
-    const printWindow = window.open('', '_blank');
-
-    if (!printWindow) {
-      this.error.set('Your browser blocked the print window. Allow pop-ups and try again.');
-      return;
-    }
-
-    printWindow.document.write(
-      '<!doctype html><html><head><title>Loading invoice…</title></head><body>Loading invoice…</body></html>',
-    );
-    printWindow.document.close();
-
-    this.error.set('');
+    const invoice = this.lastInvoice();
+    if (!invoice || this.printingInvoice()) return;
     this.printingInvoice.set(true);
-
-    this.http
-      .get(`${this.invoiceEndpoint}/${encodeURIComponent(invoiceId)}/print`, {
-        responseType: 'text',
-      })
-      .pipe(finalize(() => this.printingInvoice.set(false)))
-      .subscribe({
-        next: html => {
-          printWindow.document.open();
-          printWindow.document.write(html);
-          printWindow.document.close();
-          printWindow.focus();
-        },
-        error: err => {
-          printWindow.close();
-          this.error.set(
-            err?.error?.message ||
-              'Could not open the invoice for printing. Please try again.',
-          );
-        },
-      });
+    try {
+      const pdf = this.createInvoicePdf(invoice);
+      pdf.autoPrint();
+      const url = pdf.output('bloburl');
+      const opened = window.open(url, '_blank');
+      if (!opened) this.error.set('Popup blocked. Please allow pop-ups, or use Download PDF.');
+      else this.error.set('');
+    } catch (error) {
+      console.error('Invoice print failed:', error);
+      this.error.set('Could not prepare the invoice for printing.');
+    } finally { this.printingInvoice.set(false); }
   }
 
   downloadInvoicePdf(): void {
@@ -501,8 +440,8 @@ export class InvoiceGeneratorPage implements OnInit {
       );
 
       if (typeof navigator !== 'undefined' && 'share' in navigator &&
-          typeof navigator.canShare === 'function' &&
-          navigator.canShare({ files: [file] })) {
+        typeof navigator.canShare === 'function' &&
+        navigator.canShare({ files: [file] })) {
         await navigator.share({
           files: [file],
           title: `Invoice ${invoice.invoiceNumber}`,
@@ -524,7 +463,12 @@ export class InvoiceGeneratorPage implements OnInit {
   }
 
   private createInvoicePdf(invoice: FinalizedInvoice): jsPDF {
-    const pdf = new jsPDF({ unit: 'mm', format: 'a4' });
+    const settings = this.invoiceSettingsService.get();
+    const pdf = new jsPDF({ unit: 'mm', format: settings.pageSize });
+    const monochrome = settings.printColor === 'bw';
+    const hex = settings.primaryColor || '#ff4d6d';
+    const rgb = hex.match(/[a-f0-9]{2}/gi)?.map(v => parseInt(v, 16)) ?? [255, 77, 109];
+    const accent: [number, number, number] = monochrome ? [0, 0, 0] : [rgb[0], rgb[1], rgb[2]];
     const pageWidth = pdf.internal.pageSize.getWidth();
     const pageHeight = pdf.internal.pageSize.getHeight();
     const margin = 14;
@@ -545,20 +489,33 @@ export class InvoiceGeneratorPage implements OnInit {
       }
     };
 
-    pdf.setFont('helvetica', 'bold');
-    pdf.setFontSize(20);
-    pdf.text('INVOICE', margin, y);
+    if (['corporate', 'modern', 'premium'].includes(settings.template)) {
+      pdf.setFillColor(...accent); pdf.rect(0, 0, pageWidth, 13, 'F');
+      pdf.setTextColor(monochrome ? 0 : 255, monochrome ? 0 : 255, monochrome ? 0 : 255);
+      pdf.setFont('helvetica', 'bold'); pdf.setFontSize(20); pdf.text('INVOICE', margin, 9);
+      y = 24;
+    } else { pdf.setTextColor(...accent); pdf.setFont('helvetica', 'bold'); pdf.setFontSize(20); pdf.text('INVOICE', margin, y); }
     pdf.setFontSize(12);
-    pdf.text('BRAIN TECHNO', right, y, { align: 'right' });
-    y += 8;
+    pdf.text(settings.businessName || 'Business Name', right, y, { align: 'right' });
+    if (settings.logoDataUrl) { try { pdf.addImage(settings.logoDataUrl, '', margin, y + 3, 22, 16, undefined, 'FAST'); } catch { } }
+    y += settings.logoDataUrl ? 23 : 8;
+    pdf.setTextColor(0, 0, 0);
     pdf.setFont('helvetica', 'normal');
     pdf.setFontSize(10);
     pdf.text(`Invoice No: ${invoice.invoiceNumber}`, margin, y);
     const invoiceDate = invoice.invoiceDate ? new Date(invoice.invoiceDate) : new Date();
     pdf.text(`Date: ${invoiceDate.toLocaleDateString('en-IN')}`, right, y, { align: 'right' });
-    y += 9;
-    pdf.setDrawColor(210);
-    pdf.line(margin, y, right, y);
+    y += 6;
+    if (settings.gstin) { pdf.text(`GSTIN: ${settings.gstin}`, margin, y); y += 5; }
+    if (settings.address) { const a = pdf.splitTextToSize(settings.address, pageWidth / 2) as string[]; pdf.text(a, margin, y); y += a.length * 4; }
+    if (settings.phone) { pdf.text(`Phone: ${settings.phone}`, margin, y); y += 5; }
+    if (settings.email) { pdf.text(`Email: ${settings.email}`, margin, y); y += 5; }
+    y += 3;
+const drawColor: [number, number, number] = monochrome
+  ? [90, 90, 90]
+  : [rgb[0], rgb[1], rgb[2]];
+
+pdf.setDrawColor(drawColor[0], drawColor[1], drawColor[2]);     pdf.line(margin, y, right, y);
     y += 8;
 
     pdf.setFont('helvetica', 'bold');
@@ -575,9 +532,11 @@ export class InvoiceGeneratorPage implements OnInit {
     const headers = ['Product', 'Qty', 'Price', 'Discount', 'GST', 'Amount'];
     pdf.setFont('helvetica', 'bold');
     pdf.setFontSize(8);
-    pdf.setFillColor(245, 246, 248);
+    pdf.setFillColor(...(monochrome ? [235, 235, 235] as [number, number, number] : accent));
     pdf.rect(margin, y - 4, pageWidth - margin * 2, 9, 'F');
+    pdf.setTextColor(monochrome ? 0 : 255, monochrome ? 0 : 255, monochrome ? 0 : 255);
     headers.forEach((header, index) => pdf.text(header, columns[index] + 1, y + 1));
+    pdf.setTextColor(0, 0, 0);
     y += 10;
     pdf.setFont('helvetica', 'normal');
 
@@ -633,7 +592,8 @@ export class InvoiceGeneratorPage implements OnInit {
     }
     y += 10;
     pdf.setFontSize(9);
-    pdf.text('Thank you for your business.', pageWidth / 2, Math.min(y, pageHeight - 12), { align: 'center' });
+    pdf.setTextColor(...accent);
+    pdf.text(settings.footer || 'Thank you for your business.', pageWidth / 2, Math.min(y, pageHeight - 12), { align: 'center' });
     return pdf;
   }
 

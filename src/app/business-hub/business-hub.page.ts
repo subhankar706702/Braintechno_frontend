@@ -1,9 +1,11 @@
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { Subject } from 'rxjs';
 import { filter, startWith, takeUntil } from 'rxjs/operators';
 import { MatIconModule } from '@angular/material/icon';
+import { InvoiceSettings, InvoiceSettingsService } from './models/invoice-settings.service';
 
 type HubSection = 'my-business' | 'invoice' | 'stock' | 'payment-reminder' | 'growth-checklist' | 'settings';
 
@@ -18,7 +20,7 @@ interface HubCard {
 @Component({
   selector: 'bt-business-hub-page',
   standalone: true,
-  imports: [CommonModule, RouterLink, MatIconModule],
+  imports: [CommonModule, FormsModule, RouterLink, MatIconModule],
   templateUrl: './business-hub.page.html',
   styleUrl: './business-hub.page.scss',
 })
@@ -50,7 +52,27 @@ export class BusinessHubPage implements OnInit, OnDestroy {
     'Share your business online',
   ];
 
-  constructor(private readonly router: Router) {}
+  invoiceSettings: InvoiceSettings;
+  settingsSaved = false;
+
+  constructor(private readonly router: Router, private readonly invoiceSettingsService: InvoiceSettingsService) {
+    this.invoiceSettings = this.invoiceSettingsService.get();
+  }
+
+  saveInvoiceSettings(): void {
+    this.invoiceSettingsService.save(this.invoiceSettings);
+    this.settingsSaved = true;
+    setTimeout(() => this.settingsSaved = false, 2500);
+  }
+
+  onInvoiceLogo(event: Event): void {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) return;
+    const reader = new FileReader();
+    reader.onload = () => this.invoiceSettings.logoDataUrl = String(reader.result || '');
+    reader.readAsDataURL(file);
+  }
 
   ngOnInit(): void {
     this.router.events.pipe(

@@ -57,8 +57,7 @@
     <section class="notice-card"><mat-icon>info</mat-icon><div><strong>Data entry is not enabled yet</strong><p>This foundation screen does not save financial records. The next implementation step will add the database model, API validation and entry form.</p></div></section>
     <div class="summary-grid"><article class="metric-card"><span>Daily Sales</span><strong>—</strong><small>Awaiting entries</small></article><article class="metric-card"><span>Daily Expenses</span><strong>—</strong><small>Awaiting entries</small></article><article class="metric-card"><span>Net Balance</span><strong>—</strong><small>Calculated from saved entries</small></article></div>
   } @else if (section === 'invoice') {
-    <section class="feature-grid"><article class="feature-card feature-card--primary"><span class="feature-card__icon"><mat-icon>receipt_long</mat-icon></span><h2>Create a new invoice</h2><p>The invoice flow will use your business details, saved stock items, GST settings and payment information.</p><button class="button button--primary" type="button" disabled>Invoice form — next phase</button></article><article class="feature-card"><span class="feature-card__icon"><mat-icon>palette</mat-icon></span><h2>Invoice templates</h2><p>Choose from free and eligible premium layouts after template access is connected.</p><button class="button button--secondary" type="button" (click)="open('/app/business-hub/settings')">Open Hub Settings</button></article></section>
-    <section class="notice-card"><mat-icon>info</mat-icon><div><strong>Invoice generation is not active yet</strong><p>Invoice totals, stock deduction, due creation and PDF generation will be implemented together so records remain consistent.</p></div></section>
+    <section class="feature-card feature-card--primary"><span class="feature-card__icon"><mat-icon>receipt_long</mat-icon></span><h2>Create a new invoice</h2><p>Create and download invoices directly in your browser. Set your design and print preferences in Hub Settings.</p><button class="button button--primary" type="button" (click)="open('/app/business-hub/invoice')">Open Invoice Generator</button><button class="button button--secondary" type="button" (click)="open('/app/business-hub/settings')">Invoice Design & Print Settings</button></section>
   } @else if (section === 'stock') {
     <section class="feature-toolbar"><div><h2>Stock Items</h2><p>Your saved product list will appear here.</p></div><button class="button button--primary" type="button" disabled><mat-icon>add</mat-icon>Add stock item — next phase</button></section>
     <section class="empty-page-state"><span><mat-icon>inventory_2</mat-icon></span><h2>Stock management foundation</h2><p>Add products with price, quantity, SKU, GST and a low-stock threshold in the next implementation phase.</p><span class="status-pill">Database connection pending</span></section>
@@ -68,7 +67,33 @@
   } @else if (section === 'growth-checklist') {
     <section class="content-card checklist-full"><div class="section-heading"><div><h2>Build your business step by step</h2><p>These starter tasks are suggestions; progress saving will be added in a later step.</p></div><mat-icon class="heading-icon">checklist</mat-icon></div>@for (item of checklistItems; track item; let i = $index) { <div class="checklist-row"><span class="checklist-row__number">{{ i + 1 }}</span><span>{{ item }}</span><span class="checklist-row__state">Not started</span></div> }</section>
   } @else if (section === 'settings') {
-    <section class="settings-grid"><button class="settings-tile" type="button" disabled><mat-icon>receipt_long</mat-icon><span><strong>Invoice & Templates</strong><small>Default layout and invoice appearance</small></span><mat-icon class="settings-tile__arrow">chevron_right</mat-icon></button><button class="settings-tile" type="button" disabled><mat-icon>percent</mat-icon><span><strong>GST & Tax</strong><small>Tax enablement and default rates</small></span><mat-icon class="settings-tile__arrow">chevron_right</mat-icon></button><button class="settings-tile" type="button" disabled><mat-icon>qr_code_2</mat-icon><span><strong>Payment Details</strong><small>Your own UPI details and payment QR</small></span><mat-icon class="settings-tile__arrow">chevron_right</mat-icon></button><button class="settings-tile" type="button" disabled><mat-icon>draw</mat-icon><span><strong>Signature & Seal</strong><small>Invoice signature preferences</small></span><mat-icon class="settings-tile__arrow">chevron_right</mat-icon></button><button class="settings-tile" type="button" disabled><mat-icon>sms</mat-icon><span><strong>Reminder Message</strong><small>Default manual reminder text</small></span><mat-icon class="settings-tile__arrow">chevron_right</mat-icon></button><button class="settings-tile" type="button" disabled><mat-icon>inventory</mat-icon><span><strong>Stock Threshold</strong><small>Default low-stock quantity</small></span><mat-icon class="settings-tile__arrow">chevron_right</mat-icon></button></section>
-    <section class="notice-card"><mat-icon>info</mat-icon><div><strong>Settings will be connected in a later phase</strong><p>These options are a layout foundation only; no setting is saved or changed yet.</p></div></section>
+    <section class="content-card invoice-settings-card">
+      <div class="section-heading"><div><h2>Invoice Design & Print Settings</h2><p>These preferences are saved in this browser and used for every new invoice.</p></div><mat-icon class="heading-icon">receipt_long</mat-icon></div>
+      <h3>Choose invoice design</h3>
+      <div class="invoice-template-grid">
+        @for (t of [{id:'classic',name:'Classic',desc:'Clean professional layout'},{id:'corporate',name:'Corporate',desc:'Strong colored header'},{id:'minimal',name:'Minimal',desc:'Simple black and white'},{id:'modern',name:'Modern',desc:'Color accent and clear sections'},{id:'gst',name:'GST Invoice',desc:'Tax-focused business layout'},{id:'premium',name:'Premium',desc:'Elegant premium appearance'}]; track t.id) {
+          <button type="button" class="invoice-template-option" [class.selected]="invoiceSettings.template === t.id" (click)="invoiceSettings.template = $any(t.id)"><span class="template-swatch" [style.background]="invoiceSettings.primaryColor"></span><strong>{{t.name}}</strong><small>{{t.desc}}</small><span class="template-selected">{{invoiceSettings.template === t.id ? 'Selected' : 'Select'}}</span></button>
+        }
+      </div>
+      <h3>Business details</h3>
+      <div class="form-grid">
+        <label class="field"><span>Business name</span><input [(ngModel)]="invoiceSettings.businessName" placeholder="Your business name"></label>
+        <label class="field"><span>GSTIN</span><input [(ngModel)]="invoiceSettings.gstin" maxlength="15" placeholder="GST number"></label>
+        <label class="field field-full"><span>Business address</span><textarea [(ngModel)]="invoiceSettings.address" rows="2" placeholder="Full business address"></textarea></label>
+        <label class="field"><span>Phone</span><input [(ngModel)]="invoiceSettings.phone" placeholder="Business phone"></label>
+        <label class="field"><span>Email</span><input [(ngModel)]="invoiceSettings.email" type="email" placeholder="Business email"></label>
+        <label class="field"><span>State</span><input [(ngModel)]="invoiceSettings.state" placeholder="State"></label>
+        <label class="field"><span>Logo</span><input type="file" accept="image/*" (change)="onInvoiceLogo($event)"></label>
+      </div>
+      @if (invoiceSettings.logoDataUrl) { <img [src]="invoiceSettings.logoDataUrl" alt="Invoice logo preview" class="invoice-logo-preview"> }
+      <h3>Print format</h3>
+      <div class="form-grid">
+        <label class="field"><span>Page size</span><select [(ngModel)]="invoiceSettings.pageSize"><option value="a4">A4</option><option value="a5">A5</option><option value="letter">Letter</option><option value="legal">Legal</option></select></label>
+        <label class="field"><span>Print color</span><select [(ngModel)]="invoiceSettings.printColor"><option value="color">Full Color</option><option value="bw">Black & White</option></select></label>
+        <label class="field"><span>Theme color</span><input type="color" [(ngModel)]="invoiceSettings.primaryColor"></label>
+        <label class="field"><span>Footer message</span><input [(ngModel)]="invoiceSettings.footer" placeholder="Thank you for your business"></label>
+      </div>
+      <div class="settings-save-row"><span>{{settingsSaved ? 'Invoice settings saved.' : 'Changes are not saved until you click Save.'}}</span><button class="button button--primary" type="button" (click)="saveInvoiceSettings()"><mat-icon>save</mat-icon>Save Invoice Settings</button></div>
+    </section>
   }
 </div>

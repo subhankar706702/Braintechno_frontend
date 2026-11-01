@@ -36,10 +36,11 @@
       <header class="card-heading">
         <div>
           <span class="invoice-number">{{ record.invoiceNumber }}</span>
-          <h2>{{ record.customer?.name || 'Customer' }}</h2>
-          <p>{{ record.customer?.mobile || 'No mobile number' }}</p>
+          <h2>{{ record.customer.name || 'Customer' }}</h2>
+          <p>{{ record.customer.mobile || 'No mobile number' }}</p>
         </div>
-        <span class="status" [class.status--paid]="record.status === 'paid'" [class.status--partial]="record.status === 'partially-paid'">
+        <span class="status" [class.status--paid]="record.status === 'paid'"
+          [class.status--partial]="record.status === 'partially-paid'">
           {{ record.status === 'partially-paid' ? 'Partially paid' : (record.status === 'paid' ? 'Paid' : 'Due') }}
         </span>
       </header>
@@ -53,11 +54,18 @@
       <form class="payment-form" *ngIf="record.balanceDue > 0" (ngSubmit)="recordPayment(record)">
         <h3>Record a payment</h3>
         <div class="payment-fields">
-          <label><span>Amount received (₹)</span><input type="number" name="amount-{{record.id}}" min="0.01" [max]="record.balanceDue" step="0.01" required [(ngModel)]="paymentDrafts[record.id].amount" /></label>
-          <label><span>Payment method</span><select name="method-{{record.id}}" [(ngModel)]="paymentDrafts[record.id].paymentMethod"><option *ngFor="let method of paymentMethods" [value]="method">{{ method }}</option></select></label>
-          <label class="note-field"><span>Note (optional)</span><input type="text" name="note-{{record.id}}" maxlength="500" placeholder="Payment reference or note" [(ngModel)]="paymentDrafts[record.id].note" /></label>
+          <label><span>Amount received (₹)</span><input type="number" name="amount-{{record.id}}" min="0.01"
+              [max]="record.balanceDue" step="0.01" required [(ngModel)]="paymentDrafts[record.id].amount" /></label>
+          <label><span>Payment method</span><select name="method-{{record.id}}"
+              [(ngModel)]="paymentDrafts[record.id].paymentMethod">
+              <option *ngFor="let method of paymentMethods" [value]="method">{{ method }}</option>
+            </select></label>
+          <label class="note-field"><span>Note (optional)</span><input type="text" name="note-{{record.id}}"
+              maxlength="500" placeholder="Payment reference or note"
+              [(ngModel)]="paymentDrafts[record.id].note" /></label>
         </div>
-        <button class="btn btn-primary" type="submit" [disabled]="savingId() === record.id">{{ savingId() === record.id ? 'Saving payment…' : 'Record Payment' }}</button>
+        <button class="btn btn-primary" type="submit" [disabled]="savingId() === record.id">{{ savingId() === record.id
+          ? 'Saving payment…' : 'Record Payment' }}</button>
       </form>
       <p class="paid-message" *ngIf="record.status === 'paid'">This invoice has been fully paid.</p>
     </article>

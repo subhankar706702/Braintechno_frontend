@@ -6,6 +6,8 @@ import { Subject } from 'rxjs';
 import { filter, startWith, takeUntil } from 'rxjs/operators';
 import { MatIconModule } from '@angular/material/icon';
 import { InvoiceSettings, InvoiceSettingsService } from './models/invoice-settings.service';
+import { MediaLibraryItem } from '../core/media-library.service';
+import { MediaPickerComponent } from '../shared/media-picker/media-picker.component';
 
 type HubSection = 'my-business' | 'invoice' | 'stock' | 'payment-reminder' | 'growth-checklist' | 'settings';
 
@@ -20,7 +22,7 @@ interface HubCard {
 @Component({
   selector: 'bt-business-hub-page',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, MatIconModule],
+  imports: [CommonModule, FormsModule, RouterLink, MatIconModule, MediaPickerComponent],
   templateUrl: './business-hub.page.html',
   styleUrl: './business-hub.page.scss',
 })
@@ -54,23 +56,78 @@ export class BusinessHubPage implements OnInit, OnDestroy {
 
   invoiceSettings: InvoiceSettings;
   settingsSaved = false;
+  designButtonVisible = false;
+  designPreviewOpen = false;
+  mediaPickerOpen = false;
+  invoiceLogoSelectedIds: any[] = [];
 
-  constructor(private readonly router: Router, private readonly invoiceSettingsService: InvoiceSettingsService) {
+  constructor(
+    private readonly router: Router,
+    private readonly invoiceSettingsService: InvoiceSettingsService
+  ) {
     this.invoiceSettings = this.invoiceSettingsService.get();
   }
 
   saveInvoiceSettings(): void {
     this.invoiceSettingsService.save(this.invoiceSettings);
     this.settingsSaved = true;
-    setTimeout(() => this.settingsSaved = false, 2500);
+
+    setTimeout(() => {
+      this.settingsSaved = false;
+    }, 2500);
+  }
+
+  onInvoiceTemplateChange(): void {
+    this.designButtonVisible = true;
+    this.designPreviewOpen = false;
+  }
+
+  openDesignPreview(): void {
+    this.designPreviewOpen = true;
+  }
+
+  closeDesignPreview(): void {
+    this.designPreviewOpen = false;
+  }
+
+  openInvoiceLogoGallery(): void {
+    this.mediaPickerOpen = true;
+  }
+
+  closeInvoiceLogoGallery(): void {
+    this.mediaPickerOpen = false;
+  }
+
+  onInvoiceLogoSelected(items: MediaLibraryItem[]): void {
+    const selected = items?.[0];
+
+    if (!selected) {
+      return;
+    }
+
+    this.invoiceSettings.logoDataUrl = selected.url || '';
+    this.invoiceLogoSelectedIds = selected.id ? [selected.id] : [];
+    this.mediaPickerOpen = false;
+  }
+
+  clearInvoiceLogo(): void {
+    this.invoiceSettings.logoDataUrl = '';
+    this.invoiceLogoSelectedIds = [];
   }
 
   onInvoiceLogo(event: Event): void {
     const file = (event.target as HTMLInputElement).files?.[0];
-    if (!file) return;
-    if (!file.type.startsWith('image/')) return;
+
+    if (!file || !file.type.startsWith('image/')) {
+      return;
+    }
+
     const reader = new FileReader();
-    reader.onload = () => this.invoiceSettings.logoDataUrl = String(reader.result || '');
+
+    reader.onload = () => {
+      this.invoiceSettings.logoDataUrl = String(reader.result || '');
+    };
+
     reader.readAsDataURL(file);
   }
 
@@ -89,6 +146,7 @@ export class BusinessHubPage implements OnInit, OnDestroy {
 
   private syncSection(): void {
     const url = this.router.url.split('?')[0].replace(/\/$/, '');
+
     const routes: Record<string, HubSection> = {
       '/app/business-hub': 'my-business',
       '/app/business-hub/my-business': 'my-business',
@@ -99,15 +157,38 @@ export class BusinessHubPage implements OnInit, OnDestroy {
       '/app/business-hub/growth-checklist': 'growth-checklist',
       '/app/business-hub/settings': 'settings',
     };
+
     this.section = routes[url] || 'my-business';
+
     const content: Record<HubSection, { title: string; description: string }> = {
-      'my-business': { title: url.endsWith('/sales-expenses') ? 'Daily Sales & Expense Tracker' : 'My Business', description: url.endsWith('/sales-expenses') ? 'A simple place to record and review your daily business activity.' : 'Your business at a glance. Track activity and find your next growth opportunity.' },
-      invoice: { title: 'Invoice Generator', description: 'Create clear, professional invoices for your customers.' },
-      stock: { title: 'My Stock', description: 'Manage products, prices, quantities and stock status.' },
-      'payment-reminder': { title: 'Payment Reminder', description: 'Keep track of outstanding dues, installments and completed payments.' },
-      'growth-checklist': { title: 'Business Growth Checklist', description: 'Small steps to strengthen your business and online presence.' },
-      settings: { title: 'Hub Settings', description: 'Set up invoice preferences, tax, payment details and stock thresholds.' },
+      'my-business': {
+        title: url.endsWith('/sales-expenses') ? 'Daily Sales & Expense Tracker' : 'My Business',
+        description: url.endsWith('/sales-expenses')
+          ? 'A simple place to record and review your daily business activity.'
+          : 'Your business at a glance. Track activity and find your next growth opportunity.'
+      },
+      invoice: {
+        title: 'Invoice Generator',
+        description: 'Create clear, professional invoices for your customers.'
+      },
+      stock: {
+        title: 'My Stock',
+        description: 'Manage products, prices, quantities and stock status.'
+      },
+      'payment-reminder': {
+        title: 'Payment Reminder',
+        description: 'Keep track of outstanding dues, installments and completed payments.'
+      },
+      'growth-checklist': {
+        title: 'Business Growth Checklist',
+        description: 'Small steps to strengthen your business and online presence.'
+      },
+      settings: {
+        title: 'Hub Settings',
+        description: 'Set up invoice preferences, tax, payment details and stock thresholds.'
+      },
     };
+
     this.title = content[this.section].title;
     this.description = content[this.section].description;
   }
@@ -117,6 +198,9 @@ export class BusinessHubPage implements OnInit, OnDestroy {
   }
 
   isSalesExpensesView(): boolean {
-    return this.router.url.split('?')[0].replace(/\/$/, '').endsWith('/sales-expenses');
+    return this.router.url
+      .split('?')[0]
+      .replace(/\/$/, '')
+      .endsWith('/sales-expenses');
   }
 }

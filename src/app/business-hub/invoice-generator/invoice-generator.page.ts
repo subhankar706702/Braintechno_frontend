@@ -406,23 +406,64 @@ export class InvoiceGeneratorPage implements OnInit {
     } finally { this.printingInvoice.set(false); }
   }
 
-  downloadInvoicePdf(): void {
-    const invoice = this.lastInvoice();
-    if (!invoice || this.generatingPdf()) return;
+ downloadInvoicePdf(): void {
+  const invoice = this.lastInvoice();
 
-    this.generatingPdf.set(true);
-    try {
-      const pdf = this.createInvoicePdf(invoice);
-      pdf.save(`${this.safeFilename(invoice.invoiceNumber)}.pdf`);
-      this.success.set(`PDF downloaded for ${invoice.invoiceNumber}.`);
-      this.error.set('');
-    } catch (error) {
-      console.error('Invoice PDF generation failed:', error);
-      this.error.set('Could not generate the invoice PDF. Please try again.');
-    } finally {
-      this.generatingPdf.set(false);
-    }
+  if (!invoice) {
+    this.error.set('Please create an invoice before downloading the PDF.');
+    return;
   }
+
+  if (this.generatingPdf()) {
+    return;
+  }
+
+  this.generatingPdf.set(true);
+  this.error.set('');
+  this.success.set('');
+
+  let objectUrl: string | null = null;
+
+  try {
+    const pdf = this.createInvoicePdf(invoice);
+    const blob = pdf.output('blob');
+
+    if (!(blob instanceof Blob) || blob.size === 0) {
+      throw new Error('PDF file is empty.');
+    }
+
+    objectUrl = URL.createObjectURL(blob);
+
+    const link = document.createElement('a');
+    link.href = objectUrl;
+    link.download = `${this.safeFilename(invoice.invoiceNumber)}.pdf`;
+    link.style.display = 'none';
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    this.success.set(`PDF download started for ${invoice.invoiceNumber}.`);
+
+    window.setTimeout(() => {
+      if (objectUrl) {
+        URL.revokeObjectURL(objectUrl);
+        objectUrl = null;
+      }
+    }, 60000);
+
+  } catch (error) {
+    console.error('Invoice PDF download error:', error);
+
+    this.error.set(
+      error instanceof Error
+        ? `PDF download failed: ${error.message}`
+        : 'PDF download failed. Please try again.'
+    );
+  } finally {
+    this.generatingPdf.set(false);
+  }
+}
 
   async shareInvoicePdf(): Promise<void> {
     const invoice = this.lastInvoice();
@@ -462,140 +503,389 @@ export class InvoiceGeneratorPage implements OnInit {
     }
   }
 
-  private createInvoicePdf(invoice: FinalizedInvoice): jsPDF {
-    const settings = this.invoiceSettingsService.get();
-    const pdf = new jsPDF({ unit: 'mm', format: settings.pageSize });
-    const monochrome = settings.printColor === 'bw';
-    const hex = settings.primaryColor || '#ff4d6d';
-    const rgb = hex.match(/[a-f0-9]{2}/gi)?.map(v => parseInt(v, 16)) ?? [255, 77, 109];
-    const accent: [number, number, number] = monochrome ? [0, 0, 0] : [rgb[0], rgb[1], rgb[2]];
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
-    const margin = 14;
-    const right = pageWidth - margin;
-    let y = 18;
+ private createInvoicePdf(invoice: FinalizedInvoice): jsPDF {
+  const settings = this.invoiceSettingsService.get();
+  const pdf = new jsPDF({
+    unit: 'mm',
+    format: settings.pageSize
+  });
 
-    const rupees = (value: unknown): string =>
-      `Rs. ${Number(value || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-    const line = (text: string, x = margin, maxWidth = pageWidth - margin * 2): void => {
-      const wrapped = pdf.splitTextToSize(text, maxWidth) as string[];
-      pdf.text(wrapped, x, y);
-      y += wrapped.length * 5;
-    };
-    const ensureSpace = (height: number): void => {
-      if (y + height > pageHeight - 18) {
-        pdf.addPage();
-        y = 18;
-      }
-    };
+  const monochrome = settings.printColor === 'bw';
+  const hex = settings.primaryColor || '#ff4d6d';
+  const rgb = hex.match(/[a-f0-9]{2}/gi)?.map(v => parseInt(v, 16)) ?? [255, 77, 109];
 
-    if (['corporate', 'modern', 'premium'].includes(settings.template)) {
-      pdf.setFillColor(...accent); pdf.rect(0, 0, pageWidth, 13, 'F');
-      pdf.setTextColor(monochrome ? 0 : 255, monochrome ? 0 : 255, monochrome ? 0 : 255);
-      pdf.setFont('helvetica', 'bold'); pdf.setFontSize(20); pdf.text('INVOICE', margin, 9);
-      y = 24;
-    } else { pdf.setTextColor(...accent); pdf.setFont('helvetica', 'bold'); pdf.setFontSize(20); pdf.text('INVOICE', margin, y); }
-    pdf.setFontSize(12);
-    pdf.text(settings.businessName || 'Business Name', right, y, { align: 'right' });
-    if (settings.logoDataUrl) { try { pdf.addImage(settings.logoDataUrl, '', margin, y + 3, 22, 16, undefined, 'FAST'); } catch { } }
-    y += settings.logoDataUrl ? 23 : 8;
-    pdf.setTextColor(0, 0, 0);
-    pdf.setFont('helvetica', 'normal');
-    pdf.setFontSize(10);
-    pdf.text(`Invoice No: ${invoice.invoiceNumber}`, margin, y);
-    const invoiceDate = invoice.invoiceDate ? new Date(invoice.invoiceDate) : new Date();
-    pdf.text(`Date: ${invoiceDate.toLocaleDateString('en-IN')}`, right, y, { align: 'right' });
-    y += 6;
-    if (settings.gstin) { pdf.text(`GSTIN: ${settings.gstin}`, margin, y); y += 5; }
-    if (settings.address) { const a = pdf.splitTextToSize(settings.address, pageWidth / 2) as string[]; pdf.text(a, margin, y); y += a.length * 4; }
-    if (settings.phone) { pdf.text(`Phone: ${settings.phone}`, margin, y); y += 5; }
-    if (settings.email) { pdf.text(`Email: ${settings.email}`, margin, y); y += 5; }
-    y += 3;
-const drawColor: [number, number, number] = monochrome
-  ? [90, 90, 90]
-  : [rgb[0], rgb[1], rgb[2]];
+  const accent: [number, number, number] = monochrome
+    ? [0, 0, 0]
+    : [rgb[0], rgb[1], rgb[2]];
 
-pdf.setDrawColor(drawColor[0], drawColor[1], drawColor[2]);     pdf.line(margin, y, right, y);
-    y += 8;
+  const pageWidth = pdf.internal.pageSize.getWidth();
+  const pageHeight = pdf.internal.pageSize.getHeight();
+  const margin = 14;
+  const right = pageWidth - margin;
+
+  let y = 18;
+
+  const rupees = (value: unknown): string =>
+    `Rs. ${Number(value || 0).toLocaleString('en-IN', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    })}`;
+
+  const line = (
+    text: string,
+    x = margin,
+    maxWidth = pageWidth - margin * 2
+  ): void => {
+    const wrapped = pdf.splitTextToSize(text, maxWidth) as string[];
+    pdf.text(wrapped, x, y);
+    y += wrapped.length * 5;
+  };
+
+  const ensureSpace = (height: number): void => {
+    if (y + height > pageHeight - 18) {
+      pdf.addPage();
+      y = 18;
+    }
+  };
+
+  // Invoice heading
+  if (['corporate', 'modern', 'premium'].includes(settings.template)) {
+    pdf.setFillColor(...accent);
+    pdf.rect(0, 0, pageWidth, 13, 'F');
+
+    pdf.setTextColor(
+      monochrome ? 0 : 255,
+      monochrome ? 0 : 255,
+      monochrome ? 0 : 255
+    );
 
     pdf.setFont('helvetica', 'bold');
-    line('BILL TO');
-    pdf.setFont('helvetica', 'normal');
-    line(invoice.customer?.name || 'Walk-in Customer');
-    if (invoice.customer?.mobile) line(`Mobile: ${invoice.customer.mobile}`);
-    if (invoice.customer?.email) line(`Email: ${invoice.customer.email}`);
-    if (invoice.customer?.address) line(`Address: ${invoice.customer.address}`);
-    if (invoice.customer?.gstin) line(`GSTIN: ${invoice.customer.gstin}`);
-    y += 5;
+    pdf.setFontSize(20);
+    pdf.text('INVOICE', margin, 9);
 
-    const columns = [margin, 88, 108, 128, 148, right];
-    const headers = ['Product', 'Qty', 'Price', 'Discount', 'GST', 'Amount'];
+    y = 24;
+  } else {
+    pdf.setTextColor(...accent);
     pdf.setFont('helvetica', 'bold');
-    pdf.setFontSize(8);
-    pdf.setFillColor(...(monochrome ? [235, 235, 235] as [number, number, number] : accent));
-    pdf.rect(margin, y - 4, pageWidth - margin * 2, 9, 'F');
-    pdf.setTextColor(monochrome ? 0 : 255, monochrome ? 0 : 255, monochrome ? 0 : 255);
-    headers.forEach((header, index) => pdf.text(header, columns[index] + 1, y + 1));
-    pdf.setTextColor(0, 0, 0);
-    y += 10;
-    pdf.setFont('helvetica', 'normal');
+    pdf.setFontSize(20);
+    pdf.text('INVOICE', margin, y);
 
-    for (const item of invoice.items ?? []) {
-      ensureSpace(14);
-      const discount = Number(item.lineDiscount ?? (item.quantity * item.unitPrice * Number(item.discountPercent ?? 0) / 100));
-      const tax = Number(item.lineTax ?? 0);
-      const total = Number(item.lineTotal ?? (item.quantity * item.unitPrice - discount + tax));
-      const productLines = pdf.splitTextToSize(String(item.name || 'Product'), 48) as string[];
-      const rowHeight = Math.max(8, productLines.length * 4.5);
-      pdf.text(productLines, columns[0] + 1, y);
-      pdf.text(`${item.quantity} ${item.unit || ''}`.trim(), columns[1] + 1, y);
-      pdf.text(rupees(item.unitPrice), columns[2] + 1, y);
-      pdf.text(rupees(discount), columns[3] + 1, y);
-      pdf.text(rupees(tax), columns[4] + 1, y);
-      pdf.text(rupees(total), right - 1, y, { align: 'right' });
-      y += rowHeight;
-      pdf.setDrawColor(230);
-      pdf.line(margin, y - 2, right, y - 2);
+    y += 10;
+  }
+
+  // Business logo: small fixed dimensions
+  const logo = settings.logoDataUrl?.trim();
+  let logoHeight = 0;
+
+  if (logo) {
+    try {
+      const logoWidth = 12;
+      const logoMaxHeight = 9;
+
+      const imageProperties = pdf.getImageProperties(logo);
+      const ratio = imageProperties.width / imageProperties.height;
+
+      const width = Math.min(logoWidth, logoMaxHeight * ratio);
+      const height = width / ratio;
+
+      pdf.addImage(
+        logo,
+        imageProperties.fileType || 'PNG',
+        margin,
+        y,
+        width,
+        height,
+        undefined,
+        'FAST'
+      );
+
+      logoHeight = height;
+    } catch (error) {
+      console.warn('Invoice logo could not be added:', error);
     }
+  }
+
+  // Only populated business settings are printed
+  const businessFields = [
+    settings.businessName?.trim(),
+    settings.address?.trim(),
+    settings.phone?.trim()
+      ? `Phone: ${settings.phone.trim()}`
+      : '',
+    settings.email?.trim()
+      ? `Email: ${settings.email.trim()}`
+      : '',
+    settings.gstin?.trim()
+      ? `GSTIN: ${settings.gstin.trim()}`
+      : '',
+    settings.state?.trim()
+      ? `State: ${settings.state.trim()}`
+      : ''
+  ].filter((value): value is string => Boolean(value));
+
+  const businessTextX = logo ? margin + 17 : margin;
+  const businessStartY = y;
+
+  pdf.setTextColor(0, 0, 0);
+  pdf.setFont('helvetica', 'bold');
+  pdf.setFontSize(10);
+
+  let businessTextY = businessStartY;
+
+  for (const field of businessFields) {
+    const wrapped = pdf.splitTextToSize(
+      field,
+      right - businessTextX
+    ) as string[];
+
+    pdf.text(wrapped, businessTextX, businessTextY);
+    businessTextY += wrapped.length * 4.5;
+  }
+
+  y = Math.max(
+    businessStartY + logoHeight,
+    businessTextY
+  ) + 5;
+
+  // Invoice number and date
+  pdf.setFont('helvetica', 'normal');
+  pdf.setFontSize(10);
+  pdf.setTextColor(0, 0, 0);
+
+  ensureSpace(10);
+
+  pdf.text(
+    `Invoice No: ${invoice.invoiceNumber}`,
+    margin,
+    y
+  );
+
+  const invoiceDate = invoice.invoiceDate
+    ? new Date(invoice.invoiceDate)
+    : new Date();
+
+  pdf.text(
+    `Date: ${invoiceDate.toLocaleDateString('en-IN')}`,
+    right,
+    y,
+    { align: 'right' }
+  );
+
+  y += 8;
+
+  const drawColor: [number, number, number] = monochrome
+    ? [90, 90, 90]
+    : [rgb[0], rgb[1], rgb[2]];
+
+  pdf.setDrawColor(...drawColor);
+  pdf.line(margin, y, right, y);
+
+  y += 8;
+
+  // Customer details
+  pdf.setFont('helvetica', 'bold');
+  line('BILL TO');
+
+  pdf.setFont('helvetica', 'normal');
+
+  if (invoice.customer?.name?.trim()) {
+    line(invoice.customer.name.trim());
+  }
+
+  if (invoice.customer?.mobile?.trim()) {
+    line(`Mobile: ${invoice.customer.mobile.trim()}`);
+  }
+
+  if (invoice.customer?.email?.trim()) {
+    line(`Email: ${invoice.customer.email.trim()}`);
+  }
+
+  if (invoice.customer?.address?.trim()) {
+    line(`Address: ${invoice.customer.address.trim()}`);
+  }
+
+  if (invoice.customer?.gstin?.trim()) {
+    line(`GSTIN: ${invoice.customer.gstin.trim()}`);
+  }
+
+  y += 5;
+
+  // Product table
+  const columns = [margin, 88, 108, 128, 148, right];
+
+  const headers = [
+    'Product',
+    'Qty',
+    'Price',
+    'Discount',
+    'GST',
+    'Amount'
+  ];
+
+  ensureSpace(16);
+
+  pdf.setFont('helvetica', 'bold');
+  pdf.setFontSize(8);
+
+  pdf.setFillColor(
+    ...(monochrome
+      ? [235, 235, 235] as [number, number, number]
+      : accent)
+  );
+
+  pdf.rect(
+    margin,
+    y - 4,
+    pageWidth - margin * 2,
+    9,
+    'F'
+  );
+
+  pdf.setTextColor(
+    monochrome ? 0 : 255,
+    monochrome ? 0 : 255,
+    monochrome ? 0 : 255
+  );
+
+  headers.forEach((header, index) => {
+    pdf.text(header, columns[index] + 1, y + 1);
+  });
+
+  pdf.setTextColor(0, 0, 0);
+  y += 10;
+
+  pdf.setFont('helvetica', 'normal');
+
+  for (const item of invoice.items ?? []) {
+    const discount = Number(
+      item.lineDiscount ??
+      (
+        item.quantity *
+        item.unitPrice *
+        Number(item.discountPercent ?? 0) / 100
+      )
+    );
+
+    const tax = Number(item.lineTax ?? 0);
+
+    const total = Number(
+      item.lineTotal ??
+      (item.quantity * item.unitPrice - discount + tax)
+    );
+
+    const productLines = pdf.splitTextToSize(
+      String(item.name || 'Product'),
+      48
+    ) as string[];
+
+    const rowHeight = Math.max(
+      8,
+      productLines.length * 4.5
+    );
+
+    ensureSpace(rowHeight + 4);
+
+    pdf.text(productLines, columns[0] + 1, y);
+    pdf.text(`${item.quantity} ${item.unit || ''}`.trim(), columns[1] + 1, y);
+    pdf.text(rupees(item.unitPrice), columns[2] + 1, y);
+    pdf.text(rupees(discount), columns[3] + 1, y);
+    pdf.text(rupees(tax), columns[4] + 1, y);
+
+    pdf.text(
+      rupees(total),
+      right - 1,
+      y,
+      { align: 'right' }
+    );
+
+    y += rowHeight;
+
+    pdf.setDrawColor(230);
+    pdf.line(margin, y - 2, right, y - 2);
+  }
+
+  // Invoice totals
+  y += 5;
+
+  const calc = invoice.calculation;
+
+  const totals: Array<[string, number]> = [
+    ['Subtotal', calc.subtotal],
+    ['Discount', -calc.discountTotal],
+    ['Taxable amount', calc.taxableAmount],
+    ['GST total', calc.gstTotal],
+    ['Invoice total', calc.total],
+    ['Amount received', calc.paidAmount],
+    ['Balance due', calc.dueAmount]
+  ];
+
+  for (const [label, value] of totals) {
+    ensureSpace(8);
+
+    const isTotal = label === 'Invoice total';
+
+    pdf.setFont(
+      'helvetica',
+      isTotal ? 'bold' : 'normal'
+    );
+
+    pdf.text(label, right - 65, y);
+
+    pdf.text(
+      rupees(value),
+      right,
+      y,
+      { align: 'right' }
+    );
+
+    y += isTotal ? 8 : 6;
+  }
+
+  // Payment and notes
+  ensureSpace(18);
+  y += 5;
+
+  pdf.setFont('helvetica', 'normal');
+
+  if (invoice.paymentMethod?.trim()) {
+    pdf.text(
+      `Payment method: ${invoice.paymentMethod}`,
+      margin,
+      y
+    );
+    y += 7;
+  }
+
+  if (invoice.notes?.trim()) {
+    pdf.setFont('helvetica', 'bold');
+    pdf.text('Notes:', margin, y);
 
     y += 5;
-    const calc = invoice.calculation;
-    const totals = [
-      ['Subtotal', calc.subtotal],
-      ['Discount', -calc.discountTotal],
-      ['Taxable amount', calc.taxableAmount],
-      ['GST total', calc.gstTotal],
-      ['Invoice total', calc.total],
-      ['Amount received', calc.paidAmount],
-      ['Balance due', calc.dueAmount],
-    ];
-    for (const [label, value] of totals) {
-      ensureSpace(8);
-      const isTotal = label === 'Invoice total';
-      pdf.setFont('helvetica', isTotal ? 'bold' : 'normal');
-      pdf.text(String(label), right - 65, y);
-      pdf.text(rupees(value), right, y, { align: 'right' });
-      y += isTotal ? 8 : 6;
-    }
 
-    ensureSpace(18);
-    y += 5;
     pdf.setFont('helvetica', 'normal');
-    pdf.text(`Payment method: ${invoice.paymentMethod || 'Cash'}`, margin, y);
-    if (invoice.notes) {
-      y += 7;
-      pdf.setFont('helvetica', 'bold');
-      pdf.text('Notes:', margin, y);
-      y += 5;
-      pdf.setFont('helvetica', 'normal');
-      line(invoice.notes);
-    }
-    y += 10;
+    line(invoice.notes.trim());
+  }
+
+  // Footer appears only when configured in settings
+  if (settings.footer?.trim()) {
+    ensureSpace(10);
+
+    y += 5;
+
+    pdf.setFont('helvetica', 'normal');
     pdf.setFontSize(9);
     pdf.setTextColor(...accent);
-    pdf.text(settings.footer || 'Thank you for your business.', pageWidth / 2, Math.min(y, pageHeight - 12), { align: 'center' });
-    return pdf;
+
+    pdf.text(
+      settings.footer.trim(),
+      pageWidth / 2,
+      Math.min(y, pageHeight - 12),
+      { align: 'center' }
+    );
   }
+
+  return pdf;
+}
 
   private safeFilename(value: string): string {
     return String(value || 'invoice').replace(/[^a-z0-9-_]/gi, '_');

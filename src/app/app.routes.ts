@@ -138,6 +138,11 @@ export const routes: Routes = [
             .then(m => m.InvoiceGeneratorPage),
       },
       {
+        path: 'business-hub/settings',
+        loadComponent: () =>
+          import('./business-hub/business-hub.page').then(m => m.BusinessHubPage),
+      },
+      {
         path: 'business-hub/payment-reminder',
         loadComponent: () =>
           import('./business-hub/payment-reminder/payment-reminder.page')

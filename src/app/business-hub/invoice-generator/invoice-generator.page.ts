@@ -4,6 +4,8 @@ import { Component, OnInit, computed, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { finalize } from 'rxjs';
 import { InvoiceSettingsService } from '../models/invoice-settings.service';
+import { InvoiceApiService } from '../models/invoice-api.service';
+import { InvoiceDraftPayload, InvoicePaymentMethod } from '../models/invoice.model';
 import { jsPDF } from 'jspdf';
 import {
   MyStockApiService,
@@ -56,6 +58,7 @@ interface FinalizedInvoice {
     discountTotal: number;
     taxableAmount: number;
     gstTotal: number;
+    roundOff: number;
     total: number;
     paidAmount: number;
     dueAmount: number;
@@ -96,11 +99,7 @@ export class InvoiceGeneratorPage implements OnInit {
 
   readonly discountTotal = computed(() =>
     this.items().reduce(
-      (sum, item) =>
-        sum +
-        this.lineSubtotal(item) *
-        this.clamp(item.discountPercent, 0, 100) /
-        100,
+      (sum, item) => sum + this.lineDiscount(item),
       0,
     ),
   );
@@ -110,21 +109,20 @@ export class InvoiceGeneratorPage implements OnInit {
   );
 
   readonly gstTotal = computed(() =>
-    this.items().reduce((sum, item) => {
-      const base =
-        this.lineSubtotal(item) *
-        (1 - this.clamp(item.discountPercent, 0, 100) / 100);
-
-      return sum +
-        (item.gstEnabled
-          ? base * this.clamp(item.gstRate, 0, 100) / 100
-          : 0);
-    }, 0),
+    this.items().reduce(
+      (sum, item) => sum + this.lineTax(item),
+      0,
+    ),
   );
 
-  readonly grandTotal = computed(() =>
+  readonly unroundedTotal = computed(() =>
     this.roundMoney(this.taxableAmount() + this.gstTotal()),
   );
+
+  readonly grandTotal = computed(() => this.unroundedTotal());
+
+  // Backend stores invoice totals to two decimal places; no whole-rupee rounding.
+  readonly roundOff = computed(() => 0);
 
   readonly paidAmount = signal(0);
 
@@ -151,6 +149,7 @@ export class InvoiceGeneratorPage implements OnInit {
   constructor(
     private readonly stockApi: MyStockApiService,
     private readonly invoiceSettingsService: InvoiceSettingsService,
+    private readonly invoiceApi: InvoiceApiService,
   ) { }
 
   ngOnInit(): void {
@@ -347,46 +346,108 @@ export class InvoiceGeneratorPage implements OnInit {
   finalizeInvoice(): void {
     this.error.set('');
     this.success.set('');
+
     const validation = this.validateInvoice();
-    if (validation) { this.error.set(validation); return; }
-    if (this.saving()) return;
+    if (validation) {
+      this.error.set(validation);
+      return;
+    }
+
+    if (this.saving()) {
+      return;
+    }
+
+    const fingerprint = JSON.stringify({
+      customer: this.customer,
+      items: this.items().map(item => ({
+        stockItemId: item.stockItemId,
+        quantity: item.quantity,
+        unitPrice: item.unitPrice,
+        discountPercent: item.discountPercent,
+      })),
+      paymentAmount: this.paidAmount(),
+      paymentMethod: this.paymentMethod,
+      notes: this.notes.trim(),
+    });
+
+    if (!this.idempotencyKey || this.idempotencyFingerprint !== fingerprint) {
+      this.idempotencyKey = this.createIdempotencyKey();
+      this.idempotencyFingerprint = fingerprint;
+    }
+
+    const payload: InvoiceDraftPayload = {
+      customer: {
+        name: this.customer.name.trim(),
+        mobile: this.customer.mobile.trim(),
+        email: this.customer.email.trim(),
+        address: this.customer.address.trim(),
+        gstin: this.customer.gstin.trim().toUpperCase(),
+      },
+      items: this.items().map(item => ({
+        stockItemId: item.stockItemId,
+        name: item.name,
+        description: item.description,
+        sku: item.sku,
+        quantity: item.quantity,
+        unit: item.unit,
+        unitPrice: item.unitPrice,
+        discountPercent: item.discountPercent,
+        gstEnabled: item.gstEnabled,
+        gstRate: item.gstRate,
+      })),
+      paymentAmount: this.paidAmount(),
+      paymentMethod: this.paymentMethod as unknown as InvoicePaymentMethod,
+      notes: this.notes.trim(),
+      idempotencyKey: this.idempotencyKey,
+    };
 
     this.saving.set(true);
-    try {
-      const now = new Date();
-      const sequenceKey = 'brain_techno_invoice_sequence_v1';
-      const next = Number(localStorage.getItem(sequenceKey) || 0) + 1;
-      localStorage.setItem(sequenceKey, String(next));
-      const invoiceNumber = `INV-${now.getFullYear()}-${String(next).padStart(5, '0')}`;
-      const invoice: FinalizedInvoice = {
-        id: `local-${Date.now()}`,
-        invoiceNumber,
-        invoiceDate: now,
-        customer: { ...this.customer },
-        items: this.items().map(item => ({
-          name: item.name, description: item.description, sku: item.sku,
-          quantity: item.quantity, unit: item.unit, unitPrice: item.unitPrice,
-          discountPercent: item.discountPercent,
-          lineDiscount: this.lineDiscount(item), lineTax: this.lineTax(item),
-          lineTotal: this.roundMoney(this.lineSubtotal(item) - this.lineDiscount(item) + this.lineTax(item)),
-          gstRate: item.gstEnabled ? item.gstRate : 0,
-        })),
-        calculation: {
-          subtotal: this.subtotal(), discountTotal: this.discountTotal(),
-          taxableAmount: this.taxableAmount(), gstTotal: this.gstTotal(),
-          total: this.grandTotal(), paidAmount: this.paidAmount(), dueAmount: this.dueAmount(),
+
+    this.invoiceApi.finalize(payload)
+      .pipe(finalize(() => this.saving.set(false)))
+      .subscribe({
+        next: response => {
+          const invoice: FinalizedInvoice = {
+            id: response.id,
+            invoiceNumber: response.invoiceNumber,
+            invoiceDate: response.invoiceDate,
+            customer: response.customer,
+            items: response.items.map(item => ({
+              ...item,
+              availableQuantity: 0,
+            })),
+            calculation: {
+              subtotal: response.calculation.subtotal,
+              discountTotal: response.calculation.discountTotal,
+              taxableAmount: response.calculation.taxableAmount,
+              gstTotal: response.calculation.gstTotal,
+              roundOff: 0,
+              total: response.calculation.total,
+              paidAmount: response.calculation.paidAmount,
+              dueAmount: response.calculation.dueAmount,
+            },
+            paymentMethod: response.paymentMethod,
+            notes: response.notes,
+          };
+
+          this.lastInvoice.set(invoice);
+          this.lastInvoiceId.set(invoice.id);
+          this.success.set(
+            `Invoice ${invoice.invoiceNumber} saved successfully. Stock has been updated.`,
+          );
+          this.previewMode.set(false);
+          this.idempotencyKey = '';
+          this.idempotencyFingerprint = '';
+          this.loadStock();
         },
-        paymentMethod: this.paymentMethod, notes: this.notes.trim(),
-      };
-      this.lastInvoice.set(invoice);
-      this.lastInvoiceId.set(invoice.id);
-      this.success.set(`Invoice ${invoiceNumber} created in this browser. Download or print it now.`);
-      this.previewMode.set(false);
-      // Invoice creation is local-only. Stock is intentionally not deducted because no backend transaction is used.
-    } catch (error) {
-      console.error('Local invoice creation failed:', error);
-      this.error.set('Could not create the invoice. Please check browser storage and try again.');
-    } finally { this.saving.set(false); }
+        error: err => {
+          console.error('Invoice finalization failed:', err);
+          this.error.set(
+            err?.error?.message ||
+            'Invoice could not be finalized. Please try again.',
+          );
+        },
+      });
   }
 
   openInvoiceForPrint(): void {
@@ -505,6 +566,10 @@ export class InvoiceGeneratorPage implements OnInit {
 
  private createInvoicePdf(invoice: FinalizedInvoice): jsPDF {
   const settings = this.invoiceSettingsService.get();
+  const pdfExtras = settings as typeof settings & {
+    signatureDataUrl?: string;
+    sealDataUrl?: string;
+  };
   const pdf = new jsPDF({
     unit: 'mm',
     format: settings.pageSize
@@ -512,7 +577,14 @@ export class InvoiceGeneratorPage implements OnInit {
 
   const monochrome = settings.printColor === 'bw';
   const hex = settings.primaryColor || '#ff4d6d';
-  const rgb = hex.match(/[a-f0-9]{2}/gi)?.map(v => parseInt(v, 16)) ?? [255, 77, 109];
+  const colorMatch = /^#?([a-f0-9]{6})$/i.exec(hex.trim());
+  const rgb: [number, number, number] = colorMatch
+    ? [
+        parseInt(colorMatch[1].slice(0, 2), 16),
+        parseInt(colorMatch[1].slice(2, 4), 16),
+        parseInt(colorMatch[1].slice(4, 6), 16),
+      ]
+    : [255, 77, 109];
 
   const accent: [number, number, number] = monochrome
     ? [0, 0, 0]
@@ -618,9 +690,6 @@ export class InvoiceGeneratorPage implements OnInit {
     settings.gstin?.trim()
       ? `GSTIN: ${settings.gstin.trim()}`
       : '',
-    settings.state?.trim()
-      ? `State: ${settings.state.trim()}`
-      : ''
   ].filter((value): value is string => Boolean(value));
 
   const businessTextX = logo ? margin + 17 : margin;
@@ -711,21 +780,30 @@ export class InvoiceGeneratorPage implements OnInit {
   y += 5;
 
   // Product table
-  const columns = [margin, 88, 108, 128, 148, right];
+  const tableWidth = right - margin;
+  const columns = [
+    margin,
+    margin + tableWidth * 0.36,
+    margin + tableWidth * 0.48,
+    margin + tableWidth * 0.62,
+    margin + tableWidth * 0.76,
+    margin + tableWidth * 0.87,
+    right,
+  ];
 
   const headers = [
     'Product',
     'Qty',
-    'Price',
-    'Discount',
+    'Rate',
+    'Disc.',
     'GST',
-    'Amount'
+    'Total'
   ];
 
   ensureSpace(16);
 
   pdf.setFont('helvetica', 'bold');
-  pdf.setFontSize(8);
+  pdf.setFontSize(pageWidth < 160 ? 6.5 : 8);
 
   pdf.setFillColor(
     ...(monochrome
@@ -775,7 +853,7 @@ export class InvoiceGeneratorPage implements OnInit {
 
     const productLines = pdf.splitTextToSize(
       String(item.name || 'Product'),
-      48
+      Math.max(24, columns[1] - columns[0] - 4)
     ) as string[];
 
     const rowHeight = Math.max(
@@ -785,18 +863,14 @@ export class InvoiceGeneratorPage implements OnInit {
 
     ensureSpace(rowHeight + 4);
 
+    pdf.setFontSize(pageWidth < 160 ? 6.5 : 8);
     pdf.text(productLines, columns[0] + 1, y);
-    pdf.text(`${item.quantity} ${item.unit || ''}`.trim(), columns[1] + 1, y);
-    pdf.text(rupees(item.unitPrice), columns[2] + 1, y);
-    pdf.text(rupees(discount), columns[3] + 1, y);
-    pdf.text(rupees(tax), columns[4] + 1, y);
-
-    pdf.text(
-      rupees(total),
-      right - 1,
-      y,
-      { align: 'right' }
-    );
+    pdf.text(`${item.quantity} ${item.unit || ''}`.trim(), columns[2] - 1, y, { align: 'right' });
+    const compactMoney = (value: number): string => Number(value || 0).toFixed(2);
+    pdf.text(compactMoney(item.unitPrice), columns[3] - 1, y, { align: 'right' });
+    pdf.text(compactMoney(discount), columns[4] - 1, y, { align: 'right' });
+    pdf.text(compactMoney(tax), columns[5] - 1, y, { align: 'right' });
+    pdf.text(compactMoney(total), columns[6] - 1, y, { align: 'right' });
 
     y += rowHeight;
 
@@ -866,23 +940,75 @@ export class InvoiceGeneratorPage implements OnInit {
     line(invoice.notes.trim());
   }
 
-  // Footer appears only when configured in settings
+  // Optional business footer message.
   if (settings.footer?.trim()) {
     ensureSpace(10);
-
     y += 5;
-
     pdf.setFont('helvetica', 'normal');
     pdf.setFontSize(9);
     pdf.setTextColor(...accent);
-
-    pdf.text(
-      settings.footer.trim(),
-      pageWidth / 2,
-      Math.min(y, pageHeight - 12),
-      { align: 'center' }
-    );
+    pdf.text(settings.footer.trim(), pageWidth / 2, Math.min(y, pageHeight - 42), { align: 'center' });
+    y += 5;
   }
+
+  // Optional signature and seal images. These are supported when present in saved settings.
+  if (pdfExtras.signatureDataUrl?.trim() || pdfExtras.sealDataUrl?.trim()) {
+    ensureSpace(34);
+    const signatureY = Math.min(y + 3, pageHeight - 42);
+
+    if (pdfExtras.sealDataUrl?.trim()) {
+      try {
+        const sealInfo = pdf.getImageProperties(pdfExtras.sealDataUrl);
+        pdf.addImage(
+          pdfExtras.sealDataUrl,
+          sealInfo.fileType || 'PNG',
+          margin,
+          signatureY,
+          22,
+          22,
+          undefined,
+          'FAST',
+        );
+        pdf.setFontSize(7);
+        pdf.setTextColor(80, 80, 80);
+        pdf.text('Business seal', margin, signatureY + 25);
+      } catch (error) {
+        console.warn('Invoice seal could not be added:', error);
+      }
+    }
+
+    if (pdfExtras.signatureDataUrl?.trim()) {
+      try {
+        const signatureInfo = pdf.getImageProperties(pdfExtras.signatureDataUrl);
+        const signatureWidth = 38;
+        const signatureHeight = Math.min(18, signatureWidth * signatureInfo.height / signatureInfo.width);
+        pdf.addImage(
+          pdfExtras.signatureDataUrl,
+          signatureInfo.fileType || 'PNG',
+          right - signatureWidth,
+          signatureY,
+          signatureWidth,
+          signatureHeight,
+          undefined,
+          'FAST',
+        );
+        pdf.setFontSize(7);
+        pdf.setTextColor(80, 80, 80);
+        pdf.text('Authorised signature', right, signatureY + 22, { align: 'right' });
+      } catch (error) {
+        console.warn('Invoice signature could not be added:', error);
+      }
+    }
+
+    y = signatureY + 29;
+  }
+
+  // Fixed legal / generated invoice footer.
+  pdf.setFont('helvetica', 'normal');
+  pdf.setFontSize(8);
+  pdf.setTextColor(90, 90, 90);
+  pdf.text('This is a computer generated invoice.', pageWidth / 2, pageHeight - 16, { align: 'center' });
+  pdf.text('Produced by -- BRAIN TECHNO :: www.braintechno.com', pageWidth / 2, pageHeight - 11, { align: 'center' });
 
   return pdf;
 }

@@ -5,7 +5,7 @@
       <p class="eyebrow">BUSINESS HUB</p>
       <h1>Invoice Generator</h1>
       <p class="page-subtitle">
-        Create a local invoice with your saved design and print preferences.
+        Create and save invoices with automatic stock updates and your saved print preferences.
       </p>
     </div>
 
@@ -333,6 +333,11 @@
           <strong>{{ money(gstTotal()) }}</strong>
         </div>
 
+        <div class="summary-row">
+          <span>Round off</span>
+          <strong>{{ money(roundOff()) }}</strong>
+        </div>
+
         <div class="summary-total">
           <span>Invoice total</span>
           <strong>{{ money(grandTotal()) }}</strong>
@@ -380,11 +385,11 @@
           (click)="finalizeInvoice()"
           [disabled]="saving()"
         >
-          {{ saving() ? 'Creating...' : 'Create Invoice' }}
+          {{ saving() ? 'Finalizing...' : 'Finalize Invoice' }}
         </button>
 
         <p class="sidebar-help">
-          Invoice PDF and print are generated in your browser using Hub Settings. Stock quantities are not changed by this local-only invoice.
+          Finalizing saves the invoice to your account and deducts the sold quantities from stock. You can download, share or print the invoice after it is saved.
         </p>
       </section>
 
@@ -410,7 +415,7 @@
         </div>
 
         <p class="preview-disclaimer">
-          This preview uses your selected invoice settings. Creating it will generate a local invoice number; it will not update stock or cloud invoice history.
+          Review the invoice details before finalizing. The backend will save the invoice and update stock only after successful finalization.
         </p>
       </section>
     </aside>

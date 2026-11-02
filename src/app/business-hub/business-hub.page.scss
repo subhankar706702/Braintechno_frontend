@@ -364,6 +364,8 @@ a:focus-visible {
 .heading-icon {
   flex: 0 0 auto;
   color: var(--bt-primary, var(--color-primary));
+  height: 20px;
+  width: 20px;
 }
 
 /* Overview metric cards */
@@ -1838,6 +1840,25 @@ a:focus-visible {
   }
 }
 
+.locked-color-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.locked-color-swatch {
+  width: 14px;
+  height: 14px;
+  flex: 0 0 34px;
+  border: 1px solid var(--bt-border, var(--color-border));
+  border-radius: 8px;
+}
+
+.locked-color-field input {
+  flex: 1;
+  min-width: 0;
+}
+
 @media (max-width: 760px) {
   .invoice-template-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1863,4 +1884,38 @@ a:focus-visible {
   .field-full {
     grid-column: auto;
   }
+}
+
+/* Business Hub refinements: preserve existing theme and design tokens. */
+.invoice-settings-card .field input[readonly],
+.invoice-settings-card .field textarea[readonly] {
+  cursor: not-allowed;
+  opacity: 0.8;
+  background: var(--bt-bg, var(--color-bg));
+}
+.invoice-settings-card .field > span mat-icon {
+  width: 15px;
+  height: 15px;
+  margin-left: 4px;
+  font-size: 15px;
+  vertical-align: middle;
+  color: var(--bt-text-muted, var(--color-text-muted));
+}
+.invoice-settings-card .settings-save-row {
+  flex-wrap: wrap;
+}
+.invoice-design-modal-backdrop {
+  overscroll-behavior: contain;
+}
+.invoice-design-modal .invoice-preview-panel {
+  max-width: 100%;
+}
+.invoice-settings-card input::-webkit-inner-spin-button,
+.invoice-settings-card input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.invoice-settings-card input[type='number'] {
+  appearance: textfield;
+  -moz-appearance: textfield;
 }

@@ -5,7 +5,7 @@
       <p class="eyebrow">BUSINESS HUB</p>
       <h1>Invoice Generator</h1>
       <p class="page-subtitle">
-        Create and save invoices with automatic stock updates and your saved print preferences.
+        Create invoices with automatic stock updates. Only invoices with an outstanding due are stored in your account.
       </p>
     </div>
 
@@ -372,7 +372,7 @@
           type="button"
           class="btn btn-primary btn-block"
           (click)="previewInvoice()"
-          [disabled]="saving() || items().length === 0"
+          [disabled]="saving() || items().length === 0 || !!lastInvoiceId()"
         >
           Preview Invoice
           <span aria-hidden="true">→</span>
@@ -389,7 +389,7 @@
         </button>
 
         <p class="sidebar-help">
-          Finalizing saves the invoice to your account and deducts the sold quantities from stock. You can download, share or print the invoice after it is saved.
+          Finalizing always updates stock. Full-payment invoices are generated in your browser and are not stored. Invoices with an outstanding due are saved with the customer and payment reminder details.
         </p>
       </section>
 
@@ -415,7 +415,7 @@
         </div>
 
         <p class="preview-disclaimer">
-          Review the invoice details before finalizing. The backend will save the invoice and update stock only after successful finalization.
+          Review the invoice details before finalizing. The backend applies the same round-off and stock validation. Due invoices are saved; full-payment invoices are not stored.
         </p>
       </section>
     </aside>

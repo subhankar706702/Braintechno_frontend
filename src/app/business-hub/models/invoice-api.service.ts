@@ -39,6 +39,15 @@ export class InvoiceApiService {
     );
   }
 
+  finalizeStockOnly(
+    payload: InvoiceDraftPayload,
+  ): Observable<FinalizedInvoiceResponse> {
+    return this.http.post<FinalizedInvoiceResponse>(
+      `${this.endpoint}/finalize-stock-only`,
+      payload,
+    );
+  }
+
   getById(
     invoiceId: string,
   ): Observable<FinalizedInvoiceResponse> {

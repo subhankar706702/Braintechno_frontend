@@ -95,6 +95,8 @@ export interface FinalizedInvoiceResponse {
   paymentMethod: InvoicePaymentMethod;
   notes?: string;
   dueRecordId?: string;
+  customerId?: string;
+  persisted?: boolean;
   reused?: boolean;
   pdfUrl?: string;
 }

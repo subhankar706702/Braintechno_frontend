@@ -65,6 +65,7 @@ interface FinalizedInvoice {
   };
   paymentMethod: string;
   notes?: string;
+  persisted?: boolean;
 }
 
 @Component({
@@ -119,10 +120,15 @@ export class InvoiceGeneratorPage implements OnInit {
     this.roundMoney(this.taxableAmount() + this.gstTotal()),
   );
 
-  readonly grandTotal = computed(() => this.unroundedTotal());
+  readonly roundOff = computed(() => {
+    const unroundedPaise = Math.round(this.unroundedTotal() * 100);
+    const roundedPaise = Math.ceil(unroundedPaise / 500) * 500;
+    return this.roundMoney((roundedPaise - unroundedPaise) / 100);
+  });
 
-  // Backend stores invoice totals to two decimal places; no whole-rupee rounding.
-  readonly roundOff = computed(() => 0);
+  readonly grandTotal = computed(() =>
+    this.roundMoney(this.unroundedTotal() + this.roundOff()),
+  );
 
   readonly paidAmount = signal(0);
 
@@ -399,11 +405,20 @@ export class InvoiceGeneratorPage implements OnInit {
       paymentMethod: this.paymentMethod as unknown as InvoicePaymentMethod,
       notes: this.notes.trim(),
       idempotencyKey: this.idempotencyKey,
+      invoiceNumberSettings: {
+        prefix: this.invoiceSettingsService.get().invoicePrefix,
+        startNumber: this.invoiceSettingsService.get().invoiceStartNumber,
+        padding: this.invoiceSettingsService.get().invoiceNumberPadding,
+      },
     };
 
     this.saving.set(true);
 
-    this.invoiceApi.finalize(payload)
+    const finalizeRequest = this.dueAmount() > 0
+      ? this.invoiceApi.finalize(payload)
+      : this.invoiceApi.finalizeStockOnly(payload);
+
+    finalizeRequest
       .pipe(finalize(() => this.saving.set(false)))
       .subscribe({
         next: response => {
@@ -421,19 +436,22 @@ export class InvoiceGeneratorPage implements OnInit {
               discountTotal: response.calculation.discountTotal,
               taxableAmount: response.calculation.taxableAmount,
               gstTotal: response.calculation.gstTotal,
-              roundOff: 0,
+              roundOff: Number(response.calculation.roundOff ?? this.roundOff()),
               total: response.calculation.total,
               paidAmount: response.calculation.paidAmount,
               dueAmount: response.calculation.dueAmount,
             },
             paymentMethod: response.paymentMethod,
             notes: response.notes,
+            persisted: response.persisted !== false,
           };
 
           this.lastInvoice.set(invoice);
           this.lastInvoiceId.set(invoice.id);
           this.success.set(
-            `Invoice ${invoice.invoiceNumber} saved successfully. Stock has been updated.`,
+            invoice.persisted
+              ? `Invoice ${invoice.invoiceNumber} saved. Customer and due details are stored, and stock has been updated.`
+              : `Invoice ${invoice.invoiceNumber} generated. Stock has been updated. Full-payment invoice and customer data were not stored.`,
           );
           this.previewMode.set(false);
           this.idempotencyKey = '';
@@ -888,6 +906,7 @@ export class InvoiceGeneratorPage implements OnInit {
     ['Discount', -calc.discountTotal],
     ['Taxable amount', calc.taxableAmount],
     ['GST total', calc.gstTotal],
+    ['Round off', calc.roundOff],
     ['Invoice total', calc.total],
     ['Amount received', calc.paidAmount],
     ['Balance due', calc.dueAmount]

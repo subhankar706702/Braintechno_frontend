@@ -15,16 +15,27 @@ import { BusinessProfileService } from '../../dashboard/business-profile/busines
 import { AppResourceService } from '../../core/app-resource.service';
 import { AuthService } from '../../core/auth.service';
 
+export type MenuCategory =
+  | 'default'
+  | 'pro'
+  | 'custom'
+  | 'admin'
+  | 'coming-soon'
+  | 'disabled'
+  | 'hidden';
+
 type ShellNavItem = {
   label: string;
   icon: string;
   route: string;
+  category?: MenuCategory | null;
 };
 
 type ShellSubNavItem = {
   label: string;
   icon: string;
   route: string;
+  category?: MenuCategory | null;
 };
 
 @Component({
@@ -42,39 +53,39 @@ export class DashboardShellComponent implements OnInit, OnDestroy {
   private readonly destroy$ = new Subject<void>();
 
   readonly settingsSubItems: ShellSubNavItem[] = [
-    { label: 'Appearance', icon: 'light_mode', route: '/app/settings/appearance' },
-    { label: 'Language & Region', icon: 'language', route: '/app/settings/language' },
-    { label: 'Notifications', icon: 'notifications_none', route: '/app/settings/notifications' },
-    { label: 'Editor Preferences', icon: 'edit_square', route: '/app/settings/editor' },
-    { label: 'Accessibility', icon: 'accessibility_new', route: '/app/settings/accessibility' },
-    { label: 'Privacy & Data', icon: 'shield', route: '/app/settings/privacy' },
-    { label: 'Security', icon: 'lock', route: '/app/settings/security' },
-    { label: 'System', icon: 'info', route: '/app/settings/system' },
-    { label: 'Subscription & Plans', icon: 'workspace_premium', route: '/app/settings/pricing' },
-    { label: 'Payment History', icon: 'receipt_long', route: '/app/settings/payment-history' },
+    { label: 'Appearance', icon: 'light_mode', route: '/app/settings/appearance', category: 'default' },
+    { label: 'Language & Region', icon: 'language', route: '/app/settings/language', category: 'default' },
+    { label: 'Notifications', icon: 'notifications_none', route: '/app/settings/notifications', category: 'default' },
+    { label: 'Editor Preferences', icon: 'edit_square', route: '/app/settings/editor', category: 'default' },
+    { label: 'Accessibility', icon: 'accessibility_new', route: '/app/settings/accessibility', category: 'default' },
+    { label: 'Privacy & Data', icon: 'shield', route: '/app/settings/privacy', category: 'default' },
+    { label: 'Security', icon: 'lock', route: '/app/settings/security', category: 'default' },
+    { label: 'System', icon: 'info', route: '/app/settings/system', category: 'default' },
+    { label: 'Subscription & Plans', icon: 'workspace_premium', route: '/app/settings/pricing', category: 'default' },
+    { label: 'Payment History', icon: 'receipt_long', route: '/app/settings/payment-history', category: 'default' },
   ];
 
   readonly businessHubSubItems: ShellSubNavItem[] = [
-    { label: 'My Business', icon: 'business', route: '/app/business-hub/my-business' },
-    { label: 'Sales & Expenses', icon: 'analytics', route: '/app/business-hub/sales-expenses' },
-    { label: 'Invoice Generator', icon: 'receipt_long', route: '/app/business-hub/invoice' },
-    { label: 'My Stock', icon: 'inventory_2', route: '/app/business-hub/my-stock' },
-    { label: 'Payment Reminder', icon: 'payments', route: '/app/business-hub/payment-reminder' },
-    { label: 'Growth Checklist', icon: 'checklist', route: '/app/business-hub/growth-checklist' },
-    { label: 'Hub Settings', icon: 'tune', route: '/app/business-hub/settings' },
+    { label: 'My Business', icon: 'business', route: '/app/business-hub/my-business', category: 'default' },
+    { label: 'Sales & Expenses', icon: 'analytics', route: '/app/business-hub/sales-expenses', category: 'default' },
+    { label: 'Invoice Generator', icon: 'receipt_long', route: '/app/business-hub/invoice', category: 'default' },
+    { label: 'My Stock', icon: 'inventory_2', route: '/app/business-hub/my-stock', category: 'default' },
+    { label: 'Payment Reminder', icon: 'payments', route: '/app/business-hub/payment-reminder', category: 'default' },
+    { label: 'Growth Checklist', icon: 'checklist', route: '/app/business-hub/growth-checklist', category: 'coming-soon' },
+    { label: 'Hub Settings', icon: 'tune', route: '/app/business-hub/settings', category: 'default' },
   ];
 
   readonly sidebarItems: ShellNavItem[] = [
-    { label: 'Dashboard', icon: 'dashboard', route: '/app/dashboard' },
-    { label: 'Business Hub', icon: 'grid_view', route: '/app/business-hub' },
-    { label: 'Templates', icon: 'content_copy', route: '/app/templates' },
-    { label: 'My website', icon: 'language', route: '/app/campaigns' },
-    { label: 'Broadcast', icon: 'campaign', route: '/app/broadcast' },
-    { label: 'Social', icon: 'travel_explore', route: '/app/social' },
-    { label: 'Customers', icon: 'group', route: '/app/customers' },
-    { label: 'Messages', icon: 'message', route: '/app/messages' },
-    { label: 'Analytics', icon: 'query_stats', route: '/app/analytics' },
-    { label: 'Settings', icon: 'settings', route: '/app/settings' },
+    { label: 'Dashboard', icon: 'dashboard', route: '/app/dashboard', category: 'default' },
+    { label: 'Business Hub', icon: 'grid_view', route: '/app/business-hub', category: 'default' },
+    { label: 'Templates', icon: 'content_copy', route: '/app/templates', category: 'default' },
+    { label: 'My website', icon: 'language', route: '/app/campaigns', category: 'default' },
+    { label: 'Broadcast', icon: 'campaign', route: '/app/broadcast', category: 'default' },
+    { label: 'Social', icon: 'travel_explore', route: '/app/social', category: 'default' },
+    { label: 'Customers', icon: 'group', route: '/app/customers', category: 'default' },
+    { label: 'Messages', icon: 'message', route: '/app/messages', category: 'default' },
+    { label: 'Analytics', icon: 'query_stats', route: '/app/analytics', category: 'custom' },
+    { label: 'Settings', icon: 'settings', route: '/app/settings', category: 'default' },
   ];
 
   constructor(
@@ -136,6 +147,50 @@ export class DashboardShellComponent implements OnInit, OnDestroy {
     return uploadedLogo || this.appResource.images.businessPlaceholder || this.braintechnoLogo;
   }
 
+  getMenuCategory(category?: MenuCategory | string | null): MenuCategory {
+    const normalized = String(category || '').trim().toLowerCase();
+    const allowed: MenuCategory[] = [
+      'default',
+      'pro',
+      'custom',
+      'admin',
+      'coming-soon',
+      'disabled',
+      'hidden',
+    ];
+
+    return allowed.includes(normalized as MenuCategory)
+      ? normalized as MenuCategory
+      : 'default';
+  }
+
+  isMenuHidden(category?: MenuCategory | string | null): boolean {
+    return this.getMenuCategory(category) === 'hidden';
+  }
+
+  isMenuDisabled(category?: MenuCategory | string | null): boolean {
+    const normalized = this.getMenuCategory(category);
+    return normalized === 'disabled' || normalized === 'coming-soon';
+  }
+
+  getMenuCategoryLabel(category?: MenuCategory | string | null): string {
+    const normalized = this.getMenuCategory(category);
+
+    if (normalized === 'coming-soon') return 'Coming Soon';
+    if (normalized === 'default') return '';
+
+    return normalized.charAt(0).toUpperCase() + normalized.slice(1);
+  }
+
+  getMenuCategoryClass(category?: MenuCategory | string | null): string {
+    return `menu-category--${this.getMenuCategory(category)}`;
+  }
+
+  openMenuItem(route: string, category?: MenuCategory | string | null): void {
+    if (!route || this.isMenuDisabled(category) || this.isMenuHidden(category)) return;
+    this.openPage(route);
+  }
+
   logout(): void {
     this.confirmDialogService.confirm({
       title: 'Sign out?',
@@ -177,8 +232,8 @@ export class DashboardShellComponent implements OnInit, OnDestroy {
     this.businessHubMenuOpen = !this.businessHubMenuOpen;
   }
 
-  openBusinessHubPage(route: string): void {
-    if (!route) return;
+  openBusinessHubPage(route: string, category?: MenuCategory | string | null): void {
+    if (!route || this.isMenuDisabled(category) || this.isMenuHidden(category)) return;
     this.businessHubMenuOpen = true;
     this.mobileMenuOpen = false;
     void this.router.navigateByUrl(route);
@@ -188,8 +243,8 @@ export class DashboardShellComponent implements OnInit, OnDestroy {
     this.settingsMenuOpen = !this.settingsMenuOpen;
   }
 
-  openSettingsPage(route: string): void {
-    if (!route) return;
+  openSettingsPage(route: string, category?: MenuCategory | string | null): void {
+    if (!route || this.isMenuDisabled(category) || this.isMenuHidden(category)) return;
     this.settingsMenuOpen = true;
     this.mobileMenuOpen = false;
     void this.router.navigateByUrl(route);

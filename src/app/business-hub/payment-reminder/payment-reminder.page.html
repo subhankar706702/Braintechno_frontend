@@ -52,7 +52,7 @@
       </div>
 
       <details class="payment-history" *ngIf="record.payments?.length">
-        <summary>Payment history ({{ record.payments?.length }})</summary>
+        <summary>Payment history ({{ record.payments.length }})</summary>
         <div class="payment-history__list">
           <div class="payment-history__item" *ngFor="let payment of record.payments">
             <div>

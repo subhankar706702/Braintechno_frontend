@@ -4,7 +4,7 @@ import { Observable, map, tap } from 'rxjs';
 import { API_BASE_URL } from '../../core/api.config';
 
 export interface InvoiceSettings {
-  template: 'classic' | 'corporate' | 'minimal' | 'modern' | 'gst' | 'premium';
+  template: InvoiceTemplate;
   pageSize: 'a4' | 'a5' | 'letter' | 'legal';
   printColor: 'color' | 'bw';
   primaryColor: string;
@@ -19,6 +19,34 @@ export interface InvoiceSettings {
   invoiceStartNumber: number;
   invoiceNumberPadding: number;
 }
+
+export type InvoiceTemplate =
+  | 'classic'
+  | 'minimal'
+  | 'basic-blue'
+  | 'mono'
+  | 'corporate'
+  | 'elegant'
+  | 'creative'
+  | 'sidebar'
+  | 'luxury'
+  | 'gradient'
+  | 'executive'
+  | 'signature'
+  | 'modern-pro'
+  | 'my-brand'
+  | 'design-studio'
+  | 'premium'
+  | 'modern'
+  | 'gst';
+
+export interface InvoiceSettings {
+  template: InvoiceTemplate;
+
+  // Keep all your existing properties unchanged.
+}
+
+
 
 const KEY = 'brain_techno_invoice_settings_v1';
 

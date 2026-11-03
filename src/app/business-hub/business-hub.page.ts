@@ -10,6 +10,7 @@ import { MatIconModule } from '@angular/material/icon';
 import {
   InvoiceSettings,
   InvoiceSettingsService,
+  InvoiceTemplate,
 } from './models/invoice-settings.service';
 import { BusinessProfileService } from '../dashboard/business-profile/business-profile.service';
 
@@ -27,7 +28,16 @@ type HubInvoiceSettings = InvoiceSettings & {
   invoiceStartNumber: number;
   invoiceNumberPadding: number;
 };
+type InvoicePlan = 'free' | 'basic' | 'premium' | 'custom';
 
+interface InvoiceTemplateOption {
+  id: InvoiceTemplate;
+  name: string;
+  description: string;
+  plan: InvoicePlan;
+  accent: string;
+  style: string;
+}
 interface HubCard {
   label: string;
   value: string;
@@ -147,7 +157,189 @@ export class BusinessHubPage implements OnInit, OnDestroy {
       template: 'classic',
     } as HubInvoiceSettings;
   }
+  // Replace this default with the user's actual subscription plan.
+  currentInvoicePlan: InvoicePlan = 'free';
 
+  readonly invoicePlanOrder: Record<InvoicePlan, number> = {
+    free: 1,
+    basic: 2,
+    premium: 3,
+    custom: 4,
+  };
+
+  readonly invoiceTemplateGroups: {
+    plan: InvoicePlan;
+    title: string;
+    description: string;
+    templates: InvoiceTemplateOption[];
+  }[] = [
+      {
+        plan: 'free',
+        title: 'Free Designs',
+        description: 'Simple and professional invoice layouts.',
+        templates: [
+          {
+            id: 'classic',
+            name: 'Classic',
+            description: 'Traditional business invoice',
+            plan: 'free',
+            accent: '#334155',
+            style: 'classic',
+          },
+          {
+            id: 'minimal',
+            name: 'Minimal',
+            description: 'Clean and simple layout',
+            plan: 'free',
+            accent: '#64748b',
+            style: 'minimal',
+          },
+          {
+            id: 'basic-blue',
+            name: 'Basic Blue',
+            description: 'Professional blue header',
+            plan: 'free',
+            accent: '#2563eb',
+            style: 'blue',
+          },
+          {
+            id: 'mono',
+            name: 'Mono',
+            description: 'Black and white invoice',
+            plan: 'free',
+            accent: '#111827',
+            style: 'mono',
+          },
+        ],
+      },
+      {
+        plan: 'basic',
+        title: 'Basic Designs',
+        description: 'More layouts for growing businesses.',
+        templates: [
+          {
+            id: 'corporate',
+            name: 'Corporate',
+            description: 'Strong corporate header',
+            plan: 'basic',
+            accent: '#1e40af',
+            style: 'corporate',
+          },
+          {
+            id: 'elegant',
+            name: 'Elegant',
+            description: 'Elegant typography and spacing',
+            plan: 'basic',
+            accent: '#0f766e',
+            style: 'elegant',
+          },
+          {
+            id: 'creative',
+            name: 'Creative',
+            description: 'Creative color layout',
+            plan: 'basic',
+            accent: '#ea580c',
+            style: 'creative',
+          },
+          {
+            id: 'sidebar',
+            name: 'Sidebar',
+            description: 'Colored business information panel',
+            plan: 'basic',
+            accent: '#7c3aed',
+            style: 'sidebar',
+          },
+        ],
+      },
+      {
+        plan: 'premium',
+        title: 'Premium Designs',
+        description: 'Advanced and premium invoice styles.',
+        templates: [
+          {
+            id: 'luxury',
+            name: 'Luxury',
+            description: 'Premium black and gold design',
+            plan: 'premium',
+            accent: '#b08d42',
+            style: 'luxury',
+          },
+          {
+            id: 'gradient',
+            name: 'Gradient',
+            description: 'Modern gradient header',
+            plan: 'premium',
+            accent: '#7c3aed',
+            style: 'gradient',
+          },
+          {
+            id: 'executive',
+            name: 'Executive',
+            description: 'Executive business appearance',
+            plan: 'premium',
+            accent: '#172554',
+            style: 'executive',
+          },
+          {
+            id: 'signature',
+            name: 'Signature',
+            description: 'Large typography and branding',
+            plan: 'premium',
+            accent: '#9f1239',
+            style: 'signature',
+          },
+          {
+            id: 'modern-pro',
+            name: 'Modern Pro',
+            description: 'Structured modern layout',
+            plan: 'premium',
+            accent: '#0891b2',
+            style: 'modern-pro',
+          },
+        ],
+      },
+      {
+        plan: 'custom',
+        title: 'Custom Designs',
+        description: 'Advanced branding and layout customization.',
+        templates: [
+          {
+            id: 'my-brand',
+            name: 'My Brand',
+            description: 'Personalized business branding',
+            plan: 'custom',
+            accent: '#2563eb',
+            style: 'my-brand',
+          },
+          {
+            id: 'design-studio',
+            name: 'Design Studio',
+            description: 'Flexible layout and typography',
+            plan: 'custom',
+            accent: '#9333ea',
+            style: 'design-studio',
+          },
+        ],
+      },
+    ];
+
+  getInvoiceTemplateLocked(template: InvoiceTemplateOption): boolean {
+    return this.invoicePlanOrder[this.currentInvoicePlan] <
+      this.invoicePlanOrder[template.plan];
+  }
+
+  selectInvoiceTemplate(template: InvoiceTemplateOption): void {
+    if (this.getInvoiceTemplateLocked(template)) {
+      return;
+    }
+
+    this.invoiceSettings.template = template.id as InvoiceTemplate;
+    this.onInvoiceTemplateChange();
+  }
+
+  getInvoicePlanLabel(plan: InvoicePlan): string {
+    return plan.charAt(0).toUpperCase() + plan.slice(1);
+  }
   ngOnInit(): void {
     this.router.events
       .pipe(
@@ -201,9 +393,9 @@ export class BusinessHubPage implements OnInit, OnDestroy {
         const raw = response as unknown as Record<string, any>;
         const body = raw?.['data']?.['account'] ? raw['data']
           : raw?.['result']?.['account'] ? raw['result']
-          : raw?.['body']?.['account'] ? raw['body']
-          : raw?.['profileData']?.['account'] ? raw['profileData']
-          : raw;
+            : raw?.['body']?.['account'] ? raw['body']
+              : raw?.['profileData']?.['account'] ? raw['profileData']
+                : raw;
         const account = body?.['account'] ?? body?.['data']?.['account'] ?? body?.['profile']?.['account'];
         const profile = body?.['profile'] ?? body?.['data']?.['profile'] ?? {};
         if (!account) {

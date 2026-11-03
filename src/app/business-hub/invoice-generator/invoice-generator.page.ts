@@ -65,7 +65,6 @@ interface FinalizedInvoice {
   };
   paymentMethod: string;
   notes?: string;
-  persisted?: boolean;
 }
 
 @Component({
@@ -82,6 +81,8 @@ export class InvoiceGeneratorPage implements OnInit {
   readonly saving = signal(false);
   readonly error = signal('');
   readonly success = signal('');
+  readonly successDialogOpen = signal(false);
+  readonly successDialogMessage = signal('');
   readonly lastInvoiceId = signal('');
   readonly lastInvoice = signal<FinalizedInvoice | null>(null);
   readonly printingInvoice = signal(false);
@@ -120,15 +121,10 @@ export class InvoiceGeneratorPage implements OnInit {
     this.roundMoney(this.taxableAmount() + this.gstTotal()),
   );
 
-  readonly roundOff = computed(() => {
-    const unroundedPaise = Math.round(this.unroundedTotal() * 100);
-    const roundedPaise = Math.ceil(unroundedPaise / 500) * 500;
-    return this.roundMoney((roundedPaise - unroundedPaise) / 100);
-  });
+  readonly grandTotal = computed(() => this.unroundedTotal());
 
-  readonly grandTotal = computed(() =>
-    this.roundMoney(this.unroundedTotal() + this.roundOff()),
-  );
+  // Backend stores invoice totals to two decimal places; no whole-rupee rounding.
+  readonly roundOff = computed(() => 0);
 
   readonly paidAmount = signal(0);
 
@@ -405,20 +401,11 @@ export class InvoiceGeneratorPage implements OnInit {
       paymentMethod: this.paymentMethod as unknown as InvoicePaymentMethod,
       notes: this.notes.trim(),
       idempotencyKey: this.idempotencyKey,
-      invoiceNumberSettings: {
-        prefix: this.invoiceSettingsService.get().invoicePrefix,
-        startNumber: this.invoiceSettingsService.get().invoiceStartNumber,
-        padding: this.invoiceSettingsService.get().invoiceNumberPadding,
-      },
     };
 
     this.saving.set(true);
 
-    const finalizeRequest = this.dueAmount() > 0
-      ? this.invoiceApi.finalize(payload)
-      : this.invoiceApi.finalizeStockOnly(payload);
-
-    finalizeRequest
+    this.invoiceApi.finalize(payload)
       .pipe(finalize(() => this.saving.set(false)))
       .subscribe({
         next: response => {
@@ -436,23 +423,24 @@ export class InvoiceGeneratorPage implements OnInit {
               discountTotal: response.calculation.discountTotal,
               taxableAmount: response.calculation.taxableAmount,
               gstTotal: response.calculation.gstTotal,
-              roundOff: Number(response.calculation.roundOff ?? this.roundOff()),
+              roundOff: 0,
               total: response.calculation.total,
               paidAmount: response.calculation.paidAmount,
               dueAmount: response.calculation.dueAmount,
             },
             paymentMethod: response.paymentMethod,
             notes: response.notes,
-            persisted: response.persisted !== false,
           };
 
           this.lastInvoice.set(invoice);
           this.lastInvoiceId.set(invoice.id);
-          this.success.set(
-            invoice.persisted
-              ? `Invoice ${invoice.invoiceNumber} saved. Customer and due details are stored, and stock has been updated.`
-              : `Invoice ${invoice.invoiceNumber} generated. Stock has been updated. Full-payment invoice and customer data were not stored.`,
+          this.successDialogMessage.set(
+            invoice.calculation.dueAmount > 0
+              ? 'Customer and due details are stored, and stock has been updated.'
+              : 'Invoice saved successfully. Stock has been updated.',
           );
+          this.successDialogOpen.set(true);
+          this.success.set('');
           this.previewMode.set(false);
           this.idempotencyKey = '';
           this.idempotencyFingerprint = '';
@@ -466,6 +454,10 @@ export class InvoiceGeneratorPage implements OnInit {
           );
         },
       });
+  }
+
+  closeSuccessDialog(): void {
+    this.successDialogOpen.set(false);
   }
 
   openInvoiceForPrint(): void {
@@ -906,7 +898,6 @@ export class InvoiceGeneratorPage implements OnInit {
     ['Discount', -calc.discountTotal],
     ['Taxable amount', calc.taxableAmount],
     ['GST total', calc.gstTotal],
-    ['Round off', calc.roundOff],
     ['Invoice total', calc.total],
     ['Amount received', calc.paidAmount],
     ['Balance due', calc.dueAmount]
@@ -1050,6 +1041,8 @@ export class InvoiceGeneratorPage implements OnInit {
     this.idempotencyFingerprint = '';
     this.error.set('');
     this.success.set('');
+    this.successDialogOpen.set(false);
+    this.successDialogMessage.set('');
     this.lastInvoiceId.set('');
     this.lastInvoice.set(null);
     this.previewMode.set(false);

@@ -5,7 +5,7 @@
       <p class="eyebrow">BUSINESS HUB</p>
       <h1>Invoice Generator</h1>
       <p class="page-subtitle">
-        Create invoices with automatic stock updates. Only invoices with an outstanding due are stored in your account.
+        Create and save invoices with automatic stock updates and your saved print preferences.
       </p>
     </div>
 
@@ -25,35 +25,72 @@
     {{ error() }}
   </div>
 
-  <div class="alert alert-success" *ngIf="success()" role="status">
-    <span aria-hidden="true">✓</span>
-    {{ success() }}
-    <div class="invoice-success-actions" *ngIf="lastInvoiceId()">
+  <div
+    class="invoice-success-overlay"
+    *ngIf="successDialogOpen()"
+    (click)="closeSuccessDialog()"
+  >
+    <section
+      class="invoice-success-dialog"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="invoice-success-title"
+      aria-describedby="invoice-success-description"
+      (click)="$event.stopPropagation()"
+    >
       <button
         type="button"
-        class="btn btn-success"
-        (click)="openInvoiceForPrint()"
-        [disabled]="printingInvoice()"
+        class="invoice-success-close"
+        aria-label="Close dialog"
+        (click)="closeSuccessDialog()"
       >
-        {{ printingInvoice() ? 'Opening…' : 'Print Invoice' }}
+        &times;
       </button>
+
+      <div class="invoice-success-icon" aria-hidden="true">
+        &#10003;
+      </div>
+
+      <h2 id="invoice-success-title">
+        Invoice {{ lastInvoice()?.invoiceNumber }} saved.
+      </h2>
+      <p id="invoice-success-description">{{ successDialogMessage() }}</p>
+
+      <div class="invoice-success-actions" *ngIf="lastInvoiceId()">
+        <button
+          type="button"
+          class="btn btn-success"
+          (click)="openInvoiceForPrint()"
+          [disabled]="printingInvoice()"
+        >
+          {{ printingInvoice() ? 'Opening…' : 'Print Invoice' }}
+        </button>
+        <button
+          type="button"
+          class="btn btn-outline"
+          (click)="downloadInvoicePdf()"
+          [disabled]="generatingPdf()"
+        >
+          {{ generatingPdf() ? 'Creating PDF…' : 'Download PDF' }}
+        </button>
+        <button
+          type="button"
+          class="btn btn-outline"
+          (click)="shareInvoicePdf()"
+          [disabled]="sharingPdf()"
+        >
+          {{ sharingPdf() ? 'Preparing share…' : 'Share PDF' }}
+        </button>
+      </div>
+
       <button
         type="button"
-        class="btn btn-outline"
-        (click)="downloadInvoicePdf()"
-        [disabled]="generatingPdf()"
+        class="invoice-success-done"
+        (click)="closeSuccessDialog()"
       >
-        {{ generatingPdf() ? 'Creating PDF…' : 'Download PDF' }}
+        Close
       </button>
-      <button
-        type="button"
-        class="btn btn-outline"
-        (click)="shareInvoicePdf()"
-        [disabled]="sharingPdf()"
-      >
-        {{ sharingPdf() ? 'Preparing share…' : 'Share PDF' }}
-      </button>
-    </div>
+    </section>
   </div>
 
   <div class="invoice-layout">
@@ -355,13 +392,13 @@
           </div>
         </div>
 
-        <div class="due-notice" *ngIf="dueAmount() > 0">
+        <!-- <div class="due-notice" *ngIf="dueAmount() > 0">
           <span aria-hidden="true">ⓘ</span>
           <p>
             Customer name and mobile are required. Finalizing will need to
             create a payment reminder for the outstanding balance.
           </p>
-        </div>
+        </div> -->
 
         <div class="paid-notice" *ngIf="grandTotal() > 0 && dueAmount() === 0">
           <span aria-hidden="true">✓</span>
@@ -372,7 +409,7 @@
           type="button"
           class="btn btn-primary btn-block"
           (click)="previewInvoice()"
-          [disabled]="saving() || items().length === 0 || !!lastInvoiceId()"
+          [disabled]="saving() || items().length === 0"
         >
           Preview Invoice
           <span aria-hidden="true">→</span>
@@ -389,7 +426,7 @@
         </button>
 
         <p class="sidebar-help">
-          Finalizing always updates stock. Full-payment invoices are generated in your browser and are not stored. Invoices with an outstanding due are saved with the customer and payment reminder details.
+          Finalizing saves the invoice to your account and deducts the sold quantities from stock. You can download, share or print the invoice after it is saved.
         </p>
       </section>
 
@@ -415,7 +452,7 @@
         </div>
 
         <p class="preview-disclaimer">
-          Review the invoice details before finalizing. The backend applies the same round-off and stock validation. Due invoices are saved; full-payment invoices are not stored.
+          Review the invoice details before finalizing. The backend will save the invoice and update stock only after successful finalization.
         </p>
       </section>
     </aside>

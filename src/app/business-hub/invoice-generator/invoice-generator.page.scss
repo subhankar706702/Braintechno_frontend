@@ -661,26 +661,112 @@
 }
 
 
+.invoice-success-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgb(17 24 39 / 58%);
+  backdrop-filter: blur(3px);
+}
+
+.invoice-success-dialog {
+  position: relative;
+  width: min(100%, 460px);
+  padding: 30px;
+  color: var(--text-primary, #252936);
+  background: var(--surface, #fff);
+  border: 1px solid var(--border-color, #e8eaf0);
+  border-radius: 18px;
+  box-shadow: 0 24px 80px rgb(0 0 0 / 22%);
+  text-align: center;
+  animation: invoice-dialog-enter 180ms ease-out;
+}
+
+.invoice-success-close {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  color: var(--text-secondary, #747987);
+  background: var(--surface-muted, #f4f5f8);
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 23px;
+  line-height: 1;
+}
+
+.invoice-success-icon {
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  margin: 0 auto 16px;
+  color: #16865c;
+  background: #eaf8f0;
+  border-radius: 50%;
+  font-size: 27px;
+  font-weight: 800;
+}
+
+.invoice-success-dialog h2 {
+  margin: 0 24px 10px;
+  font-size: 19px;
+  line-height: 1.4;
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+
+.invoice-success-dialog p {
+  margin: 0;
+  color: var(--text-secondary, #747987);
+  font-size: 13px;
+  line-height: 1.65;
+}
+
 .invoice-success-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  width: 100%;
-  margin-top: 10px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 9px;
+  margin-top: 23px;
 }
 
 .invoice-success-actions .btn {
-  min-height: 36px;
-  padding: 8px 12px;
+  width: 100%;
+  min-height: 42px;
+}
+
+.invoice-success-done {
+  margin-top: 15px;
+  padding: 7px 16px;
+  color: var(--text-secondary, #747987);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+@keyframes invoice-dialog-enter {
+  from { opacity: 0; transform: translateY(8px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 @media (max-width: 600px) {
-  .invoice-success-actions {
-    flex-direction: column;
+  .invoice-success-overlay {
+    padding: 14px;
   }
 
-  .invoice-success-actions .btn {
-    width: 100%;
+  .invoice-success-dialog {
+    padding: 26px 20px 20px;
+    border-radius: 15px;
   }
 }
 

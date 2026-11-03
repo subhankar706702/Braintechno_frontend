@@ -51,23 +51,116 @@
         <div class="balance"><span>Balance due</span><strong>{{ money(record.balanceDue) }}</strong></div>
       </div>
 
-      <form class="payment-form" *ngIf="record.balanceDue > 0" (ngSubmit)="recordPayment(record)">
-        <h3>Record a payment</h3>
-        <div class="payment-fields">
-          <label><span>Amount received (₹)</span><input type="number" name="amount-{{record.id}}" min="0.01"
-              [max]="record.balanceDue" step="0.01" required [(ngModel)]="paymentDrafts[record.id].amount" /></label>
-          <label><span>Payment method</span><select name="method-{{record.id}}"
-              [(ngModel)]="paymentDrafts[record.id].paymentMethod">
-              <option *ngFor="let method of paymentMethods" [value]="method">{{ method }}</option>
-            </select></label>
-          <label class="note-field"><span>Note (optional)</span><input type="text" name="note-{{record.id}}"
-              maxlength="500" placeholder="Payment reference or note"
-              [(ngModel)]="paymentDrafts[record.id].note" /></label>
+      <details class="payment-history" *ngIf="record.payments?.length">
+        <summary>Payment history ({{ record.payments?.length }})</summary>
+        <div class="payment-history__list">
+          <div class="payment-history__item" *ngFor="let payment of record.payments">
+            <div>
+              <strong>{{ money(payment.amount) }}</strong>
+              <span>{{ payment.paymentMethod }}<ng-container *ngIf="payment.paidAt"> · {{ payment.paidAt | date:'medium' }}</ng-container></span>
+              <small *ngIf="payment.note">{{ payment.note }}</small>
+            </div>
+          </div>
         </div>
-        <button class="btn btn-primary" type="submit" [disabled]="savingId() === record.id">{{ savingId() === record.id
-          ? 'Saving payment…' : 'Record Payment' }}</button>
-      </form>
+      </details>
+
+      <div class="card-actions" *ngIf="record.balanceDue > 0">
+        <button class="btn btn-primary" type="button" (click)="openPaymentDialog(record)"
+          [disabled]="!!savingId()">
+          Payment
+        </button>
+      </div>
       <p class="paid-message" *ngIf="record.status === 'paid'">This invoice has been fully paid.</p>
     </article>
   </div>
 </section>
+
+<div class="payment-dialog-backdrop" *ngIf="selectedRecord() as record" (click)="closePaymentDialog()">
+  <section class="payment-dialog" role="dialog" aria-modal="true" aria-labelledby="payment-dialog-title"
+    (click)="$event.stopPropagation()">
+    <header class="payment-dialog__header">
+      <div>
+        <p class="eyebrow">{{ record.invoiceNumber }}</p>
+        <h2 id="payment-dialog-title">{{ reviewingPayment() ? 'Confirm Payment' : 'Receive Payment' }}</h2>
+      </div>
+      <button class="dialog-close" type="button" aria-label="Close dialog" (click)="closePaymentDialog()"
+        [disabled]="savingId() === record.id">×</button>
+    </header>
+
+    <div class="dialog-balance">
+      <span>Current outstanding balance</span>
+      <strong>{{ money(record.balanceDue) }}</strong>
+    </div>
+
+    <div class="payment-dialog__body" *ngIf="!reviewingPayment()">
+      <label class="dialog-field">
+        <span>How much are you receiving? (₹)</span>
+        <input type="number" name="paymentAmount" min="0.01" [max]="record.balanceDue" step="0.01"
+          [ngModel]="paymentAmount()" (ngModelChange)="setPaymentAmount($event)"
+          (keydown.enter)="reviewPayment()" />
+      </label>
+      <div class="quick-amounts">
+      <div class="quick-amounts">
+  <button
+    class="quick-amount"
+    type="button"
+    (click)="paymentAmount.set(getQuickPaymentAmount(record.balanceDue, 100))">
+    100% · {{ money(getQuickPaymentAmount(record.balanceDue, 100)) }}
+  </button>
+
+  <button
+    class="quick-amount"
+    type="button"
+    (click)="paymentAmount.set(getQuickPaymentAmount(record.balanceDue, 50))">
+    50% · {{ money(getQuickPaymentAmount(record.balanceDue, 50)) }}
+  </button>
+
+  <button
+    class="quick-amount"
+    type="button"
+    (click)="paymentAmount.set(getQuickPaymentAmount(record.balanceDue, 25))">
+    25% · {{ money(getQuickPaymentAmount(record.balanceDue, 25)) }}
+  </button>
+</div>
+      </div>
+      <label class="dialog-field">
+        <span>Payment method</span>
+        <select name="paymentMethod" [ngModel]="paymentMethod()" (ngModelChange)="paymentMethod.set($event)">
+          <option *ngFor="let method of paymentMethods" [value]="method">{{ method }}</option>
+        </select>
+      </label>
+      <label class="dialog-field">
+        <span>Note (optional)</span>
+        <input type="text" name="paymentNote" maxlength="500" placeholder="Payment reference or note"
+          [ngModel]="paymentNote()" (ngModelChange)="paymentNote.set($event)" />
+      </label>
+      <p class="dialog-error" *ngIf="dialogError()" role="alert">{{ dialogError() }}</p>
+      <button class="btn btn-primary btn-block" type="button" (click)="reviewPayment()">Review Payment</button>
+    </div>
+
+    <div class="payment-dialog__body" *ngIf="reviewingPayment()">
+      <p class="confirm-intro">Please confirm the amount received from this customer.</p>
+      <div class="confirmation-rows">
+        <div><span>Payment received now</span><strong>{{ money(paymentAmount() || 0) }}</strong></div>
+        <div><span>Payment method</span><strong>{{ paymentMethod() }}</strong></div>
+        <div class="remaining-row"><span>Remaining due after payment</span><strong>{{ money(remainingAfterPayment()) }}</strong></div>
+      </div>
+      <p class="partial-note" *ngIf="remainingAfterPayment() > 0">
+        This will be saved as a partial payment. The remaining balance will stay in Outstanding Dues.
+      </p>
+      <p class="paid-note" *ngIf="remainingAfterPayment() === 0">
+        This payment will fully settle the invoice.
+      </p>
+      <p class="dialog-error" *ngIf="dialogError()" role="alert">{{ dialogError() }}</p>
+      <div class="dialog-actions">
+        <button class="btn btn-outline" type="button" (click)="editPayment()" [disabled]="savingId() === record.id">
+          Back
+        </button>
+        <button class="btn btn-primary" type="button" (click)="confirmPayment()"
+          [disabled]="savingId() === record.id">
+          {{ savingId() === record.id ? 'Saving payment…' : 'Confirm Payment' }}
+        </button>
+      </div>
+    </div>
+  </section>
+</div>

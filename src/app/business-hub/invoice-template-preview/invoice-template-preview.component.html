@@ -1,0 +1,788 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Invoice Template Preview</title>
+
+<style>
+:root {
+  --brand: #D93645;
+  --brand-dark: #9F2535;
+  --brand-deep: #641C2B;
+  --brand-soft: #F8DDE0;
+  --brand-tint: #FDF2F3;
+  --support: #356E78;
+  --support-soft: #E5F0F1;
+  --accent: #C99A45;
+  --ink: #172033;
+  --muted: #667085;
+  --line: #E7EAF0;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 25px 15px 45px;
+  background: #EEF1F5;
+  color: var(--ink);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.toolbar {
+  max-width: 950px;
+  margin: 0 auto 20px;
+  padding: 18px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 16px;
+  background: white;
+  border-radius: 14px;
+  box-shadow: 0 5px 20px #17203312;
+}
+
+.control {
+  display: grid;
+  gap: 7px;
+}
+
+.control label {
+  font-size: 12px;
+  font-weight: bold;
+}
+
+select,
+input[type="color"] {
+  height: 40px;
+  border: 1px solid #D0D5DD;
+  border-radius: 8px;
+  padding: 5px 10px;
+  background: white;
+}
+
+select {
+  min-width: 190px;
+}
+
+input[type="color"] {
+  width: 65px;
+}
+
+.sheet {
+  width: min(100%, 900px);
+  min-height: 1120px;
+  margin: auto;
+  position: relative;
+  overflow: hidden;
+  background: white;
+  box-shadow: 0 18px 55px #17203324;
+}
+
+.demo-stamp {
+  position: absolute;
+  z-index: 10;
+  top: 18px;
+  right: 18px;
+  padding: 8px 13px;
+  border-radius: 30px;
+  color: white;
+  background: #172033B8;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 1px;
+}
+
+.brand-row {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+
+.logo {
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  background: white;
+  color: var(--brand-dark);
+  font-size: 19px;
+  font-weight: 900;
+}
+
+.brand-name {
+  font-size: 18px;
+  font-weight: 900;
+}
+
+.brand-meta {
+  margin-top: 4px;
+  font-size: 10px;
+  opacity: .85;
+}
+
+.invoice-word {
+  font-size: 52px;
+  line-height: 1;
+  font-weight: 900;
+  letter-spacing: -2px;
+}
+
+.content {
+  padding: 35px 58px 75px;
+}
+
+.section-title {
+  margin-bottom: 9px;
+  color: var(--brand-dark);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.two-col {
+  display: grid;
+  grid-template-columns: 1.2fr .8fr;
+  gap: 18px;
+  margin: 28px 0;
+}
+
+.info-card {
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+
+.info-card.soft {
+  background: var(--brand-tint);
+  border-color: var(--brand-soft);
+}
+
+.person {
+  margin-bottom: 6px;
+  font-weight: 800;
+}
+
+.small {
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.7;
+}
+
+table {
+  width: 100%;
+  margin-top: 25px;
+  border-collapse: collapse;
+  font-size: 11px;
+}
+
+th {
+  padding: 14px 12px;
+  background: var(--brand);
+  color: white;
+  text-align: left;
+  font-size: 9px;
+  letter-spacing: .6px;
+  text-transform: uppercase;
+}
+
+th:last-child,
+td:last-child {
+  text-align: right;
+}
+
+td {
+  padding: 16px 12px;
+  border-bottom: 1px solid var(--line);
+}
+
+td:last-child {
+  font-weight: bold;
+}
+
+tbody tr:nth-child(even) {
+  background: var(--brand-tint);
+}
+
+.product {
+  font-weight: 800;
+}
+
+.totals-wrap {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 25px;
+}
+
+.totals {
+  width: 310px;
+  padding: 19px;
+  border: 1px solid var(--brand-soft);
+  border-radius: 14px;
+  background: var(--brand-tint);
+}
+
+.total-line {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.grand {
+  margin-top: 9px;
+  padding-top: 13px;
+  border-top: 1px solid var(--brand-soft);
+  color: var(--brand-dark);
+  font-size: 16px;
+  font-weight: 900;
+}
+
+.notes {
+  margin-top: 32px;
+  padding: 17px;
+  border-left: 4px solid var(--accent);
+  border-radius: 0 10px 10px 0;
+  background: var(--support-soft);
+}
+
+.notes strong {
+  display: block;
+  margin-bottom: 7px;
+  font-size: 10px;
+}
+
+.footer-note {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  margin-top: 45px;
+  padding-top: 17px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 9px;
+}
+
+/* Template 1: Modern Wave */
+
+.wave-header {
+  min-height: 235px;
+  padding: 55px 58px 65px;
+  position: relative;
+  overflow: hidden;
+  color: white;
+  background: linear-gradient(
+    110deg,
+    var(--brand-deep),
+    var(--brand) 62%,
+    var(--support)
+  );
+  clip-path: ellipse(115% 100% at 45% 0%);
+}
+
+.wave-header::after {
+  content: "";
+  position: absolute;
+  right: -100px;
+  bottom: -120px;
+  width: 430px;
+  height: 190px;
+  border: 35px solid #FFFFFF25;
+  border-radius: 50%;
+  transform: rotate(-12deg);
+}
+
+.head-flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  position: relative;
+  z-index: 1;
+}
+
+.wave-header .invoice-word {
+  text-align: right;
+}
+
+.wave-modern .content {
+  padding-top: 18px;
+}
+
+.wave-modern .footer-band {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 60px;
+  background: linear-gradient(
+    100deg,
+    var(--brand-deep),
+    var(--brand),
+    var(--support)
+  );
+  clip-path: polygon(0 40%, 35% 0, 70% 35%, 100% 0, 100% 100%, 0 100%);
+}
+
+/* Template 2: Bold Header */
+
+.bold-header {
+  min-height: 195px;
+  padding: 48px 58px;
+  position: relative;
+  overflow: hidden;
+  color: white;
+  background: linear-gradient(100deg, var(--brand), var(--brand-dark));
+}
+
+.bold-header::after {
+  content: "";
+  position: absolute;
+  right: -50px;
+  bottom: -100px;
+  width: 380px;
+  height: 170px;
+  border-radius: 50%;
+  background: var(--support);
+  opacity: .55;
+}
+
+.bold-header .invoice-word {
+  text-align: right;
+}
+
+.teal-header .footer-band {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 14px;
+  background: linear-gradient(
+    90deg,
+    var(--brand),
+    var(--support),
+    var(--accent)
+  );
+}
+
+/* Template 3: Split Wave */
+
+.split-header {
+  min-height: 245px;
+  padding: 50px 58px;
+  position: relative;
+  overflow: hidden;
+  color: white;
+  background: var(--brand-deep);
+}
+
+.split-header::before {
+  content: "";
+  position: absolute;
+  top: -175px;
+  left: -90px;
+  width: 75%;
+  height: 370px;
+  border-radius: 50%;
+  background: linear-gradient(120deg, var(--brand), var(--brand-dark));
+}
+
+.split-header::after {
+  content: "";
+  position: absolute;
+  top: -140px;
+  right: -100px;
+  width: 45%;
+  height: 300px;
+  border-radius: 50%;
+  background: var(--support);
+}
+
+.split-header .head-flex {
+  position: relative;
+  z-index: 2;
+}
+
+.split-header .invoice-word {
+  text-align: right;
+}
+
+.split-wave .footer-band {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 60px;
+  background: linear-gradient(100deg, var(--brand), var(--support));
+  clip-path: polygon(0 45%, 28% 0, 65% 35%, 100% 0, 100% 100%, 0 100%);
+}
+
+/* Template 4: Amount Due */
+
+.green-header {
+  min-height: 185px;
+  padding: 45px 58px;
+  color: white;
+  background: linear-gradient(
+    105deg,
+    var(--brand-dark),
+    var(--brand) 70%,
+    var(--support)
+  );
+}
+
+.green-due .totals {
+  color: white;
+  border: 0;
+  background: linear-gradient(130deg, var(--brand-dark), var(--brand));
+}
+
+.green-due .totals .total-line {
+  color: white;
+  opacity: .88;
+}
+
+.green-due .totals .grand {
+  color: white;
+  border-color: #FFFFFF60;
+  font-size: 19px;
+}
+
+.green-due .footer-band {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 13px;
+  background: linear-gradient(
+    90deg,
+    var(--brand-dark),
+    var(--brand),
+    var(--support),
+    var(--accent)
+  );
+}
+
+@media (max-width: 650px) {
+  body {
+    padding: 10px 5px 25px;
+  }
+
+  .content {
+    padding: 25px 18px 65px;
+  }
+
+  .wave-header,
+  .bold-header,
+  .split-header,
+  .green-header {
+    padding: 45px 18px;
+  }
+
+  .two-col {
+    grid-template-columns: 1fr;
+  }
+
+  .invoice-word {
+    font-size: 35px;
+  }
+
+  .brand-name {
+    font-size: 14px;
+  }
+
+  td {
+    padding: 11px 6px;
+  }
+}
+
+@media print {
+  body {
+    padding: 0;
+    background: white;
+  }
+
+  .toolbar {
+    display: none;
+  }
+
+  .sheet {
+    width: 100%;
+    box-shadow: none;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="toolbar">
+  <div class="control">
+    <label for="template">Invoice Template</label>
+    <select id="template">
+      <option value="wave-modern">Modern Wave</option>
+      <option value="teal-header">Bold Header</option>
+      <option value="split-wave">Split Colour Wave</option>
+      <option value="green-due">Amount Due</option>
+    </select>
+  </div>
+
+  <div class="control">
+    <label for="brandColor">Business Theme Color</label>
+    <input type="color" id="brandColor" value="#D93645">
+  </div>
+</div>
+
+<main id="invoice" class="sheet wave-modern">
+
+  <div class="demo-stamp">THIS IS DEMO ONLY</div>
+
+  <header id="header" class="wave-header">
+    <div class="head-flex">
+
+      <div class="brand-row">
+        <div class="logo">BT</div>
+        <div>
+          <div class="brand-name">YOUR BUSINESS NAME</div>
+          <div class="brand-meta">
+            Business address · +91 98765 43210
+          </div>
+          <div class="brand-meta">
+            hello@yourbusiness.com · GSTIN: 19ABCDE1234F1Z5
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="invoice-word">INVOICE</div>
+        <div class="brand-meta" style="text-align:right">
+          Invoice # BT-2026-001
+        </div>
+      </div>
+
+    </div>
+  </header>
+
+  <section class="content">
+
+    <div class="two-col">
+
+      <div class="info-card soft">
+        <div class="section-title">Bill To</div>
+        <div class="person">Alex Morgan</div>
+        <div class="small">
+          21 Park Street, Kolkata, West Bengal<br>
+          +91 90000 12345<br>
+          alex@example.com
+        </div>
+      </div>
+
+      <div class="info-card">
+        <div class="section-title">Invoice Details</div>
+        <div class="small">
+          Invoice Date
+          <strong style="float:right;color:var(--ink)">
+            04 Nov 2026
+          </strong>
+        </div>
+        <div class="small">
+          Due Date
+          <strong style="float:right;color:var(--ink)">
+            14 Nov 2026
+          </strong>
+        </div>
+        <div class="small">
+          Payment Status
+          <strong style="float:right;color:var(--brand-dark)">
+            Pending
+          </strong>
+        </div>
+      </div>
+
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th style="width:48%">Description</th>
+          <th>Qty</th>
+          <th>Rate</th>
+          <th>Amount</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr>
+          <td>
+            <div class="product">Premium Service Package</div>
+            <div class="small">Professional service and support</div>
+          </td>
+          <td>1</td>
+          <td>₹4,500</td>
+          <td>₹4,500</td>
+        </tr>
+
+        <tr>
+          <td>
+            <div class="product">Business Starter Kit</div>
+            <div class="small">Setup materials and documentation</div>
+          </td>
+          <td>2</td>
+          <td>₹1,250</td>
+          <td>₹2,500</td>
+        </tr>
+
+        <tr>
+          <td>
+            <div class="product">Consultation</div>
+            <div class="small">One-hour consultation session</div>
+          </td>
+          <td>1</td>
+          <td>₹1,000</td>
+          <td>₹1,000</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="totals-wrap">
+      <div class="totals">
+
+        <div class="total-line">
+          <span>Subtotal</span>
+          <strong>₹8,000.00</strong>
+        </div>
+
+        <div class="total-line">
+          <span>Discount</span>
+          <strong>₹0.00</strong>
+        </div>
+
+        <div class="total-line">
+          <span>GST</span>
+          <strong>₹1,440.00</strong>
+        </div>
+
+        <div class="total-line grand">
+          <span>Total Amount</span>
+          <strong>₹9,440.00</strong>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="notes">
+      <strong>NOTES & PAYMENT INFORMATION</strong>
+      <div class="small">
+        Thank you for your business. Please make payment by the due date.
+        This sample is for design preview and does not represent a real transaction.
+      </div>
+    </div>
+
+    <div class="footer-note">
+      <span>Thank you for choosing us.</span>
+      <span>Powered by BRAIN TECHNO</span>
+    </div>
+
+  </section>
+
+  <div class="footer-band"></div>
+
+</main>
+
+<script>
+const templateSelect = document.getElementById('template');
+const colorInput = document.getElementById('brandColor');
+const invoice = document.getElementById('invoice');
+const header = document.getElementById('header');
+
+function hexToRgb(hex) {
+  const clean = hex.replace('#', '');
+
+  return [0, 2, 4].map(index =>
+    parseInt(clean.slice(index, index + 2), 16)
+  );
+}
+
+function rgbToHex(rgb) {
+  return '#' + rgb.map(value =>
+    Math.max(0, Math.min(255, Math.round(value)))
+      .toString(16)
+      .padStart(2, '0')
+  ).join('').toUpperCase();
+}
+
+function mix(a, b, amount) {
+  const aa = hexToRgb(a);
+  const bb = hexToRgb(b);
+
+  return rgbToHex(
+    aa.map((value, index) =>
+      value + (bb[index] - value) * amount
+    )
+  );
+}
+
+function applyPalette(primary) {
+  const [r, g, b] = hexToRgb(primary);
+
+  const secondary = rgbToHex([b, r, g]);
+  const accent = mix(secondary, '#D6A64B', 0.38);
+
+  const root = document.documentElement;
+
+  root.style.setProperty('--brand', primary);
+  root.style.setProperty(
+    '--brand-dark',
+    mix(primary, '#111827', 0.28)
+  );
+  root.style.setProperty(
+    '--brand-deep',
+    mix(primary, '#101827', 0.48)
+  );
+  root.style.setProperty(
+    '--brand-soft',
+    mix(primary, '#FFFFFF', 0.84)
+  );
+  root.style.setProperty(
+    '--brand-tint',
+    mix(primary, '#FFFFFF', 0.93)
+  );
+
+  root.style.setProperty('--support', secondary);
+  root.style.setProperty(
+    '--support-soft',
+    mix(secondary, '#FFFFFF', 0.86)
+  );
+  root.style.setProperty('--accent', accent);
+}
+
+function applyTemplate() {
+  const selected = templateSelect.value;
+
+  invoice.className = 'sheet ' + selected;
+
+  const headerClasses = {
+    'wave-modern': 'wave-header',
+    'teal-header': 'bold-header',
+    'split-wave': 'split-header',
+    'green-due': 'green-header'
+  };
+
+  header.className = headerClasses[selected];
+}
+
+templateSelect.addEventListener('change', applyTemplate);
+
+colorInput.addEventListener('input', () => {
+  applyPalette(colorInput.value);
+});
+
+applyPalette(colorInput.value);
+applyTemplate();
+</script>
+
+</body>
+</html>

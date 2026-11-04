@@ -1,3 +1,4 @@
+
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, computed, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -478,64 +479,64 @@ export class InvoiceGeneratorPage implements OnInit {
     } finally { this.printingInvoice.set(false); }
   }
 
-  async downloadInvoicePdf(): Promise<void> {
-    const invoice = this.lastInvoice();
+ async downloadInvoicePdf(): Promise<void> {
+  const invoice = this.lastInvoice();
 
-    if (!invoice) {
-      this.error.set('Please create an invoice before downloading the PDF.');
-      return;
-    }
-
-    if (this.generatingPdf()) {
-      return;
-    }
-
-    this.generatingPdf.set(true);
-    this.error.set('');
-    this.success.set('');
-
-    let objectUrl: string | null = null;
-
-    try {
-      const pdf = await this.createInvoicePdf(invoice);
-      const blob = pdf.output('blob');
-
-      if (!(blob instanceof Blob) || blob.size === 0) {
-        throw new Error('PDF file is empty.');
-      }
-
-      objectUrl = URL.createObjectURL(blob);
-
-      const link = document.createElement('a');
-      link.href = objectUrl;
-      link.download = `${this.safeFilename(invoice.invoiceNumber)}.pdf`;
-      link.style.display = 'none';
-
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-
-      this.success.set(`PDF download started for ${invoice.invoiceNumber}.`);
-
-      window.setTimeout(() => {
-        if (objectUrl) {
-          URL.revokeObjectURL(objectUrl);
-          objectUrl = null;
-        }
-      }, 60000);
-
-    } catch (error) {
-      console.error('Invoice PDF download error:', error);
-
-      this.error.set(
-        error instanceof Error
-          ? `PDF download failed: ${error.message}`
-          : 'PDF download failed. Please try again.'
-      );
-    } finally {
-      this.generatingPdf.set(false);
-    }
+  if (!invoice) {
+    this.error.set('Please create an invoice before downloading the PDF.');
+    return;
   }
+
+  if (this.generatingPdf()) {
+    return;
+  }
+
+  this.generatingPdf.set(true);
+  this.error.set('');
+  this.success.set('');
+
+  let objectUrl: string | null = null;
+
+  try {
+    const pdf = await this.createInvoicePdf(invoice);
+    const blob = pdf.output('blob');
+
+    if (!(blob instanceof Blob) || blob.size === 0) {
+      throw new Error('PDF file is empty.');
+    }
+
+    objectUrl = URL.createObjectURL(blob);
+
+    const link = document.createElement('a');
+    link.href = objectUrl;
+    link.download = `${this.safeFilename(invoice.invoiceNumber)}.pdf`;
+    link.style.display = 'none';
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    this.success.set(`PDF download started for ${invoice.invoiceNumber}.`);
+
+    window.setTimeout(() => {
+      if (objectUrl) {
+        URL.revokeObjectURL(objectUrl);
+        objectUrl = null;
+      }
+    }, 60000);
+
+  } catch (error) {
+    console.error('Invoice PDF download error:', error);
+
+    this.error.set(
+      error instanceof Error
+        ? `PDF download failed: ${error.message}`
+        : 'PDF download failed. Please try again.'
+    );
+  } finally {
+    this.generatingPdf.set(false);
+  }
+}
 
   async shareInvoicePdf(): Promise<void> {
     const invoice = this.lastInvoice();
@@ -590,17 +591,18 @@ export class InvoiceGeneratorPage implements OnInit {
     const monochrome = settings.printColor === 'bw';
     const hex = settings.primaryColor || '#ff4d6d';
     const colorMatch = /^#?([a-f0-9]{6})$/i.exec(hex.trim());
+
     const rgb: [number, number, number] = colorMatch
       ? [
-        parseInt(colorMatch[1].slice(0, 2), 16),
-        parseInt(colorMatch[1].slice(2, 4), 16),
-        parseInt(colorMatch[1].slice(4, 6), 16),
-      ]
+          parseInt(colorMatch[1].slice(0, 2), 16),
+          parseInt(colorMatch[1].slice(2, 4), 16),
+          parseInt(colorMatch[1].slice(4, 6), 16),
+        ]
       : [255, 77, 109];
 
     const accent: [number, number, number] = monochrome
       ? [0, 0, 0]
-      : [rgb[0], rgb[1], rgb[2]];
+      : rgb;
 
     const pageWidth = pdf.internal.pageSize.getWidth();
     const pageHeight = pdf.internal.pageSize.getHeight();
@@ -608,6 +610,8 @@ export class InvoiceGeneratorPage implements OnInit {
     const right = pageWidth - margin;
 
     let y = 18;
+
+    const footerReserve = 28;
 
     const rupees = (value: unknown): string =>
       `Rs. ${Number(value || 0).toLocaleString('en-IN', {
@@ -626,13 +630,155 @@ export class InvoiceGeneratorPage implements OnInit {
     };
 
     const ensureSpace = (height: number): void => {
-      if (y + height > pageHeight - 18) {
+      if (y + height > pageHeight - footerReserve) {
         pdf.addPage();
         y = 18;
       }
     };
 
-    const emojiPattern = /[\p{Extended_Pictographic}\p{Emoji_Presentation}\p{Regional_Indicator}\uFE0F]/u;
+    // Emoji rendering support
+    const emojiPattern =
+      /[\p{Extended_Pictographic}\p{Emoji_Presentation}\p{Regional_Indicator}\uFE0F\u20E3]/u;
+
+    const createEmojiCanvasContext = (
+      fontSize: number,
+      bold: boolean,
+    ): {
+      canvas: HTMLCanvasElement;
+      context: CanvasRenderingContext2D;
+      scale: number;
+      fontPixels: number;
+    } => {
+      const canvas = document.createElement('canvas');
+      const context = canvas.getContext('2d');
+
+      if (!context) {
+        throw new Error('This browser cannot render emoji for the invoice PDF.');
+      }
+
+      const scale = 3;
+      const fontPixels = fontSize * 96 / 72;
+
+      context.font =
+        `${bold ? '700' : '400'} ${fontPixels}px Arial, "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif`;
+
+      context.textBaseline = 'middle';
+      context.textAlign = 'left';
+
+      return { canvas, context, scale, fontPixels };
+    };
+
+    const splitIntoGraphemes = (value: string): string[] => {
+      const Segmenter = (Intl as unknown as {
+        Segmenter?: new (
+          locale?: string | string[],
+          options?: { granularity: 'grapheme' },
+        ) => {
+          segment(input: string): Iterable<{ segment: string }>;
+        };
+      }).Segmenter;
+
+      if (Segmenter) {
+        return Array.from(
+          new Segmenter(undefined, { granularity: 'grapheme' }).segment(value),
+          part => part.segment,
+        );
+      }
+
+      return Array.from(value);
+    };
+
+    const wrapEmojiParagraph = (
+      paragraph: string,
+      maxWidth: number,
+      fontSize: number,
+      bold: boolean,
+    ): string[] => {
+      const { context } = createEmojiCanvasContext(fontSize, bold);
+      const maxWidthPixels = Math.max(1, maxWidth * 96 / 25.4);
+      const words = paragraph.trim().split(/\s+/u).filter(Boolean);
+
+      if (!words.length) {
+        return [''];
+      }
+
+      const lines: string[] = [];
+      let currentLine = '';
+
+      const pushLongWord = (word: string): void => {
+        let part = '';
+
+        for (const grapheme of splitIntoGraphemes(word)) {
+          const candidate = part + grapheme;
+
+          if (
+            part &&
+            context.measureText(candidate).width > maxWidthPixels
+          ) {
+            lines.push(part);
+            part = grapheme;
+          } else {
+            part = candidate;
+          }
+        }
+
+        if (part) {
+          if (currentLine) {
+            lines.push(currentLine);
+            currentLine = '';
+          }
+
+          lines.push(part);
+        }
+      };
+
+      for (const word of words) {
+        const candidate = currentLine
+          ? `${currentLine} ${word}`
+          : word;
+
+        if (context.measureText(candidate).width <= maxWidthPixels) {
+          currentLine = candidate;
+        } else if (!currentLine) {
+          pushLongWord(word);
+        } else {
+          lines.push(currentLine);
+          currentLine = '';
+
+          if (context.measureText(word).width <= maxWidthPixels) {
+            currentLine = word;
+          } else {
+            pushLongWord(word);
+          }
+        }
+      }
+
+      if (currentLine) {
+        lines.push(currentLine);
+      }
+
+      return lines.length ? lines : [''];
+    };
+
+    const getWrappedTextLines = (
+      value: string,
+      maxWidth: number,
+      fontSize: number,
+      bold = false,
+    ): string[] => {
+      const safeText = String(value || '').replace(/\r/g, '');
+      const paragraphs = safeText.split('\n');
+
+      return paragraphs.flatMap(paragraph => {
+        if (!paragraph) {
+          return [''];
+        }
+
+        return emojiPattern.test(paragraph)
+          ? wrapEmojiParagraph(paragraph, maxWidth, fontSize, bold)
+          : pdf.splitTextToSize(paragraph, maxWidth) as string[];
+      });
+    };
 
     const drawWrappedText = (
       value: string,
@@ -644,70 +790,82 @@ export class InvoiceGeneratorPage implements OnInit {
       color: [number, number, number] = [0, 0, 0],
       bold = false,
     ): number => {
-      pdf.setFont('helvetica', bold ? 'bold' : 'normal');
-      pdf.setFontSize(fontSize);
-      const safeText = String(value || '').replace(/\r/g, '');
-      const paragraphs = safeText.split('\n');
-      const lines = paragraphs.flatMap(paragraph =>
-        paragraph
-          ? pdf.splitTextToSize(paragraph, maxWidth) as string[]
-          : [''],
+      const lines = getWrappedTextLines(
+        value,
+        maxWidth,
+        fontSize,
+        bold,
       );
+
       const lineHeight = Math.max(4, fontSize * 0.48);
       let currentY = startY;
 
       for (const textLine of lines) {
         if (emojiPattern.test(textLine)) {
-          const canvas = document.createElement('canvas');
-          const context = canvas.getContext('2d');
+          const {
+            canvas,
+            context,
+            scale,
+            fontPixels,
+          } = createEmojiCanvasContext(fontSize, bold);
 
-          if (context) {
-            const fontPixels = fontSize * 96 / 72;
-            const font = `${bold ? '700 ' : ''}${fontPixels}px Arial, "Noto Color Emoji", sans-serif`;
-            context.font = font;
-            const measuredWidth = Math.max(1, context.measureText(textLine).width);
-            const contentHeight = fontPixels * 1.45;
-            const scale = 3;
+          const measuredWidth = Math.max(
+            1,
+            context.measureText(textLine).width,
+          );
 
-            canvas.width = Math.ceil((measuredWidth + 6) * scale);
-            canvas.height = Math.ceil(contentHeight * scale);
+          const contentWidth = measuredWidth + 8;
+          const contentHeight = fontPixels * 1.6;
 
-            context.scale(scale, scale);
-            context.font = font;
-            context.fillStyle = `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
-            context.textBaseline = 'middle';
-            context.fillText(textLine, 3, contentHeight / 2);
+          canvas.width = Math.ceil(contentWidth * scale);
+          canvas.height = Math.ceil(contentHeight * scale);
 
-            const imageWidth = (measuredWidth + 6) * 25.4 / 96;
-            const imageHeight = contentHeight * 25.4 / 96;
-            let imageX = x;
+          const renderContext = canvas.getContext('2d');
 
-            if (align === 'center') imageX = x - imageWidth / 2;
-            if (align === 'right') imageX = x - imageWidth;
-
-            pdf.addImage(
-              canvas.toDataURL('image/png'),
-              'PNG',
-              imageX,
-              currentY - imageHeight * 0.78,
-              imageWidth,
-              imageHeight,
-              undefined,
-              'FAST',
-            );
-          } else {
-            pdf.setFont('helvetica', bold ? 'bold' : 'normal');
-            pdf.setFontSize(fontSize);
-            pdf.setTextColor(...color);
-            pdf.text(textLine, x, currentY, { align });
+          if (!renderContext) {
+            throw new Error('This browser cannot render emoji for the invoice PDF.');
           }
-        } else {
+
+          renderContext.scale(scale, scale);
+
+          renderContext.font =
+            `${bold ? '700' : '400'} ${fontPixels}px Arial, "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif`;
+
+          renderContext.fillStyle =
+            `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
+
+          renderContext.textBaseline = 'middle';
+          renderContext.textAlign = 'left';
+          renderContext.fillText(textLine, 4, contentHeight / 2);
+
+          const imageWidth = contentWidth * 25.4 / 96;
+          const imageHeight = contentHeight * 25.4 / 96;
+
+          let imageX = x;
+
+          if (align === 'center') {
+            imageX = x - imageWidth / 2;
+          }
+
+          if (align === 'right') {
+            imageX = x - imageWidth;
+          }
+
+          pdf.addImage(
+            canvas.toDataURL('image/png'),
+            'PNG',
+            imageX,
+            currentY - imageHeight * 0.76,
+            imageWidth,
+            imageHeight,
+            undefined,
+            'FAST',
+          );
+        } else if (textLine) {
           pdf.setFont('helvetica', bold ? 'bold' : 'normal');
           pdf.setFontSize(fontSize);
           pdf.setTextColor(...color);
-          if (textLine) {
-            pdf.text(textLine, x, currentY, { align });
-          }
+          pdf.text(textLine, x, currentY, { align });
         }
 
         currentY += lineHeight;
@@ -718,7 +876,10 @@ export class InvoiceGeneratorPage implements OnInit {
 
     const loadImageDataUrl = async (source: string): Promise<string> => {
       const value = String(source || '').trim();
-      if (!value) return '';
+
+      if (!value) {
+        return '';
+      }
 
       if (/^data:image\//i.test(value)) {
         return value;
@@ -732,23 +893,47 @@ export class InvoiceGeneratorPage implements OnInit {
           try {
             const canvas = document.createElement('canvas');
             const maxDimension = 1200;
+
             const ratio = Math.min(
               1,
-              maxDimension / Math.max(image.naturalWidth, image.naturalHeight),
+              maxDimension / Math.max(
+                image.naturalWidth,
+                image.naturalHeight,
+              ),
             );
-            canvas.width = Math.max(1, Math.round(image.naturalWidth * ratio));
-            canvas.height = Math.max(1, Math.round(image.naturalHeight * ratio));
+
+            canvas.width = Math.max(
+              1,
+              Math.round(image.naturalWidth * ratio),
+            );
+
+            canvas.height = Math.max(
+              1,
+              Math.round(image.naturalHeight * ratio),
+            );
 
             const context = canvas.getContext('2d');
+
             if (!context) {
               resolve('');
               return;
             }
 
-            context.drawImage(image, 0, 0, canvas.width, canvas.height);
+            context.drawImage(
+              image,
+              0,
+              0,
+              canvas.width,
+              canvas.height,
+            );
+
             resolve(canvas.toDataURL('image/png'));
           } catch (error) {
-            console.warn('Invoice logo could not be converted for PDF:', error);
+            console.warn(
+              'Invoice logo could not be converted for PDF:',
+              error,
+            );
+
             resolve('');
           }
         };
@@ -758,22 +943,87 @@ export class InvoiceGeneratorPage implements OnInit {
       });
     };
 
-    // Invoice heading
-    if (['corporate', 'modern', 'premium'].includes(settings.template)) {
+    // Template-specific invoice heading
+    const template = String(
+      settings.template || 'classic',
+    ).toLowerCase();
+
+    const fullHeaderTemplates = [
+      'corporate',
+      'modern',
+      'premium',
+      'gradient',
+      'executive',
+      'modern-pro',
+    ];
+
+    const sidebarTemplates = [
+      'sidebar',
+      'signature',
+    ];
+
+    const luxuryTemplates = [
+      'luxury',
+      'elegant',
+    ];
+
+    const creativeTemplates = [
+      'creative',
+      'design-studio',
+      'my-brand',
+    ];
+
+    if (fullHeaderTemplates.includes(template)) {
       pdf.setFillColor(...accent);
-      pdf.rect(0, 0, pageWidth, 13, 'F');
+      pdf.rect(0, 0, pageWidth, 15, 'F');
 
-      pdf.setTextColor(
-        monochrome ? 0 : 255,
-        monochrome ? 0 : 255,
-        monochrome ? 0 : 255,
-      );
-
+      pdf.setTextColor(255, 255, 255);
       pdf.setFont('helvetica', 'bold');
       pdf.setFontSize(20);
-      pdf.text('INVOICE', margin, 9);
+      pdf.text('INVOICE', margin, 10);
 
-      y = 24;
+      y = 25;
+    } else if (sidebarTemplates.includes(template)) {
+      pdf.setFillColor(...accent);
+      pdf.rect(0, 0, 4, pageHeight, 'F');
+
+      pdf.setTextColor(...accent);
+      pdf.setFont('helvetica', 'bold');
+      pdf.setFontSize(22);
+      pdf.text('INVOICE', margin + 2, y);
+
+      y += 12;
+    } else if (luxuryTemplates.includes(template)) {
+      pdf.setTextColor(35, 35, 35);
+      pdf.setFont('helvetica', 'bold');
+      pdf.setFontSize(22);
+      pdf.text('INVOICE', margin, y);
+
+      y += 3;
+
+      pdf.setDrawColor(...accent);
+      pdf.setLineWidth(0.8);
+      pdf.line(margin, y + 2, right, y + 2);
+
+      y += 12;
+    } else if (creativeTemplates.includes(template)) {
+      pdf.setFillColor(...accent);
+      pdf.roundedRect(
+        margin,
+        y - 8,
+        43,
+        12,
+        2,
+        2,
+        'F',
+      );
+
+      pdf.setTextColor(255, 255, 255);
+      pdf.setFont('helvetica', 'bold');
+      pdf.setFontSize(15);
+      pdf.text('INVOICE', margin + 4, y);
+
+      y += 13;
     } else {
       pdf.setTextColor(...accent);
       pdf.setFont('helvetica', 'bold');
@@ -783,12 +1033,16 @@ export class InvoiceGeneratorPage implements OnInit {
       y += 10;
     }
 
-    // Prefer the selected invoice logo, then fall back to the business profile logo.
+    // Load selected logo or business profile logo
     const profileLogo = String(
       this.businessProfileService.profile()?.profile?.businessLogo || '',
     ).trim();
+
     const selectedLogo = settings.logoDataUrl?.trim() || '';
-    let logo = await loadImageDataUrl(selectedLogo || profileLogo);
+
+    let logo = await loadImageDataUrl(
+      selectedLogo || profileLogo,
+    );
 
     if (!logo && profileLogo && profileLogo !== selectedLogo) {
       logo = await loadImageDataUrl(profileLogo);
@@ -804,7 +1058,11 @@ export class InvoiceGeneratorPage implements OnInit {
         const imageProperties = pdf.getImageProperties(logo);
         const ratio = imageProperties.width / imageProperties.height;
 
-        const width = Math.min(logoWidth, logoMaxHeight * ratio);
+        const width = Math.min(
+          logoWidth,
+          logoMaxHeight * ratio,
+        );
+
         const height = width / ratio;
 
         pdf.addImage(
@@ -824,40 +1082,42 @@ export class InvoiceGeneratorPage implements OnInit {
       }
     }
 
-    // Only populated business settings are printed.
-    // Business header
-    const businessName = settings.businessName?.trim() || '';
-
+    // Business details
     const businessFields = [
-      settings.address?.trim().replace(/\s*\+P\s*/gi, ' ⭐ '),
-      settings.phone?.trim() ? `Phone: ${settings.phone.trim()}` : '',
-      settings.email?.trim() ? `Email: ${settings.email.trim()}` : '',
-      settings.gstin?.trim() ? `GSTIN: ${settings.gstin.trim()}` : '',
+      settings.businessName?.trim(),
+      settings.address?.trim().replace(/\s*\+P\s*/gi, ' • '),
+      settings.phone?.trim()
+        ? `Phone: ${settings.phone.trim()}`
+        : '',
+      settings.email?.trim()
+        ? `Email: ${settings.email.trim()}`
+        : '',
+      settings.gstin?.trim()
+        ? `GSTIN: ${settings.gstin.trim()}`
+        : '',
     ].filter((value): value is string => Boolean(value));
 
-    const businessTextX = logo ? margin + 22 : margin;
+    const businessTextX = logo ? margin + 17 : margin;
     const businessStartY = y;
 
     let businessTextY = businessStartY;
 
-    // Business name: large and bold
-    if (businessName) {
+    // Business name: larger and bold
+    if (businessFields.length) {
       businessTextY = drawWrappedText(
-        businessName,
+        businessFields[0],
         businessTextX,
-        businessTextY,
+        businessTextY + 1,
         right - businessTextX,
         16,
         'left',
         [0, 0, 0],
         true,
       );
-
-      businessTextY += 1;
     }
 
-    // Business details
-    for (const field of businessFields) {
+    // Remaining business details: smaller and regular
+    for (const field of businessFields.slice(1)) {
       businessTextY = drawWrappedText(
         field,
         businessTextX,
@@ -865,7 +1125,7 @@ export class InvoiceGeneratorPage implements OnInit {
         right - businessTextX,
         9,
         'left',
-        [65, 65, 65],
+        [55, 55, 55],
         false,
       );
     }
@@ -875,12 +1135,7 @@ export class InvoiceGeneratorPage implements OnInit {
       businessTextY,
     ) + 5;
 
-    y = Math.max(
-      businessStartY + logoHeight,
-      businessTextY,
-    ) + 5;
-
-    // Invoice number and date.
+    // Invoice number and date
     pdf.setFont('helvetica', 'normal');
     pdf.setFontSize(10);
     pdf.setTextColor(0, 0, 0);
@@ -908,43 +1163,74 @@ export class InvoiceGeneratorPage implements OnInit {
 
     const drawColor: [number, number, number] = monochrome
       ? [90, 90, 90]
-      : [rgb[0], rgb[1], rgb[2]];
+      : rgb;
 
     pdf.setDrawColor(...drawColor);
     pdf.line(margin, y, right, y);
 
     y += 8;
 
-    // Customer details.
+    // Customer details
     pdf.setFont('helvetica', 'bold');
     line('BILL TO');
 
     pdf.setFont('helvetica', 'normal');
 
     if (invoice.customer?.name?.trim()) {
-      y = drawWrappedText(invoice.customer.name.trim(), margin, y, pageWidth - margin * 2, 10);
+      y = drawWrappedText(
+        invoice.customer.name.trim(),
+        margin,
+        y,
+        pageWidth - margin * 2,
+        10,
+      );
     }
 
     if (invoice.customer?.mobile?.trim()) {
-      y = drawWrappedText(`Mobile: ${invoice.customer.mobile.trim()}`, margin, y, pageWidth - margin * 2, 10);
+      y = drawWrappedText(
+        `Mobile: ${invoice.customer.mobile.trim()}`,
+        margin,
+        y,
+        pageWidth - margin * 2,
+        10,
+      );
     }
 
     if (invoice.customer?.email?.trim()) {
-      y = drawWrappedText(`Email: ${invoice.customer.email.trim()}`, margin, y, pageWidth - margin * 2, 10);
+      y = drawWrappedText(
+        `Email: ${invoice.customer.email.trim()}`,
+        margin,
+        y,
+        pageWidth - margin * 2,
+        10,
+      );
     }
 
     if (invoice.customer?.address?.trim()) {
-      y = drawWrappedText(`Address: ${invoice.customer.address.trim()}`, margin, y, pageWidth - margin * 2, 10);
+      y = drawWrappedText(
+        `Address: ${invoice.customer.address.trim()}`,
+        margin,
+        y,
+        pageWidth - margin * 2,
+        10,
+      );
     }
 
     if (invoice.customer?.gstin?.trim()) {
-      y = drawWrappedText(`GSTIN: ${invoice.customer.gstin.trim()}`, margin, y, pageWidth - margin * 2, 10);
+      y = drawWrappedText(
+        `GSTIN: ${invoice.customer.gstin.trim()}`,
+        margin,
+        y,
+        pageWidth - margin * 2,
+        10,
+      );
     }
 
     y += 5;
 
-    // Product table.
+    // Product table
     const tableWidth = right - margin;
+
     const columns = [
       margin,
       margin + tableWidth * 0.36,
@@ -990,7 +1276,11 @@ export class InvoiceGeneratorPage implements OnInit {
     );
 
     headers.forEach((header, index) => {
-      pdf.text(header, columns[index] + 1, y + 1);
+      pdf.text(
+        header,
+        columns[index] + 1,
+        y + 1,
+      );
     });
 
     pdf.setTextColor(0, 0, 0);
@@ -1015,10 +1305,11 @@ export class InvoiceGeneratorPage implements OnInit {
         (item.quantity * item.unitPrice - discount + tax),
       );
 
-      const productLines = pdf.splitTextToSize(
+      const productLines = getWrappedTextLines(
         String(item.name || 'Product'),
         Math.max(24, columns[1] - columns[0] - 4),
-      ) as string[];
+        pageWidth < 160 ? 6.5 : 8,
+      );
 
       const rowHeight = Math.max(
         8,
@@ -1027,24 +1318,57 @@ export class InvoiceGeneratorPage implements OnInit {
 
       ensureSpace(rowHeight + 4);
 
-      pdf.setFontSize(pageWidth < 160 ? 6.5 : 8);
+      const tableFontSize = pageWidth < 160 ? 6.5 : 8;
+
+      pdf.setFontSize(tableFontSize);
+
       drawWrappedText(
         String(item.name || 'Product'),
         columns[0] + 1,
         y,
         Math.max(24, columns[1] - columns[0] - 4),
-        pageWidth < 160 ? 6.5 : 8,
+        tableFontSize,
       );
 
-      pdf.text(`${item.quantity} ${item.unit || ''}`.trim(), columns[2] - 1, y, { align: 'right' });
+      drawWrappedText(
+        `${item.quantity} ${item.unit || ''}`.trim(),
+        columns[2] - 1,
+        y,
+        Math.max(8, columns[2] - columns[1] - 2),
+        tableFontSize,
+        'right',
+      );
 
       const compactMoney = (value: number): string =>
         Number(value || 0).toFixed(2);
 
-      pdf.text(compactMoney(item.unitPrice), columns[3] - 1, y, { align: 'right' });
-      pdf.text(compactMoney(discount), columns[4] - 1, y, { align: 'right' });
-      pdf.text(compactMoney(tax), columns[5] - 1, y, { align: 'right' });
-      pdf.text(compactMoney(total), columns[6] - 1, y, { align: 'right' });
+      pdf.text(
+        compactMoney(item.unitPrice),
+        columns[3] - 1,
+        y,
+        { align: 'right' },
+      );
+
+      pdf.text(
+        compactMoney(discount),
+        columns[4] - 1,
+        y,
+        { align: 'right' },
+      );
+
+      pdf.text(
+        compactMoney(tax),
+        columns[5] - 1,
+        y,
+        { align: 'right' },
+      );
+
+      pdf.text(
+        compactMoney(total),
+        columns[6] - 1,
+        y,
+        { align: 'right' },
+      );
 
       y += rowHeight;
 
@@ -1052,7 +1376,7 @@ export class InvoiceGeneratorPage implements OnInit {
       pdf.line(margin, y - 2, right, y - 2);
     }
 
-    // Invoice totals.
+    // Invoice totals
     y += 5;
 
     const calc = invoice.calculation;
@@ -1089,7 +1413,7 @@ export class InvoiceGeneratorPage implements OnInit {
       y += isTotal ? 8 : 6;
     }
 
-    // Payment and notes.
+    // Payment and notes
     ensureSpace(18);
     y += 5;
 
@@ -1103,6 +1427,7 @@ export class InvoiceGeneratorPage implements OnInit {
         pageWidth - margin * 2,
         10,
       );
+
       y += 2;
     }
 
@@ -1113,6 +1438,7 @@ export class InvoiceGeneratorPage implements OnInit {
       y += 5;
 
       pdf.setFont('helvetica', 'normal');
+
       y = drawWrappedText(
         invoice.notes.trim(),
         margin,
@@ -1122,34 +1448,49 @@ export class InvoiceGeneratorPage implements OnInit {
       );
     }
 
-    // Optional business footer message. Wrap it inside the printable page width.
+    // Custom business footer message: left aligned
     if (settings.footer?.trim()) {
-      const footerLines = settings.footer.trim().split('\n').flatMap(paragraph =>
-        pdf.splitTextToSize(paragraph, pageWidth - margin * 2) as string[],
+      const footerLines = getWrappedTextLines(
+        settings.footer.trim(),
+        pageWidth - margin * 2,
+        9,
       );
-      const footerHeight = Math.max(1, footerLines.length) * 4.5 + 8;
+
+      const footerHeight =
+        Math.max(1, footerLines.length) * 4.5 + 8;
+
       ensureSpace(footerHeight + 8);
+
       y += 4;
+
       y = drawWrappedText(
         settings.footer.trim(),
-        pageWidth / 2,
+        margin,
         y,
         pageWidth - margin * 2,
         9,
-        'center',
+        'left',
         accent,
       );
+
       y += 4;
     }
 
-    // Optional signature and seal images. These are supported when present in saved settings.
-    if (pdfExtras.signatureDataUrl?.trim() || pdfExtras.sealDataUrl?.trim()) {
+    // Optional signature and seal images
+    if (
+      pdfExtras.signatureDataUrl?.trim() ||
+      pdfExtras.sealDataUrl?.trim()
+    ) {
       ensureSpace(34);
+
       const signatureY = Math.min(y + 3, pageHeight - 42);
 
       if (pdfExtras.sealDataUrl?.trim()) {
         try {
-          const sealInfo = pdf.getImageProperties(pdfExtras.sealDataUrl);
+          const sealInfo = pdf.getImageProperties(
+            pdfExtras.sealDataUrl,
+          );
+
           pdf.addImage(
             pdfExtras.sealDataUrl,
             sealInfo.fileType || 'PNG',
@@ -1160,9 +1501,15 @@ export class InvoiceGeneratorPage implements OnInit {
             undefined,
             'FAST',
           );
+
           pdf.setFontSize(7);
           pdf.setTextColor(80, 80, 80);
-          pdf.text('Business seal', margin, signatureY + 25);
+
+          pdf.text(
+            'Business seal',
+            margin,
+            signatureY + 25,
+          );
         } catch (error) {
           console.warn('Invoice seal could not be added:', error);
         }
@@ -1170,9 +1517,17 @@ export class InvoiceGeneratorPage implements OnInit {
 
       if (pdfExtras.signatureDataUrl?.trim()) {
         try {
-          const signatureInfo = pdf.getImageProperties(pdfExtras.signatureDataUrl);
+          const signatureInfo = pdf.getImageProperties(
+            pdfExtras.signatureDataUrl,
+          );
+
           const signatureWidth = 38;
-          const signatureHeight = Math.min(18, signatureWidth * signatureInfo.height / signatureInfo.width);
+
+          const signatureHeight = Math.min(
+            18,
+            signatureWidth * signatureInfo.height / signatureInfo.width,
+          );
+
           pdf.addImage(
             pdfExtras.signatureDataUrl,
             signatureInfo.fileType || 'PNG',
@@ -1183,9 +1538,16 @@ export class InvoiceGeneratorPage implements OnInit {
             undefined,
             'FAST',
           );
+
           pdf.setFontSize(7);
           pdf.setTextColor(80, 80, 80);
-          pdf.text('Authorised signature', right, signatureY + 22, { align: 'right' });
+
+          pdf.text(
+            'Authorised signature',
+            right,
+            signatureY + 22,
+            { align: 'right' },
+          );
         } catch (error) {
           console.warn('Invoice signature could not be added:', error);
         }
@@ -1194,24 +1556,44 @@ export class InvoiceGeneratorPage implements OnInit {
       y = signatureY + 29;
     }
 
-    // Fixed legal / generated invoice footer.
-    pdf.setFont('helvetica', 'normal');
-    pdf.setFontSize(7.5);
-    pdf.setTextColor(90, 90, 90);
-    pdf.text(
-      'This is a computer-generated invoice and does not require a physical signature.',
-      pageWidth / 2,
-      pageHeight - 16,
-      { align: 'center', maxWidth: pageWidth - margin * 2 },
-    );
+    // Fixed footer on every PDF page
+    const totalPages = pdf.getNumberOfPages();
 
-    pdf.setFont('helvetica', 'bold');
-    pdf.text(
-      'Powered by BRAIN TECHNO | www.braintechno.com',
-      pageWidth / 2,
-      pageHeight - 10,
-      { align: 'center', maxWidth: pageWidth - margin * 2 },
-    );
+    for (let page = 1; page <= totalPages; page += 1) {
+      pdf.setPage(page);
+
+      const footerLineY = pageHeight - 22;
+
+      pdf.setDrawColor(
+        ...(monochrome
+          ? [150, 150, 150] as [number, number, number]
+          : accent),
+      );
+
+      pdf.setLineWidth(0.25);
+      pdf.line(margin, footerLineY, right, footerLineY);
+
+      drawWrappedText(
+        'This is a computer-generated invoice.',
+        margin,
+        pageHeight - 17,
+        pageWidth - margin * 2,
+        7.5,
+        'left',
+        [90, 90, 90],
+      );
+
+      drawWrappedText(
+        'Powered by BRAIN TECHNO | www.braintechno.com',
+        margin,
+        pageHeight - 11,
+        pageWidth - margin * 2,
+        7.5,
+        'left',
+        [90, 90, 90],
+        true,
+      );
+    }
 
     return pdf;
   }

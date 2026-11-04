@@ -322,18 +322,9 @@
       <label class="field">
         <span>Theme color</span>
         <div class="locked-color-field">
-          <input
-            type="color"
-            [(ngModel)]="lockedProfile.primaryColor"
-            class="theme-color-picker"
-            aria-label="Choose theme color"
-          />
-          <input
-            type="text"
-            [(ngModel)]="lockedProfile.primaryColor"
-            placeholder="#000000"
-            maxlength="7"
-          />
+          <input type="color" [(ngModel)]="lockedProfile.primaryColor" class="theme-color-picker"
+            aria-label="Choose theme color" />
+          <input type="text" [(ngModel)]="lockedProfile.primaryColor" placeholder="#000000" maxlength="7" />
         </div>
       </label>
     </div>
@@ -343,55 +334,30 @@
     <div class="form-grid">
       <label class="field field-full">
         <span>Business location</span>
-        <textarea
-          [(ngModel)]="invoiceSettings.address"
-          name="businessLocation"
-          rows="2"
-          placeholder="Enter business location"
-        ></textarea>
+        <textarea [(ngModel)]="invoiceSettings.address" name="businessLocation" rows="2"
+          placeholder="Enter business location"></textarea>
       </label>
 
       <label class="field">
         <span>GST number</span>
-        <input
-          [(ngModel)]="invoiceSettings.gstin"
-          name="gstin"
-          maxlength="15"
-          placeholder="Enter GST number"
-        />
+        <input [(ngModel)]="invoiceSettings.gstin" name="gstin" maxlength="15" placeholder="Enter GST number" />
       </label>
 
       <label class="field">
         <span>Invoice prefix</span>
-        <input
-          [(ngModel)]="invoiceSettings.invoicePrefix"
-          name="invoicePrefix"
-          placeholder="BTECH"
-        />
+        <input [(ngModel)]="invoiceSettings.invoicePrefix" name="invoicePrefix" placeholder="BTECH" />
       </label>
 
       <label class="field">
         <span>Invoice start number</span>
-        <input
-          type="text"
-          inputmode="numeric"
-          pattern="[0-9]*"
-          [(ngModel)]="invoiceSettings.invoiceStartNumber"
-          name="invoiceStartNumber"
-          placeholder="1"
-        />
+        <input type="text" inputmode="numeric" pattern="[0-9]*" [(ngModel)]="invoiceSettings.invoiceStartNumber"
+          name="invoiceStartNumber" placeholder="1" />
       </label>
 
       <label class="field">
         <span>Invoice number padding</span>
-        <input
-          type="text"
-          inputmode="numeric"
-          pattern="[0-9]*"
-          [(ngModel)]="invoiceSettings.invoiceNumberPadding"
-          name="invoiceNumberPadding"
-          placeholder="5"
-        />
+        <input type="text" inputmode="numeric" pattern="[0-9]*" [(ngModel)]="invoiceSettings.invoiceNumberPadding"
+          name="invoiceNumberPadding" placeholder="5" />
       </label>
 
       <label class="field">
@@ -414,138 +380,70 @@
 
       <label class="field field-full">
         <span>Footer message</span>
-        <textarea
-          [(ngModel)]="invoiceSettings.footer"
-          name="footer"
-          rows="3"
-          placeholder="Thank you for your business"
-        ></textarea>
+        <textarea [(ngModel)]="invoiceSettings.footer" name="footer" rows="3"
+          placeholder="Thank you for your business"></textarea>
       </label>
 
       <!-- Invoice Design Selector -->
-      <div class="field field-full invoice-design-selector">
+      <div class="field field-full design-select-field">
+        <label for="invoiceTemplate">
+          <span>Invoice design</span>
+        </label>
 
-        <div class="invoice-design-selector__heading">
-          <div>
-            <span>Invoice design</span>
-            <small>Choose a design for your business invoice.</small>
-          </div>
+        <div class="invoice-template-control"
+          style="display: flex; align-items: center; gap: 12px; width: 100%;">
+          <select id="invoiceTemplate" [(ngModel)]="invoiceSettings.template"
+            (ngModelChange)="onInvoiceTemplateChange()" name="invoiceTemplate"
+            style="flex: 1; min-width: 0;">
 
-          <span class="current-plan-badge">
-            {{ getInvoicePlanLabel(currentInvoicePlan) }} Plan
-          </span>
+          <optgroup label="Classic Collection">
+            <option value="classic">Classic — Traditional Professional</option>
+            <option value="minimal">Minimal — Clean & Spacious</option>
+            <option value="basic-blue">Basic Blue — Modern Business</option>
+            <option value="mono">Mono — Black & White</option>
+          </optgroup>
+
+          <optgroup label="Professional Collection">
+            <option value="corporate">Corporate — Bold Business</option>
+            <option value="elegant">Elegant — Refined Typography</option>
+            <option value="creative">Creative — Color Blocks</option>
+            <option value="sidebar">Sidebar — Vertical Layout</option>
+          </optgroup>
+
+          <optgroup label="Premium Collection">
+            <option value="luxury">Luxury — Premium Elegant</option>
+            <option value="gradient">Gradient — Modern Gradient</option>
+            <option value="executive">Executive — Formal Business</option>
+            <option value="signature">Signature — Elegant Signature</option>
+            <option value="modern-pro">Modern Pro — Premium Modern</option>
+          </optgroup>
+
+          <optgroup label="Custom Collection">
+            <option value="my-brand">My Brand — Brand Focused</option>
+            <option value="design-studio">Design Studio — Creative Premium</option>
+          </optgroup>
+          </select>
+
+          <button class="button button--secondary invoice-template-view-button"
+            type="button" (click)="viewSelectedInvoice()"
+            [disabled]="settingsLoading || !profileLoaded">
+            <mat-icon>visibility</mat-icon>
+            <span>View Invoice</span>
+          </button>
         </div>
-
-        @for (group of invoiceTemplateGroups; track group.plan) {
-        <section class="invoice-design-group">
-
-          <div class="invoice-design-group__heading">
-            <div>
-              <strong>{{ group.title }}</strong>
-              <small>{{ group.description }}</small>
-            </div>
-
-            <span
-              class="invoice-plan-label"
-              [class.invoice-plan-label--premium]="group.plan === 'premium'"
-              [class.invoice-plan-label--custom]="group.plan === 'custom'"
-            >
-              {{ getInvoicePlanLabel(group.plan) }}
-            </span>
-          </div>
-
-          <div class="invoice-design-grid">
-            @for (template of group.templates; track template.id) {
-            <button
-              type="button"
-              class="invoice-design-option"
-              [class.selected]="invoiceSettings.template === template.id"
-              [class.locked]="getInvoiceTemplateLocked(template)"
-              [disabled]="getInvoiceTemplateLocked(template)"
-              [style.--template-accent]="template.accent"
-              (click)="selectInvoiceTemplate(template)"
-            >
-
-              <div class="invoice-design-option__preview">
-                <div class="mini-invoice" [attr.data-style]="template.style">
-
-                  <div class="mini-invoice__header">
-                    <span></span>
-                    <strong>INVOICE</strong>
-                  </div>
-
-                  <div class="mini-invoice__brand">
-                    <span></span>
-                    <span></span>
-                  </div>
-
-                  <div class="mini-invoice__lines">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                  </div>
-
-                  <div class="mini-invoice__total"></div>
-                </div>
-
-                @if (getInvoiceTemplateLocked(template)) {
-                <span class="design-lock">
-                  <mat-icon>lock</mat-icon>
-                  {{ getInvoicePlanLabel(template.plan) }}
-                </span>
-                }
-
-                @if (invoiceSettings.template === template.id) {
-                <span class="design-selected">
-                  <mat-icon>check_circle</mat-icon>
-                  Selected
-                </span>
-                }
-              </div>
-
-              <span class="invoice-design-option__details">
-                <strong>{{ template.name }}</strong>
-                <small>{{ template.description }}</small>
-              </span>
-
-            </button>
-            }
-          </div>
-        </section>
-        }
-
-        <p class="design-hint">
-          <mat-icon>info</mat-icon>
-          Locked designs require the corresponding subscription plan.
-        </p>
-
       </div>
     </div>
 
     <div class="settings-save-row">
       <span>
         {{ settingsSaved
-          ? 'Invoice settings saved successfully.'
-          : 'Changes are not saved until you click Save.'
+        ? 'Invoice settings saved successfully.'
+        : 'Changes are not saved until you click Save.'
         }}
       </span>
 
-      <button
-        class="button button--secondary"
-        type="button"
-        (click)="openInvoicePreview()"
-        [disabled]="settingsLoading || !profileLoaded"
-      >
-        <mat-icon>visibility</mat-icon>
-        View Invoice
-      </button>
-
-      <button
-        class="button button--primary"
-        type="button"
-        (click)="saveInvoiceSettings()"
-        [disabled]="settingsSaving || settingsLoading || !profileLoaded"
-      >
+      <button class="button button--primary" type="button" (click)="saveInvoiceSettings()"
+        [disabled]="settingsSaving || settingsLoading || !profileLoaded">
         <mat-icon>save</mat-icon>
         {{ settingsSaving ? 'Saving...' : 'Save Invoice Settings' }}
       </button>
@@ -565,16 +463,9 @@
 
       <aside class="invoice-preview-panel invoice-preview-panel--modal">
 
-        <div
-          class="invoice-preview"
-          [class.invoice-preview--corporate]="invoiceSettings.template === 'corporate'"
-          [class.invoice-preview--minimal]="invoiceSettings.template === 'minimal'"
-          [class.invoice-preview--modern]="invoiceSettings.template === 'modern'"
-          [class.invoice-preview--gst]="invoiceSettings.template === 'gst'"
-          [class.invoice-preview--premium]="invoiceSettings.template === 'premium'"
+        <div class="invoice-preview" [ngClass]="'invoice-preview--' + invoiceSettings.template"
           [class.invoice-preview--bw]="invoiceSettings.printColor === 'bw'"
-          [style.--preview-accent]="lockedProfile.primaryColor"
-        >
+          [style.--preview-accent]="lockedProfile.primaryColor">
 
           <div class="preview-invoice-top">
             <div class="preview-brand">
@@ -595,9 +486,9 @@
                 <small>
                   {{ lockedProfile.phone }}
                   {{
-                    lockedProfile.email
-                      ? ' · ' + lockedProfile.email
-                      : ''
+                  lockedProfile.email
+                  ? ' · ' + lockedProfile.email
+                  : ''
                   }}
                 </small>
                 }
@@ -607,9 +498,9 @@
             <div class="preview-invoice-label">
               <strong>
                 {{
-                  invoiceSettings.template === 'gst'
-                    ? 'TAX INVOICE'
-                    : 'INVOICE'
+                invoiceSettings.template === 'gst'
+                ? 'TAX INVOICE'
+                : 'INVOICE'
                 }}
               </strong>
               <small># {{ sampleInvoiceNumber }}</small>
@@ -663,9 +554,9 @@
             <b>Grand Total</b>
             <b>
               ₹{{
-                invoiceSettings.template === 'gst'
-                  ? '1,770.00'
-                  : '1,500.00'
+              invoiceSettings.template === 'gst'
+              ? '1,770.00'
+              : '1,500.00'
               }}
             </b>
           </div>
@@ -678,8 +569,8 @@
 
           <div class="preview-footer">
             {{
-              invoiceSettings.footer ||
-              'Thank you for your business.'
+            invoiceSettings.footer ||
+            'Thank you for your business.'
             }}
           </div>
 
@@ -693,11 +584,7 @@
       </aside>
 
       <div class="settings-save-row">
-        <button
-          type="button"
-          class="button button--secondary"
-          (click)="closeInvoicePreview()"
-        >
+        <button type="button" class="button button--secondary" (click)="closeInvoicePreview()">
           Cancel
         </button>
       </div>

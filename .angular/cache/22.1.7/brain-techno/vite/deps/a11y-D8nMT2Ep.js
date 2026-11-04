@@ -1,12 +1,12 @@
 import { t as _defineProperty } from "./defineProperty-wQpB4Zl9.js";
 import { $n as Output, En as ElementRef, Hl as _objectSpread2, In as Input, Lc as NgZone, Mr as afterNextRender, O as booleanAttribute, Oc as InjectionToken, Sc as EventEmitter, Wi as setClassMetadata, ao as ɵɵdefineService, ar as RendererFactory2, dr as Service, fc as APP_ID, gc as DOCUMENT, kc as Injector, kl as ɵɵdefineInjector, la as ɵɵNgOnChangesFeature, ll as inject, no as ɵɵdefineDirective, qn as NgModule, ro as ɵɵdefineNgModule, wn as Directive } from "./core-BpRnWWtI.js";
 import { E as skip, Ot as debounceTime, Qt as filter, Sn as of, Un as BehaviorSubject, Wn as Subject, Yn as Observable, _ as takeUntil, fn as map, yt as distinctUntilChanged } from "./zipWith-DkrnN79P.js";
-import { DomSanitizer } from "./@angular_platform-browser.js";
 import { t as Platform } from "./_platform-chunk-IFI5CyLB.js";
 import { n as coerceElement, r as coerceNumberProperty } from "./_element-chunk-BCTityL3.js";
 import { t as _CdkPrivateStyleLoader } from "./_style-loader-chunk-DvYXMie2.js";
 import { n as _setInnerHtml, t as _VisuallyHiddenLoader } from "./private-DBVWioS4.js";
 import { i as BreakpointObserver } from "./_animation-chunk-CsIBerNj.js";
+import { DomSanitizer } from "./@angular_platform-browser.js";
 //#region node_modules/@angular/cdk/fesm2022/_fake-event-detection-chunk.mjs
 function isFakeMousedownFromScreenReader(event) {
 	return event.buttons === 0 || event.detail === 0;

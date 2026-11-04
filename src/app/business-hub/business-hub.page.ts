@@ -323,10 +323,14 @@ export class BusinessHubPage implements OnInit, OnDestroy {
       },
     ];
 
+  // getInvoiceTemplateLocked(template: InvoiceTemplateOption): boolean {
+  //   return this.invoicePlanOrder[this.currentInvoicePlan] <
+  //     this.invoicePlanOrder[template.plan];
+  // }
+
   getInvoiceTemplateLocked(template: InvoiceTemplateOption): boolean {
-    return this.invoicePlanOrder[this.currentInvoicePlan] <
-      this.invoicePlanOrder[template.plan];
-  }
+  return false;
+}
 
   selectInvoiceTemplate(template: InvoiceTemplateOption): void {
     if (this.getInvoiceTemplateLocked(template)) {
@@ -468,8 +472,23 @@ export class BusinessHubPage implements OnInit, OnDestroy {
     return `${prefix}${String(num).padStart(padding, '0')}`;
   }
 
-  openInvoicePreview(): void { this.previewOpen = true; }
-  closeInvoicePreview(): void { this.previewOpen = false; }
+  viewSelectedInvoice(): void {
+    if (this.settingsLoading || !this.profileLoaded) {
+      return;
+    }
+
+    this.previewOpen = true;
+    this.cdr.markForCheck();
+  }
+
+  openInvoicePreview(): void {
+    this.viewSelectedInvoice();
+  }
+
+  closeInvoicePreview(): void {
+    this.previewOpen = false;
+    this.cdr.markForCheck();
+  }
 
   saveInvoiceSettings(): void {
     if (this.settingsSaving || this.settingsLoading || !this.profileLoaded) return;

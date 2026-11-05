@@ -390,43 +390,26 @@
           <span>Invoice design</span>
         </label>
 
-        <div class="invoice-template-control"
-          style="display: flex; align-items: center; gap: 12px; width: 100%;">
+        <div class="invoice-template-control" style="display: flex; align-items: center; gap: 12px; width: 100%;">
           <select id="invoiceTemplate" [(ngModel)]="invoiceSettings.template"
-            (ngModelChange)="onInvoiceTemplateChange()" name="invoiceTemplate"
-            style="flex: 1; min-width: 0;">
+            (ngModelChange)="onInvoiceTemplateChange()" name="invoiceTemplate" style="flex: 1; min-width: 0;">
 
-          <optgroup label="Classic Collection">
-            <option value="classic">Classic — Traditional Professional</option>
-            <option value="minimal">Minimal — Clean & Spacious</option>
-            <option value="basic-blue">Basic Blue — Modern Business</option>
-            <option value="mono">Mono — Black & White</option>
-          </optgroup>
+            <optgroup label="Existing Designs — 18 Templates">
+              @for (design of legacyInvoiceDesigns; track design.id) {
+                <option [value]="design.id">{{ design.name }} — {{ design.description }}</option>
+              }
+            </optgroup>
 
-          <optgroup label="Professional Collection">
-            <option value="corporate">Corporate — Bold Business</option>
-            <option value="elegant">Elegant — Refined Typography</option>
-            <option value="creative">Creative — Color Blocks</option>
-            <option value="sidebar">Sidebar — Vertical Layout</option>
-          </optgroup>
+            <optgroup label="New Designs — 15 Templates">
+              @for (design of newInvoiceDesigns; track design.id) {
+                <option [value]="design.id">{{ design.name }} — {{ design.description }}</option>
+              }
+            </optgroup>
+                    </select>
 
-          <optgroup label="Premium Collection">
-            <option value="luxury">Luxury — Premium Elegant</option>
-            <option value="gradient">Gradient — Modern Gradient</option>
-            <option value="executive">Executive — Formal Business</option>
-            <option value="signature">Signature — Elegant Signature</option>
-            <option value="modern-pro">Modern Pro — Premium Modern</option>
-          </optgroup>
 
-          <optgroup label="Custom Collection">
-            <option value="my-brand">My Brand — Brand Focused</option>
-            <option value="design-studio">Design Studio — Creative Premium</option>
-          </optgroup>
-          </select>
-
-          <button class="button button--secondary invoice-template-view-button"
-            type="button" (click)="viewSelectedInvoice()"
-            [disabled]="settingsLoading || !profileLoaded">
+          <button class="button button--secondary invoice-template-view-button" type="button"
+            (click)="viewSelectedInvoice()" [disabled]="settingsLoading || !profileLoaded">
             <mat-icon>visibility</mat-icon>
             <span>View Invoice</span>
           </button>
@@ -463,9 +446,9 @@
 
       <aside class="invoice-preview-panel invoice-preview-panel--modal">
 
-        <div class="invoice-preview" [ngClass]="'invoice-preview--' + invoiceSettings.template"
+        <div class="invoice-preview" [ngClass]="getInvoicePreviewClass()"
           [class.invoice-preview--bw]="invoiceSettings.printColor === 'bw'"
-          [style.--preview-accent]="lockedProfile.primaryColor">
+          [ngStyle]="getInvoicePreviewStyle()">
 
           <div class="preview-invoice-top">
             <div class="preview-brand">

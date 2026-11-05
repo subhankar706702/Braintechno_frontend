@@ -1,0 +1,5 @@
+export interface InvoiceColorPalette { primary: string; primaryDark: string; primaryDeep: string; primarySoft: string; primaryTint: string; secondary: string; secondarySoft: string; accent: string; ink: string; muted: string; paper: string; border: string; onPrimary: string; }
+export function invoiceCssVariables(palette: InvoiceColorPalette): Record<string, string> {
+  return { '--invoice-primary': palette.primary, '--invoice-primary-dark': palette.primaryDark, '--invoice-primary-deep': palette.primaryDeep, '--invoice-primary-soft': palette.primarySoft, '--invoice-primary-tint': palette.primaryTint, '--invoice-secondary': palette.secondary, '--invoice-secondary-soft': palette.secondarySoft, '--invoice-accent': palette.accent, '--invoice-ink': palette.ink, '--invoice-muted': palette.muted, '--invoice-paper': palette.paper, '--invoice-border': palette.border, '--invoice-on-primary': palette.onPrimary };
+}
+export function getInvoiceTemplateClass(id: string): string { return `invoice-preview--${String(id || 'classic').toLowerCase()}`; }

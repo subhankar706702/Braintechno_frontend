@@ -1,28 +1,12 @@
+import type { InvoiceTemplateId } from '../invoice-design/core/invoice-design.types';
+import { INVOICE_DESIGNS } from '../invoice-design/core/invoice-design.registry';
 
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, map, tap } from 'rxjs';
 import { API_BASE_URL } from '../../core/api.config';
 
-export type InvoiceTemplate =
-  | 'classic'
-  | 'minimal'
-  | 'basic-blue'
-  | 'mono'
-  | 'corporate'
-  | 'elegant'
-  | 'creative'
-  | 'sidebar'
-  | 'luxury'
-  | 'gradient'
-  | 'executive'
-  | 'signature'
-  | 'modern-pro'
-  | 'my-brand'
-  | 'design-studio'
-  | 'modern'
-  | 'gst'
-  | 'premium';
+export type InvoiceTemplate = InvoiceTemplateId;
 
 export interface InvoiceSettings {
   template: InvoiceTemplate;
@@ -51,26 +35,9 @@ type InvoiceSettingsResponse =
 
 const KEY = 'brain_techno_invoice_settings_v1';
 
-const VALID_TEMPLATES: InvoiceTemplate[] = [
-  'classic',
-  'minimal',
-  'basic-blue',
-  'mono',
-  'corporate',
-  'elegant',
-  'creative',
-  'sidebar',
-  'luxury',
-  'gradient',
-  'executive',
-  'signature',
-  'modern-pro',
-  'my-brand',
-  'design-studio',
-  'modern',
-  'gst',
-  'premium',
-];
+const VALID_TEMPLATES: InvoiceTemplate[] = INVOICE_DESIGNS.map(
+  design => design.id,
+);
 
 const DEFAULTS: InvoiceSettings = {
   template: 'classic',

@@ -1,3 +1,6 @@
+import { INVOICE_DESIGNS } from './invoice-design/core/invoice-design.registry';
+import { createColorPalette } from './invoice-design/core/invoice-color.math';
+import { getInvoiceTemplateClass, invoiceCssVariables } from './invoice-design/core/invoice-style.utils';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
@@ -14,7 +17,6 @@ import {
 } from './models/invoice-settings.service';
 import { BusinessProfileService } from '../dashboard/business-profile/business-profile.service';
 
-
 type HubSection =
   | 'my-business'
   | 'invoice'
@@ -28,6 +30,7 @@ type HubInvoiceSettings = InvoiceSettings & {
   invoiceStartNumber: number;
   invoiceNumberPadding: number;
 };
+
 type InvoicePlan = 'free' | 'basic' | 'premium' | 'custom';
 
 interface InvoiceTemplateOption {
@@ -38,6 +41,7 @@ interface InvoiceTemplateOption {
   accent: string;
   style: string;
 }
+
 interface HubCard {
   label: string;
   value: string;
@@ -57,18 +61,25 @@ export class BusinessHubPage implements OnInit, OnDestroy {
   private readonly destroy$ = new Subject<void>();
 
   private settingsLoadStarted = false;
+
   profileLoaded = false;
   settingsLoading = false;
   settingsSaving = false;
   previewOpen = false;
   profileError = '';
+
   lockedProfile = {
-    businessName: '', logoDataUrl: '', phone: '', email: '', primaryColor: '#ff4d6d',
+    businessName: '',
+    logoDataUrl: '',
+    phone: '',
+    email: '',
+    primaryColor: '#ff4d6d',
   };
 
   section: HubSection = 'my-business';
 
   title = 'My Business';
+
   description =
     'Your business at a glance. Track activity and find your next growth opportunity.';
 
@@ -150,14 +161,26 @@ export class BusinessHubPage implements OnInit, OnDestroy {
     private readonly cdr: ChangeDetectorRef,
   ) {
     this.invoiceSettings = {
-      businessName: '', logoDataUrl: '', phone: '', email: '',
-      primaryColor: '#ff4d6d', address: '', gstin: '', footer: '',
-      invoicePrefix: 'BTECH', invoiceStartNumber: 1,
-      invoiceNumberPadding: 5, pageSize: 'a4', printColor: 'color',
+      businessName: '',
+      logoDataUrl: '',
+      phone: '',
+      email: '',
+      primaryColor: '#ff4d6d',
+      address: '',
+      gstin: '',
+      footer: '',
+      invoicePrefix: 'BTECH',
+      invoiceStartNumber: 1,
+      invoiceNumberPadding: 5,
+      pageSize: 'a4',
+      printColor: 'color',
       template: 'classic',
     } as HubInvoiceSettings;
   }
-  // Replace this default with the user's actual subscription plan.
+
+  readonly legacyInvoiceDesigns = INVOICE_DESIGNS.filter((design, index) => index < 18);
+  readonly newInvoiceDesigns = INVOICE_DESIGNS.filter((design, index) => index >= 18);
+
   currentInvoicePlan: InvoicePlan = 'free';
 
   readonly invoicePlanOrder: Record<InvoicePlan, number> = {
@@ -173,177 +196,187 @@ export class BusinessHubPage implements OnInit, OnDestroy {
     description: string;
     templates: InvoiceTemplateOption[];
   }[] = [
-      {
-        plan: 'free',
-        title: 'Free Designs',
-        description: 'Simple and professional invoice layouts.',
-        templates: [
-          {
-            id: 'classic',
-            name: 'Classic',
-            description: 'Traditional business invoice',
-            plan: 'free',
-            accent: '#334155',
-            style: 'classic',
-          },
-          {
-            id: 'minimal',
-            name: 'Minimal',
-            description: 'Clean and simple layout',
-            plan: 'free',
-            accent: '#64748b',
-            style: 'minimal',
-          },
-          {
-            id: 'basic-blue',
-            name: 'Basic Blue',
-            description: 'Professional blue header',
-            plan: 'free',
-            accent: '#2563eb',
-            style: 'blue',
-          },
-          {
-            id: 'mono',
-            name: 'Mono',
-            description: 'Black and white invoice',
-            plan: 'free',
-            accent: '#111827',
-            style: 'mono',
-          },
-        ],
-      },
-      {
-        plan: 'basic',
-        title: 'Basic Designs',
-        description: 'More layouts for growing businesses.',
-        templates: [
-          {
-            id: 'corporate',
-            name: 'Corporate',
-            description: 'Strong corporate header',
-            plan: 'basic',
-            accent: '#1e40af',
-            style: 'corporate',
-          },
-          {
-            id: 'elegant',
-            name: 'Elegant',
-            description: 'Elegant typography and spacing',
-            plan: 'basic',
-            accent: '#0f766e',
-            style: 'elegant',
-          },
-          {
-            id: 'creative',
-            name: 'Creative',
-            description: 'Creative color layout',
-            plan: 'basic',
-            accent: '#ea580c',
-            style: 'creative',
-          },
-          {
-            id: 'sidebar',
-            name: 'Sidebar',
-            description: 'Colored business information panel',
-            plan: 'basic',
-            accent: '#7c3aed',
-            style: 'sidebar',
-          },
-        ],
-      },
-      {
-        plan: 'premium',
-        title: 'Premium Designs',
-        description: 'Advanced and premium invoice styles.',
-        templates: [
-          {
-            id: 'luxury',
-            name: 'Luxury',
-            description: 'Premium black and gold design',
-            plan: 'premium',
-            accent: '#b08d42',
-            style: 'luxury',
-          },
-          {
-            id: 'gradient',
-            name: 'Gradient',
-            description: 'Modern gradient header',
-            plan: 'premium',
-            accent: '#7c3aed',
-            style: 'gradient',
-          },
-          {
-            id: 'executive',
-            name: 'Executive',
-            description: 'Executive business appearance',
-            plan: 'premium',
-            accent: '#172554',
-            style: 'executive',
-          },
-          {
-            id: 'signature',
-            name: 'Signature',
-            description: 'Large typography and branding',
-            plan: 'premium',
-            accent: '#9f1239',
-            style: 'signature',
-          },
-          {
-            id: 'modern-pro',
-            name: 'Modern Pro',
-            description: 'Structured modern layout',
-            plan: 'premium',
-            accent: '#0891b2',
-            style: 'modern-pro',
-          },
-        ],
-      },
-      {
-        plan: 'custom',
-        title: 'Custom Designs',
-        description: 'Advanced branding and layout customization.',
-        templates: [
-          {
-            id: 'my-brand',
-            name: 'My Brand',
-            description: 'Personalized business branding',
-            plan: 'custom',
-            accent: '#2563eb',
-            style: 'my-brand',
-          },
-          {
-            id: 'design-studio',
-            name: 'Design Studio',
-            description: 'Flexible layout and typography',
-            plan: 'custom',
-            accent: '#9333ea',
-            style: 'design-studio',
-          },
-        ],
-      },
-    ];
-
-  // getInvoiceTemplateLocked(template: InvoiceTemplateOption): boolean {
-  //   return this.invoicePlanOrder[this.currentInvoicePlan] <
-  //     this.invoicePlanOrder[template.plan];
-  // }
+    {
+      plan: 'free',
+      title: 'Free Designs',
+      description: 'Simple and professional invoice layouts.',
+      templates: [
+        {
+          id: 'classic',
+          name: 'Classic',
+          description: 'Traditional business invoice',
+          plan: 'free',
+          accent: '#334155',
+          style: 'classic',
+        },
+        {
+          id: 'minimal',
+          name: 'Minimal',
+          description: 'Clean and simple layout',
+          plan: 'free',
+          accent: '#64748b',
+          style: 'minimal',
+        },
+        {
+          id: 'basic-blue',
+          name: 'Basic Blue',
+          description: 'Professional blue header',
+          plan: 'free',
+          accent: '#2563eb',
+          style: 'blue',
+        },
+        {
+          id: 'mono',
+          name: 'Mono',
+          description: 'Black and white invoice',
+          plan: 'free',
+          accent: '#111827',
+          style: 'mono',
+        },
+      ],
+    },
+    {
+      plan: 'basic',
+      title: 'Basic Designs',
+      description: 'More layouts for growing businesses.',
+      templates: [
+        {
+          id: 'corporate',
+          name: 'Corporate',
+          description: 'Strong corporate header',
+          plan: 'basic',
+          accent: '#1e40af',
+          style: 'corporate',
+        },
+        {
+          id: 'elegant',
+          name: 'Elegant',
+          description: 'Elegant typography and spacing',
+          plan: 'basic',
+          accent: '#0f766e',
+          style: 'elegant',
+        },
+        {
+          id: 'creative',
+          name: 'Creative',
+          description: 'Creative color layout',
+          plan: 'basic',
+          accent: '#ea580c',
+          style: 'creative',
+        },
+        {
+          id: 'sidebar',
+          name: 'Sidebar',
+          description: 'Colored business information panel',
+          plan: 'basic',
+          accent: '#7c3aed',
+          style: 'sidebar',
+        },
+      ],
+    },
+    {
+      plan: 'premium',
+      title: 'Premium Designs',
+      description: 'Advanced and premium invoice styles.',
+      templates: [
+        {
+          id: 'luxury',
+          name: 'Luxury',
+          description: 'Premium black and gold design',
+          plan: 'premium',
+          accent: '#b08d42',
+          style: 'luxury',
+        },
+        {
+          id: 'gradient',
+          name: 'Gradient',
+          description: 'Modern gradient header',
+          plan: 'premium',
+          accent: '#7c3aed',
+          style: 'gradient',
+        },
+        {
+          id: 'executive',
+          name: 'Executive',
+          description: 'Executive business appearance',
+          plan: 'premium',
+          accent: '#172554',
+          style: 'executive',
+        },
+        {
+          id: 'signature',
+          name: 'Signature',
+          description: 'Large typography and branding',
+          plan: 'premium',
+          accent: '#9f1239',
+          style: 'signature',
+        },
+        {
+          id: 'modern-pro',
+          name: 'Modern Pro',
+          description: 'Structured modern layout',
+          plan: 'premium',
+          accent: '#0891b2',
+          style: 'modern-pro',
+        },
+      ],
+    },
+    {
+      plan: 'custom',
+      title: 'Custom Designs',
+      description: 'Advanced branding and layout customization.',
+      templates: [
+        {
+          id: 'my-brand',
+          name: 'My Brand',
+          description: 'Personalized business branding',
+          plan: 'custom',
+          accent: '#2563eb',
+          style: 'my-brand',
+        },
+        {
+          id: 'design-studio',
+          name: 'Design Studio',
+          description: 'Flexible layout and typography',
+          plan: 'custom',
+          accent: '#9333ea',
+          style: 'design-studio',
+        },
+      ],
+    },
+  ];
 
   getInvoiceTemplateLocked(template: InvoiceTemplateOption): boolean {
-  return false;
-}
+    return false;
+  }
 
   selectInvoiceTemplate(template: InvoiceTemplateOption): void {
     if (this.getInvoiceTemplateLocked(template)) {
       return;
     }
 
-    this.invoiceSettings.template = template.id as InvoiceTemplate;
+    this.invoiceSettings.template = template.id;
     this.onInvoiceTemplateChange();
+  }
+
+  getInvoicePreviewClass(): string {
+    return getInvoiceTemplateClass(this.invoiceSettings.template);
+  }
+
+  getInvoicePreviewStyle(): Record<string, string> {
+    const palette = createColorPalette(
+      this.invoiceSettings.primaryColor || this.lockedProfile.primaryColor || '#2563eb',
+    );
+    return {
+      ...invoiceCssVariables(palette),
+      '--preview-accent': palette.primary,
+    };
   }
 
   getInvoicePlanLabel(plan: InvoicePlan): string {
     return plan.charAt(0).toUpperCase() + plan.slice(1);
   }
+
   ngOnInit(): void {
     this.router.events
       .pipe(
@@ -358,9 +391,10 @@ export class BusinessHubPage implements OnInit, OnDestroy {
         this.syncSection();
 
         if (this.section === 'settings') {
-          if (!this.settingsLoadStarted) this.loadInvoiceSettings();
+          if (!this.settingsLoadStarted) {
+            this.loadInvoiceSettings();
+          }
         } else {
-          // Returning to Settings always fetches current /profile again.
           this.settingsLoadStarted = false;
         }
       });
@@ -375,85 +409,148 @@ export class BusinessHubPage implements OnInit, OnDestroy {
     if (!(error instanceof HttpErrorResponse)) {
       return error instanceof Error ? error.message : fallback;
     }
+
     const body = error.error;
+
     const message = typeof body === 'string'
-      ? body : body?.message || body?.error?.message || body?.error;
+      ? body
+      : body?.message || body?.error?.message || body?.error;
+
     return typeof message === 'string' ? message : fallback;
   }
 
   private loadInvoiceSettings(): void {
-    if (this.settingsLoading) return;
+    if (this.settingsLoading) {
+      return;
+    }
+
     this.settingsLoadStarted = true;
     this.settingsLoading = true;
     this.cdr.markForCheck();
+
     this.profileLoaded = false;
     this.profileError = '';
     this.settingsError = '';
 
-    // Always read /profile before /invoice-settings. They own different fields.
     this.businessProfileService.getProfile().pipe(
       switchMap(response => {
-        // Accept the raw profile response and the common API/service wrappers.
         const raw = response as unknown as Record<string, any>;
-        const body = raw?.['data']?.['account'] ? raw['data']
-          : raw?.['result']?.['account'] ? raw['result']
-            : raw?.['body']?.['account'] ? raw['body']
-              : raw?.['profileData']?.['account'] ? raw['profileData']
+
+        const body = raw?.['data']?.['account']
+          ? raw['data']
+          : raw?.['result']?.['account']
+            ? raw['result']
+            : raw?.['body']?.['account']
+              ? raw['body']
+              : raw?.['profileData']?.['account']
+                ? raw['profileData']
                 : raw;
-        const account = body?.['account'] ?? body?.['data']?.['account'] ?? body?.['profile']?.['account'];
-        const profile = body?.['profile'] ?? body?.['data']?.['profile'] ?? {};
+
+        const account =
+          body?.['account'] ??
+          body?.['data']?.['account'] ??
+          body?.['profile']?.['account'];
+
+        const profile =
+          body?.['profile'] ??
+          body?.['data']?.['profile'] ??
+          {};
+
         if (!account) {
           throw new Error('GET /profile did not return account details.');
         }
 
-        const logo = profile.businessLogo ?? profile.logo ?? account.businessLogo ?? '';
+        const logo =
+          profile.businessLogo ??
+          profile.logo ??
+          account.businessLogo ??
+          '';
+
         this.lockedProfile = {
           businessName: account.businessName ?? '',
           logoDataUrl: typeof logo === 'string' ? logo : '',
-          phone: profile.businessMobileNumber || account.ownerMobileNumber || account.phone || '',
+          phone:
+            profile.businessMobileNumber ||
+            account.ownerMobileNumber ||
+            account.phone ||
+            '',
           email: account.email || account.businessEmail || '',
           primaryColor: profile.brandColors?.primary || '#ff4d6d',
         };
+
         this.profileLoaded = true;
         this.cdr.markForCheck();
 
         return this.invoiceSettingsService.load().pipe(
           catchError((error: HttpErrorResponse) => {
-            if (error.status === 404) return of(null);
+            if (error.status === 404) {
+              return of(null);
+            }
+
             throw error;
           }),
         );
       }),
       takeUntil(this.destroy$),
-      finalize(() => { this.settingsLoading = false; this.cdr.markForCheck(); }),
+      finalize(() => {
+        this.settingsLoading = false;
+        this.cdr.markForCheck();
+      }),
     ).subscribe({
       next: settings => {
-        const responseBody = settings as unknown as Record<string, any> | null;
-        const saved = (responseBody?.['settings'] ?? responseBody?.['data']?.['settings']
-          ?? responseBody?.['data'] ?? responseBody) as Partial<HubInvoiceSettings> | null;
+        const responseBody =
+          settings as unknown as Record<string, any> | null;
+
+        const saved = (
+          responseBody?.['settings'] ??
+          responseBody?.['data']?.['settings'] ??
+          responseBody?.['data'] ??
+          responseBody
+        ) as Partial<HubInvoiceSettings> | null;
+
         this.settingsExists = !!saved;
+
         if (saved) {
-          // Whitelist prevents invoice-settings from overriding profile values.
           const editable: Partial<HubInvoiceSettings> = {};
+
           const fields: (keyof HubInvoiceSettings)[] = [
-            'address', 'gstin', 'footer', 'invoicePrefix',
-            'invoiceStartNumber', 'invoiceNumberPadding',
-            'pageSize', 'printColor', 'template',
+            'address',
+            'gstin',
+            'footer',
+            'invoicePrefix',
+            'invoiceStartNumber',
+            'invoiceNumberPadding',
+            'pageSize',
+            'printColor',
+            'template',
           ];
+
           for (const key of fields) {
             if (saved[key] !== undefined && saved[key] !== null) {
-              // Assigning a dynamically-selected field requires a narrowed indexed type.
               (editable as Record<string, unknown>)[key] = saved[key];
             }
           }
-          this.invoiceSettings = { ...this.invoiceSettings, ...editable };
+
+          this.invoiceSettings = {
+            ...this.invoiceSettings,
+            ...editable,
+          };
         }
+
         this.cdr.markForCheck();
       },
       error: (error: unknown) => {
-        const message = this.errorText(error, 'Could not load Business Hub settings.');
+        const message = this.errorText(
+          error,
+          'Could not load Business Hub settings.',
+        );
+
         this.settingsError = message;
-        if (!this.profileLoaded) this.profileError = message;
+
+        if (!this.profileLoaded) {
+          this.profileError = message;
+        }
+
         this.settingsLoadStarted = false;
         this.settingsLoading = false;
         this.cdr.markForCheck();
@@ -467,8 +564,17 @@ export class BusinessHubPage implements OnInit, OnDestroy {
 
   get sampleInvoiceNumber(): string {
     const prefix = this.invoiceSettings.invoicePrefix || 'BTECH';
-    const num = Math.max(1, Number(this.invoiceSettings.invoiceStartNumber) || 1);
-    const padding = Math.min(12, Math.max(1, Number(this.invoiceSettings.invoiceNumberPadding) || 5));
+
+    const num = Math.max(
+      1,
+      Number(this.invoiceSettings.invoiceStartNumber) || 1,
+    );
+
+    const padding = Math.min(
+      12,
+      Math.max(1, Number(this.invoiceSettings.invoiceNumberPadding) || 5),
+    );
+
     return `${prefix}${String(num).padStart(padding, '0')}`;
   }
 
@@ -491,27 +597,50 @@ export class BusinessHubPage implements OnInit, OnDestroy {
   }
 
   saveInvoiceSettings(): void {
-    if (this.settingsSaving || this.settingsLoading || !this.profileLoaded) return;
+    if (
+      this.settingsSaving ||
+      this.settingsLoading ||
+      !this.profileLoaded
+    ) {
+      return;
+    }
+
     this.settingsError = '';
     this.settingsSaved = false;
-    const prefix = String(this.invoiceSettings.invoicePrefix || '').trim();
+
+    const prefix = String(
+      this.invoiceSettings.invoicePrefix || '',
+    ).trim();
+
     if (!prefix) {
       this.settingsError = 'Invoice prefix is required.';
       return;
     }
-    const startNumber = Number(this.invoiceSettings.invoiceStartNumber);
-    const padding = Number(this.invoiceSettings.invoiceNumberPadding);
+
+    const startNumber = Number(
+      this.invoiceSettings.invoiceStartNumber,
+    );
+
+    const padding = Number(
+      this.invoiceSettings.invoiceNumberPadding,
+    );
+
     if (!Number.isSafeInteger(startNumber) || startNumber < 1) {
-      this.settingsError = 'Invoice start number must be a positive whole number.';
+      this.settingsError =
+        'Invoice start number must be a positive whole number.';
       return;
     }
-    if (!Number.isSafeInteger(padding) || padding < 1 || padding > 12) {
-      this.settingsError = 'Invoice number padding must be between 1 and 12.';
+
+    if (
+      !Number.isSafeInteger(padding) ||
+      padding < 1 ||
+      padding > 12
+    ) {
+      this.settingsError =
+        'Invoice number padding must be between 1 and 12.';
       return;
     }
-    // /profile owns the five locked fields. The invoice-settings API also
-    // accepts these fields, so populate them from the current profile snapshot
-    // instead of the empty invoiceSettings defaults. They remain read-only in UI.
+
     const payload = {
       businessName: this.lockedProfile.businessName,
       logoDataUrl: this.lockedProfile.logoDataUrl,
@@ -528,58 +657,99 @@ export class BusinessHubPage implements OnInit, OnDestroy {
       printColor: this.invoiceSettings.printColor,
       template: this.invoiceSettings.template,
     };
+
     this.invoiceSettings.invoiceStartNumber = startNumber;
     this.invoiceSettings.invoiceNumberPadding = padding;
+
     this.settingsSaving = true;
     this.cdr.markForCheck();
+
     const request = this.settingsExists
-      ? this.invoiceSettingsService.save(payload as unknown as InvoiceSettings)
-      : this.invoiceSettingsService.create(payload as unknown as InvoiceSettings);
+      ? this.invoiceSettingsService.save(
+          payload as unknown as InvoiceSettings,
+        )
+      : this.invoiceSettingsService.create(
+          payload as unknown as InvoiceSettings,
+        );
+
     request.pipe(
       take(1),
       takeUntil(this.destroy$),
-      finalize(() => { this.settingsSaving = false; this.cdr.markForCheck(); }),
+      finalize(() => {
+        this.settingsSaving = false;
+        this.cdr.markForCheck();
+      }),
     ).subscribe({
       next: saved => {
-        // HTTP succeeded: stop spinner immediately, even with nonstandard service streams.
         this.settingsSaving = false;
+
         const raw = saved as unknown as Record<string, any> | null;
+
         if (raw?.['success'] === false) {
-          this.settingsError = String(raw['message'] || 'Could not save invoice settings.');
+          this.settingsError = String(
+            raw['message'] || 'Could not save invoice settings.',
+          );
+
           this.cdr.markForCheck();
           return;
         }
-        // POST/PATCH responses contain { success, message, settings }.
-        const result = (raw?.['settings'] ?? raw?.['data']?.['settings']
-          ?? raw?.['data'] ?? raw) as Partial<HubInvoiceSettings> | null;
-        // Apply only saved editable fields; keep current /profile values.
+
+        const result = (
+          raw?.['settings'] ??
+          raw?.['data']?.['settings'] ??
+          raw?.['data'] ??
+          raw
+        ) as Partial<HubInvoiceSettings> | null;
+
         if (result) {
           const editable: Record<string, unknown> = {};
+
           for (const key of [
-            'address', 'gstin', 'footer', 'invoicePrefix',
-            'invoiceStartNumber', 'invoiceNumberPadding',
-            'pageSize', 'printColor', 'template',
+            'address',
+            'gstin',
+            'footer',
+            'invoicePrefix',
+            'invoiceStartNumber',
+            'invoiceNumberPadding',
+            'pageSize',
+            'printColor',
+            'template',
           ]) {
-            if ((result as Record<string, unknown>)[key] !== undefined) {
-              editable[key] = (result as Record<string, unknown>)[key];
+            if (
+              (result as Record<string, unknown>)[key] !== undefined
+            ) {
+              editable[key] =
+                (result as Record<string, unknown>)[key];
             }
           }
-          this.invoiceSettings = { ...this.invoiceSettings, ...editable };
+
+          this.invoiceSettings = {
+            ...this.invoiceSettings,
+            ...editable,
+          };
         }
+
         this.settingsExists = true;
         this.settingsSaved = true;
         this.cdr.markForCheck();
       },
       error: (error: HttpErrorResponse) => {
         this.settingsSaving = false;
-        this.settingsError = this.errorText(error, 'Could not save invoice settings.');
+
+        this.settingsError = this.errorText(
+          error,
+          'Could not save invoice settings.',
+        );
+
         this.cdr.markForCheck();
       },
     });
   }
 
   syncSection(): void {
-    const url = this.router.url.split('?')[0].replace(/\/$/, '');
+    const url = this.router.url
+      .split('?')[0]
+      .replace(/\/$/, '');
 
     const routes: Record<string, HubSection> = {
       '/app/business-hub': 'my-business',
@@ -608,11 +778,13 @@ export class BusinessHubPage implements OnInit, OnDestroy {
       },
       invoice: {
         title: 'Invoice Generator',
-        description: 'Create clear, professional invoices for your customers.',
+        description:
+          'Create clear, professional invoices for your customers.',
       },
       stock: {
         title: 'My Stock',
-        description: 'Manage products, prices, quantities and stock status.',
+        description:
+          'Manage products, prices, quantities and stock status.',
       },
       'payment-reminder': {
         title: 'Payment Reminder',
@@ -642,7 +814,9 @@ export class BusinessHubPage implements OnInit, OnDestroy {
   isSalesExpensesView(): boolean {
     return this.router.url
       .split('?')[0]
-      .replace(/\/$/, '')
+      .replace(/\/$/,
+        '',
+      )
       .endsWith('/sales-expenses');
   }
 }

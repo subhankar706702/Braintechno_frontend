@@ -1,0 +1,516 @@
+
+/* Additional reference-inspired invoice preview styles. */
+
+.invoice-preview--ref-red-gold {
+  border: 1px solid color-mix(in srgb, var(--preview-accent) 30%, #d6a64b);
+  background: linear-gradient(180deg, #fff 0%, color-mix(in srgb, var(--preview-accent) 4%, #fff) 100%);
+}
+.invoice-preview--ref-red-gold .preview-invoice-top {
+  margin: -22px -22px 18px;
+  padding: 25px 22px 30px;
+  color: var(--invoice-on-primary, #fff);
+  background: linear-gradient(125deg, var(--preview-accent), color-mix(in srgb, var(--preview-accent) 58%, #850d16));
+  border-radius: 14px 14px 38px 12px;
+  box-shadow: inset 0 -5px 0 color-mix(in srgb, var(--preview-accent) 55%, #e6b84b);
+}
+.invoice-preview--ref-red-gold .preview-brand strong,
+.invoice-preview--ref-red-gold .preview-brand small,
+.invoice-preview--ref-red-gold .preview-invoice-label strong,
+.invoice-preview--ref-red-gold .preview-invoice-label small {
+  color: var(--invoice-on-primary, #fff);
+}
+.invoice-preview--ref-red-gold .preview-items-head,
+.invoice-preview--ref-red-gold .preview-total b:last-child {
+  background: var(--preview-accent);
+  color: var(--invoice-on-primary, #fff);
+}
+
+.invoice-preview--ref-teal-clean {
+  border: 0;
+  border-radius: 3px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, .08);
+}
+.invoice-preview--ref-teal-clean .preview-invoice-top {
+  margin: -22px -22px 20px;
+  padding: 28px 22px 34px;
+  color: var(--invoice-on-primary, #fff);
+  background: var(--preview-accent);
+  border-radius: 3px;
+}
+.invoice-preview--ref-teal-clean .preview-brand strong,
+.invoice-preview--ref-teal-clean .preview-brand small,
+.invoice-preview--ref-teal-clean .preview-invoice-label strong,
+.invoice-preview--ref-teal-clean .preview-invoice-label small {
+  color: var(--invoice-on-primary, #fff);
+}
+.invoice-preview--ref-teal-clean .preview-items-head {
+  color: var(--preview-accent);
+  background: color-mix(in srgb, var(--preview-accent) 10%, #fff);
+}
+
+.invoice-preview--ref-green-classic {
+  border: 1px solid color-mix(in srgb, var(--preview-accent) 28%, #dce8d1);
+  background: #fff;
+}
+.invoice-preview--ref-green-classic .preview-invoice-top {
+  margin: -22px -22px 16px;
+  padding: 17px 22px;
+  color: var(--invoice-on-primary, #fff);
+  background: linear-gradient(90deg, var(--preview-accent), color-mix(in srgb, var(--preview-accent) 65%, #fff));
+}
+.invoice-preview--ref-green-classic .preview-brand strong,
+.invoice-preview--ref-green-classic .preview-brand small,
+.invoice-preview--ref-green-classic .preview-invoice-label strong,
+.invoice-preview--ref-green-classic .preview-invoice-label small {
+  color: var(--invoice-on-primary, #fff);
+}
+.invoice-preview--ref-green-classic .preview-items-head {
+  color: var(--preview-accent);
+  background: color-mix(in srgb, var(--preview-accent) 12%, #fff);
+}
+.invoice-preview--ref-green-classic .preview-total {
+  border: 1px solid color-mix(in srgb, var(--preview-accent) 35%, #fff);
+}
+
+.invoice-preview--ref-proforma {
+  border: 1px solid #d9dee8;
+  border-radius: 4px;
+  box-shadow: none;
+}
+.invoice-preview--ref-proforma .preview-invoice-top {
+  border-bottom: 2px solid var(--preview-accent);
+  padding-bottom: 14px;
+}
+.invoice-preview--ref-proforma .preview-invoice-label strong {
+  color: var(--preview-accent);
+  font-size: 15px;
+  letter-spacing: .08em;
+}
+.invoice-preview--ref-proforma .preview-meta,
+.invoice-preview--ref-proforma .preview-invoice-meta {
+  border-bottom: 1px solid #d9dee8;
+}
+.invoice-preview--ref-proforma .preview-items-head {
+  color: var(--invoice-on-primary, #fff);
+  background: color-mix(in srgb, var(--preview-accent) 78%, #172033);
+}
+.invoice-preview--ref-proforma .preview-total {
+  border-left: 3px solid var(--preview-accent);
+  padding-left: 12px;
+}
+
+.invoice-preview--ref-teal-wave {
+  border: 0;
+  background: linear-gradient(180deg, #fff 0%, color-mix(in srgb, var(--preview-accent) 5%, #fff) 100%);
+}
+.invoice-preview--ref-teal-wave .preview-invoice-top {
+  margin: -22px -22px 20px;
+  padding: 25px 22px 32px;
+  color: var(--invoice-on-primary, #fff);
+  background: linear-gradient(145deg, color-mix(in srgb, var(--preview-accent) 82%, #102c3a), var(--preview-accent));
+  border-radius: 0 0 42px 8px;
+  box-shadow: inset 0 -5px 0 color-mix(in srgb, var(--preview-accent) 35%, #fff);
+}
+.invoice-preview--ref-teal-wave .preview-brand strong,
+.invoice-preview--ref-teal-wave .preview-brand small,
+.invoice-preview--ref-teal-wave .preview-invoice-label strong,
+.invoice-preview--ref-teal-wave .preview-invoice-label small {
+  color: var(--invoice-on-primary, #fff);
+}
+.invoice-preview--ref-teal-wave .preview-items-head {
+  background: var(--preview-accent);
+  color: var(--invoice-on-primary, #fff);
+}
+
+.invoice-preview--wave-corporate {
+  border: 1px solid color-mix(in srgb, var(--preview-accent) 35%, #fff);
+  border-radius: 16px;
+}
+.invoice-preview--wave-corporate .preview-invoice-top {
+  margin: -22px -22px 18px;
+  padding: 22px;
+  color: var(--invoice-on-primary, #fff);
+  background: linear-gradient(120deg, var(--preview-accent), color-mix(in srgb, var(--preview-accent) 55%, #111827));
+  border-radius: 16px 16px 32px 4px;
+}
+.invoice-preview--wave-corporate .preview-brand strong,
+.invoice-preview--wave-corporate .preview-brand small,
+.invoice-preview--wave-corporate .preview-invoice-label strong,
+.invoice-preview--wave-corporate .preview-invoice-label small {
+  color: var(--invoice-on-primary, #fff);
+}
+
+.invoice-preview--green-minimal {
+  border: 0;
+  box-shadow: none;
+}
+.invoice-preview--green-minimal .preview-invoice-top {
+  border-top: 5px solid var(--preview-accent);
+  border-bottom: 1px solid color-mix(in srgb, var(--preview-accent) 35%, #fff);
+}
+.invoice-preview--green-minimal .preview-items-head {
+  color: var(--preview-accent);
+  background: color-mix(in srgb, var(--preview-accent) 8%, #fff);
+}
+.invoice-preview--green-minimal .preview-total {
+  border-top: 2px solid var(--preview-accent);
+}
+
+.invoice-preview--navy-executive {
+  border: 1px solid #cbd5e1;
+  border-radius: 5px;
+}
+.invoice-preview--navy-executive .preview-invoice-top {
+  margin: -22px -22px 18px;
+  padding: 24px 22px;
+  color: var(--invoice-on-primary, #fff);
+  background: color-mix(in srgb, var(--preview-accent) 72%, #101827);
+  border-radius: 5px 5px 0 0;
+}
+.invoice-preview--navy-executive .preview-brand strong,
+.invoice-preview--navy-executive .preview-brand small,
+.invoice-preview--navy-executive .preview-invoice-label strong,
+.invoice-preview--navy-executive .preview-invoice-label small {
+  color: var(--invoice-on-primary, #fff);
+}
+.invoice-preview--navy-executive .preview-items-head {
+  background: color-mix(in srgb, var(--preview-accent) 72%, #101827);
+  color: var(--invoice-on-primary, #fff);
+}
+
+.invoice-preview--royal-elegance {
+  border: 1px solid color-mix(in srgb, var(--preview-accent) 32%, #d6c6e9);
+  background: linear-gradient(145deg, #fff, color-mix(in srgb, var(--preview-accent) 4%, #fff));
+}
+.invoice-preview--royal-elegance .preview-invoice-top {
+  border-bottom: 2px solid var(--preview-accent);
+  padding-bottom: 14px;
+}
+.invoice-preview--royal-elegance .preview-invoice-label strong,
+.invoice-preview--royal-elegance .preview-total b:last-child {
+  color: var(--preview-accent);
+}
+.invoice-preview--royal-elegance .preview-items-head {
+  background: color-mix(in srgb, var(--preview-accent) 9%, #fff);
+  color: var(--preview-accent);
+}
+
+.invoice-preview--orange-creative {
+  border: 0;
+  border-radius: 16px;
+}
+.invoice-preview--orange-creative .preview-invoice-top {
+  margin: -22px -22px 18px;
+  padding: 23px 22px;
+  color: var(--invoice-on-primary, #fff);
+  background: linear-gradient(115deg, var(--preview-accent) 0 72%, color-mix(in srgb, var(--preview-accent) 45%, #111827) 72%);
+  border-radius: 16px 16px 4px 4px;
+}
+.invoice-preview--orange-creative .preview-brand strong,
+.invoice-preview--orange-creative .preview-brand small,
+.invoice-preview--orange-creative .preview-invoice-label strong,
+.invoice-preview--orange-creative .preview-invoice-label small {
+  color: var(--invoice-on-primary, #fff);
+}
+.invoice-preview--orange-creative .preview-total {
+  padding: 12px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--preview-accent) 8%, #fff);
+}
+
+.invoice-preview--emerald-modern {
+  border: 1px solid color-mix(in srgb, var(--preview-accent) 22%, #fff);
+  border-left: 6px solid var(--preview-accent);
+}
+.invoice-preview--emerald-modern .preview-invoice-top {
+  background: color-mix(in srgb, var(--preview-accent) 8%, #fff);
+  padding: 15px;
+}
+.invoice-preview--emerald-modern .preview-items-head {
+  color: var(--invoice-on-primary, #fff);
+  background: var(--preview-accent);
+}
+.invoice-preview--emerald-modern .preview-total b:last-child {
+  color: var(--preview-accent);
+}
+
+.invoice-preview--slate-minimal {
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+.invoice-preview--slate-minimal .preview-invoice-top {
+  border-bottom: 1px solid #64748b;
+}
+.invoice-preview--slate-minimal .preview-items-head {
+  color: var(--invoice-on-primary, #fff);
+  background: #475569;
+}
+.invoice-preview--slate-minimal .preview-total {
+  border-top: 1px solid #94a3b8;
+}
+
+.invoice-preview--rose-premium {
+  border: 1px solid color-mix(in srgb, var(--preview-accent) 25%, #fff);
+  border-radius: 18px;
+  background: linear-gradient(160deg, #fff, color-mix(in srgb, var(--preview-accent) 5%, #fff));
+}
+.invoice-preview--rose-premium .preview-invoice-top {
+  margin: -22px -22px 18px;
+  padding: 22px;
+  background: color-mix(in srgb, var(--preview-accent) 12%, #fff);
+  border-bottom: 2px solid var(--preview-accent);
+  border-radius: 18px 18px 0 0;
+}
+.invoice-preview--rose-premium .preview-invoice-label strong,
+.invoice-preview--rose-premium .preview-total b:last-child {
+  color: var(--preview-accent);
+}
+
+.invoice-preview--ocean-business {
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+}
+.invoice-preview--ocean-business .preview-invoice-top {
+  margin: -22px -22px 18px;
+  padding: 22px;
+  color: var(--invoice-on-primary, #fff);
+  background: linear-gradient(100deg, color-mix(in srgb, var(--preview-accent) 75%, #102a43), var(--preview-accent));
+  border-radius: 10px 10px 26px 0;
+}
+.invoice-preview--ocean-business .preview-brand strong,
+.invoice-preview--ocean-business .preview-brand small,
+.invoice-preview--ocean-business .preview-invoice-label strong,
+.invoice-preview--ocean-business .preview-invoice-label small {
+  color: var(--invoice-on-primary, #fff);
+}
+.invoice-preview--ocean-business .preview-items-head {
+  color: var(--preview-accent);
+  background: color-mix(in srgb, var(--preview-accent) 10%, #fff);
+}
+
+.invoice-preview--amber-luxe {
+  border: 1px solid color-mix(in srgb, var(--preview-accent) 28%, #d6a64b);
+  background: #fff;
+}
+.invoice-preview--amber-luxe .preview-invoice-top {
+  border-top: 4px solid var(--preview-accent);
+  border-bottom: 1px solid color-mix(in srgb, var(--preview-accent) 30%, #fff);
+  padding-top: 12px;
+}
+.invoice-preview--amber-luxe .preview-invoice-label strong,
+.invoice-preview--amber-luxe .preview-total b:last-child {
+  color: var(--preview-accent);
+}
+.invoice-preview--amber-luxe .preview-items-head {
+  color: var(--invoice-on-primary, #fff);
+  background: color-mix(in srgb, var(--preview-accent) 75%, #111827);
+}
+
+/* Legacy collection: individual visual treatments kept in the same preview layer. */
+.invoice-preview--classic {
+  border: 1px solid #dfe4ec;
+  border-radius: 8px;
+}
+.invoice-preview--classic .preview-invoice-top {
+  border-bottom: 2px solid var(--preview-accent);
+  padding-bottom: 14px;
+}
+.invoice-preview--classic .preview-invoice-label strong {
+  color: var(--preview-accent);
+}
+
+.invoice-preview--signature {
+  border-left: 5px solid var(--preview-accent);
+  border-radius: 4px;
+}
+.invoice-preview--signature .preview-invoice-top {
+  padding-bottom: 15px;
+  border-bottom: 1px solid color-mix(in srgb, var(--preview-accent) 35%, #fff);
+}
+.invoice-preview--signature .preview-invoice-label strong {
+  font-family: Georgia, serif;
+  font-weight: 500;
+  letter-spacing: .08em;
+}
+
+.invoice-preview--my-brand .preview-invoice-top {
+  margin: -22px -22px 18px;
+  padding: 24px 22px;
+  color: var(--invoice-on-primary, #fff);
+  background: linear-gradient(120deg, var(--preview-accent), color-mix(in srgb, var(--preview-accent) 55%, #172033));
+  border-radius: 12px 12px 26px 4px;
+}
+.invoice-preview--my-brand .preview-brand strong,
+.invoice-preview--my-brand .preview-brand small,
+.invoice-preview--my-brand .preview-invoice-label strong,
+.invoice-preview--my-brand .preview-invoice-label small {
+  color: var(--invoice-on-primary, #fff);
+}
+
+.invoice-preview--elegant {
+  border: 1px solid #e8e2dc;
+  border-radius: 3px;
+}
+.invoice-preview--elegant .preview-invoice-top {
+  border-top: 2px solid var(--preview-accent);
+  border-bottom: 1px solid #e8e2dc;
+  padding: 14px 0;
+}
+.invoice-preview--elegant .preview-invoice-label strong {
+  color: var(--preview-accent);
+  font-family: Georgia, serif;
+  font-weight: 500;
+  letter-spacing: .12em;
+}
+
+.invoice-preview--design-studio {
+  border: 0;
+  border-radius: 14px;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, .10);
+}
+.invoice-preview--design-studio .preview-invoice-top {
+  margin: -22px -22px 18px;
+  padding: 24px 22px 28px;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--preview-accent) 12%, #fff), #fff 60%);
+  border-bottom: 3px solid var(--preview-accent);
+  border-radius: 14px 14px 0 0;
+}
+.invoice-preview--design-studio .preview-invoice-label strong {
+  color: var(--preview-accent);
+  font-family: Georgia, serif;
+  letter-spacing: .1em;
+}
+
+.invoice-preview--sidebar {
+  border-left: 8px solid var(--preview-accent);
+  border-radius: 5px;
+}
+.invoice-preview--sidebar .preview-invoice-top {
+  padding-bottom: 13px;
+  border-bottom: 1px solid color-mix(in srgb, var(--preview-accent) 28%, #fff);
+}
+.invoice-preview--sidebar .preview-brand {
+  align-items: flex-start;
+}
+.invoice-preview--sidebar .preview-invoice-label strong {
+  color: var(--preview-accent);
+  font-size: 14px;
+}
+
+.invoice-preview--basic-blue .preview-invoice-top {
+  margin: -22px -22px 18px;
+  padding: 22px;
+  color: var(--invoice-on-primary, #fff);
+  background: var(--preview-accent);
+  border-radius: 8px 8px 0 0;
+}
+.invoice-preview--basic-blue .preview-brand strong,
+.invoice-preview--basic-blue .preview-brand small,
+.invoice-preview--basic-blue .preview-invoice-label strong,
+.invoice-preview--basic-blue .preview-invoice-label small {
+  color: var(--invoice-on-primary, #fff);
+}
+.invoice-preview--basic-blue .preview-items-head {
+  color: var(--preview-accent);
+  background: color-mix(in srgb, var(--preview-accent) 10%, #fff);
+}
+
+.invoice-preview--luxury {
+  border: 1px solid #d8c79e;
+  border-radius: 2px;
+}
+.invoice-preview--luxury .preview-invoice-top {
+  border-top: 1px solid #c5a45d;
+  border-bottom: 1px solid #c5a45d;
+  padding: 15px 0;
+}
+.invoice-preview--luxury .preview-invoice-label strong,
+.invoice-preview--luxury .preview-total b:last-child {
+  color: var(--preview-accent);
+  font-family: Georgia, serif;
+  letter-spacing: .08em;
+}
+
+.invoice-preview--mono {
+  border: 1px solid #111827;
+  border-radius: 0;
+  font-family: 'Courier New', monospace;
+}
+.invoice-preview--mono .preview-invoice-top,
+.invoice-preview--mono .preview-invoice-meta,
+.invoice-preview--mono .preview-items-head {
+  border-radius: 0;
+  border-bottom: 1px solid #111827;
+}
+.invoice-preview--mono .preview-items-head {
+  color: #fff;
+  background: #111827;
+}
+
+.invoice-preview--modern-pro .preview-invoice-top {
+  margin: -22px -22px 18px;
+  padding: 24px 22px;
+  color: var(--invoice-on-primary, #fff);
+  background: linear-gradient(115deg, var(--preview-accent), color-mix(in srgb, var(--preview-accent) 58%, #172033));
+  border-radius: 10px 10px 3px 3px;
+}
+.invoice-preview--modern-pro .preview-brand strong,
+.invoice-preview--modern-pro .preview-brand small,
+.invoice-preview--modern-pro .preview-invoice-label strong,
+.invoice-preview--modern-pro .preview-invoice-label small {
+  color: var(--invoice-on-primary, #fff);
+}
+.invoice-preview--modern-pro .preview-total {
+  border-top: 2px solid var(--preview-accent);
+  padding-top: 10px;
+}
+
+.invoice-preview--gradient .preview-invoice-top {
+  margin: -22px -22px 18px;
+  padding: 25px 22px 30px;
+  color: var(--invoice-on-primary, #fff);
+  background: linear-gradient(130deg, var(--preview-accent), color-mix(in srgb, var(--preview-accent) 35%, #7c3aed));
+  border-radius: 12px 12px 34px 0;
+}
+.invoice-preview--gradient .preview-brand strong,
+.invoice-preview--gradient .preview-brand small,
+.invoice-preview--gradient .preview-invoice-label strong,
+.invoice-preview--gradient .preview-invoice-label small {
+  color: var(--invoice-on-primary, #fff);
+}
+
+.invoice-preview--creative {
+  border: 1px solid color-mix(in srgb, var(--preview-accent) 30%, #fff);
+  border-radius: 12px;
+}
+.invoice-preview--creative .preview-invoice-top {
+  margin: -22px -22px 18px;
+  padding: 22px;
+  background: color-mix(in srgb, var(--preview-accent) 9%, #fff);
+  border-bottom: 4px solid var(--preview-accent);
+  border-radius: 12px 12px 0 0;
+}
+.invoice-preview--creative .preview-invoice-label strong {
+  color: var(--preview-accent);
+  font-size: 17px;
+  letter-spacing: .06em;
+}
+
+.invoice-preview--executive .preview-invoice-top {
+  margin: -22px -22px 20px;
+  padding: 23px 22px;
+  color: var(--invoice-on-primary, #fff);
+  background: color-mix(in srgb, var(--preview-accent) 82%, #111827);
+  border-bottom: 4px solid var(--preview-accent);
+}
+.invoice-preview--executive .preview-brand strong,
+.invoice-preview--executive .preview-brand small,
+.invoice-preview--executive .preview-invoice-label strong,
+.invoice-preview--executive .preview-invoice-label small {
+  color: var(--invoice-on-primary, #fff);
+}
+.invoice-preview--executive .preview-items-head {
+  color: var(--preview-accent);
+  background: color-mix(in srgb, var(--preview-accent) 9%, #fff);
+}

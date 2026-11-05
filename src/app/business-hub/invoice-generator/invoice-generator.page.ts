@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, computed, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Observable, finalize } from 'rxjs';
+import { finalize } from 'rxjs';
 
 import { InvoiceSettingsService } from '../models/invoice-settings.service';
 import { InvoiceDesignService } from '../invoice-design/services/invoice-design.service';
@@ -24,6 +24,7 @@ import { CustomerApiService } from '../../core/customer-api.service';
 import { ConfirmDialogService } from '../../Common/components/confirm-dialog/confirm-dialog.service';
 
 interface InvoiceLine {
+  itemType: 'stock' | 'custom';
   stockItemId: string;
   name: string;
   description: string;
@@ -35,6 +36,17 @@ interface InvoiceLine {
   gstEnabled: boolean;
   gstRate: number;
   availableQuantity: number;
+}
+
+interface ManualInvoiceItemDraft {
+  name: string;
+  description: string;
+  quantity: number;
+  unit: string;
+  unitPrice: number;
+  discountPercent: number;
+  gstEnabled: boolean;
+  gstRate: number;
 }
 
 interface InvoiceCustomer {
@@ -70,6 +82,8 @@ export class InvoiceGeneratorPage implements OnInit {
   readonly previewMode = signal(false);
 
   readonly items = signal<InvoiceLine[]>([]);
+  readonly showManualItemForm = signal(false);
+  manualItem: ManualInvoiceItemDraft = this.emptyManualItem();
 
   readonly subtotal = computed(() =>
     this.items().reduce((sum, item) => sum + this.lineSubtotal(item), 0),
@@ -132,6 +146,19 @@ export class InvoiceGeneratorPage implements OnInit {
     this.loadStock();
   }
 
+  private emptyManualItem(): ManualInvoiceItemDraft {
+    return {
+      name: '',
+      description: '',
+      quantity: 1,
+      unit: 'pcs',
+      unitPrice: 0,
+      discountPercent: 0,
+      gstEnabled: false,
+      gstRate: 18,
+    };
+  }
+
   private emptyCustomer(): InvoiceCustomer {
     return {
       name: '',
@@ -187,6 +214,19 @@ export class InvoiceGeneratorPage implements OnInit {
       });
   }
 
+  handleProductSelection(value: string): void {
+    if (!value) return;
+
+    if (value === '__manual_item__') {
+      this.showManualItemForm.set(true);
+      this.error.set('');
+      return;
+    }
+
+    this.showManualItemForm.set(false);
+    this.addProduct(value);
+  }
+
   addProduct(stockId: string): void {
     if (!stockId) return;
 
@@ -228,6 +268,7 @@ export class InvoiceGeneratorPage implements OnInit {
     }
 
     const line: InvoiceLine = {
+      itemType: 'stock',
       stockItemId: product.id,
       name: product.name,
       description: product.description ?? '',
@@ -247,6 +288,54 @@ export class InvoiceGeneratorPage implements OnInit {
     this.previewMode.set(false);
   }
 
+  addManualItem(): void {
+    const name = this.manualItem.name.trim();
+    const description = this.manualItem.description.trim();
+    const unit = this.manualItem.unit.trim() || 'pcs';
+    const quantity = this.clamp(this.manualItem.quantity, 1, 1_000_000);
+    const unitPrice = this.roundMoney(this.clamp(this.manualItem.unitPrice, 0, 100_000_000_000));
+    const discountPercent = this.roundMoney(this.clamp(this.manualItem.discountPercent, 0, 100));
+    const gstRate = this.manualItem.gstEnabled
+      ? this.roundMoney(this.clamp(this.manualItem.gstRate, 0, 100))
+      : 0;
+
+    if (!name) {
+      this.error.set('Enter the item or charge name.');
+      return;
+    }
+    if (name.length > 120 || description.length > 1000 || unit.length > 30) {
+      this.error.set('Please shorten the item name, details, or unit.');
+      return;
+    }
+
+    const line: InvoiceLine = {
+      itemType: 'custom',
+      stockItemId: '',
+      name,
+      description,
+      sku: '',
+      quantity,
+      unit,
+      unitPrice,
+      discountPercent,
+      gstEnabled: this.manualItem.gstEnabled,
+      gstRate,
+      availableQuantity: 1_000_000,
+    };
+
+    this.items.update(lines => [...lines, line]);
+    this.manualItem = this.emptyManualItem();
+    this.showManualItemForm.set(false);
+    this.idempotencyKey = this.createIdempotencyKey();
+    this.error.set('');
+    this.previewMode.set(false);
+  }
+
+  toggleManualItemForm(): void {
+    this.showManualItemForm.update(value => !value);
+    this.error.set('');
+  }
+
   updateLine(
     index: number,
     field: 'quantity' | 'unitPrice' | 'discountPercent',
@@ -259,7 +348,7 @@ export class InvoiceGeneratorPage implements OnInit {
 
     if (field === 'quantity') {
       item.quantity = Math.floor(
-        this.clamp(value, 1, item.availableQuantity),
+        this.clamp(value, 1, item.itemType === 'stock' ? item.availableQuantity : 1_000_000),
       );
     } else if (field === 'unitPrice') {
       item.unitPrice = this.roundMoney(
@@ -356,7 +445,13 @@ export class InvoiceGeneratorPage implements OnInit {
         mobile: normalizedMobile || this.customer.mobile.trim(),
       },
       items: this.items().map(item => ({
-        stockItemId: item.stockItemId,
+        itemType: item.itemType,
+        stockItemId: item.itemType === 'stock' ? item.stockItemId : undefined,
+        name: item.itemType === 'custom' ? item.name : undefined,
+        description: item.itemType === 'custom' ? item.description : undefined,
+        unit: item.unit,
+        gstEnabled: item.gstEnabled,
+        gstRate: item.gstRate,
         quantity: item.quantity,
         unitPrice: item.unitPrice,
         discountPercent: item.discountPercent,
@@ -383,7 +478,8 @@ export class InvoiceGeneratorPage implements OnInit {
         gstin: this.customer.gstin.trim().toUpperCase(),
       },
       items: this.items().map(item => ({
-        stockItemId: item.stockItemId,
+        itemType: item.itemType,
+        ...(item.itemType === 'stock' ? { stockItemId: item.stockItemId } : {}),
         name: item.name,
         description: item.description,
         sku: item.sku,
@@ -400,8 +496,8 @@ export class InvoiceGeneratorPage implements OnInit {
       idempotencyKey: this.idempotencyKey,
     };
 
-    // Without a valid mobile number there is no safe way to match a customer.
-    // The invoice can still be finalized when the existing validation permits it.
+    // A mobile number is required for customer matching.
+    // Fully paid invoices without a mobile number can still be finalized.
     if (!normalizedMobile) {
       this.submitInvoice(payload);
       return;
@@ -409,69 +505,34 @@ export class InvoiceGeneratorPage implements OnInit {
 
     this.saving.set(true);
 
-    this.customerApi
-      .findByMobile(normalizedMobile)
+    this.customerApi.findByMobile(normalizedMobile)
       .pipe(finalize(() => this.saving.set(false)))
       .subscribe({
         next: result => {
-          // Release the lookup lock before starting another request.
+          // findByMobile has completed its useful work. Release its lock before
+          // opening the dialog or starting the next request.
           this.saving.set(false);
-
           const existingCustomer = result?.item ?? null;
 
-          if (!existingCustomer) {
-            // No customer exists for this account/mobile: create, then finalize.
-            this.syncCustomerThenFinalize(payload, false);
+          if (existingCustomer) {
+            const customerName =
+              existingCustomer.name?.trim() || 'this customer';
+
+            this.confirmDialog.confirm({
+              title: 'Update existing customer?',
+              subtitle: `A customer named "${customerName}" already exists with this mobile number. Do you want to update only the customer's Name, Email and Address with the details entered in this invoice? Choosing No will keep the existing customer details unchanged and still create the invoice.`,
+              type: 'warning',
+              icon: 'warning',
+              showCancel: true,
+              successButtonName: 'Yes, Update',
+              cancelButtonName: 'No, Keep Existing',
+              success: () => this.syncCustomerThenFinalize(payload, true),
+              cancel: () => this.submitInvoice(payload),
+            });
             return;
           }
 
-          const currentName = String(existingCustomer.name ?? '').trim();
-          const currentEmail = String(existingCustomer.email ?? '').trim();
-          const currentAddress = String(existingCustomer.address ?? '').trim();
-
-          const enteredName = payload.customer.name.trim();
-          const enteredEmail = String(payload.customer.email ?? '').trim();
-          const enteredAddress = String(payload.customer.address ?? '').trim();
-
-          const detailsChanged =
-            currentName !== enteredName ||
-            currentEmail.toLowerCase() !== enteredEmail.toLowerCase() ||
-            currentAddress !== enteredAddress;
-
-          if (!detailsChanged) {
-            // Customer details are already identical; finalize without PATCH.
-            this.submitInvoice(payload);
-            return;
-          }
-
-          const displayMobile = `+91${normalizedMobile}`;
-          const existingIdentity = currentName
-            ? `already has customer ${currentName}`
-            : currentEmail
-              ? `already has email ${currentEmail}`
-              : 'already has an existing customer record';
-
-          this.confirmDialog.confirm({
-            title: 'Update Customer Details?',
-            subtitle: `This mobile number ${displayMobile} ${existingIdentity}. Do you want to update this customer's details?`,
-            type: 'warning',
-            icon: 'inform',
-            showCancel: true,
-            successButtonName: 'Yes, Update',
-            cancelButtonName: 'No',
-            success: () => {
-              // Yes: PATCH only Name, Email and Address, then finalize invoice.
-              this.syncCustomerThenFinalize(
-                payload,
-                true,
-                existingCustomer.id,
-              );
-            },
-            cancel: () => {
-              // No: do not call any customer API; finalize invoice only.
-              this.submitInvoice(payload);
-            },
-          });
+          this.syncCustomerThenFinalize(payload, false);
         },
         error: err => {
           console.error('Customer lookup failed:', err);
@@ -486,59 +547,32 @@ export class InvoiceGeneratorPage implements OnInit {
   private syncCustomerThenFinalize(
     invoicePayload: InvoiceDraftPayload,
     updateExisting: boolean,
-    existingCustomerId?: string,
   ): void {
-    const mobile = this.normalizeIndianMobile(
-      invoicePayload.customer.mobile,
-    );
+    const mobile = this.normalizeIndianMobile(this.customer.mobile);
 
     if (!mobile) {
       this.submitInvoice(invoicePayload);
       return;
     }
 
-    // Never fall back to creating/syncing when an existing record was meant
-    // to be updated but its ID is missing.
-    if (updateExisting && !existingCustomerId) {
-      this.error.set(
-        'Could not identify the existing customer. Invoice was not finalized.',
-      );
-      return;
-    }
-
     this.saving.set(true);
-    this.error.set('');
 
-    const customerDetails = {
-      name: invoicePayload.customer.name.trim(),
-      email: String(invoicePayload.customer.email ?? '').trim(),
-      address: String(invoicePayload.customer.address ?? '').trim(),
-    };
-
-    const customerRequest: Observable<unknown> = updateExisting
-      ? this.customerApi.update(existingCustomerId!, {
-          // PATCH only approved fields. Mobile and GSTIN are never sent.
-          name: customerDetails.name,
-          email: customerDetails.email,
-          address: customerDetails.address,
-        })
-      : this.customerApi.syncFromInvoice({
-          name: customerDetails.name,
-          mobile,
-          email: customerDetails.email,
-          address: customerDetails.address,
-          updateExisting: false,
-        });
-
-    customerRequest
+    this.customerApi
+      .syncFromInvoice({
+        name: this.customer.name.trim(),
+        mobile,
+        email: this.customer.email.trim(),
+        address: this.customer.address.trim(),
+        updateExisting,
+      })
       .pipe(finalize(() => this.saving.set(false)))
       .subscribe({
         next: () => {
-          // Release this request's lock before submitInvoice checks saving().
+          // Release the customer-sync lock before submitInvoice checks saving().
           this.saving.set(false);
           this.submitInvoice(invoicePayload);
         },
-        error: (err: any) => {
+        error: err => {
           console.error('Customer synchronization failed:', err);
           this.error.set(
             err?.error?.message ||
@@ -584,10 +618,17 @@ export class InvoiceGeneratorPage implements OnInit {
           this.lastInvoice.set(invoice);
           this.lastInvoiceId.set(invoice.id);
 
+          const hasStockProducts = this.items().some(
+            item => item.itemType === 'stock',
+          );
           this.successDialogMessage.set(
             invoice.calculation.dueAmount > 0
-              ? 'Invoice saved successfully. Outstanding balance has been recorded and stock has been updated.'
-              : 'Invoice saved successfully. Stock has been updated.',
+              ? hasStockProducts
+                ? 'Customer and due details are stored. Stock products have been deducted; other charges were added without stock changes.'
+                : 'Customer and due details are stored. Manual items and charges were added without changing stock.'
+              : hasStockProducts
+                ? 'Invoice saved successfully. Stock products have been deducted; other charges were added without stock changes.'
+                : 'Invoice saved successfully. Manual items and charges were added without changing stock.',
           );
 
           this.successDialogOpen.set(true);
@@ -779,6 +820,8 @@ export class InvoiceGeneratorPage implements OnInit {
 
     this.customer = this.emptyCustomer();
     this.items.set([]);
+    this.manualItem = this.emptyManualItem();
+    this.showManualItemForm.set(false);
     this.paidAmount.set(0);
     this.paymentMethod = 'Cash';
     this.notes = '';
@@ -812,7 +855,7 @@ export class InvoiceGeneratorPage implements OnInit {
         return `Enter a valid quantity for ${item.name}.`;
       }
 
-      if (item.quantity > item.availableQuantity) {
+      if (item.itemType === 'stock' && item.quantity > item.availableQuantity) {
         return `Only ${item.availableQuantity} ${item.unit} available for ${item.name}.`;
       }
 

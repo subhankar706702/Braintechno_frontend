@@ -98,7 +98,7 @@ export interface InvoiceCustomerSyncPayload {
   mobile: string;
   email?: string;
   address?: string;
-  updateExisting: boolean;
+  updateExisting?: boolean;
 }
 
 export interface InvoiceCustomerSyncResponse {
@@ -175,7 +175,7 @@ export class CustomerApiService {
         mobile: normalizedMobile,
         email: String(payload.email || '').trim(),
         address: String(payload.address || '').trim(),
-        updateExisting: payload.updateExisting
+        updateExisting: payload.updateExisting === true
       }
     );
   }

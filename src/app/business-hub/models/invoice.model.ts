@@ -24,7 +24,8 @@ export interface InvoiceProductOption {
 }
 
 export interface InvoiceLine {
-  stockItemId: string;
+  itemType?: 'stock' | 'custom';
+  stockItemId?: string;
   name: string;
   description: string;
   sku: string;

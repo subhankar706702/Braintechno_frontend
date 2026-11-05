@@ -167,7 +167,7 @@
         <div class="section-heading">
           <div>
             <span class="section-number">02</span>
-            <h2>Add Products</h2>
+            <h2>Add Products &amp; Charges</h2>
           </div>
           <span class="item-count">{{ items().length }} items</span>
         </div>
@@ -175,14 +175,14 @@
         <div class="product-picker">
           <div class="picker-copy">
             <strong>Select from My Stock</strong>
-            <span>Product details and price will be filled automatically.</span>
+            <span>Choose a saved product. Its details, price and GST will be filled automatically.</span>
           </div>
 
           <select
             #productSelect
             aria-label="Select a product from stock"
             [disabled]="loadingStock()"
-            (change)="addProduct(productSelect.value); productSelect.value = ''"
+            (change)="handleProductSelection(productSelect.value); productSelect.value = ''"
           >
             <option value="">
               {{ loadingStock() ? 'Loading stock...' : 'Choose a product' }}
@@ -194,7 +194,78 @@
             >
               {{ product.name }} · {{ product.quantity }} {{ product.unit }} available
             </option>
+            <option value="__manual_item__">＋ Add Other Item / Charge (Non-stock)</option>
           </select>
+        </div>
+
+        <div class="manual-item-entry">
+          <div class="manual-item-form" *ngIf="showManualItemForm()">
+            <div class="manual-item-intro manual-item-form-heading">
+              <div>
+                <strong>Add Other Item / Charge</strong>
+                <span>Additional invoice item only. It will not be deducted from My Stock.</span>
+              </div>
+              <button type="button" class="btn btn-outline manual-item-toggle" (click)="toggleManualItemForm()">Cancel</button>
+            </div>
+            <div class="form-grid">
+              <label class="field">
+                <span>Item / charge name <span class="required">*</span></span>
+                <input
+                  type="text"
+                  name="manualItemName"
+                  [(ngModel)]="manualItem.name"
+                  placeholder="e.g. Delivery Charge"
+                  maxlength="120"
+                />
+              </label>
+
+              <label class="field">
+                <span>Details</span>
+                <input
+                  type="text"
+                  name="manualItemDetails"
+                  [(ngModel)]="manualItem.description"
+                  placeholder="e.g. Cake packaging and carry bag"
+                  maxlength="1000"
+                />
+              </label>
+
+              <label class="field">
+                <span>Quantity</span>
+                <input type="number" name="manualItemQuantity" min="1" step="1" [(ngModel)]="manualItem.quantity" />
+              </label>
+
+              <label class="field">
+                <span>Unit</span>
+                <input type="text" name="manualItemUnit" [(ngModel)]="manualItem.unit" placeholder="pcs, packet, bag, service" maxlength="30" />
+              </label>
+
+              <label class="field">
+                <span>Price per unit (₹)</span>
+                <input type="number" name="manualItemPrice" min="0" step="0.01" [(ngModel)]="manualItem.unitPrice" />
+              </label>
+
+              <label class="field">
+                <span>Discount (%)</span>
+                <input type="number" name="manualItemDiscount" min="0" max="100" step="0.01" [(ngModel)]="manualItem.discountPercent" />
+              </label>
+
+              <label class="manual-gst-toggle">
+                <input type="checkbox" name="manualItemGstEnabled" [(ngModel)]="manualItem.gstEnabled" />
+                <span>Apply GST</span>
+              </label>
+
+              <label class="field" *ngIf="manualItem.gstEnabled">
+                <span>GST rate (%)</span>
+                <input type="number" name="manualItemGstRate" min="0" max="100" step="0.01" [(ngModel)]="manualItem.gstRate" />
+              </label>
+            </div>
+
+            <div class="manual-item-actions">
+              <small>This item or charge will be added to the invoice only. My Stock quantity will not change.</small>
+              <button type="button" class="btn btn-primary" (click)="addManualItem()">Add to Invoice</button>
+            </div>
+          </div>
         </div>
 
         <div class="loading-state" *ngIf="loadingStock()">
@@ -203,8 +274,8 @@
 
         <div class="empty-state" *ngIf="!loadingStock() && items().length === 0">
           <span class="empty-icon" aria-hidden="true">▤</span>
-          <strong>No products added yet</strong>
-          <p>Select a product above to start creating your invoice.</p>
+          <strong>No invoice items added yet</strong>
+          <p>Select a product from My Stock or add another item / charge above.</p>
         </div>
 
         <div class="invoice-items" *ngIf="items().length > 0">
@@ -212,6 +283,7 @@
             <div class="item-top">
               <div class="item-identification">
                 <strong>{{ item.name }}</strong>
+                <span class="item-source-label">{{ item.itemType === 'custom' ? 'Manual item / charge · No stock deduction' : 'From My Stock' }}</span>
                 <span *ngIf="item.sku">SKU: {{ item.sku }}</span>
                 <span *ngIf="item.description">{{ item.description }}</span>
               </div>
@@ -250,7 +322,8 @@
                   [ngModelOptions]="{ standalone: true }"
                   (ngModelChange)="updateLine(i, 'quantity', $event)"
                 />
-                <small>{{ item.availableQuantity }} available</small>
+                <small *ngIf="item.itemType === 'stock'">{{ item.availableQuantity }} available</small>
+                <small *ngIf="item.itemType === 'custom'">Manual quantity</small>
               </label>
 
               <label class="field">

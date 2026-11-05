@@ -7,6 +7,7 @@ import { getInvoiceTypography } from '../core/invoice-typography';
 
 import type { InvoicePdfContext } from '../core/invoice-document.model';
 import type { InvoiceTemplateDefinition } from '../core/invoice-design.types';
+import { loadInvoiceImageAsDataUrl } from '../services/invoice-image.service';
 
 type PdfColor = [number, number, number];
 
@@ -333,25 +334,20 @@ function formatDate(value: unknown): string {
  * The source image is center-cropped into a square before clipping.
  */
 async function loadCircularLogoDataUrl(
-  source: string | null | undefined,
+  source: string,
 ): Promise<string | null> {
-  const value = String(source || '').trim();
+  const dataUrl = await loadInvoiceImageAsDataUrl(source);
 
-  if (!value) {
+  if (!dataUrl) {
     return null;
   }
 
-  return new Promise<string | null>((resolve) => {
+  return new Promise(resolve => {
     const image = new Image();
-
-    if (!value.startsWith('data:')) {
-      image.crossOrigin = 'anonymous';
-    }
 
     image.onload = () => {
       try {
-        const size = 512;
-
+        const size = 320;
         const canvas = document.createElement('canvas');
 
         canvas.width = size;
@@ -364,36 +360,16 @@ async function loadCircularLogoDataUrl(
           return;
         }
 
-        const imageWidth = image.naturalWidth;
-        const imageHeight = image.naturalHeight;
-
-        if (!imageWidth || !imageHeight) {
-          resolve(null);
-          return;
-        }
-
-        const cropSize = Math.min(
-          imageWidth,
-          imageHeight,
+        const imageSize = Math.min(
+          image.naturalWidth,
+          image.naturalHeight,
         );
 
-        const sourceX = (imageWidth - cropSize) / 2;
-        const sourceY = (imageHeight - cropSize) / 2;
-
-        ctx.clearRect(0, 0, size, size);
-
-        ctx.save();
+        const sourceX = (image.naturalWidth - imageSize) / 2;
+        const sourceY = (image.naturalHeight - imageSize) / 2;
 
         ctx.beginPath();
-
-        ctx.arc(
-          size / 2,
-          size / 2,
-          size / 2,
-          0,
-          Math.PI * 2,
-        );
-
+        ctx.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2);
         ctx.closePath();
         ctx.clip();
 
@@ -401,25 +377,23 @@ async function loadCircularLogoDataUrl(
           image,
           sourceX,
           sourceY,
-          cropSize,
-          cropSize,
+          imageSize,
+          imageSize,
           0,
           0,
           size,
           size,
         );
 
-        ctx.restore();
-
         resolve(canvas.toDataURL('image/png'));
-      } catch {
+      } catch (error) {
+        console.error('[Amber Luxe] Circular logo error:', error);
         resolve(null);
       }
     };
 
     image.onerror = () => resolve(null);
-
-    image.src = value;
+    image.src = dataUrl;
   });
 }
 
@@ -681,12 +655,12 @@ export async function renderAmberLuxePdf(
     : COLORS.paper;
 
   const typography = getInvoiceTypography(
-  'elegant',
-  'bold',
-  'airy',
-);
+    'elegant',
+    'bold',
+    'airy',
+  );
 
-const spacing = getInvoiceSpacing('airy');
+  const spacing = getInvoiceSpacing('airy');
   void typography;
   void spacing;
   void getContrastColor;

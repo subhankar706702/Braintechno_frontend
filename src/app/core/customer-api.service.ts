@@ -1,25 +1,13 @@
-import {
-  Injectable
-} from '@angular/core';
 
+import { Injectable } from '@angular/core';
 import {
   HttpClient,
   HttpParams
 } from '@angular/common/http';
+import { Observable } from 'rxjs';
 
-import {
-  Observable
-} from 'rxjs';
+import { API_BASE_URL } from './api.config';
 
-import {
-  API_BASE_URL
-} from './api.config';
-
-
-/**
- * Customer type/source values are runtime values owned by the backend.
- * Do not convert these into a frontend enum or literal union.
- */
 export type CustomerType = string;
 export type CustomerSource = string;
 
@@ -35,6 +23,8 @@ export interface CustomerItem {
   name: string;
   mobile: string;
   email: string;
+  address: string;
+  gstin: string;
   customerType: CustomerType;
   source: CustomerSource;
   image: string;
@@ -55,7 +45,6 @@ export interface CustomerOptions {
 
 export interface CustomerListResponse {
   items: CustomerItem[];
-
   meta: {
     page: number;
     limit: number;
@@ -63,7 +52,6 @@ export interface CustomerListResponse {
     totalPages: number;
     hasMore: boolean;
   };
-
   counts: CustomerCounts;
 }
 
@@ -82,6 +70,8 @@ export interface CreateCustomerPayload {
   name?: string;
   mobile?: string;
   email?: string;
+  address?: string;
+  gstin?: string;
   customerType?: CustomerType;
   source?: CustomerSource;
   image?: string;
@@ -92,9 +82,29 @@ export interface UpdateCustomerPayload {
   name?: string;
   mobile?: string;
   email?: string;
+  address?: string;
+  gstin?: string;
   customerType?: CustomerType;
   source?: CustomerSource;
   image?: string;
+}
+
+export interface CustomerMobileLookupResponse {
+  item: CustomerItem | null;
+}
+
+export interface InvoiceCustomerSyncPayload {
+  name: string;
+  mobile: string;
+  email?: string;
+  address?: string;
+  updateExisting: boolean;
+}
+
+export interface InvoiceCustomerSyncResponse {
+  item: CustomerItem;
+  created: boolean;
+  updated: boolean;
 }
 
 @Injectable({
@@ -102,111 +112,107 @@ export interface UpdateCustomerPayload {
 })
 export class CustomerApiService {
 
-  constructor(
-    private readonly http:
-      HttpClient
-  ) { }
+  private readonly endpoint = `${API_BASE_URL}/customers`;
 
+  constructor(
+    private readonly http: HttpClient
+  ) {}
 
   options(): Observable<CustomerOptions> {
     return this.http.get<CustomerOptions>(
-      `${API_BASE_URL}/customers/options`
+      `${this.endpoint}/options`
     );
   }
-
 
   list(
     query: CustomerListQuery
   ): Observable<CustomerListResponse> {
+    let params = new HttpParams()
+      .set('accountId', String(query.accountId))
+      .set('page', String(query.page))
+      .set('limit', String(query.limit))
+      .set('sort', query.sort || 'newest');
 
-    let params =
-      new HttpParams()
-        .set(
-          'accountId',
-          String(query.accountId)
-        )
-        .set(
-          'page',
-          String(query.page)
-        )
-        .set(
-          'limit',
-          String(query.limit)
-        )
-        .set(
-          'sort',
-          query.sort || 'newest'
-        );
-
-    const search =
-      String(
-        query.search || ''
-      ).trim();
+    const search = String(query.search || '').trim();
 
     if (search) {
-      params = params.set(
-        'search',
-        search
-      );
+      params = params.set('search', search);
     }
 
     if (query.type) {
-      params = params.set(
-        'type',
-        query.type
-      );
+      params = params.set('type', query.type);
     }
 
     if (query.source) {
-      params = params.set(
-        'source',
-        query.source
-      );
+      params = params.set('source', query.source);
     }
 
     return this.http.get<CustomerListResponse>(
-      `${API_BASE_URL}/customers`,
+      this.endpoint,
       { params }
     );
   }
 
+  findByMobile(
+    mobile: string
+  ): Observable<CustomerMobileLookupResponse> {
+    const normalizedMobile = this.normalizeMobile(mobile);
+
+    return this.http.get<CustomerMobileLookupResponse>(
+      `${this.endpoint}/by-mobile/${encodeURIComponent(normalizedMobile)}`
+    );
+  }
+
+  syncFromInvoice(
+    payload: InvoiceCustomerSyncPayload
+  ): Observable<InvoiceCustomerSyncResponse> {
+    const normalizedMobile = this.normalizeMobile(payload.mobile);
+
+    return this.http.post<InvoiceCustomerSyncResponse>(
+      `${this.endpoint}/from-invoice`,
+      {
+        name: String(payload.name || '').trim(),
+        mobile: normalizedMobile,
+        email: String(payload.email || '').trim(),
+        address: String(payload.address || '').trim(),
+        updateExisting: payload.updateExisting
+      }
+    );
+  }
 
   create(
     payload: CreateCustomerPayload
   ): Observable<CustomerItem> {
     return this.http.post<CustomerItem>(
-      `${API_BASE_URL}/customers`,
+      this.endpoint,
       payload
     );
   }
-
 
   update(
     id: string,
     payload: UpdateCustomerPayload
   ): Observable<CustomerItem> {
     return this.http.patch<CustomerItem>(
-      `${API_BASE_URL}/customers/${id}`,
+      `${this.endpoint}/${encodeURIComponent(id)}`,
       payload
     );
   }
-
 
   delete(
     id: string
   ): Observable<{ message: string }> {
     return this.http.delete<{ message: string }>(
-      `${API_BASE_URL}/customers/${id}`
+      `${this.endpoint}/${encodeURIComponent(id)}`
     );
   }
-
 
   importExcelRows(
     accountId: string | number,
     rows: Array<Partial<CustomerItem>>
   ): Observable<{ imported: number }> {
     return this.http.post<{ imported: number }>(
-      `${API_BASE_URL}/customers/import/excel`,
+      `${this.endpoint}/import/excel`,
       {
         accountId,
         rows
@@ -214,17 +220,34 @@ export class CustomerApiService {
     );
   }
 
-
   importAiRows(
     accountId: string | number,
     rows: Array<Partial<CustomerItem>>
   ): Observable<{ imported: number }> {
     return this.http.post<{ imported: number }>(
-      `${API_BASE_URL}/customers/import/ai`,
+      `${this.endpoint}/import/ai`,
       {
         accountId,
         rows
       }
     );
+  }
+
+  private normalizeMobile(value: string): string {
+    let mobile = String(value || '').replace(/\D/g, '');
+
+    if (mobile.startsWith('0091')) {
+      mobile = mobile.slice(4);
+    } else if (mobile.startsWith('91') && mobile.length === 12) {
+      mobile = mobile.slice(2);
+    } else if (mobile.startsWith('0') && mobile.length === 11) {
+      mobile = mobile.slice(1);
+    }
+
+    if (!/^[6-9]\d{9}$/.test(mobile)) {
+      throw new Error('Please enter a valid 10-digit Indian mobile number.');
+    }
+
+    return mobile;
   }
 }

@@ -1,19 +1,27 @@
-
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, computed, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { finalize } from 'rxjs';
+import { Observable, finalize } from 'rxjs';
+
 import { InvoiceSettingsService } from '../models/invoice-settings.service';
 import { InvoiceDesignService } from '../invoice-design/services/invoice-design.service';
-import type { InvoicePdfData, InvoicePdfSettings } from '../invoice-design/core/invoice-document.model';
+import type {
+  InvoicePdfData,
+  InvoicePdfSettings,
+} from '../invoice-design/core/invoice-document.model';
 import { InvoiceApiService } from '../models/invoice-api.service';
-import { InvoiceDraftPayload, InvoicePaymentMethod } from '../models/invoice.model';
+import {
+  InvoiceDraftPayload,
+  InvoicePaymentMethod,
+} from '../models/invoice.model';
 import { BusinessProfileService } from '../../dashboard/business-profile/business-profile.service';
 import type { jsPDF } from 'jspdf';
 import {
   MyStockApiService,
   StockItem,
 } from '../../core/my-stock-api.service';
+import { CustomerApiService } from '../../core/customer-api.service';
+import { ConfirmDialogService } from '../../Common/components/confirm-dialog/confirm-dialog.service';
 
 interface InvoiceLine {
   stockItemId: string;
@@ -64,17 +72,11 @@ export class InvoiceGeneratorPage implements OnInit {
   readonly items = signal<InvoiceLine[]>([]);
 
   readonly subtotal = computed(() =>
-    this.items().reduce(
-      (sum, item) => sum + this.lineSubtotal(item),
-      0,
-    ),
+    this.items().reduce((sum, item) => sum + this.lineSubtotal(item), 0),
   );
 
   readonly discountTotal = computed(() =>
-    this.items().reduce(
-      (sum, item) => sum + this.lineDiscount(item),
-      0,
-    ),
+    this.items().reduce((sum, item) => sum + this.lineDiscount(item), 0),
   );
 
   readonly taxableAmount = computed(() =>
@@ -82,10 +84,7 @@ export class InvoiceGeneratorPage implements OnInit {
   );
 
   readonly gstTotal = computed(() =>
-    this.items().reduce(
-      (sum, item) => sum + this.lineTax(item),
-      0,
-    ),
+    this.items().reduce((sum, item) => sum + this.lineTax(item), 0),
   );
 
   readonly unroundedTotal = computed(() =>
@@ -93,22 +92,21 @@ export class InvoiceGeneratorPage implements OnInit {
   );
 
   readonly grandTotal = computed(() => this.unroundedTotal());
-
   readonly roundOff = computed(() => 0);
-
   readonly paidAmount = signal(0);
 
   readonly dueAmount = computed(() =>
-    this.roundMoney(
-      Math.max(0, this.grandTotal() - this.paidAmount()),
-    ),
+    this.roundMoney(Math.max(0, this.grandTotal() - this.paidAmount())),
   );
+
   footerText = 'This is a computer-generated invoice.';
   poweredByText = 'Powered by BRAIN TECHNO | www.braintechno.com-test';
 
   customer: InvoiceCustomer = this.emptyCustomer();
+
   private idempotencyKey = '';
   private idempotencyFingerprint = '';
+
   paymentMethod = 'Cash';
   notes = '';
 
@@ -126,6 +124,8 @@ export class InvoiceGeneratorPage implements OnInit {
     private readonly invoiceApi: InvoiceApiService,
     private readonly businessProfileService: BusinessProfileService,
     private readonly invoiceDesignService: InvoiceDesignService,
+    private readonly customerApi: CustomerApiService,
+    private readonly confirmDialog: ConfirmDialogService,
   ) {}
 
   ngOnInit(): void {
@@ -142,6 +142,31 @@ export class InvoiceGeneratorPage implements OnInit {
     };
   }
 
+  /**
+   * Converts Indian mobile formats to a canonical 10-digit number.
+   * Accepted examples:
+   * 9876543210
+   * +91 9876543210
+   * 919876543210
+   * 09876543210
+   * 0919876543210
+   */
+  private normalizeIndianMobile(value: unknown): string {
+    const digits = String(value ?? '').replace(/\D/g, '');
+
+    let mobile = digits;
+
+    if (digits.length === 13 && digits.startsWith('091')) {
+      mobile = digits.slice(3);
+    } else if (digits.length === 12 && digits.startsWith('91')) {
+      mobile = digits.slice(2);
+    } else if (digits.length === 11 && digits.startsWith('0')) {
+      mobile = digits.slice(1);
+    }
+
+    return /^[6-9]\d{9}$/.test(mobile) ? mobile : '';
+  }
+
   loadStock(): void {
     this.loadingStock.set(true);
     this.error.set('');
@@ -156,20 +181,16 @@ export class InvoiceGeneratorPage implements OnInit {
         error: err => {
           this.error.set(
             err?.error?.message ||
-            'Could not load stock products. Please try again.',
+              'Could not load stock products. Please try again.',
           );
         },
       });
   }
 
   addProduct(stockId: string): void {
-    if (!stockId) {
-      return;
-    }
+    if (!stockId) return;
 
-    const product = this.stockItems().find(
-      item => item.id === stockId,
-    );
+    const product = this.stockItems().find(item => item.id === stockId);
 
     if (!product) {
       this.error.set('Selected product was not found.');
@@ -234,9 +255,7 @@ export class InvoiceGeneratorPage implements OnInit {
     const lines = [...this.items()];
     const item = lines[index];
 
-    if (!item) {
-      return;
-    }
+    if (!item) return;
 
     if (field === 'quantity') {
       item.quantity = Math.floor(
@@ -272,36 +291,31 @@ export class InvoiceGeneratorPage implements OnInit {
   lineSubtotal(item: InvoiceLine): number {
     return this.roundMoney(
       Math.max(0, Number(item.quantity) || 0) *
-      Math.max(0, Number(item.unitPrice) || 0),
+        Math.max(0, Number(item.unitPrice) || 0),
     );
   }
 
   lineDiscount(item: InvoiceLine): number {
     return this.roundMoney(
-      this.lineSubtotal(item) *
-      this.clamp(item.discountPercent, 0, 100) /
-      100,
+      (this.lineSubtotal(item) *
+        this.clamp(item.discountPercent, 0, 100)) /
+        100,
     );
   }
 
   lineTax(item: InvoiceLine): number {
-    if (!item.gstEnabled) {
-      return 0;
-    }
+    if (!item.gstEnabled) return 0;
 
-    const taxable =
-      this.lineSubtotal(item) - this.lineDiscount(item);
+    const taxable = this.lineSubtotal(item) - this.lineDiscount(item);
 
     return this.roundMoney(
-      taxable * this.clamp(item.gstRate, 0, 100) / 100,
+      (taxable * this.clamp(item.gstRate, 0, 100)) / 100,
     );
   }
 
   setPaidAmount(value: number): void {
     this.paidAmount.set(
-      this.roundMoney(
-        this.clamp(value, 0, this.grandTotal()),
-      ),
+      this.roundMoney(this.clamp(value, 0, this.grandTotal())),
     );
   }
 
@@ -330,12 +344,17 @@ export class InvoiceGeneratorPage implements OnInit {
       return;
     }
 
-    if (this.saving()) {
-      return;
-    }
+    if (this.saving()) return;
+
+    const normalizedMobile = this.normalizeIndianMobile(
+      this.customer.mobile,
+    );
 
     const fingerprint = JSON.stringify({
-      customer: this.customer,
+      customer: {
+        ...this.customer,
+        mobile: normalizedMobile || this.customer.mobile.trim(),
+      },
       items: this.items().map(item => ({
         stockItemId: item.stockItemId,
         quantity: item.quantity,
@@ -358,7 +377,7 @@ export class InvoiceGeneratorPage implements OnInit {
     const payload: InvoiceDraftPayload = {
       customer: {
         name: this.customer.name.trim(),
-        mobile: this.customer.mobile.trim(),
+        mobile: normalizedMobile || this.customer.mobile.trim(),
         email: this.customer.email.trim(),
         address: this.customer.address.trim(),
         gstin: this.customer.gstin.trim().toUpperCase(),
@@ -381,9 +400,161 @@ export class InvoiceGeneratorPage implements OnInit {
       idempotencyKey: this.idempotencyKey,
     };
 
+    // Without a valid mobile number there is no safe way to match a customer.
+    // The invoice can still be finalized when the existing validation permits it.
+    if (!normalizedMobile) {
+      this.submitInvoice(payload);
+      return;
+    }
+
     this.saving.set(true);
 
-    this.invoiceApi.finalize(payload)
+    this.customerApi
+      .findByMobile(normalizedMobile)
+      .pipe(finalize(() => this.saving.set(false)))
+      .subscribe({
+        next: result => {
+          // Release the lookup lock before starting another request.
+          this.saving.set(false);
+
+          const existingCustomer = result?.item ?? null;
+
+          if (!existingCustomer) {
+            // No customer exists for this account/mobile: create, then finalize.
+            this.syncCustomerThenFinalize(payload, false);
+            return;
+          }
+
+          const currentName = String(existingCustomer.name ?? '').trim();
+          const currentEmail = String(existingCustomer.email ?? '').trim();
+          const currentAddress = String(existingCustomer.address ?? '').trim();
+
+          const enteredName = payload.customer.name.trim();
+          const enteredEmail = String(payload.customer.email ?? '').trim();
+          const enteredAddress = String(payload.customer.address ?? '').trim();
+
+          const detailsChanged =
+            currentName !== enteredName ||
+            currentEmail.toLowerCase() !== enteredEmail.toLowerCase() ||
+            currentAddress !== enteredAddress;
+
+          if (!detailsChanged) {
+            // Customer details are already identical; finalize without PATCH.
+            this.submitInvoice(payload);
+            return;
+          }
+
+          const displayMobile = `+91${normalizedMobile}`;
+          const existingIdentity = currentName
+            ? `already has customer ${currentName}`
+            : currentEmail
+              ? `already has email ${currentEmail}`
+              : 'already has an existing customer record';
+
+          this.confirmDialog.confirm({
+            title: 'Update Customer Details?',
+            subtitle: `This mobile number ${displayMobile} ${existingIdentity}. Do you want to update this customer's details?`,
+            type: 'warning',
+            icon: 'inform',
+            showCancel: true,
+            successButtonName: 'Yes, Update',
+            cancelButtonName: 'No',
+            success: () => {
+              // Yes: PATCH only Name, Email and Address, then finalize invoice.
+              this.syncCustomerThenFinalize(
+                payload,
+                true,
+                existingCustomer.id,
+              );
+            },
+            cancel: () => {
+              // No: do not call any customer API; finalize invoice only.
+              this.submitInvoice(payload);
+            },
+          });
+        },
+        error: err => {
+          console.error('Customer lookup failed:', err);
+          this.error.set(
+            err?.error?.message ||
+              'Could not verify the customer mobile number. Invoice was not finalized.',
+          );
+        },
+      });
+  }
+
+  private syncCustomerThenFinalize(
+    invoicePayload: InvoiceDraftPayload,
+    updateExisting: boolean,
+    existingCustomerId?: string,
+  ): void {
+    const mobile = this.normalizeIndianMobile(
+      invoicePayload.customer.mobile,
+    );
+
+    if (!mobile) {
+      this.submitInvoice(invoicePayload);
+      return;
+    }
+
+    // Never fall back to creating/syncing when an existing record was meant
+    // to be updated but its ID is missing.
+    if (updateExisting && !existingCustomerId) {
+      this.error.set(
+        'Could not identify the existing customer. Invoice was not finalized.',
+      );
+      return;
+    }
+
+    this.saving.set(true);
+    this.error.set('');
+
+    const customerDetails = {
+      name: invoicePayload.customer.name.trim(),
+      email: String(invoicePayload.customer.email ?? '').trim(),
+      address: String(invoicePayload.customer.address ?? '').trim(),
+    };
+
+    const customerRequest: Observable<unknown> = updateExisting
+      ? this.customerApi.update(existingCustomerId!, {
+          // PATCH only approved fields. Mobile and GSTIN are never sent.
+          name: customerDetails.name,
+          email: customerDetails.email,
+          address: customerDetails.address,
+        })
+      : this.customerApi.syncFromInvoice({
+          name: customerDetails.name,
+          mobile,
+          email: customerDetails.email,
+          address: customerDetails.address,
+          updateExisting: false,
+        });
+
+    customerRequest
+      .pipe(finalize(() => this.saving.set(false)))
+      .subscribe({
+        next: () => {
+          // Release this request's lock before submitInvoice checks saving().
+          this.saving.set(false);
+          this.submitInvoice(invoicePayload);
+        },
+        error: (err: any) => {
+          console.error('Customer synchronization failed:', err);
+          this.error.set(
+            err?.error?.message ||
+              'Could not save customer details. Invoice was not finalized.',
+          );
+        },
+      });
+  }
+
+  private submitInvoice(payload: InvoiceDraftPayload): void {
+    if (this.saving()) return;
+
+    this.saving.set(true);
+
+    this.invoiceApi
+      .finalize(payload)
       .pipe(finalize(() => this.saving.set(false)))
       .subscribe({
         next: response => {
@@ -415,7 +586,7 @@ export class InvoiceGeneratorPage implements OnInit {
 
           this.successDialogMessage.set(
             invoice.calculation.dueAmount > 0
-              ? 'Customer and due details are stored, and stock has been updated.'
+              ? 'Invoice saved successfully. Outstanding balance has been recorded and stock has been updated.'
               : 'Invoice saved successfully. Stock has been updated.',
           );
 
@@ -428,10 +599,9 @@ export class InvoiceGeneratorPage implements OnInit {
         },
         error: err => {
           console.error('Invoice finalization failed:', err);
-
           this.error.set(
             err?.error?.message ||
-            'Invoice could not be finalized. Please try again.',
+              'Invoice could not be finalized. Please try again.',
           );
         },
       });
@@ -444,15 +614,12 @@ export class InvoiceGeneratorPage implements OnInit {
   async openInvoiceForPrint(): Promise<void> {
     const invoice = this.lastInvoice();
 
-    if (!invoice || this.printingInvoice()) {
-      return;
-    }
+    if (!invoice || this.printingInvoice()) return;
 
     this.printingInvoice.set(true);
 
     try {
       const pdf = await this.createInvoicePdf(invoice);
-
       pdf.autoPrint();
 
       const url = pdf.output('bloburl');
@@ -483,9 +650,7 @@ export class InvoiceGeneratorPage implements OnInit {
       return;
     }
 
-    if (this.generatingPdf()) {
-      return;
-    }
+    if (this.generatingPdf()) return;
 
     this.generatingPdf.set(true);
     this.error.set('');
@@ -524,7 +689,6 @@ export class InvoiceGeneratorPage implements OnInit {
       }, 60000);
     } catch (error) {
       console.error('Invoice PDF download error:', error);
-
       this.error.set(
         error instanceof Error
           ? `PDF download failed: ${error.message}`
@@ -538,9 +702,7 @@ export class InvoiceGeneratorPage implements OnInit {
   async shareInvoicePdf(): Promise<void> {
     const invoice = this.lastInvoice();
 
-    if (!invoice || this.sharingPdf()) {
-      return;
-    }
+    if (!invoice || this.sharingPdf()) return;
 
     this.sharingPdf.set(true);
     this.error.set('');
@@ -572,7 +734,6 @@ export class InvoiceGeneratorPage implements OnInit {
         );
       } else {
         pdf.save(`${this.safeFilename(invoice.invoiceNumber)}.pdf`);
-
         this.success.set(
           'PDF downloaded. Attach it in WhatsApp, email, or your preferred app to share.',
         );
@@ -586,7 +747,6 @@ export class InvoiceGeneratorPage implements OnInit {
       }
 
       console.error('Invoice PDF sharing failed:', error);
-
       this.error.set(
         'Could not share the PDF. Try Download PDF and share the downloaded file.',
       );
@@ -606,7 +766,7 @@ export class InvoiceGeneratorPage implements OnInit {
       settings as InvoicePdfSettings,
       businessLogo,
       this.footerText,
-      this.poweredByText
+      this.poweredByText,
     );
   }
 
@@ -615,9 +775,7 @@ export class InvoiceGeneratorPage implements OnInit {
   }
 
   resetInvoice(): void {
-    if (this.saving()) {
-      return;
-    }
+    if (this.saving()) return;
 
     this.customer = this.emptyCustomer();
     this.items.set([]);
@@ -663,20 +821,20 @@ export class InvoiceGeneratorPage implements OnInit {
       }
     }
 
+    const enteredMobile = this.customer.mobile.trim();
+
     if (this.dueAmount() > 0) {
       if (!this.customer.name.trim()) {
         return 'Customer name is required when payment is due.';
       }
 
-      if (!this.customer.mobile.trim()) {
+      if (!enteredMobile) {
         return 'Customer mobile is required when payment is due.';
       }
+    }
 
-      const mobile = this.customer.mobile.replace(/\D/g, '');
-
-      if (mobile.length < 10 || mobile.length > 15) {
-        return 'Enter a valid customer mobile number.';
-      }
+    if (enteredMobile && !this.normalizeIndianMobile(enteredMobile)) {
+      return 'Enter a valid 10-digit Indian mobile number.';
     }
 
     if (
@@ -697,9 +855,7 @@ export class InvoiceGeneratorPage implements OnInit {
   ): number {
     const number = Number(value);
 
-    if (!Number.isFinite(number)) {
-      return minimum;
-    }
+    if (!Number.isFinite(number)) return minimum;
 
     return Math.min(maximum, Math.max(minimum, number));
   }
